@@ -2,12 +2,55 @@
 #define UNICODE
 #endif 
 
+#include<GLFW/glfw3.h>
 #include <windows.h>
 
+// Window Dimentions
+GLFWwindow* window;
+const unsigned int width = 800, height = 800;
+
+int GLFWWindow();
+
+int Win32Window(HINSTANCE hInstance, int nCmdShow);
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
+    return GLFWWindow();
+
+    //return Win32Window(hInstance, nCmdShow);
+}
+
+// Create Window
+int GLFWWindow() {
+
+    // Initialize GLFW
+    glfwInit();
+
+    // Specify GLFW Version and Mode
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Create a Window Object of size 800 x 800
+    window = glfwCreateWindow(width, height, "Infinite Light Render Engine", NULL, NULL);
+
+    // Check if Window Object have created successfully else Terminate the program
+    if (window == NULL) {
+        glfwTerminate();
+        return -1;
+    }
+
+    // Pass Window Object to GLFW to use it and display
+    glfwMakeContextCurrent(window);
+
+    while (!glfwWindowShouldClose(window));
+
+    return 0;
+}
+
+int Win32Window(HINSTANCE hInstance, int nCmdShow) {
+
     // Register the window class.
     const wchar_t CLASS_NAME[] = L"Sample Window Class";
 
@@ -24,11 +67,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     HWND hwnd = CreateWindowEx(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
-        L"Learn to Program Windows",    // Window text
+        L"Infinite Light Render Engine",    // Window text
         WS_OVERLAPPEDWINDOW,            // Window style
 
         // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        CW_USEDEFAULT, CW_USEDEFAULT, width, height,
 
         NULL,       // Parent window    
         NULL,       // Menu
