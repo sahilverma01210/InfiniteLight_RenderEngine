@@ -1,14 +1,3 @@
-//*********************************************************
-//
-// Copyright (c) Microsoft. All rights reserved.
-// This code is licensed under the MIT License (MIT).
-// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-//*********************************************************
-
 #include "stdafx.h"
 #include "DXSample.h"
 
@@ -109,20 +98,10 @@ void DXSample::GetHardwareAdapter(
 void DXSample::SetCustomWindowText(LPCWSTR text)
 {
     std::wstring windowText = m_title + L": " + text;
-    SetWindowText(Win32Application::GetHwnd(), windowText.c_str());
+    SetWindowText(Application::GetHwnd(), windowText.c_str());
 }
 
-// Helper function for parsing any supplied command line args.
-_Use_decl_annotations_
-void DXSample::ParseCommandLineArgs(WCHAR* argv[], int argc)
-{
-    for (int i = 1; i < argc; ++i)
-    {
-        if (_wcsnicmp(argv[i], L"-warp", wcslen(argv[i])) == 0 || 
-            _wcsnicmp(argv[i], L"/warp", wcslen(argv[i])) == 0)
-        {
-            m_useWarpDevice = true;
-            m_title = m_title + L" (WARP)";
-        }
-    }
+void DXSample::SetWarpDevice(bool useWarpDevice) {
+    m_useWarpDevice = true;
+    m_title = m_title + L" (WARP)";
 }

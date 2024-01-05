@@ -1,10 +1,3 @@
-//*********************************************************
-//
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License (MIT).
-//
-//*********************************************************
-
 #ifndef __D3DX12_H__
 #define __D3DX12_H__
 

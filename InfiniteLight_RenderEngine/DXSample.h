@@ -1,18 +1,7 @@
-//*********************************************************
-//
-// Copyright (c) Microsoft. All rights reserved.
-// This code is licensed under the MIT License (MIT).
-// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-//*********************************************************
-
 #pragma once
 
 #include "DXSampleHelper.h"
-#include "Win32Application.h"
+#include "Application.h"
 
 class DXSample
 {
@@ -30,11 +19,9 @@ public:
     virtual void OnKeyUp(UINT8 /*key*/)     {}
 
     // Accessors.
-    UINT GetWidth() const           { return m_width; }
-    UINT GetHeight() const          { return m_height; }
     const WCHAR* GetTitle() const   { return m_title.c_str(); }
 
-    void ParseCommandLineArgs(_In_reads_(argc) WCHAR* argv[], int argc);
+    void SetWarpDevice(bool useWarpDevice);
 
 protected:
     std::wstring GetAssetFullPath(LPCWSTR assetName);
