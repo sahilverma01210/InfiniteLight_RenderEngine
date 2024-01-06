@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Windows.h>
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.h>
 
 #include <iostream>
 #include <fstream>
@@ -52,17 +52,13 @@ public:
 
     VulkanHelloTriangle(uint32_t width, uint32_t height, const char* title);
 
-    void initWindow();
+    void OnInit(HINSTANCE hInstance, HWND hWnd);
 
-    void initVulkan();
+    void OnRender();
 
-    void mainLoop();
-
-    void cleanup();
+    void OnDestroy();
 
 private:
-    GLFWwindow* window;
-
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkSurfaceKHR surface;
@@ -98,7 +94,7 @@ private:
 
     void setupDebugMessenger();
 
-    void createSurface();
+    void createSurface(HINSTANCE hInstance, HWND hWnd);
 
     void pickPhysicalDevice();
 
@@ -121,8 +117,6 @@ private:
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     void createSyncObjects();
-
-    void drawFrame();
 
     VkShaderModule createShaderModule(const std::vector<char>& code);
 
@@ -156,4 +150,7 @@ protected:
 
     // Window title.
     const char* m_title;
+
+    // Frame Buffer Dimentions
+    int m_fbWidth, m_fbHeight;
 };

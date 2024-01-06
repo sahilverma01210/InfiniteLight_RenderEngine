@@ -21,21 +21,16 @@ VulkanHelloTriangle::VulkanHelloTriangle(uint32_t width, uint32_t height, const 
     m_width = width;
     m_height = height;
     m_title = title;
+
+    RECT windowRect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
+    m_width = windowRect.right - windowRect.left;
+    m_height = windowRect.bottom - windowRect.top;
 }
 
-void VulkanHelloTriangle::initWindow() {
-    glfwInit();
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    window = glfwCreateWindow(m_width, m_height, m_title, nullptr, nullptr);
-}
-
-void VulkanHelloTriangle::initVulkan() {
+void VulkanHelloTriangle::OnInit(HINSTANCE hInstance, HWND hWnd) {
     createInstance();
     setupDebugMessenger();
-    createSurface();
+    createSurface(hInstance, hWnd);
     pickPhysicalDevice();
     createLogicalDevice();
     createSwapChain();
@@ -48,16 +43,10 @@ void VulkanHelloTriangle::initVulkan() {
     createSyncObjects();
 }
 
-void VulkanHelloTriangle::mainLoop() {
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-        drawFrame();
-    }
+void VulkanHelloTriangle::OnDestroy() {
 
     vkDeviceWaitIdle(device);
-}
 
-void VulkanHelloTriangle::cleanup() {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
@@ -87,10 +76,6 @@ void VulkanHelloTriangle::cleanup() {
 
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
-
-    glfwDestroyWindow(window);
-
-    glfwTerminate();
 }
 
 void VulkanHelloTriangle::createInstance() {
@@ -152,8 +137,15 @@ void VulkanHelloTriangle::setupDebugMessenger() {
     }
 }
 
-void VulkanHelloTriangle::createSurface() {
-    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+void VulkanHelloTriangle::createSurface(HINSTANCE hInstance, HWND hWnd) {
+
+    VkWin32SurfaceCreateInfoKHR createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    createInfo.hinstance = hInstance;
+    createInfo.hwnd = hWnd;
+
+    if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS) {
+
         throw std::runtime_error("failed to create window surface!");
     }
 }
@@ -572,7 +564,7 @@ void VulkanHelloTriangle::createSyncObjects() {
     }
 }
 
-void VulkanHelloTriangle::drawFrame() {
+void VulkanHelloTriangle::OnRender() {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -658,13 +650,9 @@ VkExtent2D VulkanHelloTriangle::chooseSwapExtent(const VkSurfaceCapabilitiesKHR&
         return capabilities.currentExtent;
     }
     else {
-        int width, height;
-
-        glfwGetFramebufferSize(window, &width, &height);
-
         VkExtent2D actualExtent = {
-            static_cast<uint32_t>(width),
-            static_cast<uint32_t>(height)
+            static_cast<uint32_t>(m_fbWidth),
+            static_cast<uint32_t>(m_fbHeight)
         };
 
         actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
@@ -761,13 +749,12 @@ QueueFamilyIndices VulkanHelloTriangle::findQueueFamilies(VkPhysicalDevice devic
 }
 
 std::vector<const char*> VulkanHelloTriangle::getRequiredExtensions() {
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    std::vector<const char*> extensions;
 
     if (enableValidationLayers) {
+        extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+        extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 

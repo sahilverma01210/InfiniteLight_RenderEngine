@@ -39,9 +39,6 @@
     <ClInclude Include="VulkanHelloTriangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EmptyWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D12HelloTriangle.cpp">

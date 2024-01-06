@@ -9,7 +9,7 @@ public:
     DXSample(UINT width, UINT height, std::wstring name);
     virtual ~DXSample();
 
-    virtual void OnInit() = 0;
+    virtual void OnInit(HINSTANCE hInstance, HWND hWnd) = 0;
     virtual void OnUpdate() = 0;
     virtual void OnRender() = 0;
     virtual void OnDestroy() = 0;
