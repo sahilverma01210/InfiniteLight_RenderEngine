@@ -17,17 +17,20 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
     }
 }
 
-VulkanHelloTriangle::VulkanHelloTriangle(uint32_t width, uint32_t height, const char* title) {
+VulkanHelloTriangle::VulkanHelloTriangle(UINT width, UINT height) {
     m_width = width;
     m_height = height;
-    m_title = title;
 
     RECT windowRect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
     m_width = windowRect.right - windowRect.left;
     m_height = windowRect.bottom - windowRect.top;
 }
 
-void VulkanHelloTriangle::OnInit(HINSTANCE hInstance, HWND hWnd) {
+VulkanHelloTriangle::~VulkanHelloTriangle() {
+
+}
+
+void VulkanHelloTriangle::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
     createInstance();
     setupDebugMessenger();
     createSurface(hInstance, hWnd);
@@ -96,12 +99,12 @@ void VulkanHelloTriangle::createInstance() {
     createInfo.pApplicationInfo = &appInfo;
 
     auto extensions = getRequiredExtensions();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.enabledExtensionCount = static_cast<UINT>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
     if (enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.enabledLayerCount = static_cast<UINT>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
@@ -151,7 +154,7 @@ void VulkanHelloTriangle::createSurface(HINSTANCE hInstance, HWND hWnd) {
 }
 
 void VulkanHelloTriangle::pickPhysicalDevice() {
-    uint32_t deviceCount = 0;
+    UINT deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) {
@@ -177,10 +180,10 @@ void VulkanHelloTriangle::createLogicalDevice() {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+    std::set<UINT> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
     float queuePriority = 1.0f;
-    for (uint32_t queueFamily : uniqueQueueFamilies) {
+    for (UINT queueFamily : uniqueQueueFamilies) {
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -194,16 +197,16 @@ void VulkanHelloTriangle::createLogicalDevice() {
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.queueCreateInfoCount = static_cast<UINT>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.enabledExtensionCount = static_cast<UINT>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     if (enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.enabledLayerCount = static_cast<UINT>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
     }
     else {
@@ -225,7 +228,7 @@ void VulkanHelloTriangle::createSwapChain() {
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+    UINT imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
@@ -242,7 +245,7 @@ void VulkanHelloTriangle::createSwapChain() {
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-    uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+    UINT queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
     if (indices.graphicsFamily != indices.presentFamily) {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -411,7 +414,7 @@ void VulkanHelloTriangle::createGraphicsPipeline() {
     };
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+    dynamicState.dynamicStateCount = static_cast<UINT>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -490,14 +493,14 @@ void VulkanHelloTriangle::createCommandBuffers() {
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+    allocInfo.commandBufferCount = (UINT)commandBuffers.size();
 
     if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }
 
-void VulkanHelloTriangle::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+void VulkanHelloTriangle::recordCommandBuffer(VkCommandBuffer commandBuffer, UINT imageIndex) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -564,11 +567,15 @@ void VulkanHelloTriangle::createSyncObjects() {
     }
 }
 
+void VulkanHelloTriangle::OnUpdate() {
+
+}
+
 void VulkanHelloTriangle::OnRender() {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
-    uint32_t imageIndex;
+    UINT imageIndex;
     vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
@@ -615,7 +622,7 @@ VkShaderModule VulkanHelloTriangle::createShaderModule(const std::vector<char>& 
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+    createInfo.pCode = reinterpret_cast<const UINT*>(code.data());
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
@@ -646,13 +653,13 @@ VkPresentModeKHR VulkanHelloTriangle::chooseSwapPresentMode(const std::vector<Vk
 }
 
 VkExtent2D VulkanHelloTriangle::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
-    if (capabilities.currentExtent.width != (std::numeric_limits<uint32_t>::max)()) {
+    if (capabilities.currentExtent.width != (std::numeric_limits<UINT>::max)()) {
         return capabilities.currentExtent;
     }
     else {
         VkExtent2D actualExtent = {
-            static_cast<uint32_t>(m_fbWidth),
-            static_cast<uint32_t>(m_fbHeight)
+            static_cast<UINT>(m_fbWidth),
+            static_cast<UINT>(m_fbHeight)
         };
 
         actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
@@ -667,7 +674,7 @@ SwapChainSupportDetails VulkanHelloTriangle::querySwapChainSupport(VkPhysicalDev
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
-    uint32_t formatCount;
+    UINT formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
     if (formatCount != 0) {
@@ -675,7 +682,7 @@ SwapChainSupportDetails VulkanHelloTriangle::querySwapChainSupport(VkPhysicalDev
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
     }
 
-    uint32_t presentModeCount;
+    UINT presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
 
     if (presentModeCount != 0) {
@@ -701,7 +708,7 @@ bool VulkanHelloTriangle::isDeviceSuitable(VkPhysicalDevice device) {
 }
 
 bool VulkanHelloTriangle::checkDeviceExtensionSupport(VkPhysicalDevice device) {
-    uint32_t extensionCount;
+    UINT extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
@@ -719,7 +726,7 @@ bool VulkanHelloTriangle::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 QueueFamilyIndices VulkanHelloTriangle::findQueueFamilies(VkPhysicalDevice device) {
     QueueFamilyIndices indices;
 
-    uint32_t queueFamilyCount = 0;
+    UINT queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -762,7 +769,7 @@ std::vector<const char*> VulkanHelloTriangle::getRequiredExtensions() {
 }
 
 bool VulkanHelloTriangle::checkValidationLayerSupport() {
-    uint32_t layerCount;
+    UINT layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);

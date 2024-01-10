@@ -1,27 +1,15 @@
 #include "Application.h"
 
-#if VULKAN_API
-    #include "VulkanHelloTriangle.h"
-#else
-    #include "D3D12HelloTriangle.h"
-#endif
-
 HWND Application::m_hwnd = nullptr;
 
 int Application::Run(HINSTANCE hInstance, int nCmdShow)
 {
-#if VULKAN_API
-    VulkanHelloTriangle app(WIDTH, HEIGHT, TITLE);
-#else
-    D3D12HelloTriangle app(WIDTH, HEIGHT, std::wstring(TITLE, TITLE + strlen(TITLE)));
-#endif
+    RHI rhi(WIDTH, HEIGHT);
 
     // Parse the command line parameters
     int argc;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-#if !(VULKAN_API)
-    app.SetWarpDevice(ParseCommandLineArgs(argv, argc));
-#endif
+    bool useWarpDevice = ParseCommandLineArgs(argv, argc);
     LocalFree(argv);
 
     // Initialize the window class.
@@ -49,10 +37,10 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
         nullptr,        // We have no parent window.
         nullptr,        // We aren't using menus.
         hInstance,
-        &app);
+        &rhi);
 
     // Initialize the sample. OnInit is defined in each child-implementation of DXSample.
-    app.OnInit(hInstance, m_hwnd);
+    rhi.OnInit(hInstance, m_hwnd, useWarpDevice);
 
     ShowWindow(m_hwnd, nCmdShow);
 
@@ -68,10 +56,41 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
         }
     }
 
-    app.OnDestroy();
+    rhi.OnDestroy();
 
     // Return this part of the WM_QUIT message to Windows.
     return static_cast<char>(msg.wParam);
+}
+
+// Main message handler for the sample.
+LRESULT CALLBACK Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    RHI* pRHI = reinterpret_cast<RHI*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+    switch (message)
+    {
+    case WM_CREATE:
+        {
+            // Save the DXSample* passed in to CreateWindow.
+            LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+        }
+        return 0;
+
+    case WM_PAINT:
+        if (pRHI)
+        {
+            pRHI->OnRender();
+        }
+        return 0;
+
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+
+    // Handle any messages the switch statement didn't.
+    return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 // Helper function for parsing any supplied command line args.
@@ -85,39 +104,4 @@ bool Application::ParseCommandLineArgs(WCHAR* argv[], int argc)
             return true;
         }
     }
-}
-
-// Main message handler for the sample.
-LRESULT CALLBACK Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-#if VULKAN_API
-    VulkanHelloTriangle* pApp = reinterpret_cast<VulkanHelloTriangle*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-#else
-    DXSample* pApp = reinterpret_cast<DXSample*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-#endif
-
-    switch (message)
-    {
-    case WM_CREATE:
-        {
-            // Save the DXSample* passed in to CreateWindow.
-            LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
-        }
-        return 0;
-
-    case WM_PAINT:
-        if (pApp)
-        {
-            pApp->OnRender();
-        }
-        return 0;
-
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-    }
-
-    // Handle any messages the switch statement didn't.
-    return DefWindowProc(hWnd, message, wParam, lParam);
 }

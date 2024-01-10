@@ -1,27 +1,46 @@
 #pragma once
 
-#include "DXSample.h"
+#include "stdafx.h"
+#include "DXSampleHelper.h"
 
-using namespace DirectX;
-
-// Note that while ComPtr is used to manage the lifetime of resources on the CPU,
+// Note that while ComPtr from Microsoft::WRL is used to manage the lifetime of resources on the CPU,
 // it has no understanding of the lifetime of resources on the GPU. Apps must account
 // for the GPU lifetime of resources to avoid destroying objects that may still be
 // referenced by the GPU.
 // An example of this can be found in the class method: OnDestroy().
-using Microsoft::WRL::ComPtr;
+using namespace Microsoft::WRL;
 
-class D3D12HelloTriangle : public DXSample
+using namespace DirectX;
+
+class D3D12HelloTriangle
 {
 public:
-    D3D12HelloTriangle(UINT width, UINT height, std::wstring name);
+    D3D12HelloTriangle(UINT width, UINT height);
+    ~D3D12HelloTriangle();
 
-    virtual void OnInit(HINSTANCE hInstance, HWND hWnd);
-    virtual void OnUpdate();
-    virtual void OnRender();
-    virtual void OnDestroy();
+    void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
+    void OnUpdate();
+    void OnRender();
+    void OnDestroy();
+
+    // Samples override the event handlers to handle specific messages.
+    void OnKeyDown(UINT8 /*key*/) {}
+    void OnKeyUp(UINT8 /*key*/) {}
 
 private:
+    // Viewport dimensions.
+    UINT m_width;
+    UINT m_height;
+    float m_aspectRatio;
+
+    HWND m_hWnd;
+
+    // Adapter info.
+    bool m_useWarpDevice;
+
+    // Root assets path.
+    std::wstring m_assetsPath;
+
     static const UINT FrameCount = 2;
 
     struct Vertex
@@ -53,6 +72,15 @@ private:
     HANDLE m_fenceEvent;
     ComPtr<ID3D12Fence> m_fence;
     UINT64 m_fenceValue;
+    
+    std::wstring GetAssetFullPath(LPCWSTR assetName);
+
+    void GetHardwareAdapter(
+        _In_ IDXGIFactory1* pFactory,
+        _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
+        bool requestHighPerformanceAdapter = false);
+
+    void SetCustomWindowText(LPCWSTR text);
 
     void LoadPipeline();
     void LoadAssets();

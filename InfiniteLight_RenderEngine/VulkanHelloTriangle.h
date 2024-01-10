@@ -1,20 +1,6 @@
 #pragma once
 
-#include <Windows.h>
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.h>
-
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include <algorithm>
-#include <vector>
-#include <cstring>
-#include <cstdlib>
-#include <cstdint>
-#include <limits>
-#include <optional>
-#include <set>
+#include "stdafx.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -33,8 +19,8 @@ const bool enableValidationLayers = true;
 #endif
 
 struct QueueFamilyIndices {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
+    std::optional<UINT> graphicsFamily;
+    std::optional<UINT> presentFamily;
 
     bool isComplete() {
         return graphicsFamily.has_value() && presentFamily.has_value();
@@ -50,15 +36,26 @@ struct SwapChainSupportDetails {
 class VulkanHelloTriangle {
 public:
 
-    VulkanHelloTriangle(uint32_t width, uint32_t height, const char* title);
+    VulkanHelloTriangle(UINT width, UINT height);
+    ~VulkanHelloTriangle();
 
-    void OnInit(HINSTANCE hInstance, HWND hWnd);
-
+    void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
+    void OnUpdate();
     void OnRender();
-
     void OnDestroy();
 
+    // Samples override the event handlers to handle specific messages.
+    void OnKeyDown(UINT8 /*key*/) {}
+    void OnKeyUp(UINT8 /*key*/) {}
+
 private:
+    // Viewport dimensions.
+    UINT m_width;
+    UINT m_height;
+
+    // Frame Buffer Dimentions
+    int m_fbWidth, m_fbHeight;
+
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkSurfaceKHR surface;
@@ -86,7 +83,7 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
-    uint32_t currentFrame = 0;
+    UINT currentFrame = 0;
 
     void createInstance();
 
@@ -114,7 +111,7 @@ private:
 
     void createCommandBuffers();
 
-    void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    void recordCommandBuffer(VkCommandBuffer commandBuffer, UINT imageIndex);
 
     void createSyncObjects();
 
@@ -141,16 +138,4 @@ private:
     static std::vector<char> readFile(const std::string& filename);
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
-
-protected:
-
-    // Viewport dimensions.
-    uint32_t m_width;
-    uint32_t m_height;
-
-    // Window title.
-    const char* m_title;
-
-    // Frame Buffer Dimentions
-    int m_fbWidth, m_fbHeight;
 };

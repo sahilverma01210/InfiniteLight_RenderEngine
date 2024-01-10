@@ -1,7 +1,5 @@
 #pragma once
 
-#define VULKAN_API true
-
 // Viewport dimensions.
 #define WIDTH 1280
 #define HEIGHT 720
@@ -10,7 +8,7 @@
 #define TITLE "Triangle"
 
 #include "stdafx.h"
-#include "DXSample.h"
+#include "RHI.h"
 
 class Application
 {
