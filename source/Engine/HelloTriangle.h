@@ -2,6 +2,20 @@
 
 #include "stdafx.h"
 
+#if !VULKAN_API
+    #include "DXSampleHelper.h"
+
+    // Note that while ComPtr from Microsoft::WRL is used to manage the lifetime of resources on the CPU,
+    // it has no understanding of the lifetime of resources on the GPU. Apps must account
+    // for the GPU lifetime of resources to avoid destroying objects that may still be
+    // referenced by the GPU.
+    // An example of this can be found in the class method: OnDestroy().
+    using namespace Microsoft::WRL;
+
+    using namespace DirectX;
+#endif
+
+#if VULKAN_API
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
@@ -32,12 +46,13 @@ struct SwapChainSupportDetails {
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
 };
+#endif
 
-class VulkanHelloTriangle {
+class HelloTriangle
+{
 public:
-
-    VulkanHelloTriangle(UINT width, UINT height);
-    ~VulkanHelloTriangle();
+    HelloTriangle(UINT width, UINT height);
+    ~HelloTriangle();
 
     void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
     void OnUpdate();
@@ -52,6 +67,10 @@ private:
     // Viewport dimensions.
     UINT m_width;
     UINT m_height;
+
+#if VULKAN_API
+
+    UINT currentFrame = 0;
 
     // Frame Buffer Dimentions
     int m_fbWidth, m_fbHeight;
@@ -83,8 +102,51 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
-    UINT currentFrame = 0;
+#else
+    float m_aspectRatio;
 
+    HWND m_hWnd;
+
+    // Adapter info.
+    bool m_useWarpDevice;
+
+    // Root assets path.
+    std::wstring m_assetsPath;
+
+    static const UINT FrameCount = 2;
+
+    struct Vertex
+    {
+        XMFLOAT3 position;
+        XMFLOAT4 color;
+    };
+
+    // Pipeline objects.
+    CD3DX12_VIEWPORT m_viewport;
+    CD3DX12_RECT m_scissorRect;
+    ComPtr<IDXGISwapChain3> m_swapChain;
+    ComPtr<ID3D12Device> m_device;
+    ComPtr<ID3D12Resource> m_renderTargets[FrameCount];
+    ComPtr<ID3D12CommandAllocator> m_commandAllocator;
+    ComPtr<ID3D12CommandQueue> m_commandQueue;
+    ComPtr<ID3D12RootSignature> m_rootSignature;
+    ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
+    ComPtr<ID3D12PipelineState> m_pipelineState;
+    ComPtr<ID3D12GraphicsCommandList> m_commandList;
+    UINT m_rtvDescriptorSize;
+
+    // App resources.
+    ComPtr<ID3D12Resource> m_vertexBuffer;
+    D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+
+    // Synchronization objects.
+    UINT m_frameIndex;
+    HANDLE m_fenceEvent;
+    ComPtr<ID3D12Fence> m_fence;
+    UINT64 m_fenceValue;
+#endif
+
+#if VULKAN_API
     void createInstance();
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
@@ -138,4 +200,19 @@ private:
     static std::vector<char> readFile(const std::string& filename);
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+#else
+    std::wstring GetAssetFullPath(LPCWSTR assetName);
+
+    void GetHardwareAdapter(
+        _In_ IDXGIFactory1* pFactory,
+        _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
+        bool requestHighPerformanceAdapter = false);
+
+    void SetCustomWindowText(LPCWSTR text);
+
+    void LoadPipeline();
+    void LoadAssets();
+    void PopulateCommandList();
+    void WaitForPreviousFrame();
+#endif
 };

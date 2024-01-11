@@ -1,11 +1,7 @@
 #include "RHI.h"
 
 RHI::RHI(UINT width, UINT height) {
-#if VULKAN_API
-    app = new VulkanHelloTriangle(width, height);
-#else
-    app = new D3D12HelloTriangle(width, height);
-#endif
+    app = new HelloTriangle(width, height);
 }
 
 void RHI::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
