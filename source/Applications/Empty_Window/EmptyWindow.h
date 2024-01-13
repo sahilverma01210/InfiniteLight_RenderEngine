@@ -4,7 +4,7 @@
 #define UNICODE
 #endif 
 
-bool GLFW_API = true;
+bool GLFW_API = false;
 
 #include<GLFW/glfw3.h>
 #include <windows.h>

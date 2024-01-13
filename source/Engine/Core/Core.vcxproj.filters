@@ -14,7 +14,13 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Resource Files\Shaders">
-      <UniqueIdentifier>{8af6283a-3685-41ff-90c7-cec2628748e4}</UniqueIdentifier>
+      <UniqueIdentifier>{123bff13-fc1f-4b7f-8dc3-b0960f9c776d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\HLSL">
+      <UniqueIdentifier>{b65a1219-b251-4b72-b77a-b1df2695d72d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\GLSL">
+      <UniqueIdentifier>{ab1214f3-432d-4937-9790-34950c4bdc14}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -55,8 +61,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\shaders.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
+    <CustomBuild Include="shaders\HLSL\PixelShader.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\VertexShader.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\GLSL\shader.frag">
+      <Filter>Resource Files\Shaders\GLSL</Filter>
+    </None>
+    <None Include="shaders\GLSL\shader.vert">
+      <Filter>Resource Files\Shaders\GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

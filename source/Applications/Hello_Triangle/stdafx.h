@@ -10,7 +10,7 @@
 
 #include <windows.h>
 
-#define VULKAN_API false
+#define VULKAN_API true
 
 #include <shellapi.h>
 

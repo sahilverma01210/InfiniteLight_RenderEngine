@@ -16,6 +16,12 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{bd9e6aba-e56a-4a5d-99c1-59281a6d7287}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\HLSL">
+      <UniqueIdentifier>{080de81c-58ad-4575-907c-9bb889b979db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\GLSL">
+      <UniqueIdentifier>{e77bc155-10ac-473c-bc9d-46a7dcd4f8d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -46,8 +52,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\shaders.hlsl">
-      <Filter>Resource Files\Shaders</Filter>
+    <CustomBuild Include="shaders\HLSL\PixelShader.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\VertexShader.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\GLSL\shader.frag">
+      <Filter>Resource Files\Shaders\GLSL</Filter>
+    </None>
+    <None Include="shaders\GLSL\shader.vert">
+      <Filter>Resource Files\Shaders\GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>
