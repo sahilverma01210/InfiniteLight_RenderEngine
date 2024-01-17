@@ -20,7 +20,10 @@
       <UniqueIdentifier>{080de81c-58ad-4575-907c-9bb889b979db}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\Shaders\GLSL">
-      <UniqueIdentifier>{e77bc155-10ac-473c-bc9d-46a7dcd4f8d9}</UniqueIdentifier>
+      <UniqueIdentifier>{151c53de-48bf-4008-b652-ba1b752fb73f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\GLSL\SPIR-V">
+      <UniqueIdentifier>{12e8307c-8ba5-4ea7-b9cc-d463be0d320b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,19 +55,23 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\PixelShader.hlsl">
+    <CustomBuild Include="..\..\..\shaders\HLSL\PixelShader.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\VertexShader.hlsl">
+    <CustomBuild Include="..\..\..\shaders\HLSL\VertexShader.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\GLSL\shader.frag">
+    <CustomBuild Include="..\..\..\shaders\GLSL\SPIRV\frag.spv">
+      <Filter>Resource Files\Shaders\GLSL\SPIR-V</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\shaders\GLSL\SPIRV\vert.spv">
+      <Filter>Resource Files\Shaders\GLSL\SPIR-V</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\shaders\GLSL\shader.frag">
       <Filter>Resource Files\Shaders\GLSL</Filter>
-    </None>
-    <None Include="shaders\GLSL\shader.vert">
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\shaders\GLSL\shader.vert">
       <Filter>Resource Files\Shaders\GLSL</Filter>
-    </None>
+    </CustomBuild>
   </ItemGroup>
 </Project>

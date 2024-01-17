@@ -17,6 +17,8 @@
 #if VULKAN_API // Vulkan App Includes
 	#define VK_USE_PLATFORM_WIN32_KHR
 	#include <vulkan/vulkan.h>
+	#include <glslang/Public/ShaderLang.h>
+	//#include <shaderc/shaderc.h> // Gives Linker Error because Lib from Lunarg Vulkan SDK is not compatible. Can try building from source repo. 
 
 	#include <iostream>
 	#include <fstream>

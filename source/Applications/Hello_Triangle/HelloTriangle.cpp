@@ -1,6 +1,46 @@
 #include "HelloTriangle.h"
 
+// Helper function for resolving the full path of assets.
+std::wstring HelloTriangle::GetAssetFullPath(LPCWSTR assetName)
+{
+    return m_assetsPath + assetName;
+}
+
 #if VULKAN_API
+//const std::vector<char>* CompileGLSLtoSPIRV(const char* pGLSLCode) {
+//    // Create a Shaderc compiler
+//    shaderc_compiler_t compiler = shaderc_compiler_initialize();
+//    if (!compiler) {
+//        // Handle error
+//        return nullptr;
+//    }
+//
+//    // Compile GLSL source code to SPIR-V
+//    shaderc_compile_options_t options = shaderc_compile_options_initialize();
+//    shaderc_compilation_result_t result = shaderc_compile_into_spv(
+//        compiler, pGLSLCode, strlen(pGLSLCode), shaderc_glsl_vertex_shader, "example_shader", "main", options);
+//
+//    // Check compilation result
+//    if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status_success) {
+//        // Handle compilation error
+//        const char* error_message = shaderc_result_get_error_message(result);
+//        // Handle the error message
+//        printf("Compilation error: %s\n", error_message);
+//
+//        // Clean up
+//        shaderc_include_result_release_fn(result);
+//        shaderc_compiler_release(compiler);
+//
+//        return nullptr;
+//    }
+//
+//    const char* charResult = shaderc_result_get_bytes(result);
+//    const std::vector<char> spirvCode(charResult, charResult + strlen(charResult));
+//
+//    // Access the compiled SPIR-V binary
+//    return nullptr;
+//}
+
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
@@ -280,8 +320,29 @@ void HelloTriangle::createRenderPass() {
 }
 
 void HelloTriangle::createGraphicsPipeline() {
-    auto vertShaderCode = readFile("shaders/GLSL/vert.spv");
-    auto fragShaderCode = readFile("shaders/GLSL/frag.spv");
+        
+    //const std::vector<char>*  vertShaderCode = CompileGLSLtoSPIRV(readFile("shader.vert").data());
+    //const std::vector<char>*  fragShaderCode = CompileGLSLtoSPIRV(readFile("shader.frag").data());
+
+    /*
+    // Locate GLSL Files.
+    std::wstring vertexShaderPath = GetAssetFullPath(L"shader.vert");
+    std::wstring fragmentShaderPath = GetAssetFullPath(L"shader.frag");
+
+    // Prepare Command to Compile GLSL (.vert, .frag) to SPIRV (.spv) File.
+    std::wstring compileVertCmd = L"C:/VulkanSDK/1.3.268.0/Bin/glslc.exe " + vertexShaderPath + L" -o vert.spv";
+    std::wstring compileFragCmd = L"C:/VulkanSDK/1.3.268.0/Bin/glslc.exe " + fragmentShaderPath + L" -o frag.spv";
+
+    // For Debugging Purpose (Prints Output in Intermediate Window).
+    OutputDebugString(compileVertCmd.c_str());
+
+    // Execute Compilation Command to output .spv files.
+    std::system(compileVertCmd.c_str); // --> Throws Error - Need to convert std::wstring to std::string.
+    std::system(compileFragCmd.c_str); // --> Throws Error - Need to convert std::wstring to std::string.
+    */
+
+    auto vertShaderCode = readFile(GetAssetFullPath(L"vert.spv"));
+    auto fragShaderCode = readFile(GetAssetFullPath(L"frag.spv"));
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -679,7 +740,7 @@ bool HelloTriangle::checkValidationLayerSupport() {
     return true;
 }
 
-std::vector<char> HelloTriangle::readFile(const std::string& filename) {
+std::vector<char> HelloTriangle::readFile(const std::wstring& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
@@ -703,12 +764,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL HelloTriangle::debugCallback(VkDebugUtilsMessageS
     return VK_FALSE;
 }
 #else
-// Helper function for resolving the full path of assets.
-std::wstring HelloTriangle::GetAssetFullPath(LPCWSTR assetName)
-{
-    return m_assetsPath + assetName;
-}
-
 // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
 // If no such adapter can be found, *ppAdapter will be set to nullptr.
 _Use_decl_annotations_
@@ -1071,14 +1126,15 @@ HelloTriangle::HelloTriangle(UINT width, UINT height) :
     m_rtvDescriptorSize(0)
 #endif
 {
+    WCHAR assetsPath[512];
+    GetAssetsPath(assetsPath, _countof(assetsPath));
+    m_assetsPath = assetsPath;
+
 #if VULKAN_API
     RECT windowRect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
     m_width = windowRect.right - windowRect.left;
     m_height = windowRect.bottom - windowRect.top;
 #else
-    WCHAR assetsPath[512];
-    GetAssetsPath(assetsPath, _countof(assetsPath));
-    m_assetsPath = assetsPath;
 
     m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 #endif

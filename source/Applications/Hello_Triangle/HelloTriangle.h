@@ -48,6 +48,27 @@ struct SwapChainSupportDetails {
 };
 #endif
 
+inline void GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, UINT pathSize)
+{
+    if (path == nullptr)
+    {
+        throw std::exception();
+    }
+
+    DWORD size = GetModuleFileName(nullptr, path, pathSize);
+    if (size == 0 || size == pathSize)
+    {
+        // Method failed or path was truncated.
+        throw std::exception();
+    }
+
+    WCHAR* lastSlash = wcsrchr(path, L'\\');
+    if (lastSlash)
+    {
+        *(lastSlash + 1) = L'\0';
+    }
+}
+
 class HelloTriangle
 {
 public:
@@ -67,6 +88,11 @@ private:
     // Viewport dimensions.
     UINT m_width;
     UINT m_height;
+
+    // Root assets path.
+    std::wstring m_assetsPath;
+
+    std::wstring GetAssetFullPath(LPCWSTR assetName);
 
 #if VULKAN_API
 
@@ -109,9 +135,6 @@ private:
 
     // Adapter info.
     bool m_useWarpDevice;
-
-    // Root assets path.
-    std::wstring m_assetsPath;
 
     static const UINT FrameCount = 2;
 
@@ -197,12 +220,10 @@ private:
 
     bool checkValidationLayerSupport();
 
-    static std::vector<char> readFile(const std::string& filename);
+    static std::vector<char> readFile(const std::wstring& filename);
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 #else
-    std::wstring GetAssetFullPath(LPCWSTR assetName);
-
     void GetHardwareAdapter(
         _In_ IDXGIFactory1* pFactory,
         _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
