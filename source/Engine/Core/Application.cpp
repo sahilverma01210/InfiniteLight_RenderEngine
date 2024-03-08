@@ -9,7 +9,8 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
     // Parse the command line parameters
     int argc;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-    bool useWarpDevice = ParseCommandLineArgs(argv, argc);
+    //bool useWarpDevice = ParseCommandLineArgs(argv, argc);
+    bool useWarpDevice = false; // Use Windows Advanced Rasterization Platform (WARP) - By default uses Microsoft Basic Render Driver.
     LocalFree(argv);
 
     // Initialize the window class.

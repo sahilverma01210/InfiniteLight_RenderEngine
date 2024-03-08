@@ -132,6 +132,10 @@ void HelloTriangle::GetHardwareAdapter(
     *ppAdapter = adapter.Detach();
 }
 
+/*
+* DirectX Graphics Infrastructure (DXGI) - Core component of DirectX API. Serves as an intermediary layer between Graphics APIs and the Graphics Hardware.
+*/
+
 // Load the rendering pipeline dependencies.
 void HelloTriangle::LoadPipeline()
 {
@@ -152,6 +156,7 @@ void HelloTriangle::LoadPipeline()
     }
 #endif
 
+    // IDXGIFactory is an interface in the DirectX Graphics Infrastructure (DXGI) API, which is used for creating DXGI objects, such as swap chains, surfaces, and adapters.
     ComPtr<IDXGIFactory4> factory;
     ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 
