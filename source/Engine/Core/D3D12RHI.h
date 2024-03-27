@@ -34,11 +34,11 @@ inline void GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, UINT pathSize)
     }
 }
 
-class HelloTriangle
+class D3D12RHI
 {
 public:
-    HelloTriangle(UINT width, UINT height);
-    ~HelloTriangle();
+    D3D12RHI(UINT width, UINT height);
+    ~D3D12RHI();
 
     void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
     void OnUpdate();

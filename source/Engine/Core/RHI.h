@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HelloTriangle.h"
+#include "D3D12RHI.h"
 
 class RHI {
 public:
@@ -11,5 +11,5 @@ public:
 	void OnRender();
 	void OnDestroy();
 private:
-	HelloTriangle* app;
+	D3D12RHI* app;
 };

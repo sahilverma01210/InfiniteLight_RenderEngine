@@ -1,6 +1,6 @@
-#include "HelloTriangle.h"
+#include "D3D12RHI.h"
 
-HelloTriangle::HelloTriangle(UINT width, UINT height) :
+D3D12RHI::D3D12RHI(UINT width, UINT height) :
     m_width(width),
     m_height(height),
     m_useWarpDevice(false),
@@ -16,11 +16,11 @@ HelloTriangle::HelloTriangle(UINT width, UINT height) :
     m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 }
 
-HelloTriangle::~HelloTriangle() {
+D3D12RHI::~D3D12RHI() {
 
 }
 
-void HelloTriangle::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
+void D3D12RHI::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
     m_hWnd = hWnd;
 
     // SetWarpDevice
@@ -30,7 +30,7 @@ void HelloTriangle::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
     LoadAssets();
 }
 
-void HelloTriangle::OnDestroy() {
+void D3D12RHI::OnDestroy() {
 
     // Ensure that the GPU is no longer referencing resources that are about to be
     // cleaned up by the destructor.
@@ -39,11 +39,11 @@ void HelloTriangle::OnDestroy() {
     CloseHandle(m_fenceEvent);
 }
 
-void HelloTriangle::OnUpdate() {
+void D3D12RHI::OnUpdate() {
 
 }
 
-void HelloTriangle::OnRender() {
+void D3D12RHI::OnRender() {
 
     // Record all the commands we need to render the scene into the command list.
     PopulateCommandList();
@@ -59,7 +59,7 @@ void HelloTriangle::OnRender() {
 }
 
 // Helper function for resolving the full path of assets.
-std::wstring HelloTriangle::GetAssetFullPath(LPCWSTR assetName)
+std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
 {
     return m_assetsPath + assetName;
 }
@@ -67,7 +67,7 @@ std::wstring HelloTriangle::GetAssetFullPath(LPCWSTR assetName)
 // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
 // If no such adapter can be found, *ppAdapter will be set to nullptr.
 _Use_decl_annotations_
-void HelloTriangle::GetHardwareAdapter(
+void D3D12RHI::GetHardwareAdapter(
     IDXGIFactory1* pFactory,
     IDXGIAdapter1** ppAdapter,
     bool requestHighPerformanceAdapter)
@@ -137,7 +137,7 @@ void HelloTriangle::GetHardwareAdapter(
 */
 
 // Load the rendering pipeline dependencies.
-void HelloTriangle::LoadPipeline()
+void D3D12RHI::LoadPipeline()
 {
     UINT dxgiFactoryFlags = 0;
 
@@ -169,7 +169,7 @@ void HelloTriangle::LoadPipeline()
             warpAdapter.Get(),
             D3D_FEATURE_LEVEL_11_0,
             IID_PPV_ARGS(&m_device)
-            ));
+        ));
     }
     else
     {
@@ -180,7 +180,7 @@ void HelloTriangle::LoadPipeline()
             hardwareAdapter.Get(),
             D3D_FEATURE_LEVEL_11_0,
             IID_PPV_ARGS(&m_device)
-            ));
+        ));
     }
 
     // Describe and create the command queue.
@@ -208,7 +208,7 @@ void HelloTriangle::LoadPipeline()
         nullptr,
         nullptr,
         &swapChain
-        ));
+    ));
 
     // This sample does not support fullscreen transitions.
     ThrowIfFailed(factory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER));
@@ -245,7 +245,7 @@ void HelloTriangle::LoadPipeline()
 }
 
 // Load the sample assets.
-void HelloTriangle::LoadAssets()
+void D3D12RHI::LoadAssets()
 {
     // Create an empty root signature.
     {
@@ -361,7 +361,7 @@ void HelloTriangle::LoadAssets()
     }
 }
 
-void HelloTriangle::PopulateCommandList()
+void D3D12RHI::PopulateCommandList()
 {
     // Command list allocators can only be reset when the associated 
     // command lists have finished execution on the GPU; apps should use 
@@ -397,7 +397,7 @@ void HelloTriangle::PopulateCommandList()
     ThrowIfFailed(m_commandList->Close());
 }
 
-void HelloTriangle::WaitForPreviousFrame()
+void D3D12RHI::WaitForPreviousFrame()
 {
     // WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE.
     // This is code implemented as such for simplicity. The D3D12HelloFrameBuffering

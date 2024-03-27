@@ -1,7 +1,7 @@
 #include "RHI.h"
 
 RHI::RHI(UINT width, UINT height) {
-    app = new HelloTriangle(width, height);
+    app = new D3D12RHI(width, height);
 }
 
 void RHI::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
