@@ -4,12 +4,13 @@ HWND Application::m_hwnd = nullptr;
 
 int Application::Run(HINSTANCE hInstance, int nCmdShow)
 {
-    HelloTriangle app(WIDTH, HEIGHT);
+    RHI* pRHI = createRHI(WIDTH, HEIGHT);
 
     // Parse the command line parameters
     int argc;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-    bool useWarpDevice = ParseCommandLineArgs(argv, argc);
+    //bool useWarpDevice = ParseCommandLineArgs(argv, argc);
+    bool useWarpDevice = false; // Use Windows Advanced Rasterization Platform (WARP) - By default uses Microsoft Basic Render Driver.
     LocalFree(argv);
 
     // Initialize the window class.
@@ -37,10 +38,10 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
         nullptr,        // We have no parent window.
         nullptr,        // We aren't using menus.
         hInstance,
-        &app);
+        &pRHI);
 
     // Initialize the sample. OnInit is defined in each child-implementation of DXSample.
-    app.OnInit(hInstance, m_hwnd, useWarpDevice);
+    init(hInstance, m_hwnd, useWarpDevice);
 
     ShowWindow(m_hwnd, nCmdShow);
 
@@ -56,7 +57,7 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
         }
     }
 
-    app.OnDestroy();
+    destroy();
 
     // Return this part of the WM_QUIT message to Windows.
     return static_cast<char>(msg.wParam);
@@ -65,7 +66,7 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
 // Main message handler for the sample.
 LRESULT CALLBACK Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    HelloTriangle* pApp = reinterpret_cast<HelloTriangle*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    RHI* pRHI = reinterpret_cast<RHI*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
     switch (message)
     {
@@ -78,9 +79,9 @@ LRESULT CALLBACK Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam,
         return 0;
 
     case WM_PAINT:
-        if (pApp)
+        if (pRHI)
         {
-            pApp->OnRender();
+            render();
         }
         return 0;
 

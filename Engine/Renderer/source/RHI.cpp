@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "RHI.h"
 
 RHI::RHI(UINT width, UINT height) {

@@ -21,32 +21,32 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{f96b53fd-e6bf-4e21-b73c-229ee7b209e5}</ProjectGuid>
-    <RootNamespace>Core</RootNamespace>
+    <ProjectGuid>{5dfc63e2-2086-4dac-aba7-efe6c11cc25f}</ProjectGuid>
+    <RootNamespace>Renderer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -71,23 +71,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\build\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;RENDERER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,33 +95,36 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;RENDERER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;RENDERER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -131,55 +133,51 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>Default</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\include;C:\VulkanSDK\1.3.268.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <CompileAsWinRT>false</CompileAsWinRT>
+      <PreprocessorDefinitions>NDEBUG;RENDERER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\lib;C:\VulkanSDK\1.3.268.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="D3D12RHI.h" />
-    <ClInclude Include="d3dx12.h" />
-    <ClInclude Include="DXSampleHelper.h" />
-    <ClInclude Include="EmptyWindow.h" />
-    <ClInclude Include="RHI.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="source\D3D12RHI.h" />
+    <ClInclude Include="source\d3dx12.h" />
+    <ClInclude Include="source\DXSampleHelper.h" />
+    <ClInclude Include="source\framework.h" />
+    <ClInclude Include="source\pch.h" />
+    <ClInclude Include="source\Renderer.h" />
+    <ClInclude Include="source\RHI.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="D3D12RHI.cpp" />
-    <ClCompile Include="LaunchWindows.cpp" />
-    <ClCompile Include="RHI.cpp" />
+    <ClCompile Include="source\D3D12RHI.cpp" />
+    <ClCompile Include="source\dllmain.cpp" />
+    <ClCompile Include="source\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="source\Renderer.cpp" />
+    <ClCompile Include="source\RHI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\..\shaders\HLSL\PixelShader.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PixelShader.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="..\..\..\shaders\HLSL\VertexShader.hlsl">
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\VertexShader.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

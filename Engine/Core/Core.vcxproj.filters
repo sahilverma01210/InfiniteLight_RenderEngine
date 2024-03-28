@@ -15,12 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EmptyWindow.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="source\Application.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="source\Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\LaunchWindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
