@@ -7,7 +7,6 @@
 // Window title.
 #define TITLE "Triangle"
 
-#include "stdafx.h"
 #include "RHI.h"
 
 class Application
