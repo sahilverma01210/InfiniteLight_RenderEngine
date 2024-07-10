@@ -42,8 +42,8 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
 
     // Initialize the sample. OnInit is defined in each child-implementation of DXSample.
     init(hInstance, m_hwnd, useWarpDevice);
-
     ShowWindow(m_hwnd, nCmdShow);
+    //initCore(m_hwnd);
 
     // Main sample loop.
     MSG msg = {};
@@ -55,8 +55,11 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        //renderCore();
     }
 
+    //destroyCore();
     destroy();
 
     // Return this part of the WM_QUIT message to Windows.

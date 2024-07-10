@@ -114,19 +114,20 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAsWinRT>false</CompileAsWinRT>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Engine\Renderer\source;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;Renderer.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\build\bin\$(Platform)\$(Configuration);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,31 +150,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PixelShader.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\VertexShader.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="..\..\external\Libraries\include\imgui\imconfig.h" />
+    <ClInclude Include="..\..\external\Libraries\include\imgui\imgui.h" />
+    <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h" />
     <ClInclude Include="source\Core.h" />
-    <ClInclude Include="source\framework.h" />
-    <ClInclude Include="source\pch.h" />
+    <ClInclude Include="source\imgui_impl_dx12.h" />
+    <ClInclude Include="source\imgui_impl_win32.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Core.cpp" />
-    <ClCompile Include="source\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="source\imgui_impl_dx12.cpp" />
+    <ClCompile Include="source\imgui_impl_win32.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

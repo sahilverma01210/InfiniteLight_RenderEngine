@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 #include "DXSampleHelper.h"
 
 // Note that while ComPtr from Microsoft::WRL is used to manage the lifetime of resources on the CPU,

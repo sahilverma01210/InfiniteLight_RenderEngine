@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RHI.h"
-
 #ifdef RENDERER_EXPORTS
 #define RENDERER_API __declspec(dllexport)
 #else
 #define RENDERER_API __declspec(dllimport)
 #endif
+
+#include "RHI.h"
 
 extern "C" RENDERER_API RHI* createRHI(UINT width, UINT height);
 

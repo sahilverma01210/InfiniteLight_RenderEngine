@@ -7,8 +7,10 @@
 // Window title.
 #define TITLE "Triangle"
 
-#include <Renderer.h>;
-#include <RHI.h>;
+#include <framework.h>
+#include <Core.h>
+#include <Renderer.h>
+#include <RHI.h>
 
 class Application
 {
