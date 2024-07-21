@@ -55,6 +55,9 @@ namespace Renderer::RHI
         m_assetsPath = assetsPath;
 
         m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+
+        // init COM.
+        CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     }
 
     void D3D12RHI::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
@@ -347,15 +350,17 @@ namespace Renderer::RHI
         // Create the vertex buffer.
         {
             m_vertexBufferSize = sizeof(triangleVertices);
+            auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+            auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize);
 
             // Note: using upload heaps to transfer static data like vert buffers is not 
             // recommended. Every time the GPU needs it, the upload heap will be marshalled 
             // over. Please read up on Default Heap usage. An upload heap is used here for 
             // code simplicity and because there are very few verts to actually transfer.
             m_device->CreateCommittedResource(
-                &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+                &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
-                &CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize),
+                &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&m_vertexBuffer));
@@ -376,15 +381,17 @@ namespace Renderer::RHI
         // Create the index buffer.
         {
             m_indexBufferSize = sizeof(indices);
+            auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+            auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize);
 
             // Note: using upload heaps to transfer static data like index buffers is not 
             // recommended. Every time the GPU needs it, the upload heap will be marshalled 
             // over. Please read up on Default Heap usage. An upload heap is used here for 
             // code simplicity and because there are very few indices to actually transfer.
             m_device->CreateCommittedResource(
-                &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+                &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
-                &CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize),
+                &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&m_indexBuffer));
@@ -405,15 +412,17 @@ namespace Renderer::RHI
         // create constant buffer for cube face colors.
         {
             m_colorBufferSize = sizeof(faceColors);
+            auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+            auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_colorBufferSize);
 
             // Note: using upload heaps to transfer static data like color buffers is not 
             // recommended. Every time the GPU needs it, the upload heap will be marshalled 
             // over. Please read up on Default Heap usage. An upload heap is used here for 
             // code simplicity and because there are very few colors to actually transfer.
             m_device->CreateCommittedResource(
-                &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+                &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
-                &CD3DX12_RESOURCE_DESC::Buffer(m_colorBufferSize),
+                &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&m_colorBuffer));
@@ -463,7 +472,8 @@ namespace Renderer::RHI
         m_commandList->RSSetScissorRects(1, &m_scissorRect);
 
         // Indicate that the back buffer will be used as a render target.
-        m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+        auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        m_commandList->ResourceBarrier(1, &resourceBarrier1);
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
         m_commandList->OMSetRenderTargets(1, &rtvHandle, TRUE, &m_depthStensilViewHandle);
@@ -480,29 +490,13 @@ namespace Renderer::RHI
         /*m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
         m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);*/
 
-        // draw cube #1 
+        // draw cube
         {
             // Create transformation matrix
             m_rotationMatrix = XMMatrixTranspose(
                 XMMatrixRotationX(m_angle) *
                 XMMatrixRotationY(m_angle) *
                 XMMatrixRotationZ(m_angle) *
-                XMMatrixTranslation(m_x, m_y, 0.0f) *
-                m_viewProjection
-            );
-
-            m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
-            // draw the geometry  
-            m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);
-        }
-
-        // draw cube #2
-        {
-            // Create transformation matrix
-            m_rotationMatrix = XMMatrixTranspose(
-                XMMatrixRotationX(-m_angle) *
-                XMMatrixRotationY(-m_angle) *
-                XMMatrixRotationZ(-m_angle) *
                 m_viewProjection
             );
 
@@ -512,7 +506,8 @@ namespace Renderer::RHI
         }
 
         // Indicate that the back buffer will now be used to present.
-        m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+        auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+        m_commandList->ResourceBarrier(1, &resourceBarrier2);
 
         m_commandList->Close();
     }
