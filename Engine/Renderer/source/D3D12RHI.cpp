@@ -480,7 +480,7 @@ namespace Renderer::RHI
         /*m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
         m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);*/
 
-        // draw cube
+        // draw cube #1 
         {
             // Create transformation matrix
             m_rotationMatrix = XMMatrixTranspose(
@@ -494,7 +494,22 @@ namespace Renderer::RHI
             m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
             // draw the geometry  
             m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);
-        }        
+        }
+
+        // draw cube #2
+        {
+            // Create transformation matrix
+            m_rotationMatrix = XMMatrixTranspose(
+                XMMatrixRotationX(-m_angle) *
+                XMMatrixRotationY(-m_angle) *
+                XMMatrixRotationZ(-m_angle) *
+                m_viewProjection
+            );
+
+            m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
+            // draw the geometry  
+            m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);
+        }
 
         // Indicate that the back buffer will now be used to present.
         m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
