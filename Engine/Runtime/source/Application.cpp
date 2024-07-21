@@ -1,111 +1,58 @@
 #include "Application.h"
 
-HWND Application::m_hwnd = nullptr;
+using namespace std::chrono;
 
-int Application::Run(HINSTANCE hInstance, int nCmdShow)
+namespace Runtime
 {
-    RHI* pRHI = createRHI(WIDTH, HEIGHT);
+	Timer::Timer() noexcept
+	{
+		last = steady_clock::now();
+	}
 
-    // Parse the command line parameters
-    int argc;
-    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-    //bool useWarpDevice = ParseCommandLineArgs(argv, argc);
-    bool useWarpDevice = false; // Use Windows Advanced Rasterization Platform (WARP) - By default uses Microsoft Basic Render Driver.
-    LocalFree(argv);
+	float Timer::Mark() noexcept
+	{
+		const auto old = last;
+		last = steady_clock::now();
+		const duration<float> frameTime = last - old;
+		return frameTime.count();
+	}
 
-    // Initialize the window class.
-    WNDCLASSEX windowClass = { 0 };
-    windowClass.cbSize = sizeof(WNDCLASSEX);
-    windowClass.style = CS_HREDRAW | CS_VREDRAW;
-    windowClass.lpfnWndProc = WindowProc;
-    windowClass.hInstance = hInstance;
-    windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    windowClass.lpszClassName = L"DXSampleClass";
-    RegisterClassEx(&windowClass);
+	float Timer::Peek() const noexcept
+	{
+		return duration<float>(steady_clock::now() - last).count();
+	}
 
-    RECT windowRect = { 0, 0, static_cast<LONG>(WIDTH), static_cast<LONG>(HEIGHT) };
-    AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+	Application::Application() : window(WIDTH, HEIGHT, TITLE)
+	{}
 
-    // Create the window and store a handle to it.
-    m_hwnd = CreateWindow(
-        windowClass.lpszClassName,
-        std::wstring(TITLE, TITLE + strlen(TITLE)).c_str(),
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        windowRect.right - windowRect.left,
-        windowRect.bottom - windowRect.top,
-        nullptr,        // We have no parent window.
-        nullptr,        // We aren't using menus.
-        hInstance,
-        &pRHI);
+	int Application::Run()
+	{
+		while (true)
+		{
+			// process all messages pending, but to not block for new messages
+			if (const auto ecode = Window::ProcessMessages())
+			{
+				// if return optional has value, means we're quitting so return exit code
+				return *ecode;
+			}
+			UpdateFrame();
+		}
+	}
 
-    // Initialize the sample. OnInit is defined in each child-implementation of DXSample.
-    init(hInstance, m_hwnd, useWarpDevice);
-    ShowWindow(m_hwnd, nCmdShow);
-    //initCore(m_hwnd);
+	void Application::UpdateFrame()
+	{
+		// Core Module Test Function.
+		Test();
 
-    // Main sample loop.
-    MSG msg = {};
-    while (msg.message != WM_QUIT)
-    {
-        // Process any messages in the queue.
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+		//// Rotating Cube.
+		//const float c = sin(timer.Peek()) / 2.0f + 0.5f;
+		//window.UpdateWindow(timer.Peek(),
+		//	0.0f,
+		//	0.0f);
 
-        //renderCore();
-    }
-
-    //destroyCore();
-    destroy();
-
-    // Return this part of the WM_QUIT message to Windows.
-    return static_cast<char>(msg.wParam);
-}
-
-// Main message handler for the sample.
-LRESULT CALLBACK Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    RHI* pRHI = reinterpret_cast<RHI*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-
-    switch (message)
-    {
-    case WM_CREATE:
-        {
-            // Save the DXSample* passed in to CreateWindow.
-            LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
-        }
-        return 0;
-
-    case WM_PAINT:
-        if (pRHI)
-        {
-            render();
-        }
-        return 0;
-
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-    }
-
-    // Handle any messages the switch statement didn't.
-    return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
-// Helper function for parsing any supplied command line args.
-bool Application::ParseCommandLineArgs(WCHAR* argv[], int argc)
-{
-    for (int i = 1; i < argc; ++i)
-    {
-        if (_wcsnicmp(argv[i], L"-warp", wcslen(argv[i])) == 0 ||
-            _wcsnicmp(argv[i], L"/warp", wcslen(argv[i])) == 0)
-        {
-            return true;
-        }
-    }
+		// Rotating Cube following Mouse Left Click.
+		window.UpdateWindow(timer.Peek(),
+			window.mouse.GetPosX() / (WIDTH / 2) - 1.0f,
+			-window.mouse.GetPosY() / (HEIGHT / 2) + 1.0f);
+	}
 }

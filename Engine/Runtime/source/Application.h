@@ -1,27 +1,40 @@
 #pragma once
 
-// Viewport dimensions.
-#define WIDTH 1280
-#define HEIGHT 720
+#pragma comment(lib, "Core.lib")
 
-// Window title.
-#define TITLE "Triangle"
-
-#include <framework.h>
 #include <Core.h>
-#include <Renderer.h>
-#include <RHI.h>
+#include <chrono>
 
-class Application
+#include "Common/Windows/Window.h"
+
+namespace Runtime
 {
-public:
-    static int Run(HINSTANCE hInstance, int nCmdShow);
-    static HWND GetHwnd() { return m_hwnd; }
+	// Viewport dimensions.
+	#define WIDTH 800.0f
+	#define HEIGHT 600.0f
 
-protected:
-    static bool ParseCommandLineArgs(WCHAR* argv[], int argc);
-    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	// Window title.
+	#define TITLE L"Infinite Light Render Engine"
 
-private:
-    static HWND m_hwnd;
-};
+	class Timer
+	{
+	public:
+		Timer() noexcept;
+		float Mark() noexcept;
+		float Peek() const noexcept;
+	private:
+		std::chrono::steady_clock::time_point last;
+	};
+
+	class Application
+	{
+	public:
+		Application();
+		int Run();
+	private:
+		Window window;
+		Timer timer;
+
+		void UpdateFrame();
+	};
+}

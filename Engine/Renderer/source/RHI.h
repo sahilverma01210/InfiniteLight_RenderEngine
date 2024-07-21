@@ -1,15 +1,23 @@
 #pragma once
 
-#include "D3D12RHI.h"
+#include "framework.h"
 
-class RHI {
-public:
-	RHI(UINT width, UINT height);
+// Note that while ComPtr from Microsoft::WRL is used to manage the lifetime of resources on the CPU,
+// it has no understanding of the lifetime of resources on the GPU. Apps must account
+// for the GPU lifetime of resources to avoid destroying objects that may still be
+// referenced by the GPU.
+// An example of this can be found in the class method: OnDestroy().
+using namespace Microsoft::WRL;
 
-	void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
-	void OnUpdate();
-	void OnRender();
-	void OnDestroy();
-private:
-	D3D12RHI* app;
-};
+using namespace DirectX;
+
+namespace Renderer::RHI
+{
+	class RHI {
+	public:
+		virtual void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) = 0;
+		virtual void OnUpdate(float angle, float x, float y) = 0;
+		virtual void OnRender() = 0;
+		virtual void OnDestroy() = 0;
+	};
+}

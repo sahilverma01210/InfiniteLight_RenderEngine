@@ -1,10 +1,9 @@
-struct PSInput
+cbuffer CubeColors
 {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
+    float4 colors[6];
 };
 
-float4 PSMain(PSInput input) : SV_TARGET
+float4 PSMain(uint primitiveID : SV_PrimitiveID) : SV_TARGET
 {
-	return input.color;
+    return colors[primitiveID >> 1];
 }

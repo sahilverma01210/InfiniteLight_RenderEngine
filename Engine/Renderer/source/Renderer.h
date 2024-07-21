@@ -6,14 +6,17 @@
 #define RENDERER_API __declspec(dllimport)
 #endif
 
-#include "RHI.h"
+#include "D3D12RHI.h"
 
-extern "C" RENDERER_API RHI* createRHI(UINT width, UINT height);
+namespace Renderer
+{
+	extern "C" RENDERER_API void createRHI(UINT width, UINT height);
 
-extern "C" RENDERER_API void init(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
+	extern "C" RENDERER_API void init(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
 
-extern "C" RENDERER_API void update();
+	extern "C" RENDERER_API void update(float angle, float x, float y);
 
-extern "C" RENDERER_API void render();
+	extern "C" RENDERER_API void render();
 
-extern "C" RENDERER_API void destroy();
+	extern "C" RENDERER_API void destroy();
+}

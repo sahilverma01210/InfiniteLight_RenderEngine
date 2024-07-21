@@ -13,10 +13,28 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{5ddddc01-07ca-4fb7-aa6c-6b9d348df2d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common\Windows">
+      <UniqueIdentifier>{21675a45-881a-41bd-bdbf-7231eab9e594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common\Windows\IO">
+      <UniqueIdentifier>{bff819f7-62cc-4be4-8abb-6c1074edb3c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Application.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\Windows\Window.h">
+      <Filter>Source Files\Common\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\Windows\Keyboard.h">
+      <Filter>Source Files\Common\Windows\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\Windows\Mouse.h">
+      <Filter>Source Files\Common\Windows\IO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +43,15 @@
     </ClCompile>
     <ClCompile Include="source\LaunchWindows.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\Windows\Window.cpp">
+      <Filter>Source Files\Common\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\Windows\Keyboard.cpp">
+      <Filter>Source Files\Common\Windows\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\Windows\Mouse.cpp">
+      <Filter>Source Files\Common\Windows\IO</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

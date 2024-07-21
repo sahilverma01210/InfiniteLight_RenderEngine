@@ -1,25 +1,28 @@
-#include "framework.h"
 #include "Renderer.h"
 
-RHI* pRHI;
+namespace Renderer
+{
+	RHI::RHI* pRHI;
+	// std::unique_ptr<RHI::RHI> pRHI;
 
-RHI* createRHI(UINT width, UINT height) {
-	pRHI = new RHI(width, height);
-	return pRHI;
-}
+	void createRHI(UINT width, UINT height) {
+		pRHI = new RHI::D3D12RHI(width, height);
+		//pRHI = std::make_unique<RHI::D3D12RHI>(width, height);
+	}
 
-void init(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
-	pRHI->OnInit(hInstance, hWnd, useWarpDevice);
-}
+	void init(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
+		pRHI->OnInit(hInstance, hWnd, useWarpDevice);
+	}
 
-void update() {
-	pRHI->OnUpdate();
-}
+	void update(float angle, float x, float y) {
+		pRHI->OnUpdate(angle, x, y);
+	}
 
-void render() {
-	pRHI->OnRender();
-}
+	void render() {
+		pRHI->OnRender();
+	}
 
-void destroy() {
-	pRHI->OnDestroy();
+	void destroy() {
+		pRHI->OnDestroy();
+	}
 }
