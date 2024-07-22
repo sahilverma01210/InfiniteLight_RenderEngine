@@ -9,36 +9,25 @@ namespace Renderer::RHI
     // Define the geometry for a triangle.
     Vertex triangleVertices[] =
     {
-        { { -1.0f,-1.0f,-1.0f } },
-        { { 1.0f,-1.0f,-1.0f } },
-        { { -1.0f,1.0f,-1.0f } },
-        { { 1.0f,1.0f,-1.0f } },
-        { { -1.0f,-1.0f,1.0f } },
-        { { 1.0f,-1.0f,1.0f } },
-        { { -1.0f,1.0f,1.0f } },
-        { { 1.0f,1.0f,1.0f } }
+        { {-1.0f, -1.0f, -1.0f}, { 0.f, 0.f } }, // 0 
+        { {-1.0f,  1.0f, -1.0f}, { 0.f, 1.f } }, // 1 
+        { {1.0f,  1.0f, -1.0f}, { 1.f, 1.f } }, // 2 
+        { {1.0f, -1.0f, -1.0f}, { 1.f, 0.f } }, // 3 
+        { {-1.0f, -1.0f,  1.0f}, { 0.f, 1.f } }, // 4 
+        { {-1.0f,  1.0f,  1.0f}, { 0.f, 0.f } }, // 5 
+        { {1.0f,  1.0f,  1.0f}, { 1.f, 0.f } }, // 6 
+        { {1.0f, -1.0f,  1.0f}, { 1.f, 1.f } }  // 7 
     };
 
     // Cube indices (Cube Vertex Order to form Triangles)
     const unsigned short indices[] =
     {
-        0,2,1, 2,3,1,
-        1,3,5, 3,7,5,
-        2,6,3, 3,6,7,
-        4,5,7, 4,7,6,
-        0,4,2, 2,4,6,
-        0,1,4, 1,5,4
-    };
-
-    // Cube Face Colors
-    const XMFLOAT4 faceColors[] =
-    {
-        {1.f, 0.f, 0.f, 1.f},
-        {0.f, 1.f, 0.f, 1.f},
-        {0.f, 0.f, 1.f, 1.f},
-        {1.f, 0.f, 1.f, 1.f},
-        {0.f, 1.f, 1.f, 1.f},
-        {1.f, 1.f, 0.f, 1.f},
+        0, 1, 2, 0, 2, 3,
+        4, 6, 5, 4, 7, 6,
+        4, 5, 1, 4, 1, 0,
+        3, 2, 6, 3, 6, 7,
+        1, 5, 6, 1, 6, 2,
+        4, 0, 3, 4, 3, 7
     };
 
     D3D12RHI::D3D12RHI(UINT width, UINT height) :
@@ -57,7 +46,7 @@ namespace Renderer::RHI
         m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
         // init COM.
-        CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+        HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     }
 
     void D3D12RHI::OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice) {
@@ -272,7 +261,10 @@ namespace Renderer::RHI
         {
             CD3DX12_ROOT_PARAMETER rootParameters[2]{};
             rootParameters[0].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-            rootParameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+            {
+                const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
+                rootParameters[1].InitAsDescriptorTable(1, &descRange);
+            }
             // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
             const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
                 D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -281,9 +273,11 @@ namespace Renderer::RHI
                 D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
                 D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
                 D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+            // define static sampler 
+            const CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
             // define root signsture with transformation matrix.
             CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-            rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+            rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 1, &staticSampler, rootSignatureFlags);
 
             ComPtr<ID3DBlob> signatureBlob;
             ComPtr<ID3DBlob> errorBlob;
@@ -309,7 +303,8 @@ namespace Renderer::RHI
             // Define the vertex input layout.
             D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
             {
-                { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+                { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+                { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
             };
 
             // Describe and create the graphics pipeline state object (PSO).
@@ -350,8 +345,8 @@ namespace Renderer::RHI
         // Create the vertex buffer.
         {
             m_vertexBufferSize = sizeof(triangleVertices);
-            auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-            auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize);
+            auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
+            auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize) };
 
             // Note: using upload heaps to transfer static data like vert buffers is not 
             // recommended. Every time the GPU needs it, the upload heap will be marshalled 
@@ -381,8 +376,8 @@ namespace Renderer::RHI
         // Create the index buffer.
         {
             m_indexBufferSize = sizeof(indices);
-            auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-            auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize);
+            auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
+            auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize) };
 
             // Note: using upload heaps to transfer static data like index buffers is not 
             // recommended. Every time the GPU needs it, the upload heap will be marshalled 
@@ -409,30 +404,103 @@ namespace Renderer::RHI
             m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
         }
 
-        // create constant buffer for cube face colors.
+        // Create the texture buffer.
         {
-            m_colorBufferSize = sizeof(faceColors);
-            auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-            auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_colorBufferSize);
+            // load image data from disk 
+            ScratchImage image;
+            HRESULT hr = LoadFromWICFile(L"cube_face.jpeg", WIC_FLAGS_NONE, nullptr, image);
 
-            // Note: using upload heaps to transfer static data like color buffers is not 
-            // recommended. Every time the GPU needs it, the upload heap will be marshalled 
-            // over. Please read up on Default Heap usage. An upload heap is used here for 
-            // code simplicity and because there are very few colors to actually transfer.
-            m_device->CreateCommittedResource(
-                &heapProperties,
-                D3D12_HEAP_FLAG_NONE,
-                &resourceDesc,
-                D3D12_RESOURCE_STATE_GENERIC_READ,
-                nullptr,
-                IID_PPV_ARGS(&m_colorBuffer));
+            // generate mip chain 
+            ScratchImage mipChain;
+            GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain);
 
-            // Copy the color data to the index buffer.
-            UINT8* pColorDataBegin;
-            CD3DX12_RANGE readRangeC(0, 0);        // We do not intend to read from this resource on the CPU.
-            m_colorBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pColorDataBegin));
-            memcpy(pColorDataBegin, faceColors, sizeof(faceColors));
-            m_colorBuffer->Unmap(0, nullptr);
+            {
+                auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
+                const auto& chainBase = *mipChain.GetImages();
+                auto resourceDesc = CD3DX12_RESOURCE_DESC{};
+                resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+                resourceDesc.Width = (UINT)chainBase.width;
+                resourceDesc.Height = (UINT)chainBase.height;
+                resourceDesc.DepthOrArraySize = 1;
+                resourceDesc.MipLevels = (UINT16)mipChain.GetImageCount();
+                resourceDesc.Format = chainBase.format;
+                resourceDesc.SampleDesc = { .Count = 1 };
+                resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+                resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+                m_device->CreateCommittedResource(
+                    &heapProperties,
+                    D3D12_HEAP_FLAG_NONE,
+                    &resourceDesc,
+                    D3D12_RESOURCE_STATE_COPY_DEST,
+                    nullptr,
+                    IID_PPV_ARGS(&m_texureBuffer)
+                );
+            }            
+
+            // collect subresource data
+            std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
+            subresourceData.reserve(mipChain.GetImageCount());
+
+            for (int i = 0; i < mipChain.GetImageCount(); ++i) {
+                const auto img = mipChain.GetImage(i, 0, 0);
+                subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
+                    .pData = img->pixels,
+                    .RowPitch = (LONG_PTR)img->rowPitch,
+                    .SlicePitch = (LONG_PTR)img->slicePitch,
+                    });
+            }
+
+            {
+                m_texureUploadBufferSize = GetRequiredIntermediateSize(m_texureBuffer.Get(), 0, (UINT)subresourceData.size());
+                auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
+                auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_texureUploadBufferSize) };
+
+                m_device->CreateCommittedResource(
+                    &heapProperties,
+                    D3D12_HEAP_FLAG_NONE,
+                    &resourceDesc,
+                    D3D12_RESOURCE_STATE_GENERIC_READ,
+                    nullptr,
+                    IID_PPV_ARGS(&m_texureUploadBuffer)
+                );
+            }
+            m_commandAllocator->Reset();
+            m_commandList->Reset(m_commandAllocator.Get(), nullptr);
+
+            // write commands to copy data to upload texture (copying each subresource) 
+            UpdateSubresources(
+                m_commandList.Get(),
+                m_texureBuffer.Get(),
+                m_texureUploadBuffer.Get(),
+                0, 0,
+                (UINT)subresourceData.size(),
+                subresourceData.data()
+            );
+
+            auto resourceBarrier0 = CD3DX12_RESOURCE_BARRIER::Transition(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            m_commandList->ResourceBarrier(1, &resourceBarrier0);
+
+            m_commandList->Close();
+            ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
+            m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
+
+            // Describe and create a srv descriptor heap.
+            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            srvHeapDesc.NumDescriptors = 1;
+            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
+
+            m_shaderResourceViewHandle = m_srvHeap->GetCPUDescriptorHandleForHeapStart();
+
+            D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+            srvDesc.Format = m_texureBuffer->GetDesc().Format;
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+            srvDesc.Texture2D.MipLevels = m_texureBuffer->GetDesc().MipLevels;
+
+            m_device->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, m_shaderResourceViewHandle);
         }
 
         // Create synchronization objects and wait until assets have been uploaded to the GPU.
@@ -485,10 +553,11 @@ namespace Renderer::RHI
         m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
         m_commandList->IASetIndexBuffer(&m_indexBufferView);
-        // bind the face color constant buffer 
-        m_commandList->SetGraphicsRootConstantBufferView(1, m_colorBuffer->GetGPUVirtualAddress());
-        /*m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
-        m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);*/
+
+        // bind the heap containing the texture descriptor 
+        m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
+        // bind the descriptor table containing the texture descriptor 
+        m_commandList->SetGraphicsRootDescriptorTable(1, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
 
         // draw cube
         {

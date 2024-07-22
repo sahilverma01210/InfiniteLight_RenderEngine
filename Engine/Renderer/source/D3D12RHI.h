@@ -7,6 +7,7 @@ namespace Renderer::RHI
     struct Vertex
     {
         XMFLOAT3 position;
+        XMFLOAT2 uvCoord;
     };
     
     class D3D12RHI : public RHI
@@ -47,13 +48,14 @@ namespace Renderer::RHI
         // Buffer Sizes
         UINT m_vertexBufferSize;
         UINT m_indexBufferSize;
-        UINT m_colorBufferSize;
+        UINT m_texureUploadBufferSize;
         UINT m_constantBufferSize;
 
         // App resources - Buffers.
         ComPtr<ID3D12Resource> m_vertexBuffer;
         ComPtr<ID3D12Resource> m_indexBuffer;
-        ComPtr<ID3D12Resource> m_colorBuffer;
+        ComPtr<ID3D12Resource> m_texureBuffer;
+        ComPtr<ID3D12Resource> m_texureUploadBuffer;
         ComPtr<ID3D12Resource> m_constantBuffer;
 
         // Buffer Views
@@ -83,9 +85,11 @@ namespace Renderer::RHI
         ComPtr<ID3D12RootSignature> m_rootSignature;
         ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
         ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
+        ComPtr<ID3D12DescriptorHeap> m_srvHeap;
         ComPtr<ID3D12PipelineState> m_pipelineState;
         ComPtr<ID3D12GraphicsCommandList> m_commandList;
         D3D12_CPU_DESCRIPTOR_HANDLE  m_depthStensilViewHandle;
+        D3D12_CPU_DESCRIPTOR_HANDLE  m_shaderResourceViewHandle;
         UINT m_rtvDescriptorSize;
 
         // Load the rendering pipeline dependencies.

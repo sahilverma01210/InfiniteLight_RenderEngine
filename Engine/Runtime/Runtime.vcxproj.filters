@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Common\Windows\IO">
       <UniqueIdentifier>{bff819f7-62cc-4be4-8abb-6c1074edb3c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\images">
+      <UniqueIdentifier>{033eea10-dfda-46ee-a47a-084a36130cec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Application.h">
@@ -53,5 +56,13 @@
     <ClCompile Include="source\Common\Windows\Mouse.cpp">
       <Filter>Source Files\Common\Windows\IO</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\images\cube_face.jpeg">
+      <Filter>Resource Files\images</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

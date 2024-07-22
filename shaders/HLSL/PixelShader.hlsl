@@ -1,9 +1,7 @@
-cbuffer CubeColors
-{
-    float4 colors[6];
-};
+Texture2D tex;
+SamplerState samp;
 
-float4 PSMain(uint primitiveID : SV_PrimitiveID) : SV_TARGET
+float4 PSMain(float2 uv : TEXCOORD) : SV_TARGET
 {
-    return colors[primitiveID >> 1];
+    return tex.Sample(samp, uv);
 }
