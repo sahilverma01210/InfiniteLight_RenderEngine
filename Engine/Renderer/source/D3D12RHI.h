@@ -9,7 +9,7 @@ namespace Renderer::RHI
         XMFLOAT3 position;
         XMFLOAT2 uvCoord;
     };
-    
+
     class D3D12RHI : public RHI
     {
     public:
@@ -22,10 +22,6 @@ namespace Renderer::RHI
         void OnUpdate(float angle, float x, float y);
         void OnRender();
         void OnDestroy();
-
-        // Samples override the event handlers to handle specific messages.
-        void OnKeyDown(UINT8 /*key*/) {}
-        void OnKeyUp(UINT8 /*key*/) {}
 
     private:
         HWND m_hWnd;
@@ -55,7 +51,6 @@ namespace Renderer::RHI
         ComPtr<ID3D12Resource> m_vertexBuffer;
         ComPtr<ID3D12Resource> m_indexBuffer;
         ComPtr<ID3D12Resource> m_texureBuffer;
-        ComPtr<ID3D12Resource> m_texureUploadBuffer;
         ComPtr<ID3D12Resource> m_constantBuffer;
 
         // Buffer Views
@@ -63,14 +58,14 @@ namespace Renderer::RHI
         D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
 
         // Synchronization objects.
-        UINT m_frameIndex;
+        UINT64 m_fenceValue;
         HANDLE m_fenceEvent;
         ComPtr<ID3D12Fence> m_fence;
-        UINT64 m_fenceValue;
 
         // Root assets path.
         std::wstring m_assetsPath;
 
+        UINT m_backBufferIndex;
         static const UINT m_backBufferCount = 2;
 
         // Pipeline objects.
@@ -78,7 +73,7 @@ namespace Renderer::RHI
         CD3DX12_RECT m_scissorRect;
         ComPtr<IDXGISwapChain3> m_swapChain;
         ComPtr<ID3D12Device> m_device;
-        ComPtr<ID3D12Resource> m_renderTargets[m_backBufferCount]; // Back Buffers as Render Targets
+        ComPtr<ID3D12Resource> m_backBuffers[m_backBufferCount]; // Back Buffers as Render Targets
         ComPtr<ID3D12Resource> m_depthBuffer;
         ComPtr<ID3D12CommandAllocator> m_commandAllocator;
         ComPtr<ID3D12CommandQueue> m_commandQueue;
@@ -97,7 +92,8 @@ namespace Renderer::RHI
         void LoadStaticAssets();
         // Update Command List every loop.
         void PopulateCommandList();
-        void WaitForPreviousFrame();
+        // Insert fence to command queue.
+        void InsertFence();
 
         // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
         // If no such adapter can be found, *ppAdapter will be set to nullptr.
