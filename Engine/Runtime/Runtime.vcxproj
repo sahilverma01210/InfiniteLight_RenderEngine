@@ -19,32 +19,39 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\Application.cpp" />
-    <ClCompile Include="source\Common\Windows\Keyboard.cpp" />
-    <ClCompile Include="source\Common\Windows\Mouse.cpp" />
-    <ClCompile Include="source\Common\Windows\Window.cpp" />
-    <ClCompile Include="source\LaunchWindows.cpp" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\external\Libraries\include\imgui\imconfig.h" />
+    <ClInclude Include="..\..\external\Libraries\include\imgui\imgui.h" />
+    <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h" />
     <ClInclude Include="source\Application.h" />
     <ClInclude Include="source\Common\Windows\Keyboard.h" />
     <ClInclude Include="source\Common\Windows\Mouse.h" />
     <ClInclude Include="source\Common\Windows\Window.h" />
+    <ClInclude Include="source\D3D12RHI.h" />
+    <ClInclude Include="source\d3dx12.h" />
+    <ClInclude Include="source\framework.h" />
+    <ClInclude Include="source\imgui_impl_dx12.h" />
+    <ClInclude Include="source\imgui_impl_win32.h" />
+    <ClInclude Include="source\Renderer.h" />
+    <ClInclude Include="source\RHI.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\..\images\cube_face.jpeg">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)" &gt; NUL</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)" &gt; NUL</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)" &gt; NUL</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);$(ProjectDir)%(Identity)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);$(ProjectDir)%(Identity)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);$(ProjectDir)%(Identity)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);$(ProjectDir)%(Identity)</Outputs>
-    </CustomBuild>
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="source\Application.cpp" />
+    <ClCompile Include="source\Common\Windows\Keyboard.cpp" />
+    <ClCompile Include="source\Common\Windows\Mouse.cpp" />
+    <ClCompile Include="source\Common\Windows\Window.cpp" />
+    <ClCompile Include="source\D3D12RHI.cpp" />
+    <ClCompile Include="source\imgui_impl_dx12.cpp" />
+    <ClCompile Include="source\imgui_impl_win32.cpp" />
+    <ClCompile Include="source\LaunchWindows.cpp" />
+    <ClCompile Include="source\Renderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -141,7 +148,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Engine\Core\source;$(SolutionDir)\Engine\Renderer\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PrecompiledHeaderFile />
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -153,7 +160,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
       <EnableUAC>true</EnableUAC>

@@ -1,8 +1,6 @@
 #pragma once
 
-#pragma comment(lib, "Renderer.lib")
-
-#include <Renderer.h>
+#include "../../Renderer.h"
 
 #include "Keyboard.h"
 #include "Mouse.h"

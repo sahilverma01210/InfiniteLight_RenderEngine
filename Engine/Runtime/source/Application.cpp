@@ -41,9 +41,6 @@ namespace Runtime
 
 	void Application::UpdateFrame()
 	{
-		// Core Module Test Function.
-		Test();
-
 		//// Rotating Cube.
 		//const float c = sin(timer.Peek()) / 2.0f + 0.5f;
 		//window.UpdateWindow(timer.Peek(),

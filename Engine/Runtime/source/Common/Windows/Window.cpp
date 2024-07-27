@@ -1,5 +1,8 @@
 #include "Window.h"
 
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 Window::WindowClass Window::WindowClass::wndClass;
 
 Window::WindowClass::WindowClass() noexcept
@@ -55,16 +58,19 @@ Window::Window( int width,int height,const WCHAR* name )
 		CW_USEDEFAULT,CW_USEDEFAULT,wr.right - wr.left,wr.bottom - wr.top,
 		nullptr,nullptr,WindowClass::GetInstance(),this
 	);
+
 	// create and initialize Renderer
 	Renderer::createRHI(width, height);
 	Renderer::init(WindowClass::GetInstance(), hWnd, false);
+
 	// show window
-	ShowWindow( hWnd,SW_SHOWDEFAULT );
+	ShowWindow(hWnd, SW_SHOWDEFAULT);
 }
 
 Window::~Window()
 {
 	Renderer::destroy();
+
 	DestroyWindow( hWnd );
 }
 
@@ -132,6 +138,9 @@ LRESULT Window::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noex
 {
 	//static WindowsMessageMap mm; // Add and Include "WindowsMessageMap.h and WindowsMessageMap.cpp" files.
 	//OutputDebugString(mm(message, lParam, wParam).c_str());
+
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+		return true;
 
 	switch (msg)
 	{

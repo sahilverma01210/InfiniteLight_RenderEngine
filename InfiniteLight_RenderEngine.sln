@@ -8,10 +8,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Renderer", "Engine\Renderer\Renderer.vcxproj", "{5DFC63E2-2086-4DAC-ABA7-EFE6C11CC25F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Runtime", "Engine\Runtime\Runtime.vcxproj", "{846CD776-102E-4162-9EE1-862FE1BE852C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5DFC63E2-2086-4DAC-ABA7-EFE6C11CC25F} = {5DFC63E2-2086-4DAC-ABA7-EFE6C11CC25F}
-		{8FAC71C4-D852-4869-926E-FE3A8795FF93} = {8FAC71C4-D852-4869-926E-FE3A8795FF93}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Engine\Core\Core.vcxproj", "{8FAC71C4-D852-4869-926E-FE3A8795FF93}"
 EndProject
