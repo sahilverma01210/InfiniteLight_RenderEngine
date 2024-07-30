@@ -44,13 +44,21 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 
 Window::Window( int width,int height,const WCHAR* name )
 {
+	// Plain Exception Examples:
+	//throw ILWND_EXCEPT(ERROR_ARENA_TRASHED);
+	//throw std::runtime_error("ERORRRRRRRRR!!");
+
 	// calculate window size based on desired client region size
 	RECT wr;
 	wr.left = 100;
 	wr.right = width + wr.left;
 	wr.top = 100;
 	wr.bottom = height + wr.top;
-	AdjustWindowRect( &wr,WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,FALSE );
+	if (FAILED(AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE)))
+	{
+		throw ILWND_LAST_EXCEPT();
+	};
+
 	// create window & get hWnd
 	hWnd = CreateWindow(
 		WindowClass::GetName(),name,
@@ -58,6 +66,12 @@ Window::Window( int width,int height,const WCHAR* name )
 		CW_USEDEFAULT,CW_USEDEFAULT,wr.right - wr.left,wr.bottom - wr.top,
 		nullptr,nullptr,WindowClass::GetInstance(),this
 	);
+
+	// check for error
+	if (hWnd == nullptr)
+	{
+		throw ILWND_LAST_EXCEPT();
+	}
 
 	// create and initialize Renderer
 	Renderer::createRHI(width, height);
@@ -263,4 +277,60 @@ bool Window::ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept
             return true;
         }
     }
+}
+
+// Window Exception Stuff
+Window::Exception::Exception(int line, const char* file, HRESULT hr) noexcept
+	:
+	ILException(line, file),
+	hr(hr)
+{}
+
+const char* Window::Exception::what() const noexcept
+{
+	std::ostringstream oss;
+	oss << GetType() << std::endl
+		<< "[Error Code] " << GetErrorCode() << std::endl
+		<< "[Description] " << GetErrorString() << std::endl
+		<< GetOriginString();
+	whatBuffer = oss.str();
+	return whatBuffer.c_str();
+}
+
+const char* Window::Exception::GetType() const noexcept
+{
+	return "IL Window Exception";
+}
+
+std::string Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
+{
+	char* pMsgBuf = nullptr;
+
+	// windows will allocate memory for err string and make our pointer point to it
+	DWORD nMsgLen = FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr
+	);
+	// 0 string length returned indicates a failure
+	if (nMsgLen == 0)
+	{
+		return "Unidentified error code";
+	}
+	// copy error string from windows-allocated buffer to std::string
+	std::string errorString = pMsgBuf;
+	// free windows buffer
+	LocalFree(pMsgBuf);
+	return errorString;
+}
+
+HRESULT Window::Exception::GetErrorCode() const noexcept
+{
+	return hr;
+}
+
+std::string Window::Exception::GetErrorString() const noexcept
+{
+	return TranslateErrorCode(hr);
 }

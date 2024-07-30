@@ -26,6 +26,7 @@
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui.h" />
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h" />
     <ClInclude Include="source\Application.h" />
+    <ClInclude Include="source\Common\Windows\ILException.h" />
     <ClInclude Include="source\Common\Windows\Keyboard.h" />
     <ClInclude Include="source\Common\Windows\Mouse.h" />
     <ClInclude Include="source\Common\Windows\Window.h" />
@@ -44,6 +45,7 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Application.cpp" />
+    <ClCompile Include="source\Common\Windows\ILException.cpp" />
     <ClCompile Include="source\Common\Windows\Keyboard.cpp" />
     <ClCompile Include="source\Common\Windows\Mouse.cpp" />
     <ClCompile Include="source\Common\Windows\Window.cpp" />
