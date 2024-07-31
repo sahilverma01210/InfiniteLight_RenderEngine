@@ -34,6 +34,15 @@
     <Filter Include="Source Files\External\ImGUI">
       <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{6af78863-ef57-4030-a07e-75ca554c7cd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\HLSL">
+      <UniqueIdentifier>{b1d787f9-27b5-4c4a-ad33-6604c3bc201e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Images">
+      <UniqueIdentifier>{17a726ac-8f13-4c9f-80ee-7b62f713c15c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -131,5 +140,16 @@
     <ClCompile Include="source\Common\Windows\ILException.cpp">
       <Filter>Source Files\Common\Windows</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\PixelShader.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\VertexShader.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\images\cube_face.jpeg">
+      <Filter>Resource Files\Images</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
