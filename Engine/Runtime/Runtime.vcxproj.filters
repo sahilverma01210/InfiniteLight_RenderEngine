@@ -19,21 +19,6 @@
     <Filter Include="external\imgui">
       <UniqueIdentifier>{4fae8926-c324-476f-a61e-e97014d6715b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Common">
-      <UniqueIdentifier>{0d72080a-2d60-4086-b8d3-7d24ab4f567c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Common\Windows">
-      <UniqueIdentifier>{9f072894-a9bd-4f74-8b22-019c75fa39ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Common\Windows\IO">
-      <UniqueIdentifier>{f5efe1ae-fce1-4bb6-b188-f3515c77c15d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\External">
-      <UniqueIdentifier>{5813a1ea-478e-4fdc-bc38-88244a5c4514}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\External\ImGUI">
-      <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{6af78863-ef57-4030-a07e-75ca554c7cd1}</UniqueIdentifier>
     </Filter>
@@ -42,6 +27,36 @@
     </Filter>
     <Filter Include="Resource Files\Images">
       <UniqueIdentifier>{17a726ac-8f13-4c9f-80ee-7b62f713c15c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Windows">
+      <UniqueIdentifier>{9f072894-a9bd-4f74-8b22-019c75fa39ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Windows\IO">
+      <UniqueIdentifier>{f5efe1ae-fce1-4bb6-b188-f3515c77c15d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Windows">
+      <UniqueIdentifier>{84f4b2e2-8fb0-41ec-ac6e-653e0f2a15cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Windows\IO">
+      <UniqueIdentifier>{12d6fd2c-9805-4334-9b95-b5e748f03df2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer">
+      <UniqueIdentifier>{44d22535-bf37-4ac2-b86c-f0bf77f2fc3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{4695c0ce-1e84-4cc6-b25b-d89ad71d7e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ImGUI">
+      <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ImGUI">
+      <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{640325d3-9b69-410f-8428-36a04f1e338c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{3e87072f-3d41-403d-85ea-8919d59d91bb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,41 +72,41 @@
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h">
       <Filter>external\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="source\Common\Windows\Keyboard.h">
-      <Filter>Source Files\Common\Windows\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Common\Windows\Mouse.h">
-      <Filter>Source Files\Common\Windows\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Common\Windows\Window.h">
-      <Filter>Source Files\Common\Windows</Filter>
-    </ClInclude>
     <ClInclude Include="source\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\imgui_impl_dx12.h">
-      <Filter>Source Files\External\ImGUI</Filter>
+    <ClInclude Include="source\Windows\Keyboard.h">
+      <Filter>Header Files\Windows\IO</Filter>
     </ClInclude>
-    <ClInclude Include="source\imgui_impl_win32.h">
-      <Filter>Source Files\External\ImGUI</Filter>
+    <ClInclude Include="source\Windows\Mouse.h">
+      <Filter>Header Files\Windows\IO</Filter>
     </ClInclude>
-    <ClInclude Include="source\D3D12RHI.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Windows\Window.h">
+      <Filter>Header Files\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="source\d3dx12.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\ImGUI\imgui_impl_dx12.h">
+      <Filter>Header Files\ImGUI</Filter>
     </ClInclude>
-    <ClInclude Include="source\framework.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\ImGUI\imgui_impl_win32.h">
+      <Filter>Header Files\ImGUI</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Renderer\D3D12RHI.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="source\RHI.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\Renderer\d3dx12.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="source\Common\Windows\ILException.h">
-      <Filter>Source Files\Common\Windows</Filter>
+    <ClInclude Include="source\Renderer\Renderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RHI.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\framework.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\ILException.h">
+      <Filter>Header Files\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -110,35 +125,35 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp">
       <Filter>external\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="source\Common\Windows\Keyboard.cpp">
-      <Filter>Source Files\Common\Windows\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Common\Windows\Mouse.cpp">
-      <Filter>Source Files\Common\Windows\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Common\Windows\Window.cpp">
-      <Filter>Source Files\Common\Windows</Filter>
-    </ClCompile>
     <ClCompile Include="source\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\LaunchWindows.cpp">
+    <ClCompile Include="source\Launch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\imgui_impl_dx12.cpp">
-      <Filter>Source Files\External\ImGUI</Filter>
+    <ClCompile Include="source\Windows\Keyboard.cpp">
+      <Filter>Source Files\Windows\IO</Filter>
     </ClCompile>
-    <ClCompile Include="source\imgui_impl_win32.cpp">
-      <Filter>Source Files\External\ImGUI</Filter>
+    <ClCompile Include="source\Windows\Mouse.cpp">
+      <Filter>Source Files\Windows\IO</Filter>
     </ClCompile>
-    <ClCompile Include="source\D3D12RHI.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Windows\Window.cpp">
+      <Filter>Source Files\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\ImGUI\imgui_impl_dx12.cpp">
+      <Filter>Source Files\ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="source\Common\Windows\ILException.cpp">
-      <Filter>Source Files\Common\Windows</Filter>
+    <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12RHI.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Renderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\ILException.cpp">
+      <Filter>Source Files\Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

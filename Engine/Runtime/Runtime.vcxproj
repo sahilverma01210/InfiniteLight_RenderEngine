@@ -26,17 +26,17 @@
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui.h" />
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h" />
     <ClInclude Include="source\Application.h" />
-    <ClInclude Include="source\Common\Windows\ILException.h" />
-    <ClInclude Include="source\Common\Windows\Keyboard.h" />
-    <ClInclude Include="source\Common\Windows\Mouse.h" />
-    <ClInclude Include="source\Common\Windows\Window.h" />
-    <ClInclude Include="source\D3D12RHI.h" />
-    <ClInclude Include="source\d3dx12.h" />
-    <ClInclude Include="source\framework.h" />
-    <ClInclude Include="source\imgui_impl_dx12.h" />
-    <ClInclude Include="source\imgui_impl_win32.h" />
-    <ClInclude Include="source\Renderer.h" />
-    <ClInclude Include="source\RHI.h" />
+    <ClInclude Include="source\Common\framework.h" />
+    <ClInclude Include="source\Common\ILException.h" />
+    <ClInclude Include="source\ImGUI\imgui_impl_dx12.h" />
+    <ClInclude Include="source\ImGUI\imgui_impl_win32.h" />
+    <ClInclude Include="source\Renderer\D3D12RHI.h" />
+    <ClInclude Include="source\Renderer\d3dx12.h" />
+    <ClInclude Include="source\Renderer\Renderer.h" />
+    <ClInclude Include="source\Renderer\RHI.h" />
+    <ClInclude Include="source\Windows\Keyboard.h" />
+    <ClInclude Include="source\Windows\Mouse.h" />
+    <ClInclude Include="source\Windows\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp" />
@@ -45,15 +45,15 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Application.cpp" />
-    <ClCompile Include="source\Common\Windows\ILException.cpp" />
-    <ClCompile Include="source\Common\Windows\Keyboard.cpp" />
-    <ClCompile Include="source\Common\Windows\Mouse.cpp" />
-    <ClCompile Include="source\Common\Windows\Window.cpp" />
-    <ClCompile Include="source\D3D12RHI.cpp" />
-    <ClCompile Include="source\imgui_impl_dx12.cpp" />
-    <ClCompile Include="source\imgui_impl_win32.cpp" />
-    <ClCompile Include="source\LaunchWindows.cpp" />
-    <ClCompile Include="source\Renderer.cpp" />
+    <ClCompile Include="source\Common\ILException.cpp" />
+    <ClCompile Include="source\ImGUI\imgui_impl_dx12.cpp" />
+    <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp" />
+    <ClCompile Include="source\Launch.cpp" />
+    <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
+    <ClCompile Include="source\Renderer\Renderer.cpp" />
+    <ClCompile Include="source\Windows\Keyboard.cpp" />
+    <ClCompile Include="source\Windows\Mouse.cpp" />
+    <ClCompile Include="source\Windows\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\shaders\HLSL\PixelShader.hlsl">

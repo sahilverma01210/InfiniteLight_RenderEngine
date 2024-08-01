@@ -6,9 +6,8 @@ _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     try
-    {
-        Application* app = new Application();
-		return app->Run();
+    {		
+		return Application{}.Run();
     }
 	catch (const ILException& e)
 	{

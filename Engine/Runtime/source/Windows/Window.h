@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../Renderer.h"
+#include "../Renderer/Renderer.h"
 
-#include "ILException.h"
+#include "../Common/ILException.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 

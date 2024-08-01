@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include "Common/Windows/Window.h"
+#include "Windows/Window.h"
 
 namespace Runtime
 {

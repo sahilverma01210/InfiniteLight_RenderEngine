@@ -1,6 +1,8 @@
 #pragma once
 
-#include "framework.h"
+#include "../Common/framework.h"
+#include "../ImGUI/imgui_impl_win32.h"
+#include "../ImGUI/imgui_impl_dx12.h"
 
 // Note that while ComPtr from Microsoft::WRL is used to manage the lifetime of resources on the CPU,
 // it has no understanding of the lifetime of resources on the GPU. Apps must account

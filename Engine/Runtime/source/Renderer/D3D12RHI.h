@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RHI.h"
+#include "d3dx12.h"
 
 namespace Renderer::RHI
 {
