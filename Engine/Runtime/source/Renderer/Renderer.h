@@ -14,7 +14,7 @@ namespace Renderer
 
 	extern "C" RENDERER_API void init(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
 
-	extern "C" RENDERER_API void update(float angle, float x, float y);
+	extern "C" RENDERER_API void update(float angle);
 
 	extern "C" RENDERER_API void render();
 

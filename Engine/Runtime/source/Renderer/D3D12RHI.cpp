@@ -4,7 +4,7 @@ using namespace Microsoft::WRL;
 
 using namespace DirectX;
 
-namespace Renderer::RHI
+namespace Renderer
 {
     // Define the geometry for a triangle.
     Vertex triangleVertices[] =
@@ -99,11 +99,9 @@ namespace Renderer::RHI
             srvHeapHandleGPU);
     }
 
-    void D3D12RHI::OnUpdate(float angle, float x, float y)
+    void D3D12RHI::OnUpdate(float angle)
     {
         m_angle = angle;
-        m_x = x;
-        m_y = y;
     }
 
     void D3D12RHI::OnRender() {
@@ -188,21 +186,6 @@ namespace Renderer::RHI
     void D3D12RHI::LoadPipeline()
     {
         UINT dxgiFactoryFlags = 0;
-
-//#if defined(_DEBUG)
-//        // Enable the debug layer (requires the Graphics Tools "optional feature").
-//        // NOTE: Enabling the debug layer after device creation will invalidate the active device.
-//        {
-//            ComPtr<ID3D12Debug> debugController;
-//            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-//            {
-//                debugController->EnableDebugLayer();
-//
-//                // Enable additional debug layers.
-//                dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-//            }
-//        }
-//#endif
 
         // DirectX Graphics Infrastructure (DXGI) - Core component of DirectX API.
         // Serves as an intermediary layer between Graphics APIs and the Graphics Hardware.
@@ -400,15 +383,8 @@ namespace Renderer::RHI
             ComPtr<ID3DBlob> vertexShader;
             ComPtr<ID3DBlob> pixelShader;
 
-#if defined(_DEBUG)
-            // Enable better shader debugging with the graphics debugging tools.
-            UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-            UINT compileFlags = 0;
-#endif
-
-            D3DCompileFromFile(GetAssetFullPath(L"VertexShader.hlsl").c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr);
-            D3DCompileFromFile(GetAssetFullPath(L"PixelShader.hlsl").c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr);
+            D3DCompileFromFile(GetAssetFullPath(L"VertexShader.hlsl").c_str(), nullptr, nullptr, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
+            D3DCompileFromFile(GetAssetFullPath(L"PixelShader.hlsl").c_str(), nullptr, nullptr, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
             // Define the vertex input layout.
             D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
@@ -418,23 +394,22 @@ namespace Renderer::RHI
             };
 
             // Describe and create the graphics pipeline state object (PSO).
-            D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-            psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
-            psoDesc.pRootSignature = m_rootSignature.Get();
-            psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-            psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
-            psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-            psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-            psoDesc.SampleMask = UINT_MAX;
-            psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-            psoDesc.NumRenderTargets = 1;
-            psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-            psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-            psoDesc.DepthStencilState.DepthEnable = TRUE;
-            psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-            psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-            psoDesc.SampleDesc.Count = 1;
-            m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState));
+            m_psoDesccription.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
+            m_psoDesccription.pRootSignature = m_rootSignature.Get();
+            m_psoDesccription.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
+            m_psoDesccription.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+            m_psoDesccription.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+            m_psoDesccription.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+            m_psoDesccription.SampleMask = UINT_MAX;
+            m_psoDesccription.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+            m_psoDesccription.NumRenderTargets = 1;
+            m_psoDesccription.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+            m_psoDesccription.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+            m_psoDesccription.DepthStencilState.DepthEnable = TRUE;
+            m_psoDesccription.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+            m_psoDesccription.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+            m_psoDesccription.SampleDesc.Count = 1;
+            m_device->CreateGraphicsPipelineState(&m_psoDesccription, IID_PPV_ARGS(&m_pipelineState));
         }
     }
 
@@ -590,13 +565,13 @@ namespace Renderer::RHI
             {
                 subresourceData.reserve(mipChain.GetImageCount());
 
-for (int i = 0; i < mipChain.GetImageCount(); ++i) {
-    const auto img = mipChain.GetImage(i, 0, 0);
-    subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
-        .pData = img->pixels,
-        .RowPitch = (LONG_PTR)img->rowPitch,
-        .SlicePitch = (LONG_PTR)img->slicePitch,
-        });
+                for (int i = 0; i < mipChain.GetImageCount(); ++i) {
+                    const auto img = mipChain.GetImage(i, 0, 0);
+                    subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
+                        .pData = img->pixels,
+                        .RowPitch = (LONG_PTR)img->rowPitch,
+                        .SlicePitch = (LONG_PTR)img->slicePitch,
+                        });
 }
             }
 

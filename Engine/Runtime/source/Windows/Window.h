@@ -1,12 +1,13 @@
 #pragma once
 
+#include "../Common/ILException.h"
 #include "../Renderer/Renderer.h"
 
-#include "../Common/ILException.h"
+#include "WindowsThrowMacros.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 
-using namespace Renderer::RHI;
+using namespace Renderer;
 
 class Window
 {
@@ -46,7 +47,7 @@ public:
 	Window& operator=(const Window&) = delete;
 	void SetTitle(const std::wstring& title);
 	static std::optional<int> ProcessMessages();
-	void UpdateWindow(float angle, float x, float y);
+	void UpdateWindow(float angle);
 private:
 	// 1. Just to Setup Pointer to Windows Instance in Win32 Side.
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
@@ -63,7 +64,3 @@ private:
 	int height;
 	HWND hWnd;
 };
-
-// error exception helper macro
-#define ILWND_EXCEPT( hr ) Window::Exception( __LINE__,__FILE__,hr )
-#define ILWND_LAST_EXCEPT() Window::Exception( __LINE__,__FILE__,GetLastError() )

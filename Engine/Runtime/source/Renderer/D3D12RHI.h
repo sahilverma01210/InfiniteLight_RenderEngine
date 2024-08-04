@@ -3,7 +3,7 @@
 #include "RHI.h"
 #include "d3dx12.h"
 
-namespace Renderer::RHI
+namespace Renderer
 {
     struct Vertex
     {
@@ -13,6 +13,7 @@ namespace Renderer::RHI
 
     class D3D12RHI : public RHI
     {
+        friend class Bindable;
     public:
         D3D12RHI(UINT width, UINT height);
         //D3D12RHI(const D3D12RHI&) = delete;
@@ -20,7 +21,7 @@ namespace Renderer::RHI
         //~D3D12RHI();
 
         void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
-        void OnUpdate(float angle, float x, float y);
+        void OnUpdate(float angle);
         void OnRender();
         void OnDestroy();
 
@@ -43,7 +44,7 @@ namespace Renderer::RHI
         XMMATRIX m_viewProjection;
 
         // Cube Parameters.
-        float m_angle, m_x, m_y;
+        float m_angle;
         XMMATRIX m_rotationMatrix;
 
         // Buffer Sizes
@@ -88,7 +89,9 @@ namespace Renderer::RHI
         ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
         ComPtr<ID3D12PipelineState> m_pipelineState;
+        ComPtr<ID3D12PipelineState> m_pipelineStateShaders;
         ComPtr<ID3D12GraphicsCommandList> m_commandList;
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC m_psoDesccription;
 
         // View Handles
         UINT m_rtvDescriptorSize;

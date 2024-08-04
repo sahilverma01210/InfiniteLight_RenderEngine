@@ -1,4 +1,4 @@
-struct PSInput
+struct VSOutput
 {
     float2 uv : TEXCOORD;
     float4 position : SV_POSITION;
@@ -9,9 +9,9 @@ cbuffer Transform
     matrix transform;
 };
 
-PSInput VSMain(float4 position : POSITION, float2 uv : TEXCOORD)
+VSOutput VSMain(float4 position : POSITION, float2 uv : TEXCOORD)
 {
-	PSInput result;
+    VSOutput result;
 
     result.position = mul(position, transform);
     result.uv = uv;

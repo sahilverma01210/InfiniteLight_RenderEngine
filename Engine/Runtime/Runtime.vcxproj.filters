@@ -108,6 +108,9 @@
     <ClInclude Include="source\Common\ILException.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
+    <ClInclude Include="source\Windows\WindowsThrowMacros.h">
+      <Filter>Header Files\Windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">

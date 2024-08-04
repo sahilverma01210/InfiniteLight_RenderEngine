@@ -37,6 +37,7 @@
     <ClInclude Include="source\Windows\Keyboard.h" />
     <ClInclude Include="source\Windows\Mouse.h" />
     <ClInclude Include="source\Windows\Window.h" />
+    <ClInclude Include="source\Windows\WindowsThrowMacros.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp" />

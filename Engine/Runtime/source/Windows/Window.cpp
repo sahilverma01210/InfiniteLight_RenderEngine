@@ -115,9 +115,9 @@ std::optional<int> Window::ProcessMessages()
 	return {};
 }
 
-void Window::UpdateWindow(float angle, float x, float y)
+void Window::UpdateWindow(float angle)
 {
-	Renderer::update(angle, x, y);
+	Renderer::update(angle);
 	Renderer::render();
 }
 

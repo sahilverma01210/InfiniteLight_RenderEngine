@@ -48,8 +48,6 @@ namespace Runtime
 		//	0.0f);
 
 		// Rotating Cube following Mouse Left Click.
-		window.UpdateWindow(timer.Peek(),
-			window.mouse.GetPosX() / (WIDTH / 2) - 1.0f,
-			-window.mouse.GetPosY() / (HEIGHT / 2) + 1.0f);
+		window.UpdateWindow(timer.Peek());
 	}
 }
