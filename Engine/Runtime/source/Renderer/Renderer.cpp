@@ -3,10 +3,14 @@
 namespace Renderer
 {
 	D3D12RHI* pRHI;
+	Cube* pCube;
+	Camera camera;
 	// std::unique_ptr<RHI::RHI> pRHI;
 
 	void createRHI(UINT width, UINT height) {
-		pRHI = new D3D12RHI(width, height);
+
+		pCube = new Cube();
+		pRHI = new D3D12RHI(width, height, pCube);
 		//pRHI = std::make_unique<RHI::D3D12RHI>(width, height);
 	}
 
@@ -15,7 +19,9 @@ namespace Renderer
 	}
 
 	void update(float angle) {
-		pRHI->OnUpdate(angle);
+		pRHI->Rotate(angle);
+		pRHI->SetCamera(camera.GetMatrix());
+		pRHI->OnUpdate();
 	}
 
 	void render() {

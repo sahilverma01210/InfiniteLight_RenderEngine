@@ -42,7 +42,7 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 	return wndClass.hInst;
 }
 
-Window::Window( int width,int height,const WCHAR* name )
+Window::Window( LONG width,LONG height,const WCHAR* name ) : width(width), height(height)
 {
 	// Plain Exception Examples:
 	//throw ILWND_EXCEPT(ERROR_ARENA_TRASHED);
@@ -74,7 +74,7 @@ Window::Window( int width,int height,const WCHAR* name )
 	}
 
 	// create and initialize Renderer
-	Renderer::createRHI(width, height);
+	Renderer::createRHI((UINT)width, (UINT)height);
 	Renderer::init(WindowClass::GetInstance(), hWnd, false);
 
 	// show window
@@ -277,6 +277,7 @@ bool Window::ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept
             return true;
         }
     }
+	return false;
 }
 
 // Window Exception Stuff

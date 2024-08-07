@@ -6,33 +6,20 @@ using namespace DirectX;
 
 namespace Renderer
 {
-    // Define the geometry for a triangle.
-    Vertex triangleVertices[] =
+    // Cube Face Colors
+    const XMFLOAT4 faceColors[] =
     {
-        { {-1.0f, -1.0f, -1.0f}, { 0.f, 0.f } }, // 0 
-        { {-1.0f,  1.0f, -1.0f}, { 0.f, 1.f } }, // 1 
-        { {1.0f,  1.0f, -1.0f}, { 1.f, 1.f } }, // 2 
-        { {1.0f, -1.0f, -1.0f}, { 1.f, 0.f } }, // 3 
-        { {-1.0f, -1.0f,  1.0f}, { 0.f, 1.f } }, // 4 
-        { {-1.0f,  1.0f,  1.0f}, { 0.f, 0.f } }, // 5 
-        { {1.0f,  1.0f,  1.0f}, { 1.f, 0.f } }, // 6 
-        { {1.0f, -1.0f,  1.0f}, { 1.f, 1.f } }  // 7 
-    };
-
-    // Cube indices (Cube Vertex Order to form Triangles)
-    const unsigned short indices[] =
-    {
-        0, 1, 2, 0, 2, 3,
-        4, 6, 5, 4, 7, 6,
-        4, 5, 1, 4, 1, 0,
-        3, 2, 6, 3, 6, 7,
-        1, 5, 6, 1, 6, 2,
-        4, 0, 3, 4, 3, 7
+        {1.f, 0.f, 0.f, 1.f},
+        {0.f, 1.f, 0.f, 1.f},
+        {0.f, 0.f, 1.f, 1.f},
+        {1.f, 0.f, 1.f, 1.f},
+        {0.f, 1.f, 1.f, 1.f},
+        {1.f, 1.f, 0.f, 1.f},
     };
 
     // PUBLIC D3D12RHI METHODS
 
-    D3D12RHI::D3D12RHI(UINT width, UINT height) :
+    D3D12RHI::D3D12RHI(UINT width, UINT height, Mesh* pMesh) :
         m_width(width),
         m_height(height),
         m_useWarpDevice(false),
@@ -45,6 +32,8 @@ namespace Renderer
         GetAssetsPath(assetsPath, _countof(assetsPath));
         m_assetsPath = assetsPath;
 
+        m_Mesh = pMesh;
+
         m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
     }
 
@@ -56,19 +45,6 @@ namespace Renderer
 
         // init COM.
         HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-
-        // set view projection matrix
-        {
-            // setup view (camera) matrix
-            const auto eyePosition = XMVectorSet(0, 0, -6, 1);
-            const auto focusPoint = XMVectorSet(0, 0, 0, 1);
-            const auto upDirection = XMVectorSet(0, 1, 0, 0);
-            const auto view = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
-            // setup perspective projection matrix
-            const auto projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(65.f), m_aspectRatio, 0.1f, 100.0f);
-            // combine matrices
-            m_viewProjection = view * projection;
-        }
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -99,9 +75,20 @@ namespace Renderer
             srvHeapHandleGPU);
     }
 
-    void D3D12RHI::OnUpdate(float angle)
+    void D3D12RHI::OnUpdate()
     {
-        m_angle = angle;
+        // set transform, camera, projection matrix
+        {
+            // setup perspective projection matrix
+            m_ProjectionMatrix = XMMatrixPerspectiveFovLH(XMConvertToRadians(65.f), m_aspectRatio, 0.1f, 100.0f);
+
+            // Create transformation matrix
+            m_rotationMatrix = XMMatrixTranspose(
+                m_TransformMatrix *
+                m_CameraMatrix *
+                m_ProjectionMatrix
+            );
+        }
     }
 
     void D3D12RHI::OnRender() {
@@ -112,42 +99,12 @@ namespace Renderer
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
-
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+        if (ImGui::Begin("Simulation FPS"))
         {
-            static float f = 0.0f;
-            static int counter = 0;
-
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average ");
-            ImGui::End();
+            ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         }
 
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
-            ImGui::End();
-        }
+        ImGui::End();
 
         // Rendering
         ImGui::Render();
@@ -179,6 +136,27 @@ namespace Renderer
         ImGui::DestroyContext();
 
         CloseHandle(m_fenceEvent);
+    }
+
+    void D3D12RHI::Rotate(float angle)
+    {
+        m_TransformMatrix = XMMatrixRotationX(angle) * XMMatrixRotationY(angle) * XMMatrixRotationZ(angle);
+    }
+
+    void D3D12RHI::SetTransform(FXMMATRIX transformMatrix)
+    {
+        m_TransformMatrix = transformMatrix;
+    }
+    
+    void D3D12RHI::SetCamera(FXMMATRIX cameraMatrix)
+    {
+        // setup view (camera) matrix
+        m_CameraMatrix = cameraMatrix;
+    }
+    
+    void D3D12RHI::SetProjection(FXMMATRIX projectionMatrix)
+    {
+        m_ProjectionMatrix = projectionMatrix;
     }
 
     // PRIVATE D3D12RHI METHODS
@@ -352,12 +330,13 @@ namespace Renderer
 
         // Create root signature.
         {
-            CD3DX12_ROOT_PARAMETER rootParameters[2]{};
+            CD3DX12_ROOT_PARAMETER rootParameters[3]{};
             rootParameters[0].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
             {
                 const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
                 rootParameters[1].InitAsDescriptorTable(1, &descRange);
             }
+            rootParameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
             // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
             const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
                 D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -420,7 +399,7 @@ namespace Renderer
 
         // Create the vertex buffer.
         {
-            m_vertexBufferSize = sizeof(triangleVertices);
+            m_vertexBufferSize = m_Mesh->GetNumVertices();
 
             // create committed resource (Vertex Buffer) for GPU access of vertex data.
             {
@@ -454,7 +433,7 @@ namespace Renderer
             UINT8* pVertexDataBegin;
             CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
             vertexUploadBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
-            memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+            memcpy(pVertexDataBegin, m_Mesh->GetVertices(), m_vertexBufferSize);
             vertexUploadBuffer->Unmap(0, nullptr);
 
             // reset command list and allocator  
@@ -486,7 +465,7 @@ namespace Renderer
 
         // Create the index buffer.
         {
-            m_indexBufferSize = sizeof(indices);
+            m_indexBufferSize = m_Mesh->GetNumIndices();
 
             // create committed resource (Index Buffer) for GPU access of Index data.
             {
@@ -520,7 +499,7 @@ namespace Renderer
             UINT8* pIndexDataBegin;
             CD3DX12_RANGE readRangeI(0, 0);        // We do not intend to read from this resource on the CPU.
             indexUploadBuffer->Map(0, &readRangeI, reinterpret_cast<void**>(&pIndexDataBegin));
-            memcpy(pIndexDataBegin, indices, sizeof(indices));
+            memcpy(pIndexDataBegin, m_Mesh->GetIndices(), m_indexBufferSize);
             indexUploadBuffer->Unmap(0, nullptr);
 
             // reset command list and allocator   
@@ -548,6 +527,61 @@ namespace Renderer
             m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
             m_indexBufferView.SizeInBytes = m_indexBufferSize;
             m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
+        }
+
+        // create constant buffer for cube face colors.
+        {
+            m_constantBufferSize = sizeof(faceColors);
+
+            // create committed resource (Index Buffer) for GPU access of Index data.
+            {
+                const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
+                const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_constantBufferSize);
+                m_device->CreateCommittedResource(
+                    &heapProps,
+                    D3D12_HEAP_FLAG_NONE,
+                    &resourceDesc,
+                    D3D12_RESOURCE_STATE_COPY_DEST,
+                    nullptr, IID_PPV_ARGS(&m_constantBuffer)
+                );
+            }
+
+            // create committed resource (Upload Buffer) for CPU upload of Index data.
+            ComPtr<ID3D12Resource> constantUploadBuffer;
+            {
+                auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
+                auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_constantBufferSize) };
+
+                m_device->CreateCommittedResource(
+                    &heapProperties,
+                    D3D12_HEAP_FLAG_NONE,
+                    &resourceDesc,
+                    D3D12_RESOURCE_STATE_GENERIC_READ,
+                    nullptr,
+                    IID_PPV_ARGS(&constantUploadBuffer));
+            }
+
+            // Copy the index data to the index buffer.
+            UINT8* pConstantDataBegin;
+            CD3DX12_RANGE readRangeC(0, 0);        // We do not intend to read from this resource on the CPU.
+            constantUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin));
+            memcpy(pConstantDataBegin, faceColors, m_constantBufferSize);
+            constantUploadBuffer->Unmap(0, nullptr);
+
+            // reset command list and allocator   
+            m_commandAllocator->Reset();
+            m_commandList->Reset(m_commandAllocator.Get(), nullptr);
+
+            // copy Upload Buffer to Index Buffer 
+            m_commandList->CopyResource(m_constantBuffer.Get(), constantUploadBuffer.Get());
+
+            // close command list and submit command list to queue as array with single element.
+            m_commandList->Close();
+            ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
+            m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
+
+            // insert fence to detect when upload is complete  
+            InsertFence();
         }
 
         // Create the texture buffer.
@@ -687,7 +721,7 @@ namespace Renderer
 
         // Clear Render Target View (Back Buffer View) and Depth Stensil View.
         {
-            const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+            const float clear_color_with_alpha[4] = { 0.45f, 0.55f, 0.60f, 1.00f };
             m_commandList->ClearRenderTargetView(m_renderTargetViewHandle[m_backBufferIndex], clear_color_with_alpha, 0, nullptr);
 
             m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
@@ -717,20 +751,11 @@ namespace Renderer
         // bind render target and depth
         m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandle[m_backBufferIndex], FALSE, &m_depthStensilViewHandle);
 
+        // Set Rotation Matrix for Vertex Shader.
+        m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
+        m_commandList->SetGraphicsRootConstantBufferView(2, m_constantBuffer->GetGPUVirtualAddress());
         // draw cube
-        {
-            // Create transformation matrix
-            m_rotationMatrix = XMMatrixTranspose(
-                XMMatrixRotationX(m_angle) *
-                XMMatrixRotationY(m_angle) *
-                XMMatrixRotationZ(m_angle) *
-                m_viewProjection
-            );
-
-            m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(m_rotationMatrix) / 4, &m_rotationMatrix, 0);
-            // draw the geometry  
-            m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);
-        }
+        m_commandList->DrawIndexedInstanced(m_indexBufferSize, 1, 0, 0, 0);
 
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_commandList.Get());
 

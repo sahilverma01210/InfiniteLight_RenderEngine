@@ -41,7 +41,7 @@ private:
 		HINSTANCE hInst;
 	};
 public:
-	Window(int width, int height, const WCHAR* name);
+	Window(LONG width, LONG height, const WCHAR* name);
 	~Window();
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
@@ -60,7 +60,7 @@ public:
 	Keyboard kbd;
 	Mouse mouse;
 private:
-	int width;
-	int height;
+	LONG width;
+	LONG height;
 	HWND hWnd;
 };

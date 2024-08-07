@@ -111,6 +111,15 @@
     <ClInclude Include="source\Windows\WindowsThrowMacros.h">
       <Filter>Header Files\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\Mesh.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Cube.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Camera.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">
@@ -157,6 +166,15 @@
     </ClCompile>
     <ClCompile Include="source\Common\ILException.cpp">
       <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Mesh.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Cube.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Camera.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

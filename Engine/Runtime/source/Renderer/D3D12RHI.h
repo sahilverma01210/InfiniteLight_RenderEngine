@@ -2,29 +2,27 @@
 
 #include "RHI.h"
 #include "d3dx12.h"
+#include "Mesh.h"
 
 namespace Renderer
 {
-    struct Vertex
-    {
-        XMFLOAT3 position;
-        XMFLOAT2 uvCoord;
-    };
-
     class D3D12RHI : public RHI
     {
-        friend class Bindable;
     public:
-        D3D12RHI(UINT width, UINT height);
+        D3D12RHI(UINT width, UINT height, Mesh* pMesh);
         //D3D12RHI(const D3D12RHI&) = delete;
         //D3D12RHI& operator=(const D3D12RHI&) = delete;
         //~D3D12RHI();
 
         void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
-        void OnUpdate(float angle);
+        void OnUpdate();
         void OnRender();
         void OnDestroy();
 
+        void Rotate(float angle);
+        void SetTransform(FXMMATRIX transformMatrix);
+        void SetCamera(FXMMATRIX cameraMatrix);
+        void SetProjection(FXMMATRIX projectionMatrix);
     private:
         HWND m_hWnd;
 
@@ -36,22 +34,19 @@ namespace Renderer
         UINT m_height;
         float m_aspectRatio;
 
-        bool show_demo_window = true;
-        bool show_another_window = false;
-        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
         // View Projection Matrix.
-        XMMATRIX m_viewProjection;
+        XMMATRIX m_TransformMatrix;
+        XMMATRIX m_CameraMatrix;
+        XMMATRIX m_ProjectionMatrix;
 
         // Cube Parameters.
-        float m_angle;
         XMMATRIX m_rotationMatrix;
 
         // Buffer Sizes
         UINT m_vertexBufferSize;
         UINT m_indexBufferSize;
-        UINT m_texureUploadBufferSize;
         UINT m_constantBufferSize;
+        UINT m_texureUploadBufferSize;
 
         // App resources - Buffers.
         ComPtr<ID3D12Resource> m_vertexBuffer;
@@ -71,6 +66,7 @@ namespace Renderer
 
         // Root assets path.
         std::wstring m_assetsPath;
+        Mesh* m_Mesh;
 
         UINT m_backBufferIndex;
         static const UINT m_backBufferCount = 2;

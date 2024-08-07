@@ -30,8 +30,11 @@
     <ClInclude Include="source\Common\ILException.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_dx12.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_win32.h" />
+    <ClInclude Include="source\Renderer\Camera.h" />
+    <ClInclude Include="source\Renderer\Cube.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
     <ClInclude Include="source\Renderer\d3dx12.h" />
+    <ClInclude Include="source\Renderer\Mesh.h" />
     <ClInclude Include="source\Renderer\Renderer.h" />
     <ClInclude Include="source\Renderer\RHI.h" />
     <ClInclude Include="source\Windows\Keyboard.h" />
@@ -50,7 +53,10 @@
     <ClCompile Include="source\ImGUI\imgui_impl_dx12.cpp" />
     <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp" />
     <ClCompile Include="source\Launch.cpp" />
+    <ClCompile Include="source\Renderer\Camera.cpp" />
+    <ClCompile Include="source\Renderer\Cube.cpp" />
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
+    <ClCompile Include="source\Renderer\Mesh.cpp" />
     <ClCompile Include="source\Renderer\Renderer.cpp" />
     <ClCompile Include="source\Windows\Keyboard.cpp" />
     <ClCompile Include="source\Windows\Mouse.cpp" />
@@ -233,7 +239,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>

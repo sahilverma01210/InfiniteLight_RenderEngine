@@ -22,7 +22,7 @@ namespace Runtime
 		return duration<float>(steady_clock::now() - last).count();
 	}
 
-	Application::Application() : window(WIDTH, HEIGHT, TITLE)
+	Application::Application() : window((LONG)WIDTH, (LONG)HEIGHT, TITLE)
 	{}
 
 	int Application::Run()
