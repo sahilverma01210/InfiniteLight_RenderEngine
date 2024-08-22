@@ -5,13 +5,9 @@
 
 namespace Renderer
 {
-	void createRHI(UINT width, UINT height);
-
-	void init(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
+	void init(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);
 
 	void update(float angle);
-
-	void render();
 
 	void destroy();
 }

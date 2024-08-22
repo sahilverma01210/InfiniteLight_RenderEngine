@@ -58,6 +58,18 @@
     <Filter Include="Header Files\Common">
       <UniqueIdentifier>{3e87072f-3d41-403d-85ea-8919d59d91bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Bindables">
+      <UniqueIdentifier>{88b16e8a-ee95-4357-abca-ecb3f84fbd25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\Drawables">
+      <UniqueIdentifier>{9076667c-8be2-4ed5-8884-0a9961c9d62e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Bindables">
+      <UniqueIdentifier>{932de8dc-04f9-44ad-9dc3-403a72bb1280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Drawables">
+      <UniqueIdentifier>{cc7003b6-cfb0-49b1-a423-7691a2e290f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -114,11 +126,44 @@
     <ClInclude Include="source\Renderer\Mesh.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Cube.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Camera.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\VertexBuffer.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TextureBuffer.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\IndexBuffer.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Topology.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ConstantBuffer.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Bindable.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BindableBase.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Drawable.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Cube.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TransformBuffer.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ImGUI\ImguiManager.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PipelineState.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -170,11 +215,41 @@
     <ClCompile Include="source\Renderer\Mesh.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Cube.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\Camera.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Bindable.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\VertexBuffer.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Topology.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\TextureBuffer.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\IndexBuffer.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ConstantBuffer.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Cube.cpp">
+      <Filter>Source Files\Renderer\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Drawable.cpp">
+      <Filter>Source Files\Renderer\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\TransformBuffer.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ImGUI\ImguiManager.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\PipelineState.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

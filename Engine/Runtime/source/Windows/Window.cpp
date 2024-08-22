@@ -73,10 +73,12 @@ Window::Window( LONG width,LONG height,const WCHAR* name ) : width(width), heigh
 		throw ILWND_LAST_EXCEPT();
 	}
 
-	// create and initialize Renderer
-	Renderer::createRHI((UINT)width, (UINT)height);
-	Renderer::init(WindowClass::GetInstance(), hWnd, false);
+	// init COM.
+	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
+	// create and initialize Renderer
+	Renderer::init((UINT)width, (UINT)height, hWnd, WindowClass::GetInstance(), false);
+	
 	// show window
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
 }
@@ -118,7 +120,55 @@ std::optional<int> Window::ProcessMessages()
 void Window::UpdateWindow(float angle)
 {
 	Renderer::update(angle);
-	Renderer::render();
+}
+
+void Window::EnableCursor() noexcept
+{
+	cursorEnabled = true;
+	ShowCursor();
+	EnableImGUIMouse();
+	FreeCursor();
+}
+
+void Window::DisableCursor() noexcept
+{
+	cursorEnabled = false;
+	HideCursor();
+	DisableImGUIMouse();
+	ConfineCursor();
+}
+
+void Window::ConfineCursor() noexcept
+{
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	MapWindowPoints(hWnd, nullptr, reinterpret_cast<POINT*>(&rect), 2); // Map Point from Screen Space to Window Space.
+	ClipCursor(&rect);
+}
+
+void Window::FreeCursor() noexcept
+{
+	ClipCursor(nullptr);
+}
+
+void Window::HideCursor() noexcept
+{
+	while (::ShowCursor(FALSE) >= 0);
+}
+
+void Window::ShowCursor() noexcept
+{
+	while (::ShowCursor(TRUE) < 0);
+}
+
+void Window::EnableImGUIMouse() noexcept
+{
+	ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+}
+
+void Window::DisableImGUIMouse() noexcept
+{
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
 }
 
 LRESULT WINAPI Window::HandleMsgSetup( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noexcept
@@ -168,6 +218,22 @@ LRESULT Window::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noex
 		// clear keystate when window loses focus to prevent input getting "stuck"
 	case WM_KILLFOCUS:
 		kbd.ClearState();
+		break;
+	case WM_ACTIVATE:
+		// confine/free cursor on window to foreground/background if cursor disabled
+		if (!cursorEnabled)
+		{
+			if (wParam & WA_ACTIVE)
+			{
+				ConfineCursor();
+				HideCursor();
+			}
+			else
+			{
+				FreeCursor();
+				ShowCursor();
+			}
+		}
 		break;
 
 		/*********** KEYBOARD MESSAGES ***********/
@@ -220,6 +286,12 @@ LRESULT Window::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noex
 	}
 	case WM_LBUTTONDOWN:
 	{
+		SetForegroundWindow(hWnd);
+		if (!cursorEnabled)
+		{
+			ConfineCursor();
+			HideCursor();
+		}
 		const POINTS pt = MAKEPOINTS(lParam);
 		mouse.OnLeftPressed(pt.x, pt.y);
 		break;

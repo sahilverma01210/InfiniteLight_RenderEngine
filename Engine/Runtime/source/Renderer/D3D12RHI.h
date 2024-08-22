@@ -2,32 +2,51 @@
 
 #include "RHI.h"
 #include "d3dx12.h"
-#include "Mesh.h"
 
 namespace Renderer
 {
+    struct Vertex
+    {
+        XMFLOAT3 position;
+        XMFLOAT2 uvCoord;
+    };
+
     class D3D12RHI : public RHI
     {
+        friend class Bindable;
     public:
-        D3D12RHI(UINT width, UINT height, Mesh* pMesh);
+        D3D12RHI(UINT width, UINT height, HWND hWnd);
         //D3D12RHI(const D3D12RHI&) = delete;
         //D3D12RHI& operator=(const D3D12RHI&) = delete;
         //~D3D12RHI();
 
-        void OnInit(HINSTANCE hInstance, HWND hWnd, bool useWarpDevice);
-        void OnUpdate();
-        void OnRender();
-        void OnDestroy();
+        void OnInit();
 
-        void Rotate(float angle);
         void SetTransform(FXMMATRIX transformMatrix);
         void SetCamera(FXMMATRIX cameraMatrix);
         void SetProjection(FXMMATRIX projectionMatrix);
+        XMMATRIX GetTransform();
+        XMMATRIX GetCamera();
+        XMMATRIX GetProjection();
+
+        void OnDestroy();
+
+        void StartFrame();
+        void DrawIndexed(UINT indexCountPerInstance);
+        void EndFrame();
+
+        // ImGUI Methods.
+        void InitImGUI();
+        void RenderImGUI();
+        void DestroyImGUI();
+
+        // Helper function for resolving the full path of assets.
+        std::wstring GetAssetFullPath(LPCWSTR assetName);
     private:
         HWND m_hWnd;
 
         // Adapter info.
-        bool m_useWarpDevice;
+        bool m_useWarpDevice = false;
 
         // Viewport dimensions.
         UINT m_width;
@@ -42,23 +61,6 @@ namespace Renderer
         // Cube Parameters.
         XMMATRIX m_rotationMatrix;
 
-        // Buffer Sizes
-        UINT m_vertexBufferSize;
-        UINT m_indexBufferSize;
-        UINT m_constantBufferSize;
-        UINT m_texureUploadBufferSize;
-
-        // App resources - Buffers.
-        ComPtr<ID3D12Resource> m_vertexBuffer;
-        ComPtr<ID3D12Resource> m_indexBuffer;
-        ComPtr<ID3D12Resource> m_texureBuffer;
-        ComPtr<ID3D12Resource> m_imguiFontBuffer;
-        ComPtr<ID3D12Resource> m_constantBuffer;
-
-        // Buffer Views
-        D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-        D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
-
         // Synchronization objects.
         UINT64 m_fenceValue;
         HANDLE m_fenceEvent;
@@ -66,7 +68,6 @@ namespace Renderer
 
         // Root assets path.
         std::wstring m_assetsPath;
-        Mesh* m_Mesh;
 
         UINT m_backBufferIndex;
         static const UINT m_backBufferCount = 2;
@@ -84,21 +85,14 @@ namespace Renderer
         ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
         ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
-        ComPtr<ID3D12PipelineState> m_pipelineState;
-        ComPtr<ID3D12PipelineState> m_pipelineStateShaders;
         ComPtr<ID3D12GraphicsCommandList> m_commandList;
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC m_psoDesccription;
 
         // View Handles
         UINT m_rtvDescriptorSize;
-        D3D12_CPU_DESCRIPTOR_HANDLE  m_renderTargetViewHandle[m_backBufferCount] = {};
-        D3D12_CPU_DESCRIPTOR_HANDLE  m_depthStensilViewHandle;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetViewHandle[m_backBufferCount] = {};
+        D3D12_CPU_DESCRIPTOR_HANDLE m_depthStensilViewHandle;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_shaderResourceViewHandle;
 
-        // Load the rendering pipeline dependencies.
-        void LoadPipeline();
-        void LoadStaticAssets();
-        // Update Command List every loop.
-        void PopulateCommandList();
         // Insert fence to command queue.
         void InsertFence();
 
@@ -108,8 +102,7 @@ namespace Renderer
             _In_ IDXGIFactory1* pFactory,
             _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
             bool requestHighPerformanceAdapter = false);
-        // Helper function for resolving the full path of assets.
-        std::wstring GetAssetFullPath(LPCWSTR assetName);
+
     };
 
     inline void GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, UINT pathSize)

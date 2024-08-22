@@ -48,7 +48,19 @@ public:
 	void SetTitle(const std::wstring& title);
 	static std::optional<int> ProcessMessages();
 	void UpdateWindow(float angle);
+
+	void EnableCursor() noexcept;
+	void DisableCursor() noexcept;
+
 private:
+
+	void ConfineCursor() noexcept;
+	void FreeCursor() noexcept;
+	void HideCursor() noexcept;
+	void ShowCursor() noexcept;
+	void EnableImGUIMouse() noexcept;
+	void DisableImGUIMouse() noexcept;
+
 	// 1. Just to Setup Pointer to Windows Instance in Win32 Side.
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	// 2. Adaptor to adapt from Win32 Call Convention to our C++ member function.
@@ -63,4 +75,5 @@ private:
 	LONG width;
 	LONG height;
 	HWND hWnd;
+	bool cursorEnabled = true;
 };
