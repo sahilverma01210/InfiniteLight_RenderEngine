@@ -5,12 +5,6 @@
 
 namespace Renderer
 {
-    struct Vertex
-    {
-        XMFLOAT3 position;
-        XMFLOAT2 uvCoord;
-    };
-
     class D3D12RHI : public RHI
     {
         friend class Bindable;
@@ -81,7 +75,6 @@ namespace Renderer
         ComPtr<ID3D12Resource> m_depthBuffer;
         ComPtr<ID3D12CommandAllocator> m_commandAllocator;
         ComPtr<ID3D12CommandQueue> m_commandQueue;
-        ComPtr<ID3D12RootSignature> m_rootSignature;
         ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
         ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;

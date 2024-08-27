@@ -135,35 +135,6 @@ namespace Renderer
             }
         }
 
-        // Create root signature.
-        {
-            CD3DX12_ROOT_PARAMETER rootParameters[2]{};
-            rootParameters[0].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-            rootParameters[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
-            //{
-            //    const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
-            //    rootParameters[2].InitAsDescriptorTable(1, &descRange);
-            //}
-            // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
-            const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-                D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS |
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS |
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-                D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-            // define static sampler 
-            const CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-            // define root signsture with transformation matrix.
-            CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-            rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 1, &staticSampler, rootSignatureFlags);
-
-            ComPtr<ID3DBlob> signatureBlob;
-            ComPtr<ID3DBlob> errorBlob;
-            D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
-            m_device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
-        }
-
         // Describe and create a RTV descriptor heap.
         {
             D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
@@ -307,9 +278,6 @@ namespace Renderer
 
             m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
         }
-
-        // Set pipeline state.
-        m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
         // bind the heap containing the texture descriptor 
         m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());

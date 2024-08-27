@@ -14,7 +14,6 @@ namespace Renderer
 		static ID3D12CommandQueue* GetCommandQueue(D3D12RHI& gfx) noexcept;
 		static ID3D12CommandAllocator* GetCommandAllocator(D3D12RHI& gfx) noexcept;
 		static ID3D12GraphicsCommandList* GetCommandList(D3D12RHI& gfx) noexcept;
-		static ID3D12RootSignature* GetRootSignature(D3D12RHI& gfx) noexcept;
 		static ID3D12DescriptorHeap* GetSRVDescriptorHeap(D3D12RHI& gfx) noexcept;
 		static void InsertFence(D3D12RHI& gfx) noexcept;
 	};

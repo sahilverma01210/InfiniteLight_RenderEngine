@@ -7,6 +7,8 @@ namespace Renderer
 {
 	class Drawable
 	{
+		template<class T>
+		friend class Object;
 	public:
 		Drawable() = default;
 		Drawable(const Drawable&) = delete;
@@ -15,9 +17,9 @@ namespace Renderer
 		virtual void Update(float dt) noexcept = 0;
 		void AddBindable(std::unique_ptr<Bindable> bindable) noexcept;
 		virtual ~Drawable() = default;
-	protected:
-		UINT m_numIndices;
 	private:
+		virtual const std::vector<std::unique_ptr<Bindable>>& GetStaticBinds() const noexcept = 0;
+		virtual const UINT GetNumIndices() const noexcept = 0;
 		std::vector<std::unique_ptr<Bindable>> bindables;
 	};
 }

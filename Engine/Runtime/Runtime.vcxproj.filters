@@ -70,6 +70,9 @@
     <Filter Include="Source Files\Renderer\Drawables">
       <UniqueIdentifier>{cc7003b6-cfb0-49b1-a423-7691a2e290f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Shapes">
+      <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -153,9 +156,6 @@
     <ClInclude Include="source\Renderer\Drawable.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Cube.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\TransformBuffer.h">
       <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
@@ -163,6 +163,42 @@
       <Filter>Header Files\ImGUI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PipelineState.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Cone.h">
+      <Filter>Header Files\Renderer\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Plane.h">
+      <Filter>Header Files\Renderer\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Prism.h">
+      <Filter>Header Files\Renderer\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Sphere.h">
+      <Filter>Header Files\Renderer\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\ILMath.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\IndexedTriangleList.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Cube.h">
+      <Filter>Header Files\Renderer\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Box.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Object.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Pyramid.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Melon.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RootSignature.h">
       <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
   </ItemGroup>
@@ -236,9 +272,6 @@
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp">
       <Filter>Source Files\Renderer\Bindables</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Cube.cpp">
-      <Filter>Source Files\Renderer\Drawables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\Drawable.cpp">
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
@@ -251,16 +284,34 @@
     <ClCompile Include="source\Renderer\PipelineState.cpp">
       <Filter>Source Files\Renderer\Bindables</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\Box.cpp">
+      <Filter>Source Files\Renderer\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Pyramid.cpp">
+      <Filter>Source Files\Renderer\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Melon.cpp">
+      <Filter>Source Files\Renderer\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RootSignature.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PixelShader.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\ColorIndexPS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\VertexShader.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\ColorIndexVS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\ColorBlendPS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\images\cube_face.jpeg">
       <Filter>Resource Files\Images</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\ColorBlendVS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

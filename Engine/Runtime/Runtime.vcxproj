@@ -28,22 +28,33 @@
     <ClInclude Include="source\Application.h" />
     <ClInclude Include="source\Common\framework.h" />
     <ClInclude Include="source\Common\ILException.h" />
+    <ClInclude Include="source\Common\ILMath.h" />
     <ClInclude Include="source\ImGUI\ImguiManager.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_dx12.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_win32.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
     <ClInclude Include="source\Renderer\BindableBase.h" />
+    <ClInclude Include="source\Renderer\Box.h" />
     <ClInclude Include="source\Renderer\Camera.h" />
+    <ClInclude Include="source\Renderer\Cone.h" />
     <ClInclude Include="source\Renderer\ConstantBuffer.h" />
     <ClInclude Include="source\Renderer\Cube.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
     <ClInclude Include="source\Renderer\d3dx12.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\IndexBuffer.h" />
+    <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
+    <ClInclude Include="source\Renderer\Melon.h" />
     <ClInclude Include="source\Renderer\Mesh.h" />
+    <ClInclude Include="source\Renderer\Object.h" />
     <ClInclude Include="source\Renderer\PipelineState.h" />
+    <ClInclude Include="source\Renderer\Plane.h" />
+    <ClInclude Include="source\Renderer\Prism.h" />
+    <ClInclude Include="source\Renderer\Pyramid.h" />
     <ClInclude Include="source\Renderer\Renderer.h" />
     <ClInclude Include="source\Renderer\RHI.h" />
+    <ClInclude Include="source\Renderer\RootSignature.h" />
+    <ClInclude Include="source\Renderer\Sphere.h" />
     <ClInclude Include="source\Renderer\TextureBuffer.h" />
     <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\TransformBuffer.h" />
@@ -66,15 +77,18 @@
     <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp" />
     <ClCompile Include="source\Launch.cpp" />
     <ClCompile Include="source\Renderer\Bindable.cpp" />
+    <ClCompile Include="source\Renderer\Box.cpp" />
     <ClCompile Include="source\Renderer\Camera.cpp" />
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp" />
-    <ClCompile Include="source\Renderer\Cube.cpp" />
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
     <ClCompile Include="source\Renderer\Drawable.cpp" />
     <ClCompile Include="source\Renderer\IndexBuffer.cpp" />
+    <ClCompile Include="source\Renderer\Melon.cpp" />
     <ClCompile Include="source\Renderer\Mesh.cpp" />
     <ClCompile Include="source\Renderer\PipelineState.cpp" />
+    <ClCompile Include="source\Renderer\Pyramid.cpp" />
     <ClCompile Include="source\Renderer\Renderer.cpp" />
+    <ClCompile Include="source\Renderer\RootSignature.cpp" />
     <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
     <ClCompile Include="source\Renderer\Topology.cpp" />
     <ClCompile Include="source\Renderer\TransformBuffer.cpp" />
@@ -84,7 +98,7 @@
     <ClCompile Include="source\Windows\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PixelShader.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\ColorIndexPS.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
@@ -101,7 +115,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\VertexShader.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\ColorIndexVS.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
@@ -115,12 +129,30 @@
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatOutputAsContent>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\ColorBlendPS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\ColorBlendVS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\images\cube_face.jpeg">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
     </CustomBuild>

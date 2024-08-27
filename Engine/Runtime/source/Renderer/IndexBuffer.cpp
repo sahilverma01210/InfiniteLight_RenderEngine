@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	IndexBuffer::IndexBuffer(D3D12RHI& gfx, UINT dataSize, const void* pData)
+	IndexBuffer::IndexBuffer(D3D12RHI& gfx, UINT dataSize, std::vector<USHORT> pData)
 	{
         m_indexBufferSize = dataSize;
 
@@ -34,19 +34,26 @@ namespace Renderer
                 IID_PPV_ARGS(&indexUploadBuffer));
         }
 
-        // Copy the index data to the index buffer.
-        UINT8* pIndexDataBegin;
-        CD3DX12_RANGE readRangeI(0, 0);        // We do not intend to read from this resource on the CPU.
-        indexUploadBuffer->Map(0, &readRangeI, reinterpret_cast<void**>(&pIndexDataBegin));
-        memcpy(pIndexDataBegin, pData, m_indexBufferSize);
-        indexUploadBuffer->Unmap(0, nullptr);
+        //// Copy the index data to the index buffer.
+        //UINT8* pIndexDataBegin;
+        //CD3DX12_RANGE readRangeI(0, 0);        // We do not intend to read from this resource on the CPU.
+        //indexUploadBuffer->Map(0, &readRangeI, reinterpret_cast<void**>(&pIndexDataBegin));
+        //memcpy(pIndexDataBegin, &pData, m_indexBufferSize);
+        //indexUploadBuffer->Unmap(0, nullptr);
 
         // reset command list and allocator   
         GetCommandAllocator(gfx)->Reset();
         GetCommandList(gfx)->Reset(GetCommandAllocator(gfx), nullptr);
 
-        // copy Upload Buffer to Index Buffer 
-        GetCommandList(gfx)->CopyResource(m_indexBuffer.Get(), indexUploadBuffer.Get());
+        D3D12_SUBRESOURCE_DATA indexData = {};
+        indexData.pData = reinterpret_cast<BYTE*>(pData.data());
+        indexData.RowPitch = m_indexBufferSize;
+        indexData.SlicePitch = indexData.RowPitch;
+
+        UpdateSubresources(GetCommandList(gfx), m_indexBuffer.Get(), indexUploadBuffer.Get(), 0, 0, 1, &indexData);
+
+        //// copy Upload Buffer to Index Buffer 
+        //GetCommandList(gfx)->CopyResource(m_indexBuffer.Get(), indexUploadBuffer.Get());
 
         // transition index buffer to index buffer state 
         auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_indexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);

@@ -18,10 +18,6 @@ namespace Renderer
 	{
 		return gfx.m_commandList.Get();
 	}
-	ID3D12RootSignature* Bindable::GetRootSignature(D3D12RHI& gfx) noexcept
-	{
-		return gfx.m_rootSignature.Get();
-	}
 	ID3D12DescriptorHeap* Bindable::GetSRVDescriptorHeap(D3D12RHI& gfx) noexcept
 	{
 		return gfx.m_srvHeap.Get();

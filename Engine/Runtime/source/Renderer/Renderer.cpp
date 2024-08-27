@@ -2,10 +2,13 @@
 
 namespace Renderer
 {
+	
 	D3D12RHI* pRHI;
-	Camera camera;
 	//std::unique_ptr<D3D12RHI> pRHI;
-	std::vector<Cube*> boxes;
+	Camera camera;
+
+	std::vector<std::unique_ptr<class Drawable>> drawables;
+	static constexpr size_t nDrawables = 180;
 
 	void init(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
 	{
@@ -14,18 +17,10 @@ namespace Renderer
 
 		pRHI->OnInit();
 
-		std::mt19937 rng(std::random_device{}());
-		std::uniform_real_distribution<float> adist(0.0f, 3.1415f * 2.0f);
-		std::uniform_real_distribution<float> ddist(0.0f, 3.1415f * 2.0f);
-		std::uniform_real_distribution<float> odist(0.0f, 3.1415f * 0.3f);
-		std::uniform_real_distribution<float> rdist(6.0f, 20.0f);
-		for (auto i = 0; i < 10; i++)
-		{
-			boxes.push_back(new Cube(
-				*pRHI, rng, adist,
-				ddist, odist, rdist
-			));
-		}
+		Factory f(*pRHI);
+		drawables.reserve(nDrawables);
+		std::generate_n(std::back_inserter(drawables), nDrawables, f);
+
 		pRHI->SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 
 		//pRHI->InitImGUI();
@@ -35,14 +30,14 @@ namespace Renderer
 	{
 		pRHI->StartFrame();
 
-		for (auto& b : boxes)
+		for (auto& drawable : drawables)
 		{
-			b->Update(angle);
-			pRHI->SetTransform(b->GetTransformXM());
+			drawable->Update(angle);
+			pRHI->SetTransform(drawable->GetTransformXM());
 			pRHI->SetCamera(camera.GetMatrix());
 			pRHI->SetProjection(XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 
-			b->Draw(*pRHI);
+			drawable->Draw(*pRHI);
 		}
 
 		//pRHI->RenderImGUI();
