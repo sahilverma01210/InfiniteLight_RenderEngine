@@ -54,6 +54,7 @@
     <ClInclude Include="source\Renderer\Renderer.h" />
     <ClInclude Include="source\Renderer\RHI.h" />
     <ClInclude Include="source\Renderer\RootSignature.h" />
+    <ClInclude Include="source\Renderer\ShaderResourceView.h" />
     <ClInclude Include="source\Renderer\Sphere.h" />
     <ClInclude Include="source\Renderer\TextureBuffer.h" />
     <ClInclude Include="source\Renderer\Topology.h" />
@@ -89,6 +90,7 @@
     <ClCompile Include="source\Renderer\Pyramid.cpp" />
     <ClCompile Include="source\Renderer\Renderer.cpp" />
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
+    <ClCompile Include="source\Renderer\ShaderResourceView.cpp" />
     <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
     <ClCompile Include="source\Renderer\Topology.cpp" />
     <ClCompile Include="source\Renderer\TransformBuffer.cpp" />
@@ -154,6 +156,36 @@
   <ItemGroup>
     <CustomBuild Include="..\..\images\cube_face.jpeg">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\TexIndexPS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\TexIndexVS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\images\cube.jpeg">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
     </CustomBuild>
   </ItemGroup>

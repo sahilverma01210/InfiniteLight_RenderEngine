@@ -26,11 +26,16 @@ namespace Renderer
 					odist, rdist
 				);
 			case 1:
-				return std::make_unique<Box>(
+				return std::make_unique<BoxA>(
 					gfx, rng, adist, ddist,
 					odist, rdist, bdist
 				);
 			case 2:
+				return std::make_unique<BoxB>(
+					gfx, rng, adist, ddist,
+					odist, rdist, bdist
+				);
+			case 3:
 				return std::make_unique<Melon>(
 					gfx, rng, adist, ddist,
 					odist, rdist, longdist, latdist
@@ -50,7 +55,7 @@ namespace Renderer
 		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
 		std::uniform_int_distribution<int> latdist{ 5,20 };
 		std::uniform_int_distribution<int> longdist{ 10,40 };
-		std::uniform_int_distribution<int> typedist{ 0,2 };
+		std::uniform_int_distribution<int> typedist{ 0,3 };
 	};
 
 	void init(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);

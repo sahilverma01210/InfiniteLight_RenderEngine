@@ -11,7 +11,7 @@ namespace Renderer
 
 		struct Vertex
 		{
-			XMFLOAT3 pos;
+			XMFLOAT3 position;
 			struct
 			{
 				unsigned char r;
@@ -39,15 +39,15 @@ namespace Renderer
 					base,
 					dx::XMMatrixRotationZ(longitudeAngle * iLong)
 				);
-				dx::XMStoreFloat3(&vertices.back().pos, v);
+				dx::XMStoreFloat3(&vertices.back().position, v);
 			}
 			// the center
 			vertices.emplace_back();
-			vertices.back().pos = { 0.0f,0.0f,-1.0f };
+			vertices.back().position = { 0.0f,0.0f,-1.0f };
 			const auto iCenter = (unsigned short)(vertices.size() - 1);
 			// the tip :darkness:
 			vertices.emplace_back();
-			vertices.back().pos = { 0.0f,0.0f,1.0f };
+			vertices.back().position = { 0.0f,0.0f,1.0f };
 			const auto iTip = (unsigned short)(vertices.size() - 1);
 
 

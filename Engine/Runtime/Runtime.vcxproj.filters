@@ -201,6 +201,9 @@
     <ClInclude Include="source\Renderer\RootSignature.h">
       <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\ShaderResourceView.h">
+      <Filter>Header Files\Renderer\Bindables</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">
@@ -296,6 +299,9 @@
     <ClCompile Include="source\Renderer\RootSignature.cpp">
       <Filter>Source Files\Renderer\Bindables</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\ShaderResourceView.cpp">
+      <Filter>Source Files\Renderer\Bindables</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\shaders\HLSL\ColorIndexPS.hlsl">
@@ -312,6 +318,15 @@
     </CustomBuild>
     <CustomBuild Include="..\..\shaders\HLSL\ColorBlendVS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\TexIndexPS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\TexIndexVS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\images\cube.jpeg">
+      <Filter>Resource Files\Images</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

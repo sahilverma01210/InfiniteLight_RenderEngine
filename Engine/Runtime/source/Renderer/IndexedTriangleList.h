@@ -19,9 +19,9 @@ public:
 	{
 		for (auto& v : vertices)
 		{
-			const DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&v.pos);
+			const DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&v.position);
 			DirectX::XMStoreFloat3(
-				&v.pos,
+				&v.position,
 				DirectX::XMVector3Transform(pos, matrix)
 			);
 		}

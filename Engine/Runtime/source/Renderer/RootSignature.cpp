@@ -2,16 +2,17 @@
 
 namespace Renderer
 {
-	RootSignature::RootSignature(D3D12RHI& gfx, UINT numConstants, UINT numConstantBufferViews)
+	RootSignature::RootSignature(D3D12RHI& gfx, UINT numConstants, UINT numConstantBufferViews, UINT numShaderResourceViews)
 	{
-        UINT numRootParameters = numConstants + numConstantBufferViews;
+        UINT numRootParameters = numConstants + numConstantBufferViews + numShaderResourceViews;
         CD3DX12_ROOT_PARAMETER* rootParameters = new CD3DX12_ROOT_PARAMETER[numRootParameters];
         for (int i = 0; i < numConstants; i++) rootParameters[i].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-        for (int j = numConstants; j < (numConstants + numConstantBufferViews); j++) rootParameters[j].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
-        //{
-        //    const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
-        //    rootParameters[2].InitAsDescriptorTable(1, &descRange);
-        //}
+        for (int j = numConstants; j < numConstants + numConstantBufferViews; j++) rootParameters[j].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+        for (int k = numConstants + numConstantBufferViews; k < numRootParameters; k++)
+        {
+            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
+            rootParameters[k].InitAsDescriptorTable(1, &descRange);
+        }
         // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
         const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |

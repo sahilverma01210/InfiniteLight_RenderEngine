@@ -12,6 +12,7 @@ namespace Renderer
 		UINT numElements;
 		UINT numConstants;
 		UINT numConstantBufferViews;
+		UINT numShaderResourceViews;
 	};
 
 	class PipelineState : public Bindable

@@ -4,7 +4,7 @@ namespace Renderer
 {   
 	PipelineState::PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
-        m_rootSignatureObject = std::make_unique<RootSignature>(gfx, pipelineDesc.numConstants, pipelineDesc.numConstantBufferViews);
+        m_rootSignatureObject = std::make_unique<RootSignature>(gfx, pipelineDesc.numConstants, pipelineDesc.numConstantBufferViews, pipelineDesc.numShaderResourceViews);
 
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { &pipelineDesc.inputElementDescs , pipelineDesc.numElements };

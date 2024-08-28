@@ -23,7 +23,7 @@ namespace Renderer
 
 		pRHI->SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 
-		//pRHI->InitImGUI();
+		pRHI->InitImGUI();
 	}
 
 	void update(float angle)
@@ -40,13 +40,13 @@ namespace Renderer
 			drawable->Draw(*pRHI);
 		}
 
-		//pRHI->RenderImGUI();
+		pRHI->RenderImGUI();
 		pRHI->EndFrame();
 	}
 
 	void destroy()
 	{
-		//pRHI->DestroyImGUI();
+		pRHI->DestroyImGUI();
 		pRHI->OnDestroy();
 
 		delete pRHI;

@@ -32,14 +32,14 @@ namespace Renderer
 
 				for (int y = 0, i = 0; y < nVertices_y; y++)
 				{
-					const float y_pos = float(y) * divisionSize_y;
+					const float y_position = float(y) * divisionSize_y;
 					for (int x = 0; x < nVertices_x; x++, i++)
 					{
 						const auto v = dx::XMVectorAdd(
 							bottomLeft,
-							dx::XMVectorSet(float(x) * divisionSize_x, y_pos, 0.0f, 0.0f)
+							dx::XMVectorSet(float(x) * divisionSize_x, y_position, 0.0f, 0.0f)
 						);
-						dx::XMStoreFloat3(&vertices[i].pos, v);
+						dx::XMStoreFloat3(&vertices[i].position, v);
 					}
 				}
 			}

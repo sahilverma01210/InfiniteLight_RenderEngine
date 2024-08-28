@@ -2,11 +2,13 @@
 
 namespace Renderer
 {
-	TextureBuffer::TextureBuffer(D3D12RHI& gfx)
+	TextureBuffer::TextureBuffer(D3D12RHI& gfx, const WCHAR* filename)
 	{
+        m_shaderResourceView = std::make_unique<ShaderResourceView>(gfx);
+
         // load image data from disk 
         ScratchImage image;
-        HRESULT hr = LoadFromWICFile(L"cube_face.jpeg", WIC_FLAGS_NONE, nullptr, image);
+        HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_NONE, nullptr, image);
 
         // generate mip chain 
         ScratchImage mipChain;
@@ -105,12 +107,13 @@ namespace Renderer
         srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDesc.Texture2D.MipLevels = m_texureBuffer->GetDesc().MipLevels;
 
-        GetDevice(gfx)->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, GetSRVDescriptorHeap(gfx)->GetCPUDescriptorHandleForHeapStart());
+        m_shaderResourceView->Bind(gfx);
+        GetDevice(gfx)->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, m_shaderResourceView->GetShaderResourceView()->GetCPUDescriptorHandleForHeapStart());
     }
 
 	void TextureBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
         // bind the descriptor table containing the texture descriptor 
-        GetCommandList(gfx)->SetGraphicsRootDescriptorTable(1, GetSRVDescriptorHeap(gfx)->GetGPUDescriptorHandleForHeapStart());
+        GetCommandList(gfx)->SetGraphicsRootDescriptorTable(1, m_shaderResourceView->GetShaderResourceView()->GetGPUDescriptorHandleForHeapStart());
 	}
 }

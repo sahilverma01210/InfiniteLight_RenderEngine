@@ -11,7 +11,7 @@ namespace Renderer
 
 		struct Vertex
 		{
-			XMFLOAT3 pos;
+			XMFLOAT3 position;
 		};
 
 		template<class V>
@@ -40,17 +40,17 @@ namespace Renderer
 						latBase,
 						dx::XMMatrixRotationZ(longitudeAngle * iLong)
 					);
-					dx::XMStoreFloat3(&vertices.back().pos, v);
+					dx::XMStoreFloat3(&vertices.back().position, v);
 				}
 			}
 
 			// add the cap vertices
 			const auto iNorthPole = (USHORT)vertices.size();
 			vertices.emplace_back();
-			dx::XMStoreFloat3(&vertices.back().pos, base);
+			dx::XMStoreFloat3(&vertices.back().position, base);
 			const auto iSouthPole = (USHORT)vertices.size();
 			vertices.emplace_back();
-			dx::XMStoreFloat3(&vertices.back().pos, dx::XMVectorNegate(base));
+			dx::XMStoreFloat3(&vertices.back().position, dx::XMVectorNegate(base));
 
 			const auto calcIdx = [latDiv, longDiv](USHORT iLat, USHORT iLong)
 				{ return iLat * longDiv + iLong; };
