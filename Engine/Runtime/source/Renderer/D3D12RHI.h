@@ -8,6 +8,7 @@ namespace Renderer
     class D3D12RHI : public RHI
     {
         friend class Bindable;
+        friend class ImGUI_Manager;
     public:
         D3D12RHI(UINT width, UINT height, HWND hWnd);
         //D3D12RHI(const D3D12RHI&) = delete;
@@ -28,11 +29,6 @@ namespace Renderer
         void StartFrame();
         void DrawIndexed(UINT indexCountPerInstance);
         void EndFrame();
-
-        // ImGUI Methods.
-        void InitImGUI();
-        void RenderImGUI();
-        void DestroyImGUI();
 
         // Helper function for resolving the full path of assets.
         std::wstring GetAssetFullPath(LPCWSTR assetName);

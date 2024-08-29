@@ -6,6 +6,7 @@ namespace Renderer
 	D3D12RHI* pRHI;
 	//std::unique_ptr<D3D12RHI> pRHI;
 	Camera camera;
+	ImGUI_Manager* imguiManager;
 
 	std::vector<std::unique_ptr<class Drawable>> drawables;
 	static constexpr size_t nDrawables = 180;
@@ -13,6 +14,7 @@ namespace Renderer
 	void init(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
 	{
 		pRHI = new D3D12RHI(width, height, hWnd);
+		imguiManager = new ImGUI_Manager();
 		//pRHI = std::make_unique<D3D12RHI>(width, height);
 
 		pRHI->OnInit();
@@ -23,12 +25,15 @@ namespace Renderer
 
 		pRHI->SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 
-		pRHI->InitImGUI();
+		imguiManager->InitImGUI(*pRHI);
 	}
 
 	void update(float angle)
 	{
 		pRHI->StartFrame();
+		imguiManager->StartImGUIFrame(*pRHI);
+
+		// pRHI->RenderImGUI(); => Renders inside IMGUI Window when called before Object Draw Calls.
 
 		for (auto& drawable : drawables)
 		{
@@ -40,13 +45,15 @@ namespace Renderer
 			drawable->Draw(*pRHI);
 		}
 
-		pRHI->RenderImGUI();
+		camera.SpawnControlWindow();
+
+		imguiManager->EndImGUIFrame(*pRHI);
 		pRHI->EndFrame();
 	}
 
 	void destroy()
 	{
-		pRHI->DestroyImGUI();
+		imguiManager->DestroyImGUI(*pRHI);
 		pRHI->OnDestroy();
 
 		delete pRHI;

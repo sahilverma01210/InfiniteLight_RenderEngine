@@ -159,7 +159,7 @@
     <ClInclude Include="source\Renderer\TransformBuffer.h">
       <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImGUI\ImguiManager.h">
+    <ClInclude Include="source\ImGUI\ImGUI_Manager.h">
       <Filter>Header Files\ImGUI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PipelineState.h">
@@ -281,7 +281,7 @@
     <ClCompile Include="source\Renderer\TransformBuffer.cpp">
       <Filter>Source Files\Renderer\Bindables</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImGUI\ImguiManager.cpp">
+    <ClCompile Include="source\ImGUI\ImGUI_Manager.cpp">
       <Filter>Source Files\ImGUI</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PipelineState.cpp">

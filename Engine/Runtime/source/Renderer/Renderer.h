@@ -1,11 +1,13 @@
 #pragma once
-#include "D3D12RHI.h"
+
 #include "../Common/ILMath.h"
+#include "../ImGUI/ImGUI_Manager.h"
+
+#include "D3D12RHI.h"
 #include "Camera.h"
 #include "Box.h"
 #include "Melon.h"
 #include "Pyramid.h"
-#include <algorithm>
 
 namespace Renderer
 {

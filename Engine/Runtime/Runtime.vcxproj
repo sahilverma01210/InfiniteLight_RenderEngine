@@ -29,7 +29,7 @@
     <ClInclude Include="source\Common\framework.h" />
     <ClInclude Include="source\Common\ILException.h" />
     <ClInclude Include="source\Common\ILMath.h" />
-    <ClInclude Include="source\ImGUI\ImguiManager.h" />
+    <ClInclude Include="source\ImGUI\ImGUI_Manager.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_dx12.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_win32.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
@@ -73,7 +73,7 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Application.cpp" />
     <ClCompile Include="source\Common\ILException.cpp" />
-    <ClCompile Include="source\ImGUI\ImguiManager.cpp" />
+    <ClCompile Include="source\ImGUI\ImGUI_Manager.cpp" />
     <ClCompile Include="source\ImGUI\imgui_impl_dx12.cpp" />
     <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp" />
     <ClCompile Include="source\Launch.cpp" />
