@@ -14,9 +14,9 @@ namespace Renderer
 		Box::staticBinds.push_back(std::move(cbuf));
 	}
 
-	void PointLight::SpawnControlWindow() noexcept
+	bool PointLight::SpawnControlWindow() noexcept
 	{
-		if (ImGui::Begin("Light"))
+		if (ImGui::Begin("Light", &m_imGUIwndOpen))
 		{
 			ImGui::Text("Position");
 			ImGui::SliderFloat("X", &cbData.pos.x, -60.0f, 60.0f, "%.1f");
@@ -39,6 +39,8 @@ namespace Renderer
 			}
 		}
 		ImGui::End();
+
+		return m_imGUIwndOpen;
 	}
 
 	void PointLight::Reset() noexcept

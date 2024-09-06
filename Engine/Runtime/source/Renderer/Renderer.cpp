@@ -48,8 +48,8 @@ namespace Renderer
 		}
 		light->Draw(*pRHI, camera);
 
-		camera.SpawnControlWindow();
-		light->SpawnControlWindow();
+		if (camera.m_imGUIwndOpen) camera.SpawnControlWindow();
+		if (light->m_imGUIwndOpen) light->SpawnControlWindow();
 
 		imguiManager.EndImGUIFrame(*pRHI);
 		pRHI->EndFrame();

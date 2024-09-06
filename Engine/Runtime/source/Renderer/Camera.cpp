@@ -17,9 +17,9 @@ namespace Renderer
 		);
 	}
 
-	void Camera::SpawnControlWindow() noexcept
+	bool Camera::SpawnControlWindow() noexcept
 	{
-		if (ImGui::Begin("Camera"))
+		if (ImGui::Begin("Camera", &m_imGUIwndOpen))
 		{
 			ImGui::Text("Position");
 			ImGui::SliderFloat("R", &r, 0.0f, 80.0f, "%.1f");
@@ -35,6 +35,8 @@ namespace Renderer
 			}
 		}
 		ImGui::End();
+
+		return m_imGUIwndOpen;
 	}
 
 	void Camera::Reset() noexcept

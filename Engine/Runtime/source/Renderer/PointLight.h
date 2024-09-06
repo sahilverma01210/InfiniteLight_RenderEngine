@@ -12,10 +12,12 @@ namespace Renderer
 	{
 	public:
 		PointLight(D3D12RHI& gfx, float radius = 0.5f);
-		void SpawnControlWindow() noexcept;
+		bool SpawnControlWindow() noexcept;
 		void Reset() noexcept;
 		void Draw(D3D12RHI& gfx, Camera& camera) const noexcept;
 		void Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
+
+		bool m_imGUIwndOpen = true;
 	private:
 		struct PointLightCBuf
 		{

@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include "../Common/ILMath.h"
 
 namespace Renderer
 {
@@ -26,12 +27,12 @@ namespace Renderer
 		{}
 		void Update(float dt) noexcept
 		{
-			roll += droll * dt;
-			pitch += dpitch * dt;
-			yaw += dyaw * dt;
-			theta += dtheta * dt;
-			phi += dphi * dt;
-			chi += dchi * dt;
+			roll = wrap_angle(roll + droll * dt);
+			pitch = wrap_angle(pitch + dpitch * dt);
+			yaw = wrap_angle(yaw + dyaw * dt);
+			theta = wrap_angle(theta + dtheta * dt);
+			phi = wrap_angle(phi + dphi * dt);
+			chi = wrap_angle(chi + dchi * dt);
 		}
 		XMMATRIX GetTransformXM() const noexcept
 		{

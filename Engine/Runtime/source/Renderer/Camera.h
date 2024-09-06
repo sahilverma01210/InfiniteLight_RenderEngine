@@ -7,8 +7,10 @@ namespace Renderer
 	{
 	public:
 		XMMATRIX GetMatrix() const noexcept;
-		void SpawnControlWindow() noexcept;
+		bool SpawnControlWindow() noexcept;
 		void Reset() noexcept;
+
+		bool m_imGUIwndOpen = true;
 	private:
 		float r = 20.0f;
 		float theta = 0.0f;
