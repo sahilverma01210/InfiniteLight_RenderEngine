@@ -1,4 +1,4 @@
-cbuffer CubeColors
+cbuffer CubeColors : register(b1)
 {
     float4 colors[8];
 };

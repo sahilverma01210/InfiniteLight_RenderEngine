@@ -78,6 +78,11 @@ namespace Renderer
         m_vertexBufferView.SizeInBytes = m_vertexBufferSize;
 	}
 
+    template<typename T>
+    void VertexBuffer<T>::Update(D3D12RHI& gfx, const void* pData) noexcept
+    {
+    }
+
     template <typename T>
     void VertexBuffer<T>::Bind(D3D12RHI& gfx) noexcept
     {

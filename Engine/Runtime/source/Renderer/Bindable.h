@@ -8,6 +8,7 @@ namespace Renderer
 	{
 	public:
 		virtual ~Bindable() = default;
+		virtual void Update(D3D12RHI& gfx, const void* pData) noexcept = 0;
 		virtual void Bind(D3D12RHI& gfx) noexcept = 0;
 	protected:
 		static ID3D12Device* GetDevice(D3D12RHI& gfx) noexcept;

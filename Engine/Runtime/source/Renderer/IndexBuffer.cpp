@@ -76,6 +76,10 @@ namespace Renderer
         m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
 	}
 
+    void IndexBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
+    {
+    }
+
 	void IndexBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
         GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView);

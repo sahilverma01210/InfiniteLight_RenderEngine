@@ -4,7 +4,22 @@ namespace Renderer
 {   
 	PipelineState::PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
-        m_rootSignatureObject = std::make_unique<RootSignature>(gfx, pipelineDesc.numConstants, pipelineDesc.numConstantBufferViews, pipelineDesc.numShaderResourceViews);
+        UINT numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews + pipelineDesc.numShaderResourceViews;
+        m_rootSignatureObject = std::make_unique<RootSignature>(gfx, numRootParameters);
+        
+        for (int i = 0; i < pipelineDesc.numConstants; i++) 
+            m_rootSignatureObject->Init32BitConstant(sizeof(XMMATRIX) / 4, i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+        
+        for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++) 
+            m_rootSignatureObject->InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+
+        for (int k = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; k < numRootParameters; k++)
+        {
+            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
+            m_rootSignatureObject->InitDescriptorTable(k, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
+        }
+
+        m_rootSignatureObject->InitRootSignature(gfx);
 
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { &pipelineDesc.inputElementDescs , pipelineDesc.numElements };
@@ -24,6 +39,10 @@ namespace Renderer
         m_psoDescription.SampleDesc.Count = 1;
         GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));
 	}
+
+    void PipelineState::Update(D3D12RHI& gfx, const void* pData) noexcept
+    {
+    }
 
 	void PipelineState::Bind(D3D12RHI& gfx) noexcept
 	{

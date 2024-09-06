@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	TextureBuffer::TextureBuffer(D3D12RHI& gfx, const WCHAR* filename)
+	TextureBuffer::TextureBuffer(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename) : m_rootParameterIndex(rootParameterIndex)
 	{
         m_shaderResourceView = std::make_unique<ShaderResourceView>(gfx);
 
@@ -111,9 +111,13 @@ namespace Renderer
         GetDevice(gfx)->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, m_shaderResourceView->GetShaderResourceView()->GetCPUDescriptorHandleForHeapStart());
     }
 
+    void TextureBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
+    {
+    }
+
 	void TextureBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
         // bind the descriptor table containing the texture descriptor 
-        GetCommandList(gfx)->SetGraphicsRootDescriptorTable(1, m_shaderResourceView->GetShaderResourceView()->GetGPUDescriptorHandleForHeapStart());
+        GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_shaderResourceView->GetShaderResourceView()->GetGPUDescriptorHandleForHeapStart());
 	}
 }

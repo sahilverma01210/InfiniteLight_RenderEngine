@@ -4,7 +4,7 @@ struct PSInput
     float4 position : SV_POSITION;
 };
 
-cbuffer Transform
+cbuffer Transform : register(b0)
 {
     matrix transform;
 };

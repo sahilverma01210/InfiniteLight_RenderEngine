@@ -1,67 +1,30 @@
 #pragma once
-#include "Object.h"
-#include <random>
+#include "ILObject.h"
 
 namespace Renderer
 {
-	class BoxA : public Object<BoxA>
+	class Box : public ILObject<Box>
 	{
 	public:
-		BoxA(D3D12RHI& gfx, std::mt19937& rng,
+		Box(D3D12RHI& gfx, std::mt19937& rng,
 			std::uniform_real_distribution<float>& adist,
 			std::uniform_real_distribution<float>& ddist,
 			std::uniform_real_distribution<float>& odist,
 			std::uniform_real_distribution<float>& rdist,
-			std::uniform_real_distribution<float>& bdist);
-		void Update(float dt) noexcept override;
+			std::uniform_real_distribution<float>& bdist,
+			XMFLOAT3 material);
 		XMMATRIX GetTransformXM() const noexcept override;
 	private:
-		// positional
-		float r;
-		float roll = 0.0f;
-		float pitch = 0.0f;
-		float yaw = 0.0f;
-		float theta;
-		float phi;
-		float chi;
-		// speed (delta/s)
-		float droll;
-		float dpitch;
-		float dyaw;
-		float dtheta;
-		float dphi;
-		float dchi;
-		// model transform
-		XMFLOAT3X3 mt;
-	};
+		struct PSMaterialConstant
+		{
+			alignas(16) XMFLOAT3 color;
+			float specularIntensity = 0.6f;
+			float specularPower = 30.0f;
+			float padding[2];
+		};
 
-	class BoxB : public Object<BoxB>
-	{
-	public:
-		BoxB(D3D12RHI& gfx, std::mt19937& rng,
-			std::uniform_real_distribution<float>& adist,
-			std::uniform_real_distribution<float>& ddist,
-			std::uniform_real_distribution<float>& odist,
-			std::uniform_real_distribution<float>& rdist,
-			std::uniform_real_distribution<float>& bdist);
-		void Update(float dt) noexcept override;
-		XMMATRIX GetTransformXM() const noexcept override;
-	private:
-		// positional
-		float r;
-		float roll = 0.0f;
-		float pitch = 0.0f;
-		float yaw = 0.0f;
-		float theta;
-		float phi;
-		float chi;
-		// speed (delta/s)
-		float droll;
-		float dpitch;
-		float dyaw;
-		float dtheta;
-		float dphi;
-		float dchi;
+		PSMaterialConstant colorConst;
+		
 		// model transform
 		XMFLOAT3X3 mt;
 	};

@@ -6,6 +6,7 @@ namespace Renderer
 	template<class T>
 	class Object : public Drawable
 	{
+		friend class PointLight;
 	public:
 		bool IsStaticInitialized() const noexcept
 		{

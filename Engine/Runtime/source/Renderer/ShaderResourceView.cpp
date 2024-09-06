@@ -16,6 +16,10 @@ namespace Renderer
 		return m_srvHeap.Get();
 	}
 
+	void ShaderResourceView::Update(D3D12RHI& gfx, const void* pData) noexcept
+	{
+	}
+
 	void ShaderResourceView::Bind(D3D12RHI& gfx) noexcept
 	{
 		GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());

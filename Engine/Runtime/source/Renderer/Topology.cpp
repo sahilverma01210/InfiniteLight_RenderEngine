@@ -6,6 +6,10 @@ namespace Renderer
 	{
 	}
 
+	void Topology::Update(D3D12RHI& gfx, const void* pData) noexcept
+	{
+	}
+
 	void Topology::Bind(D3D12RHI& gfx) noexcept
 	{
 		GetCommandList(gfx)->IASetPrimitiveTopology(type);

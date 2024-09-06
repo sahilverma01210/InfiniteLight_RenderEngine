@@ -273,7 +273,7 @@ namespace Renderer
 
         // Clear Render Target View (Back Buffer View) and Depth Stensil View.
         {
-            const float clear_color_with_alpha[4] = { 0.45f, 0.55f, 0.60f, 1.00f };
+            const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
             m_commandList->ClearRenderTargetView(m_renderTargetViewHandle[m_backBufferIndex], clear_color_with_alpha, 0, nullptr);
 
             m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);

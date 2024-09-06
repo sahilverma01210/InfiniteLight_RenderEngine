@@ -7,9 +7,17 @@ namespace Renderer
 	class TransformBuffer : public Bindable
 	{
 	public:
-		TransformBuffer(D3D12RHI& gfx);
+		struct Transforms
+		{
+			XMMATRIX modelViewProj;
+			XMMATRIX model;
+		};
+
+		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex);
+		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept;
 	private:
-		XMMATRIX m_transform;
+		Transforms m_transform;
+		UINT m_rootParameterIndex;
 	};
 }
