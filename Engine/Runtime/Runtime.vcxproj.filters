@@ -222,6 +222,9 @@
     <ClInclude Include="source\Renderer\TexturedBox.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\AssImpModel.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">
@@ -327,6 +330,9 @@
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\TexturedBox.cpp">
+      <Filter>Source Files\Renderer\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\AssImpModel.cpp">
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
   </ItemGroup>

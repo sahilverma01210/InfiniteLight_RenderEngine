@@ -32,6 +32,7 @@
     <ClInclude Include="source\ImGUI\ImGUI_Manager.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_dx12.h" />
     <ClInclude Include="source\ImGUI\imgui_impl_win32.h" />
+    <ClInclude Include="source\Renderer\AssImpModel.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
     <ClInclude Include="source\Renderer\BindableBase.h" />
     <ClInclude Include="source\Renderer\Box.h" />
@@ -81,6 +82,7 @@
     <ClCompile Include="source\ImGUI\imgui_impl_dx12.cpp" />
     <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp" />
     <ClCompile Include="source\Launch.cpp" />
+    <ClCompile Include="source\Renderer\AssImpModel.cpp" />
     <ClCompile Include="source\Renderer\Bindable.cpp" />
     <ClCompile Include="source\Renderer\Box.cpp" />
     <ClCompile Include="source\Renderer\Camera.cpp" />
@@ -362,7 +364,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions);_DEBUG;</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\lib;$(SolutionDir)\external\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PrecompiledHeaderFile />
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -373,8 +375,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\lib;$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mtd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
       <EnableUAC>true</EnableUAC>
@@ -389,7 +391,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries\lib;$(SolutionDir)\external\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>false</CompileAsWinRT>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -401,8 +403,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OutDir);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\lib;$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>
