@@ -225,6 +225,9 @@
     <ClInclude Include="source\Renderer\AssImpModel.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\Vertex.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">

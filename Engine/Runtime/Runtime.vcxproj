@@ -65,6 +65,7 @@
     <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\TransformBuffer.h" />
     <ClInclude Include="source\Renderer\VertexBuffer.h" />
+    <ClInclude Include="source\Renderer\Vertex.h" />
     <ClInclude Include="source\Windows\Keyboard.h" />
     <ClInclude Include="source\Windows\Mouse.h" />
     <ClInclude Include="source\Windows\Window.h" />
