@@ -8,9 +8,7 @@ namespace Renderer
 	Camera camera;
 	PointLight* light;
 	ImGUI_Manager imguiManager;
-
-	std::vector<std::unique_ptr<class Drawable>> drawables;
-	static constexpr size_t nDrawables = 100;
+	std::unique_ptr<AssImpModel> suzanne;
 
 	void init(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
 	{
@@ -18,12 +16,9 @@ namespace Renderer
 		//pRHI = std::make_unique<D3D12RHI>(width, height);
 
 		pRHI->OnInit();
-
-		Factory f(*pRHI);
-		drawables.reserve(nDrawables);
-		std::generate_n(std::back_inserter(drawables), nDrawables, f);
-
 		pRHI->SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
+
+		suzanne = std::make_unique<AssImpModel>(*pRHI);
 
 		light = new PointLight(*pRHI);
 		imguiManager.InitImGUI(*pRHI);
@@ -37,16 +32,13 @@ namespace Renderer
 
 		// pRHI->RenderImGUI(); => Renders inside IMGUI Window when called before Object Draw Calls.
 
-		for (auto& drawable : drawables)
-		{
-			drawable->Update(angle);
-			pRHI->SetTransform(drawable->GetTransformXM());
-			pRHI->SetCamera(camera.GetMatrix());
-			pRHI->SetProjection(XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
-
-			drawable->Draw(*pRHI);
-		}
 		light->Draw(*pRHI, camera);
+
+		suzanne->Update(angle);
+		pRHI->SetTransform(suzanne->GetTransformXM());
+		pRHI->SetCamera(camera.GetMatrix());
+		pRHI->SetProjection(XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
+		suzanne->Draw(*pRHI);
 
 		if (camera.m_imGUIwndOpen) camera.SpawnControlWindow();
 		if (light->m_imGUIwndOpen) light->SpawnControlWindow();

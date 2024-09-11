@@ -1,5 +1,4 @@
 #include "PointLight.h"
-#include "imgui/imgui.h"
 
 namespace Renderer
 {
@@ -11,7 +10,7 @@ namespace Renderer
 
 		std::unique_ptr<Bindable> cbuf = std::make_unique<ConstantBuffer>(gfx, 1, sizeof(cbData), &cbData);
 		pLightBindable = cbuf.get();
-		Box::staticBinds.push_back(std::move(cbuf));
+		SolidSphere::staticBinds.push_back(std::move(cbuf));
 	}
 
 	bool PointLight::SpawnControlWindow() noexcept

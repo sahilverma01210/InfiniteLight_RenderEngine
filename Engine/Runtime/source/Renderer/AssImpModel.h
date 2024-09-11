@@ -1,19 +1,16 @@
 #pragma once
-#include "ILObject.h"
+#include "Object.h"
 
 namespace Renderer
 {
-	class AssImpModel : public ILObject<AssImpModel>
+	class AssImpModel : public Object<AssImpModel>
 	{
 	public:
-		AssImpModel(D3D12RHI& gfx, std::mt19937& rng,
-			std::uniform_real_distribution<float>& adist,
-			std::uniform_real_distribution<float>& ddist,
-			std::uniform_real_distribution<float>& odist,
-			std::uniform_real_distribution<float>& rdist,
-			XMFLOAT3 material,
-			float scale);
+		AssImpModel(D3D12RHI& gfx);
+		void Update(float dt) noexcept override;
+		XMMATRIX GetTransformXM() const noexcept override;
 	private:
+		XMFLOAT3 pos = { 1.0f,1.0f,1.0f };
 		struct PSMaterialConstant
 		{
 			alignas(16) XMFLOAT3 color;

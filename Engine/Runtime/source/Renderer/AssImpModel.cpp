@@ -5,16 +5,7 @@
 
 namespace Renderer
 {
-	AssImpModel::AssImpModel(D3D12RHI& gfx,
-		std::mt19937& rng,
-		std::uniform_real_distribution<float>& adist,
-		std::uniform_real_distribution<float>& ddist,
-		std::uniform_real_distribution<float>& odist,
-		std::uniform_real_distribution<float>& rdist,
-		XMFLOAT3 material,
-		float scale)
-		:
-		ILObject(gfx,rng,adist,ddist,odist,rdist)
+	AssImpModel::AssImpModel(D3D12RHI& gfx)
 	{
 		if (!IsStaticInitialized())
 		{
@@ -35,7 +26,7 @@ namespace Renderer
 			for (unsigned int i = 0; i < pMesh->mNumVertices; i++)
 			{
 				vbuf.EmplaceBack(
-					XMFLOAT3{ pMesh->mVertices[i].x * scale,pMesh->mVertices[i].y * scale,pMesh->mVertices[i].z * scale },
+					XMFLOAT3{ pMesh->mVertices[i].x * 1.5f,pMesh->mVertices[i].y * 1.5f,pMesh->mVertices[i].z * 1.5f },
 					*reinterpret_cast<XMFLOAT3*>(&pMesh->mNormals[i])
 				);
 			}
@@ -83,7 +74,16 @@ namespace Renderer
 		}
 
 		AddBindable(std::make_unique<TransformBuffer>(gfx, 0));
-		colorConst.color = material;
+		colorConst.color = {1.0f, 1.0f, 0.0f};
 		AddBindable(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(colorConst), &colorConst));
+	}
+
+	void AssImpModel::Update(float dt) noexcept
+	{
+	}
+
+	XMMATRIX AssImpModel::GetTransformXM() const noexcept
+	{
+		return XMMatrixTranslation(pos.x, pos.y, pos.z);
 	}
 }

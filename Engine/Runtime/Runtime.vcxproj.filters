@@ -192,13 +192,7 @@
     <ClInclude Include="source\Renderer\Cube.h">
       <Filter>Header Files\Renderer\Shapes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Box.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Object.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Pyramid.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RootSignature.h">
@@ -211,15 +205,6 @@
       <Filter>Header Files\Renderer\Lights</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\SolidSphere.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\ILObject.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Cylinder.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TexturedBox.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\AssImpModel.h">
@@ -311,12 +296,6 @@
     <ClCompile Include="source\Renderer\PipelineState.cpp">
       <Filter>Source Files\Renderer\Bindables</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Box.cpp">
-      <Filter>Source Files\Renderer\Drawables</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Pyramid.cpp">
-      <Filter>Source Files\Renderer\Drawables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\RootSignature.cpp">
       <Filter>Source Files\Renderer\Bindables</Filter>
     </ClCompile>
@@ -329,31 +308,13 @@
     <ClCompile Include="source\Renderer\SolidSphere.cpp">
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Cylinder.cpp">
-      <Filter>Source Files\Renderer\Drawables</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\TexturedBox.cpp">
-      <Filter>Source Files\Renderer\Drawables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\AssImpModel.cpp">
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\ColorBlendPS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\..\images\cube_face.jpeg">
       <Filter>Resource Files\Images</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\ColorBlendVS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\TexIndexPS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\TexIndexVS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\images\cube.jpeg">
       <Filter>Resource Files\Images</Filter>
@@ -368,21 +329,6 @@
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\shaders\HLSL\SolidVS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\IndexedPhongPS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\BlendedPhongPS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\BlendedPhongVS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\TexPhongVS.hlsl">
-      <Filter>Resource Files\Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\TexPhongPS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
   </ItemGroup>

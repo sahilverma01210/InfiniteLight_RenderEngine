@@ -1,10 +1,9 @@
 #pragma once
 #include "D3D12RHI.h"
 #include "SolidSphere.h"
-#include "Object.h"
-#include "Box.h"
 #include "Camera.h"
 #include "ConstantBuffer.h"
+#include "imgui/imgui.h"
 
 namespace Renderer
 {
