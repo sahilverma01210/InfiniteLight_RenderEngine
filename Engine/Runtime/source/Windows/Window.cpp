@@ -79,6 +79,17 @@ Window::Window( LONG width,LONG height,const WCHAR* name ) : width(width), heigh
 	// create and initialize Renderer
 	graphics = new Graphics((UINT)width, (UINT)height, hWnd, WindowClass::GetInstance(), false);
 	
+	// register mouse raw input device
+	RAWINPUTDEVICE rid;
+	rid.usUsagePage = 0x01; // mouse page
+	rid.usUsage = 0x02; // mouse usage
+	rid.dwFlags = 0;
+	rid.hwndTarget = nullptr;
+	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+	{
+		throw ILWND_LAST_EXCEPT();
+	}
+
 	// show window
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
 }
@@ -119,7 +130,70 @@ std::optional<int> Window::ProcessMessages()
 
 void Window::UpdateWindow(float angle)
 {
+	graphics->StartFrame();
 	graphics->Update();
+
+	const auto e = kbd.ReadKey();
+
+	if (e.IsPress())
+	{
+		switch (e.GetCode())
+		{
+		case VK_ESCAPE:
+			if (CursorEnabled())
+			{
+				DisableCursor();
+				mouse.EnableRaw();
+			}
+			else
+			{
+				EnableCursor();
+				mouse.DisableRaw();
+			}
+			break;
+		case VK_F1:
+			graphics->ToggleImguiDemoWindow();
+			break;
+		}
+	}
+
+	if (!CursorEnabled())
+	{
+		if (kbd.KeyIsPressed('W'))
+		{
+			graphics->Translate({ 0.0f,0.0f,angle });
+		}
+		if (kbd.KeyIsPressed('A'))
+		{
+			graphics->Translate({ -angle,0.0f,0.0f });
+		}
+		if (kbd.KeyIsPressed('S'))
+		{
+			graphics->Translate({ 0.0f,0.0f,-angle });
+		}
+		if (kbd.KeyIsPressed('D'))
+		{
+			graphics->Translate({ angle,0.0f,0.0f });
+		}
+		if (kbd.KeyIsPressed('Q'))
+		{
+			graphics->Translate({ 0.0f,angle,0.0f });
+		}
+		if (kbd.KeyIsPressed('E'))
+		{
+			graphics->Translate({ 0.0f,-angle,0.0f });
+		}
+	}
+
+	while (const auto delta = mouse.ReadRawDelta())
+	{
+		if (!CursorEnabled())
+		{
+			graphics->Rotate((float)delta->x, (float)delta->y);
+		}
+	}
+
+	graphics->EndFrame();
 }
 
 void Window::EnableCursor() noexcept
@@ -136,6 +210,11 @@ void Window::DisableCursor() noexcept
 	HideCursor();
 	DisableImGUIMouse();
 	ConfineCursor();
+}
+
+bool Window::CursorEnabled() const noexcept
+{
+	return cursorEnabled;
 }
 
 void Window::ConfineCursor() noexcept
@@ -220,16 +299,19 @@ LRESULT Window::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noex
 		kbd.ClearState();
 		break;
 	case WM_ACTIVATE:
+		OutputDebugString(L"activate\n");
 		// confine/free cursor on window to foreground/background if cursor disabled
 		if (!cursorEnabled)
 		{
 			if (wParam & WA_ACTIVE)
 			{
+				OutputDebugString(L"activate => confine\n");
 				ConfineCursor();
 				HideCursor();
 			}
 			else
 			{
+				OutputDebugString(L"activate => free\n");
 				FreeCursor();
 				ShowCursor();
 			}
@@ -258,6 +340,19 @@ LRESULT Window::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noex
 	case WM_MOUSEMOVE:
 	{
 		const POINTS pt = MAKEPOINTS(lParam);
+
+		// cursorless exclusive gets first dibs
+		if (!cursorEnabled)
+		{
+			if (!mouse.IsInWindow())
+			{
+				SetCapture(hWnd);
+				mouse.OnMouseEnter();
+				HideCursor();
+			}
+			break;
+		}
+
 		// in client region -> log move, and log enter + capture mouse (if not previously in window)
 		if (pt.x >= 0 && pt.x < width && pt.y >= 0 && pt.y < height)
 		{
@@ -289,6 +384,7 @@ LRESULT Window::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noex
 		SetForegroundWindow(hWnd);
 		if (!cursorEnabled)
 		{
+			OutputDebugString(L"lclick => recapture\n");
 			ConfineCursor();
 			HideCursor();
 		}
@@ -334,6 +430,48 @@ LRESULT Window::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam ) noex
 		break;
 	}
 	/************** END MOUSE MESSAGES **************/
+
+	/************** RAW MOUSE MESSAGES **************/
+	case WM_INPUT:
+	{
+		if (!mouse.RawEnabled())
+		{
+			break;
+		}
+		UINT size;
+		// first get the size of the input data
+		if (GetRawInputData(
+			reinterpret_cast<HRAWINPUT>(lParam),
+			RID_INPUT,
+			nullptr,
+			&size,
+			sizeof(RAWINPUTHEADER)) == -1)
+		{
+			// bail msg processing if error
+			break;
+		}
+		rawBuffer.resize(size);
+		// read in the input data
+		if (GetRawInputData(
+			reinterpret_cast<HRAWINPUT>(lParam),
+			RID_INPUT,
+			rawBuffer.data(),
+			&size,
+			sizeof(RAWINPUTHEADER)) != size)
+		{
+			// bail msg processing if error
+			break;
+		}
+		// process the raw input data
+		auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
+		if (ri.header.dwType == RIM_TYPEMOUSE &&
+			(ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
+		{
+			mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+		}
+		break;
+	}
+	/************** END RAW MOUSE MESSAGES **************/
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);

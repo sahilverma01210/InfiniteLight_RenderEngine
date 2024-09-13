@@ -51,6 +51,7 @@ public:
 
 	void EnableCursor() noexcept;
 	void DisableCursor() noexcept;
+	bool CursorEnabled() const noexcept;
 
 private:
 
@@ -78,4 +79,5 @@ private:
 	bool cursorEnabled = true;
 
 	Graphics* graphics;
+	std::vector<BYTE> rawBuffer;
 };
