@@ -1,5 +1,5 @@
 #include "SolidSphere.h"
-#include "BindableBase.h"
+#include "BindableCommon.h"
 #include "Sphere.h"
 
 namespace Renderer
@@ -30,14 +30,14 @@ namespace Renderer
 
 			// Add Other Bindables
 			{
-				auto model = Sphere::Make<Sphere::Vertex>();
+				auto model = Sphere::Make<Sphere::VertexStruct>();
 				// deform vertices of model by linear transformation
 				model.Transform(XMMatrixScaling(radius, radius, radius));
 
-				AddNumIndices(model.indices.size() * sizeof(model.indices[0]));
+				m_numIndices = model.indices.size() * sizeof(model.indices[0]);
 
 				AddStaticBind(std::make_unique<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-				AddStaticBind(std::make_unique<VertexBuffer<Sphere::Vertex>>(gfx, model.vertices.size() * sizeof(model.vertices[0]), model.vertices));
+				AddStaticBind(std::make_unique<VertexBuffer<Sphere::VertexStruct>>(gfx, model.vertices.size() * sizeof(model.vertices[0]), model.vertices));
 				AddStaticBind(std::make_unique<IndexBuffer>(gfx, model.indices.size() * sizeof(model.indices[0]), model.indices));
 			}
 		}
@@ -54,8 +54,9 @@ namespace Renderer
 		this->pos = pos;
 	}
 
-	void SolidSphere::Update(float dt) noexcept
+	const UINT SolidSphere::GetNumIndices() const noexcept
 	{
+		return m_numIndices;
 	}
 
 	XMMATRIX SolidSphere::GetTransformXM() const noexcept

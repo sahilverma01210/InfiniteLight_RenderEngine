@@ -2,8 +2,10 @@
 
 namespace Renderer
 {
-	void Drawable::Draw(D3D12RHI& gfx) const
+	void Drawable::Draw(D3D12RHI& gfx, XMMATRIX transform) const
 	{
+		gfx.SetTransform(transform);
+
 		for (auto& b : GetStaticBinds())
 		{
 			b->Bind(gfx);

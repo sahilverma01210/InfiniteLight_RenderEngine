@@ -8,7 +8,7 @@ namespace Runtime
 {
 	// Viewport dimensions.
 	#define WIDTH 1280.0f
-	#define HEIGHT 800.0f
+	#define HEIGHT 720.0f
 
 	// Window title.
 	#define TITLE L"Infinite Light Render Engine"

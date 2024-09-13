@@ -13,7 +13,7 @@ namespace Renderer
 		PointLight(D3D12RHI& gfx, float radius = 0.5f);
 		bool SpawnControlWindow() noexcept;
 		void Reset() noexcept;
-		void Draw(D3D12RHI& gfx, Camera& camera) const noexcept;
+		void Draw(D3D12RHI& gfx) const noexcept;
 		void Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
 
 		bool m_imGUIwndOpen = true;

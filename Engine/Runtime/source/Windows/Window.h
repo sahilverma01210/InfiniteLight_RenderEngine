@@ -76,4 +76,6 @@ private:
 	LONG height;
 	HWND hWnd;
 	bool cursorEnabled = true;
+
+	Graphics* graphics;
 };

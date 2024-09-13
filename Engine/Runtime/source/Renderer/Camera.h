@@ -7,9 +7,9 @@ namespace Renderer
 	{
 	public:
 		XMMATRIX GetMatrix() const noexcept;
-		bool SpawnControlWindow() noexcept;
-		void Reset() noexcept;
-
+		bool SpawnControlWindow(D3D12RHI& gfx) noexcept;
+		void Update(D3D12RHI& gfx) noexcept;
+		void Reset(D3D12RHI& gfx) noexcept;
 		bool m_imGUIwndOpen = true;
 	private:
 		float r = 20.0f;

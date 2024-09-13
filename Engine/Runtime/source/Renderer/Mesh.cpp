@@ -1,29 +1,344 @@
 #include "Mesh.h"
+#include "imgui/imgui.h"
+#include <unordered_map>
+#include <sstream>
 
 namespace Renderer
 {
-    Mesh::Mesh(UINT nVertices, UINT nIndices, Vertex* pVertices, USHORT* pIndices)
-    {
-        numVertices = nVertices;
-        numIndices = nIndices;
-        vertices = pVertices;
-        indices = pIndices;
-    }
+	// ModelException Definitions.
 
-    UINT Mesh::GetNumVertices()
-    {
-        return numVertices;
-    }
-    UINT Mesh::GetNumIndices()
-    {
-        return numIndices;
-    }
-    Vertex* Mesh::GetVertices()
-    {
-        return vertices;
-    }
-    USHORT* Mesh::GetIndices()
-    {
-        return indices;
-    }
+	ModelException::ModelException(int line, const char* file, std::string note) noexcept
+		:
+		ILException(line, file),
+		note(std::move(note))
+	{}
+
+	const char* ModelException::what() const noexcept
+	{
+		std::ostringstream oss;
+		oss << ILException::what() << std::endl
+			<< "[Note] " << GetNote();
+		whatBuffer = oss.str();
+		return whatBuffer.c_str();
+	}
+
+	const char* ModelException::GetType() const noexcept
+	{
+		return "Chili Model Exception";
+	}
+
+	const std::string& ModelException::GetNote() const noexcept
+	{
+		return note;
+	}
+
+	// Mesh Definitions.
+
+	Mesh::Mesh(D3D12RHI& gfx, std::vector<std::unique_ptr<Bindable>> bindPtrs)
+	{
+		if (!IsStaticInitialized())
+		{
+			//AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+		}
+
+		for (auto& pb : bindPtrs)
+		{
+			AddBindable(std::move(pb));
+		}
+
+		//AddBind(std::make_unique<TransformCbuf>(gfx, *this));
+	}
+
+	void Mesh::Draw(D3D12RHI& gfx, FXMMATRIX accumulatedTransform) const noexcept
+	{
+		XMStoreFloat4x4(&transform, accumulatedTransform);
+		Drawable::Draw(gfx, GetTransformXM());
+	}
+
+	void Mesh::SetNumIndices(UINT numIndices)
+	{
+		m_numIndices = numIndices;
+	}
+
+	const UINT Mesh::GetNumIndices() const noexcept
+	{
+		return m_numIndices;
+	}
+
+	XMMATRIX Mesh::GetTransformXM() const noexcept
+	{
+		return XMLoadFloat4x4(&transform);
+	}
+
+	// Node Definitions.
+
+	Node::Node(const std::string& name, std::vector<Mesh*> meshPtrs, const XMMATRIX& transform_in) noexcept
+		:
+		meshPtrs(std::move(meshPtrs)),
+		name(name)
+	{
+		XMStoreFloat4x4(&transform, transform_in);
+		XMStoreFloat4x4(&appliedTransform, XMMatrixIdentity());
+	}
+
+	void Node::Draw(D3D12RHI& gfx, FXMMATRIX accumulatedTransform) const noexcept
+	{
+		const auto built =
+			XMLoadFloat4x4(&appliedTransform) *
+			XMLoadFloat4x4(&transform) *
+			accumulatedTransform;
+		for (const auto pm : meshPtrs)
+		{
+			pm->Draw(gfx, built);
+		}
+		for (const auto& pc : childPtrs)
+		{
+			pc->Draw(gfx, built);
+		}
+	}
+
+	void Node::AddChild(std::unique_ptr<Node> pChild) noexcept
+	{
+		assert(pChild);
+		childPtrs.push_back(std::move(pChild));
+	}
+
+	void Node::ShowTree(int& nodeIndexTracked, std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept
+	{
+		// nodeIndex serves as the uid for gui tree nodes, incremented throughout recursion
+		const int currentNodeIndex = nodeIndexTracked;
+		nodeIndexTracked++;
+		// build up flags for current node
+		const auto node_flags = ImGuiTreeNodeFlags_OpenOnArrow
+			| ((currentNodeIndex == selectedIndex.value_or(-1)) ? ImGuiTreeNodeFlags_Selected : 0)
+			| ((childPtrs.size() == 0) ? ImGuiTreeNodeFlags_Leaf : 0);
+
+		// render this node
+		const auto expanded = ImGui::TreeNodeEx(
+			(void*)(intptr_t)currentNodeIndex, node_flags, name.c_str()
+		);
+		// processing for selecting node
+		if (ImGui::IsItemClicked())
+		{
+			selectedIndex = currentNodeIndex;
+			pSelectedNode = const_cast<Node*>(this);
+		}
+		// recursive rendering of open node's children
+		if (expanded)
+		{
+			for (const auto& pChild : childPtrs)
+			{
+				pChild->ShowTree(nodeIndexTracked, selectedIndex, pSelectedNode);
+			}
+			ImGui::TreePop();
+		}
+	}
+
+	void Node::SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept
+	{
+		XMStoreFloat4x4(&appliedTransform, transform);
+	}
+
+	// Model.
+
+	class ModelWindow // pImpl idiom, only defined in this .cpp
+	{
+	public:
+		void Show(const char* windowName, const Node& root) noexcept
+		{
+			// window name defaults to "Model"
+			windowName = windowName ? windowName : "Model";
+			// need an ints to track node indices and selected node
+			int nodeIndexTracker = 0;
+
+			if (ImGui::Begin(windowName))
+			{
+				ImGui::Columns(2, nullptr, true);
+				root.ShowTree(nodeIndexTracker, selectedIndex, pSelectedNode);
+
+				ImGui::NextColumn();
+				if (pSelectedNode != nullptr)
+				{
+					auto& transform = transforms[*selectedIndex];
+					ImGui::Text("Orientation");
+					ImGui::SliderAngle("Roll", &transform.roll, -180.0f, 180.0f);
+					ImGui::SliderAngle("Pitch", &transform.pitch, -180.0f, 180.0f);
+					ImGui::SliderAngle("Yaw", &transform.yaw, -180.0f, 180.0f);
+					ImGui::Text("Position");
+					ImGui::SliderFloat("X", &transform.x, -20.0f, 20.0f);
+					ImGui::SliderFloat("Y", &transform.y, -20.0f, 20.0f);
+					ImGui::SliderFloat("Z", &transform.z, -20.0f, 20.0f);
+				}
+			}
+			ImGui::End();
+		}
+		XMMATRIX GetTransform() const noexcept
+		{
+			const auto& transform = transforms.at(*selectedIndex);
+			return
+				XMMatrixRotationRollPitchYaw(transform.roll, transform.pitch, transform.yaw) *
+				XMMatrixTranslation(transform.x, transform.y, transform.z);
+		}
+		Node* GetSelectedNode() const noexcept
+		{
+			return pSelectedNode;
+		}
+	private:
+		std::optional<int> selectedIndex;
+		Node* pSelectedNode;
+		struct TransformParameters
+		{
+			float roll = 0.0f;
+			float pitch = 0.0f;
+			float yaw = 0.0f;
+			float x = 0.0f;
+			float y = 0.0f;
+			float z = 0.0f;
+		};
+		std::unordered_map<int, TransformParameters> transforms;
+	};
+
+	// Model Definitions.
+
+	Model::Model(D3D12RHI& gfx, const std::string fileName)
+		:
+		pWindow(std::make_unique<ModelWindow>())
+	{
+		Assimp::Importer imp;
+		const auto pScene = imp.ReadFile(fileName.c_str(),
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_ConvertToLeftHanded |
+			aiProcess_GenNormals
+		);
+
+		if (pScene == nullptr)
+		{
+			throw ModelException(__LINE__, __FILE__, imp.GetErrorString());
+		}
+
+		for (size_t i = 0; i < pScene->mNumMeshes; i++)
+		{
+			meshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));
+		}
+
+		pRoot = ParseNode(*pScene->mRootNode);
+	}
+
+	void Model::Draw(D3D12RHI& gfx) const noexcept
+	{
+		if (auto node = pWindow->GetSelectedNode())
+		{
+			node->SetAppliedTransform(pWindow->GetTransform());
+		}
+		pRoot->Draw(gfx, XMMatrixIdentity());
+	}
+
+	void Model::ShowWindow(const char* windowName) noexcept
+	{
+		pWindow->Show(windowName, *pRoot);
+	}
+
+	std::unique_ptr<Mesh> Model::ParseMesh(D3D12RHI& gfx, const aiMesh& mesh)
+	{
+		using VertexSpace::VertexLayout;
+		VertexSpace::VertexBuffer vbuf(std::move(
+			VertexLayout{}
+			.Append(VertexLayout::Position3D)
+			.Append(VertexLayout::Normal)
+		));
+
+		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+		{
+			vbuf.EmplaceBack(
+				*reinterpret_cast<XMFLOAT3*>(&mesh.mVertices[i]),
+				*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i])
+			);
+		}
+
+		std::vector<unsigned short> indices;
+		indices.reserve(mesh.mNumFaces * 3);
+		for (unsigned int i = 0; i < mesh.mNumFaces; i++)
+		{
+			const auto& face = mesh.mFaces[i];
+			assert(face.mNumIndices == 3);
+			indices.push_back(face.mIndices[0]);
+			indices.push_back(face.mIndices[1]);
+			indices.push_back(face.mIndices[2]);
+		}
+
+		std::vector<std::unique_ptr<Bindable>> bindablePtrs;
+
+		// Add Pipeline State Obejct
+		{
+			ID3DBlob* vertexShader;
+			ID3DBlob* pixelShader;
+
+			// Compile Shaders.
+			D3DCompileFromFile(gfx.GetAssetFullPath(L"PhongVS.hlsl").c_str(), nullptr, nullptr, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(L"PhongPS.hlsl").c_str(), nullptr, nullptr, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
+
+			// Define the vertex input layout.
+			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vbuf.GetLayout().GetD3DLayout();
+			D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+
+			for (size_t i = 0; i < vec.size(); ++i) {
+				inputElementDescs[i] = vec[i];
+			}
+
+			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, 0 };
+
+			bindablePtrs.push_back(std::make_unique<PipelineState>(gfx, pipelineDesc));
+		}
+
+		// Add Other Bindables
+		{
+			bindablePtrs.push_back(std::make_unique<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+			bindablePtrs.push_back(std::make_unique<VertexBuffer<VertexSpace::VertexStruct>>(gfx, vbuf));
+			bindablePtrs.push_back(std::make_unique<IndexBuffer>(gfx, indices.size() * sizeof(indices[0]), indices));
+		}
+
+		bindablePtrs.push_back(std::make_unique<TransformBuffer>(gfx, 0));
+		struct PSMaterialConstant
+		{
+			alignas(16) XMFLOAT3 color = { 0.6f,0.6f,0.8f };
+			float specularIntensity = 0.6f;
+			float specularPower = 30.0f;
+			float padding[2];
+		} colorConst;
+		bindablePtrs.push_back(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(colorConst), &colorConst));
+
+		std::unique_ptr<Mesh> temp_mesh = std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
+		temp_mesh->SetNumIndices(indices.size() * sizeof(indices[0]));
+
+		return temp_mesh;
+	}
+
+	std::unique_ptr<Node> Model::ParseNode(const aiNode& node) noexcept
+	{
+		namespace dx = DirectX;
+		const auto transform = dx::XMMatrixTranspose(dx::XMLoadFloat4x4(
+			reinterpret_cast<const dx::XMFLOAT4X4*>(&node.mTransformation)
+		));
+
+		std::vector<Mesh*> curMeshPtrs;
+		curMeshPtrs.reserve(node.mNumMeshes);
+		for (size_t i = 0; i < node.mNumMeshes; i++)
+		{
+			const auto meshIdx = node.mMeshes[i];
+			curMeshPtrs.push_back(meshPtrs.at(meshIdx).get());
+		}
+
+		auto pNode = std::make_unique<Node>(node.mName.C_Str(), std::move(curMeshPtrs), transform);
+		for (size_t i = 0; i < node.mNumChildren; i++)
+		{
+			pNode->AddChild(ParseNode(*node.mChildren[i]));
+		}
+
+		return pNode;
+	}
+
+	Model::~Model() noexcept
+	{
+	}
 }

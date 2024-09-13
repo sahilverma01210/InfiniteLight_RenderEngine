@@ -77,7 +77,7 @@ Window::Window( LONG width,LONG height,const WCHAR* name ) : width(width), heigh
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
 	// create and initialize Renderer
-	Renderer::init((UINT)width, (UINT)height, hWnd, WindowClass::GetInstance(), false);
+	graphics = new Graphics((UINT)width, (UINT)height, hWnd, WindowClass::GetInstance(), false);
 	
 	// show window
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
@@ -85,7 +85,7 @@ Window::Window( LONG width,LONG height,const WCHAR* name ) : width(width), heigh
 
 Window::~Window()
 {
-	Renderer::destroy();
+	graphics->Destroy();
 
 	DestroyWindow( hWnd );
 }
@@ -119,7 +119,7 @@ std::optional<int> Window::ProcessMessages()
 
 void Window::UpdateWindow(float angle)
 {
-	Renderer::update(angle);
+	graphics->Update();
 }
 
 void Window::EnableCursor() noexcept

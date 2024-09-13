@@ -1,30 +1,24 @@
 #include "Renderer.h"
 
 namespace Renderer
-{	
-	D3D12RHI* pRHI;
-	//std::unique_ptr<D3D12RHI> pRHI;
-	
-	Camera camera;
-	PointLight* light;
-	ImGUI_Manager imguiManager;
-	std::unique_ptr<AssImpModel> suzanne;
-
-	void init(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
+{		
+	Graphics::Graphics(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
+		:
+		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd))
 	{
-		pRHI = new D3D12RHI(width, height, hWnd);
 		//pRHI = std::make_unique<D3D12RHI>(width, height);
 
 		pRHI->OnInit();
-		pRHI->SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 
-		suzanne = std::make_unique<AssImpModel>(*pRHI);
-
+		camera.Reset(*pRHI);
 		light = new PointLight(*pRHI);
+
+		model = std::make_unique<Model>(*pRHI, "models\\nano.gltf");
+
 		imguiManager.InitImGUI(*pRHI);
 	}
 
-	void update(float angle)
+	void Graphics::Update()
 	{
 		pRHI->StartFrame();
 		imguiManager.StartImGUIFrame(*pRHI);
@@ -32,27 +26,36 @@ namespace Renderer
 
 		// pRHI->RenderImGUI(); => Renders inside IMGUI Window when called before Object Draw Calls.
 
-		light->Draw(*pRHI, camera);
+		camera.Update(*pRHI);
+		light->Draw(*pRHI);
 
-		suzanne->Update(angle);
-		pRHI->SetTransform(suzanne->GetTransformXM());
-		pRHI->SetCamera(camera.GetMatrix());
-		pRHI->SetProjection(XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
-		suzanne->Draw(*pRHI);
+		// Draw Model.
+		model->Draw(*pRHI);
 
-		if (camera.m_imGUIwndOpen) camera.SpawnControlWindow();
-		if (light->m_imGUIwndOpen) light->SpawnControlWindow();
+		// Update ImGUI.
+		{
+			if (camera.m_imGUIwndOpen) camera.SpawnControlWindow(*pRHI);
+			if (light->m_imGUIwndOpen) light->SpawnControlWindow();
+			ShowImguiDemoWindow();
+			model->ShowWindow();
+		}
 
 		imguiManager.EndImGUIFrame(*pRHI);
 		pRHI->EndFrame();
 	}
 
-	void destroy()
+	void Graphics::Destroy()
 	{
 		imguiManager.DestroyImGUI(*pRHI);
 		pRHI->OnDestroy();
+	}
 
-		delete pRHI;
-		pRHI = nullptr;
+	void Graphics::ShowImguiDemoWindow()
+	{
+		static bool show_demo_window = true;
+		if (show_demo_window)
+		{
+			ImGui::ShowDemoWindow(&show_demo_window);
+		}
 	}
 }

@@ -6,13 +6,24 @@
 #include "D3D12RHI.h"
 #include "Camera.h"
 #include "PointLight.h"
-#include "AssImpModel.h"
+#include "Mesh.h"
 
 namespace Renderer
 {
-	void init(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);
+	class Graphics
+	{
+	public:
+		Graphics(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);
+		void Update();
+		void Destroy();
+		void ShowImguiDemoWindow();
+	private:
+		std::unique_ptr<D3D12RHI> pRHI;
+		//std::unique_ptr<D3D12RHI> pRHI;
 
-	void update(float angle);
-
-	void destroy();
+		Camera camera;
+		PointLight* light;
+		ImGUI_Manager imguiManager;
+		std::unique_ptr<Model> model;
+	};
 }

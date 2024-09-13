@@ -9,7 +9,7 @@ namespace Renderer
 	{
 	public:
 
-		struct Vertex
+		struct VertexStruct
 		{
 			XMFLOAT3 position;
 		};

@@ -1,6 +1,7 @@
 //#pragma once
 //#include "Object.h"
-//#include "BindableBase.h"
+//#include "Cube.h"
+//#include "BindableCommon.h"
 //#include "Vertex.h"
 //#include <assimp/Importer.hpp>
 //#include <assimp/scene.h>
@@ -15,34 +16,35 @@
 //		{
 //			if (!IsStaticInitialized())
 //			{
-//				AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+//				//AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 //			}
 //
 //			for (auto& pb : bindPtrs)
 //			{
-//				if (auto pi = dynamic_cast<IndexBuffer*>(pb.get()))
-//				{
-//					AddIndexBuffer(std::unique_ptr<IndexBuffer>{ pi });
-//					pb.release();
-//				}
-//				else
-//				{
-//					AddBind(std::move(pb));
-//				}
+//				AddBindable(std::move(pb));
 //			}
 //
-//			AddBind(std::make_unique<TransformCbuf>(gfx, *this));
+//			//AddBind(std::make_unique<TransformCbuf>(gfx, *this));
 //		}
 //		void Draw(D3D12RHI& gfx, FXMMATRIX accumulatedTransform) const noexcept
 //		{
 //			XMStoreFloat4x4(&transform, accumulatedTransform);
-//			Drawable::Draw(gfx);
+//			Drawable::Draw(gfx, GetTransformXM());
+//		}
+//		void SetNumIndices(UINT numIndices)
+//		{
+//			m_numIndices = numIndices;
+//		}
+//		const UINT GetNumIndices() const noexcept
+//		{
+//			return m_numIndices;
 //		}
 //		XMMATRIX GetTransformXM() const noexcept override
 //		{
 //			return XMLoadFloat4x4(&transform);
 //		}
 //	private:
+//		UINT m_numIndices;
 //		mutable XMFLOAT4X4 transform;
 //	};
 //
@@ -101,10 +103,8 @@
 //
 //		static std::unique_ptr<Mesh> ParseMesh(D3D12RHI& gfx, const aiMesh& mesh)
 //		{
-//			namespace dx = DirectX;
-//			using hw3dexp::VertexLayout;
-//
-//			hw3dexp::VertexBuffer vbuf(std::move(
+//			using VertexSpace::VertexLayout;
+//			VertexSpace::VertexBuffer vbuf(std::move(
 //				VertexLayout{}
 //				.Append(VertexLayout::Position3D)
 //				.Append(VertexLayout::Normal)
@@ -113,8 +113,8 @@
 //			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 //			{
 //				vbuf.EmplaceBack(
-//					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mVertices[i]),
-//					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i])
+//					*reinterpret_cast<XMFLOAT3*>(&mesh.mVertices[i]),
+//					*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i])
 //				);
 //			}
 //
@@ -131,28 +131,49 @@
 //
 //			std::vector<std::unique_ptr<Bindable>> bindablePtrs;
 //
-//			bindablePtrs.push_back(std::make_unique<VertexBuffer>(gfx, vbuf));
+//			// Add Pipeline State Obejct
+//			{
+//				ID3DBlob* vertexShader;
+//				ID3DBlob* pixelShader;
 //
-//			bindablePtrs.push_back(std::make_unique<IndexBuffer>(gfx, indices));
+//				// Compile Shaders.
+//				D3DCompileFromFile(gfx.GetAssetFullPath(L"PhongVS.hlsl").c_str(), nullptr, nullptr, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
+//				D3DCompileFromFile(gfx.GetAssetFullPath(L"PhongPS.hlsl").c_str(), nullptr, nullptr, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
 //
-//			auto pvs = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
-//			auto pvsbc = pvs->GetBytecode();
-//			bindablePtrs.push_back(std::move(pvs));
+//				// Define the vertex input layout.
+//				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vbuf.GetLayout().GetD3DLayout();
+//				D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 //
-//			bindablePtrs.push_back(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
+//				for (size_t i = 0; i < vec.size(); ++i) {
+//					inputElementDescs[i] = vec[i];
+//				}
 //
-//			bindablePtrs.push_back(std::make_unique<InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pvsbc));
+//				PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, 0 };
 //
+//				bindablePtrs.push_back(std::make_unique<PipelineState>(gfx, pipelineDesc));
+//			}
+//
+//			// Add Other Bindables
+//			{
+//				bindablePtrs.push_back(std::make_unique<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+//				bindablePtrs.push_back(std::make_unique<VertexBuffer<Cube::Vertex>>(gfx, vbuf));
+//				bindablePtrs.push_back(std::make_unique<IndexBuffer>(gfx, indices.size() * sizeof(indices[0]), indices));
+//			}
+//
+//			bindablePtrs.push_back(std::make_unique<TransformBuffer>(gfx, 0));
 //			struct PSMaterialConstant
 //			{
-//				XMFLOAT3 color = { 0.6f,0.6f,0.8f };
+//				alignas(16) XMFLOAT3 color = { 0.6f,0.6f,0.8f };
 //				float specularIntensity = 0.6f;
 //				float specularPower = 30.0f;
-//				float padding[3];
-//			} pmc;
-//			bindablePtrs.push_back(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, pmc, 1u));
+//				float padding[2];
+//			} colorConst;
+//			bindablePtrs.push_back(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(colorConst), &colorConst));
 //
-//			return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
+//			std::unique_ptr<Mesh> temp_mesh = std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
+//			temp_mesh->SetNumIndices(indices.size() * sizeof(indices[0]));
+//
+//			return temp_mesh;
 //		}
 //		std::unique_ptr<Node> ParseNode(const aiNode& node)
 //		{
@@ -177,9 +198,9 @@
 //
 //			return pNode;
 //		}
-//		void Draw(D3D12RHI& gfx) const
+//		void Draw(D3D12RHI& gfx, XMMATRIX transform) const
 //		{
-//			pRoot->Draw(gfx, XMMatrixIdentity());
+//			pRoot->Draw(gfx, transform);
 //		}
 //	private:
 //		std::unique_ptr<Node> pRoot;

@@ -13,8 +13,8 @@ namespace Renderer
 		Drawable() = default;
 		Drawable(const Drawable&) = delete;
 		virtual XMMATRIX GetTransformXM() const noexcept = 0;
-		void Draw(D3D12RHI& gfx) const;
-		virtual void Update(float dt) noexcept = 0;
+		void Draw(D3D12RHI& gfx, XMMATRIX transform) const;
+		virtual void Update(float dt) noexcept {}
 		void AddBindable(std::unique_ptr<Bindable> bindable) noexcept;
 		virtual ~Drawable() = default;
 	private:

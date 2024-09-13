@@ -71,7 +71,7 @@ namespace Renderer
 	}
 
     template<typename T>
-    VertexBuffer<T>::VertexBuffer(D3D12RHI& gfx, const TemplateMeta::VertexBuffer& vbuf)
+    VertexBuffer<T>::VertexBuffer(D3D12RHI& gfx, const VertexSpace::VertexBuffer& vbuf)
         :
         m_vertexBufferSize(UINT(vbuf.SizeBytes()))
     {

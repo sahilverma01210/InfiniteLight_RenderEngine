@@ -156,7 +156,7 @@
     <ClInclude Include="source\Renderer\Bindable.h">
       <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BindableBase.h">
+    <ClInclude Include="source\Renderer\BindableCommon.h">
       <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Drawable.h">
@@ -171,15 +171,6 @@
     <ClInclude Include="source\Renderer\PipelineState.h">
       <Filter>Header Files\Renderer\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Cone.h">
-      <Filter>Header Files\Renderer\Shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Plane.h">
-      <Filter>Header Files\Renderer\Shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Prism.h">
-      <Filter>Header Files\Renderer\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Sphere.h">
       <Filter>Header Files\Renderer\Shapes</Filter>
     </ClInclude>
@@ -188,9 +179,6 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\IndexedTriangleList.h">
       <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Cube.h">
-      <Filter>Header Files\Renderer\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Object.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
@@ -207,10 +195,10 @@
     <ClInclude Include="source\Renderer\SolidSphere.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\AssImpModel.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Vertex.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Model.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
@@ -308,8 +296,8 @@
     <ClCompile Include="source\Renderer\SolidSphere.cpp">
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\AssImpModel.cpp">
-      <Filter>Source Files\Renderer\Drawables</Filter>
+    <ClCompile Include="source\Renderer\Vertex.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

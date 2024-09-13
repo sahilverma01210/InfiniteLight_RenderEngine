@@ -55,13 +55,10 @@ namespace Renderer
 		};
 	}
 
-	void PointLight::Draw(D3D12RHI& gfx, Camera& camera) const noexcept
+	void PointLight::Draw(D3D12RHI& gfx) const noexcept
 	{
 		mesh.SetPos(cbData.pos);
-		gfx.SetTransform(mesh.GetTransformXM());
-		gfx.SetCamera(camera.GetMatrix());
-		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
-		mesh.Draw(gfx);
+		mesh.Draw(gfx, mesh.GetTransformXM());
 	}
 
 	void PointLight::Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept

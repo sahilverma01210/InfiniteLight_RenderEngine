@@ -10,7 +10,7 @@ namespace Renderer
 	{
 	public:
 		VertexBuffer(D3D12RHI& gfx, UINT dataSize, std::vector<T> pData);
-		VertexBuffer(D3D12RHI& gfx, const TemplateMeta::VertexBuffer& vbuf);
+		VertexBuffer(D3D12RHI& gfx, const VertexSpace::VertexBuffer& vbuf);
 		void CreateView(D3D12RHI& gfx, UINT strides);
 		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
