@@ -11,12 +11,12 @@ cbuffer LightCBuf : register(b1)
 
 cbuffer ObjectCBuf : register(b2)
 {
-    float specularIntensity;
+    float3 specularIntensity;
     float specularPower;
     float padding[2];
 };
 
-Texture2D tex : register(t0);
+Texture2D<float4> tex[2] : register(t0);
 SamplerState samp;
 
 float4 PSMain(float3 worldPos : POSITION, float3 n : NORMAL, float2 uv : TEXCOORD) : SV_TARGET
@@ -33,7 +33,10 @@ float4 PSMain(float3 worldPos : POSITION, float3 n : NORMAL, float2 uv : TEXCOOR
     const float3 w = n * dot(vToL, n);
     const float3 r = w * 2.0f - vToL;
 	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-    const float3 specular = att * (diffuseColor * diffuseIntensity) * specularIntensity * pow(max(0.0f, dot(normalize(-r), normalize(worldPos))), specularPower);
+    const float4 specularSample = tex[1].Sample(samp, uv);
+    const float3 specularReflectionColor = specularSample.rgb;
+    const float specPower = pow(2.0f, specularSample.a * 13.0f);
+    const float3 specular = att * (diffuseColor * diffuseIntensity) * pow(max(0.0f, dot(normalize(-r), normalize(worldPos))), specPower);
 	// final color
-    return float4(saturate((diffuse + ambient) * tex.Sample(samp, uv).rgb + specular), 1.0f);
+    return float4(saturate((diffuse + ambient) * tex[0].Sample(samp, uv).rgb + specular * specularReflectionColor), 1.0f);
 }

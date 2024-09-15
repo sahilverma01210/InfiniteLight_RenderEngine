@@ -2,10 +2,12 @@
 
 namespace Renderer
 {
-	TextureBuffer::TextureBuffer(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename) : m_rootParameterIndex(rootParameterIndex)
+	TextureBuffer::TextureBuffer(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename, ID3D12DescriptorHeap* srvHeap, UINT offset)
+        : 
+        m_rootParameterIndex(rootParameterIndex),
+        m_srvHeap(srvHeap),
+        m_offset(offset)
 	{
-        m_shaderResourceView = std::make_unique<ShaderResourceView>(gfx);
-
         // load image data from disk 
         ScratchImage image;
         HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_NONE, nullptr, image);
@@ -96,20 +98,8 @@ namespace Renderer
 
         InsertFence(gfx);
 
-        CreateView(gfx);
+        m_shaderResourceView = std::make_unique<ShaderResourceView>(gfx, m_offset, m_rootParameterIndex, m_texureBuffer.Get(), m_srvHeap);
 	}
-
-    void TextureBuffer::CreateView(D3D12RHI& gfx)
-    {
-        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-        srvDesc.Format = m_texureBuffer->GetDesc().Format;
-        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        srvDesc.Texture2D.MipLevels = m_texureBuffer->GetDesc().MipLevels;
-
-        m_shaderResourceView->Bind(gfx);
-        GetDevice(gfx)->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, m_shaderResourceView->GetShaderResourceView()->GetCPUDescriptorHandleForHeapStart());
-    }
 
     void TextureBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
     {
@@ -117,7 +107,6 @@ namespace Renderer
 
 	void TextureBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
-        // bind the descriptor table containing the texture descriptor 
-        GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_shaderResourceView->GetShaderResourceView()->GetGPUDescriptorHandleForHeapStart());
+        m_shaderResourceView->Bind(gfx);
 	}
 }

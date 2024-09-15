@@ -175,11 +175,11 @@ void Window::UpdateWindow(float angle)
 		{
 			graphics->Translate({ angle,0.0f,0.0f });
 		}
-		if (kbd.KeyIsPressed('Q'))
+		if (kbd.KeyIsPressed('E'))
 		{
 			graphics->Translate({ 0.0f,angle,0.0f });
 		}
-		if (kbd.KeyIsPressed('E'))
+		if (kbd.KeyIsPressed('Q'))
 		{
 			graphics->Translate({ 0.0f,-angle,0.0f });
 		}

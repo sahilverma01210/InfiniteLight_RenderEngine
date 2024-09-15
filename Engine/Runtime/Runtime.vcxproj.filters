@@ -319,5 +319,8 @@
     <CustomBuild Include="..\..\shaders\HLSL\SolidVS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecMap.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

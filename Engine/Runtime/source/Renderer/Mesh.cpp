@@ -223,7 +223,7 @@ namespace Renderer
 
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		{
-			meshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));
+			meshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials));
 		}
 
 		int nextId = 0;
@@ -244,20 +244,30 @@ namespace Renderer
 		pWindow->Show(windowName, *pRoot);
 	}
 
-	std::unique_ptr<Mesh> Model::ParseMesh(D3D12RHI& gfx, const aiMesh& mesh)
+	std::unique_ptr<Mesh> Model::ParseMesh(D3D12RHI& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
 	{
 		using VertexSpace::VertexLayout;
 		VertexSpace::VertexBuffer vbuf(std::move(
 			VertexLayout{}
 			.Append(VertexLayout::Position3D)
 			.Append(VertexLayout::Normal)
+			.Append(VertexLayout::Texture2D)
 		));
+
+		auto& material = *pMaterials[mesh.mMaterialIndex];
+
+		for (int i = 0; i < material.mNumProperties; i++)
+		{
+			auto& prop = *material.mProperties[i];
+			int qqq = 90;
+		}
 
 		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 		{
 			vbuf.EmplaceBack(
 				*reinterpret_cast<XMFLOAT3*>(&mesh.mVertices[i]),
-				*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i])
+				*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<XMFLOAT2*>(&mesh.mTextureCoords[0][i])
 			);
 		}
 
@@ -272,7 +282,34 @@ namespace Renderer
 			indices.push_back(face.mIndices[2]);
 		}
 
+		std::string base("models\\nano_textured\\");
+
 		std::vector<std::unique_ptr<Bindable>> bindablePtrs;
+
+		bool hasSpecularMap = false;
+		std::string diffPath, specPath;
+		float shininess = 35.0f;
+
+		if (mesh.mMaterialIndex >= 0)
+		{
+			using namespace std::string_literals;
+			auto& material = *pMaterials[mesh.mMaterialIndex];
+
+			aiString texFileName;
+
+			material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
+			diffPath = base + texFileName.C_Str();
+
+			if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
+			{
+				specPath = base + texFileName.C_Str();
+				hasSpecularMap = true;
+			}
+			else
+			{
+				material.Get(AI_MATKEY_SHININESS, shininess);
+			}
+		}
 
 		// Add Pipeline State Obejct
 		{
@@ -281,7 +318,7 @@ namespace Renderer
 
 			// Compile Shaders.
 			D3DCompileFromFile(gfx.GetAssetFullPath(L"PhongVS.hlsl").c_str(), nullptr, nullptr, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
-			D3DCompileFromFile(gfx.GetAssetFullPath(L"PhongPS.hlsl").c_str(), nullptr, nullptr, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(hasSpecularMap ? L"PhongPSSpecMap.hlsl" : L"PhongPS.hlsl").c_str(), nullptr, nullptr, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
 			// Define the vertex input layout.
 			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vbuf.GetLayout().GetD3DLayout();
@@ -291,27 +328,31 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, 0 };
+			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, 2 };
 
 			bindablePtrs.push_back(std::make_unique<PipelineState>(gfx, pipelineDesc));
 		}
 
+		auto pso = dynamic_cast<PipelineState*>(bindablePtrs[0].get());
+		
 		// Add Other Bindables
 		{
 			bindablePtrs.push_back(std::make_unique<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 			bindablePtrs.push_back(std::make_unique<VertexBuffer<VertexSpace::VertexStruct>>(gfx, vbuf));
 			bindablePtrs.push_back(std::make_unique<IndexBuffer>(gfx, indices.size() * sizeof(indices[0]), indices));
+			bindablePtrs.push_back(std::make_unique<TextureBuffer>(gfx, 3, std::wstring(diffPath.begin(), diffPath.end()).c_str(), pso->GetSRVHeap(), 0));
+			if (hasSpecularMap) bindablePtrs.push_back(std::make_unique<TextureBuffer>(gfx, 3, std::wstring(specPath.begin(), specPath.end()).c_str(), pso->GetSRVHeap(), 1));
 		}
 
 		bindablePtrs.push_back(std::make_unique<TransformBuffer>(gfx, 0));
 		struct PSMaterialConstant
 		{
-			alignas(16) XMFLOAT3 color = { 0.6f,0.6f,0.8f };
-			float specularIntensity = 0.6f;
-			float specularPower = 30.0f;
+			float specularIntensity = 0.8f;
+			float specularPower;
 			float padding[2];
-		} colorConst;
-		bindablePtrs.push_back(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(colorConst), &colorConst));
+		} pmc;
+		pmc.specularPower = shininess;
+		bindablePtrs.push_back(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
 
 		std::unique_ptr<Mesh> temp_mesh = std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 		temp_mesh->SetNumIndices(indices.size() * sizeof(indices[0]));

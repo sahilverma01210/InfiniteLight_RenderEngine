@@ -8,3 +8,4 @@
 #include "TextureBuffer.h"
 #include "Topology.h"
 #include "PipelineState.h"
+#include "ShaderResourceView.h"
