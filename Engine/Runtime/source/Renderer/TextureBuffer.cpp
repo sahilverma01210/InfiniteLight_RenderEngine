@@ -2,13 +2,21 @@
 
 namespace Renderer
 {
-	TextureBuffer::TextureBuffer(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename) : m_rootParameterIndex(rootParameterIndex)
+	TextureBuffer::TextureBuffer(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename, ID3D12DescriptorHeap* srvHeap, UINT offset)
+        : 
+        m_rootParameterIndex(rootParameterIndex),
+        m_srvHeap(srvHeap),
+        m_offset(offset)
 	{
-        m_shaderResourceView = std::make_unique<ShaderResourceView>(gfx);
-
         // load image data from disk 
         ScratchImage image;
         HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_NONE, nullptr, image);
+
+        /*if (FAILED(hr))
+        {
+            OutputDebugString(filename);
+            OutputDebugString(std::to_wstring(hr).c_str());
+        }*/
 
         // generate mip chain 
         ScratchImage mipChain;
@@ -107,8 +115,9 @@ namespace Renderer
         srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDesc.Texture2D.MipLevels = m_texureBuffer->GetDesc().MipLevels;
 
-        m_shaderResourceView->Bind(gfx);
-        GetDevice(gfx)->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, m_shaderResourceView->GetShaderResourceView()->GetCPUDescriptorHandleForHeapStart());
+        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = m_srvHeap->GetCPUDescriptorHandleForHeapStart();
+        CPUHandle.ptr += GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_offset;
+        GetDevice(gfx)->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, CPUHandle);
     }
 
     void TextureBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
@@ -118,6 +127,11 @@ namespace Renderer
 	void TextureBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
         // bind the descriptor table containing the texture descriptor 
-        GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_shaderResourceView->GetShaderResourceView()->GetGPUDescriptorHandleForHeapStart());
+        GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
 	}
+
+    bool TextureBuffer::HasAlpha() const noexcept
+    {
+        return hasAlpha;
+    }
 }

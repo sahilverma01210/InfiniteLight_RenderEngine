@@ -1,9 +1,5 @@
 #include "D3D12RHI.h"
 
-using namespace Microsoft::WRL;
-
-using namespace DirectX;
-
 namespace Renderer
 {
     // PUBLIC D3D12RHI METHODS

@@ -1,6 +1,6 @@
 #include "Vertex.h"
 
-namespace VertexSpace
+namespace Renderer
 {
 	// VertexLayout Definitions.
 
@@ -72,6 +72,10 @@ namespace VertexSpace
 			return sizeof(Map<Texture2D>::SysType);
 		case Normal:
 			return sizeof(Map<Normal>::SysType);
+		case Tangent:
+			return sizeof(Map<Tangent>::SysType);
+		case Bitangent:
+			return sizeof(Map<Bitangent>::SysType);
 		case Float3Color:
 			return sizeof(Map<Float3Color>::SysType);
 		case Float4Color:
@@ -88,6 +92,33 @@ namespace VertexSpace
 		return type;
 	}
 
+	const char* VertexLayout::Element::GetCode() const noexcept
+	{
+		switch (type)
+		{
+		case Position2D:
+			return Map<Position2D>::code;
+		case Position3D:
+			return Map<Position3D>::code;
+		case Texture2D:
+			return Map<Texture2D>::code;
+		case Normal:
+			return Map<Normal>::code;
+		case Tangent:
+			return Map<Tangent>::code;
+		case Bitangent:
+			return Map<Bitangent>::code;
+		case Float3Color:
+			return Map<Float3Color>::code;
+		case Float4Color:
+			return Map<Float4Color>::code;
+		case BGRAColor:
+			return Map<BGRAColor>::code;
+		}
+		assert("Invalid element type" && false);
+		return "Invalid";
+	}
+
 	D3D12_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc() const noexcept
 	{
 		switch (type)
@@ -100,6 +131,10 @@ namespace VertexSpace
 			return GenerateDesc<Texture2D>(GetOffset());
 		case Normal:
 			return GenerateDesc<Normal>(GetOffset());
+		case Tangent:
+			return GenerateDesc<Tangent>(GetOffset());
+		case Bitangent:
+			return GenerateDesc<Bitangent>(GetOffset());
 		case Float3Color:
 			return GenerateDesc<Float3Color>(GetOffset());
 		case Float4Color:
@@ -128,61 +163,70 @@ namespace VertexSpace
 
 	// VertexBuffer Definitions.
 
-	VertexBuffer::VertexBuffer(VertexLayout layout) noexcept
+	VertexRawBuffer::VertexRawBuffer() noexcept
+	{
+	}
+
+	VertexRawBuffer::VertexRawBuffer(VertexLayout layout) noexcept
 		:
 		layout(std::move(layout))
 	{}
 
-	const char* VertexBuffer::GetData() const noexcept
+	const char* VertexRawBuffer::GetData() const noexcept
 	{
 		return buffer.data();
 	}
 
-	const VertexLayout& VertexBuffer::GetLayout() const noexcept
+	void VertexRawBuffer::SetLayout(VertexLayout pLayout) noexcept
+	{
+		layout = std::move(pLayout);
+	}
+
+	const VertexLayout& VertexRawBuffer::GetLayout() const noexcept
 	{
 		return layout;
 	}
 
-	size_t VertexBuffer::Size() const noexcept
+	size_t VertexRawBuffer::Size() const noexcept
 	{
 		return buffer.size() / layout.Size();
 	}
 
-	size_t VertexBuffer::SizeBytes() const noexcept
+	size_t VertexRawBuffer::SizeBytes() const noexcept
 	{
 		return buffer.size();
 	}
 
-	Vertex VertexBuffer::Back() noexcept
+	Vertex VertexRawBuffer::Back() noexcept
 	{
 		assert(buffer.size() != 0u);
 		return Vertex{ buffer.data() + buffer.size() - layout.Size(),layout };
 	}
 
-	Vertex VertexBuffer::Front() noexcept
+	Vertex VertexRawBuffer::Front() noexcept
 	{
 		assert(buffer.size() != 0u);
 		return Vertex{ buffer.data(),layout };
 	}
 
-	Vertex VertexBuffer::operator[](size_t i) noexcept
+	Vertex VertexRawBuffer::operator[](size_t i) noexcept
 	{
 		assert(i < Size());
 		return Vertex{ buffer.data() + layout.Size() * i,layout };
 	}
 
-	ConstVertex VertexBuffer::Back() const noexcept
+	ConstVertex VertexRawBuffer::Back() const noexcept
 	{
-		return const_cast<VertexBuffer*>(this)->Back();
+		return const_cast<VertexRawBuffer*>(this)->Back();
 	}
 
-	ConstVertex VertexBuffer::Front() const noexcept
+	ConstVertex VertexRawBuffer::Front() const noexcept
 	{
-		return const_cast<VertexBuffer*>(this)->Front();
+		return const_cast<VertexRawBuffer*>(this)->Front();
 	}
 
-	ConstVertex VertexBuffer::operator[](size_t i) const noexcept
+	ConstVertex VertexRawBuffer::operator[](size_t i) const noexcept
 	{
-		return const_cast<VertexBuffer&>(*this)[i];
+		return const_cast<VertexRawBuffer&>(*this)[i];
 	}
 }

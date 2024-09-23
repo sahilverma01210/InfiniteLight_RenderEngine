@@ -1,9 +1,13 @@
 #pragma once
-#include "Object.h"
+#include "../_External/framework.h"
+
+#include "Drawable.h"
+#include "CommonBindables.h"
+#include "CommonShapes.h"
 
 namespace Renderer
 {
-	class SolidSphere : public Object<SolidSphere>
+	class SolidSphere : public Drawable
 	{
 	public:
 		SolidSphere(D3D12RHI& gfx, float radius);

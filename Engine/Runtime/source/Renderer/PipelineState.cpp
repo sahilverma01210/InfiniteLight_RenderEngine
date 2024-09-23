@@ -4,7 +4,8 @@ namespace Renderer
 {   
 	PipelineState::PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
-        UINT numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews + pipelineDesc.numShaderResourceViews;
+        UINT numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews;
+        if (pipelineDesc.numSRVDescriptors > 0) numRootParameters++;
         m_rootSignatureObject = std::make_unique<RootSignature>(gfx, numRootParameters);
         
         for (int i = 0; i < pipelineDesc.numConstants; i++) 
@@ -13,12 +14,20 @@ namespace Renderer
         for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++) 
             m_rootSignatureObject->InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
-        for (int k = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; k < numRootParameters; k++)
+        if (pipelineDesc.numSRVDescriptors > 0)
         {
-            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 };
-            m_rootSignatureObject->InitDescriptorTable(k, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
-        }
+            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, pipelineDesc.numSRVDescriptors, 0 };
+            m_rootSignatureObject->InitDescriptorTable(pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
 
+            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            srvHeapDesc.NumDescriptors = pipelineDesc.numSRVDescriptors;
+            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            GetDevice(gfx)->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
+
+            GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
+        }        
+ 
         m_rootSignatureObject->InitRootSignature(gfx);
 
         // Describe and create the graphics pipeline state object (PSO).
@@ -39,6 +48,11 @@ namespace Renderer
         m_psoDescription.SampleDesc.Count = 1;
         GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));
 	}
+
+    ID3D12DescriptorHeap* PipelineState::GetSRVHeap()
+    {
+        return m_srvHeap.Get();
+    }
 
     void PipelineState::Update(D3D12RHI& gfx, const void* pData) noexcept
     {

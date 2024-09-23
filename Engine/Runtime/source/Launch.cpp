@@ -1,13 +1,11 @@
-#include "Application.h"
-
-using namespace Runtime;
+#include "Runtime/Application.h"
 
 _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     try
     {		
-		return Application{}.Run();
+		return Runtime::Application{}.Run();
     }
 	catch (const ILException& e)
 	{

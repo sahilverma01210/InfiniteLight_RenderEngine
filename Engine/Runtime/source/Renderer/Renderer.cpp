@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 namespace Renderer
-{		
+{
 	Graphics::Graphics(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
 		:
 		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd))
@@ -11,84 +11,21 @@ namespace Renderer
 		pRHI->OnInit();
 
 		camera = new Camera(*pRHI);
+
+		model = std::make_unique<Model>(*pRHI, "models\\gobber\\GoblinX.obj");
+
 		light = new PointLight(*pRHI);
-
-		model = std::make_unique<Model>(*pRHI, "models\\nano.gltf");
-
-		imguiManager.InitImGUI(*pRHI);
+		uiManager.InitUI(*pRHI);
 	}
 
 	void Graphics::StartFrame()
 	{
 		pRHI->StartFrame();
-		imguiManager.StartImGUIFrame(*pRHI);
+		uiManager.StartUIFrame(*pRHI);
 	}
 
 	void Graphics::Update()
 	{
-		/*while (const auto e = wnd.kbd.ReadKey())
-		{
-			if (!e->IsPress())
-			{
-				continue;
-			}
-
-			switch (e->GetCode())
-			{
-			case VK_ESCAPE:
-				if (wnd.CursorEnabled())
-				{
-					wnd.DisableCursor();
-					wnd.mouse.EnableRaw();
-				}
-				else
-				{
-					wnd.EnableCursor();
-					wnd.mouse.DisableRaw();
-				}
-				break;
-			case VK_F1:
-				showDemoWindow = true;
-				break;
-			}
-		}
-
-		if (!wnd.CursorEnabled())
-		{
-			if (wnd.kbd.KeyIsPressed('W'))
-			{
-				cam.Translate({ 0.0f,0.0f,dt });
-			}
-			if (wnd.kbd.KeyIsPressed('A'))
-			{
-				cam.Translate({ -dt,0.0f,0.0f });
-			}
-			if (wnd.kbd.KeyIsPressed('S'))
-			{
-				cam.Translate({ 0.0f,0.0f,-dt });
-			}
-			if (wnd.kbd.KeyIsPressed('D'))
-			{
-				cam.Translate({ dt,0.0f,0.0f });
-			}
-			if (wnd.kbd.KeyIsPressed('R'))
-			{
-				cam.Translate({ 0.0f,dt,0.0f });
-			}
-			if (wnd.kbd.KeyIsPressed('F'))
-			{
-				cam.Translate({ 0.0f,-dt,0.0f });
-			}
-		}
-
-		while (const auto delta = wnd.mouse.ReadRawDelta())
-		{
-			if (!wnd.CursorEnabled())
-			{
-				cam.Rotate((float)delta->x, (float)delta->y);
-			}
-		}*/
-
 		camera->Update(*pRHI);
 		light->Bind(*pRHI, camera->GetMatrix());
 
@@ -98,7 +35,7 @@ namespace Renderer
 
 		// Draw Model.
 		model->Draw(*pRHI);
-		
+
 		// Update ImGUI.
 		{
 			if (camera->m_imGUIwndOpen) camera->SpawnControlWindow(*pRHI);
@@ -110,13 +47,13 @@ namespace Renderer
 
 	void Graphics::EndFrame()
 	{
-		imguiManager.EndImGUIFrame(*pRHI);
+		uiManager.EndUIFrame(*pRHI);
 		pRHI->EndFrame();
 	}
 
 	void Graphics::Destroy()
 	{
-		imguiManager.DestroyImGUI(*pRHI);
+		uiManager.DestroyUI(*pRHI);
 		pRHI->OnDestroy();
 	}
 

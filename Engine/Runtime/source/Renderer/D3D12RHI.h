@@ -1,14 +1,14 @@
 #pragma once
+#include "../_External/d3dx12.h"
 
 #include "RHI.h"
-#include "d3dx12.h"
 
 namespace Renderer
 {
     class D3D12RHI : public RHI
     {
         friend class Bindable;
-        friend class ImGUI_Manager;
+        friend class UIManager;
     public:
         D3D12RHI(UINT width, UINT height, HWND hWnd);
         //D3D12RHI(const D3D12RHI&) = delete;

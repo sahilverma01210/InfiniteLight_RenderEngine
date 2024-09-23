@@ -25,32 +25,11 @@
     <Filter Include="Resource Files\Shaders\HLSL">
       <UniqueIdentifier>{b1d787f9-27b5-4c4a-ad33-6604c3bc201e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Images">
-      <UniqueIdentifier>{17a726ac-8f13-4c9f-80ee-7b62f713c15c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Windows">
-      <UniqueIdentifier>{9f072894-a9bd-4f74-8b22-019c75fa39ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Windows\IO">
-      <UniqueIdentifier>{f5efe1ae-fce1-4bb6-b188-f3515c77c15d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Windows">
-      <UniqueIdentifier>{84f4b2e2-8fb0-41ec-ac6e-653e0f2a15cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Windows\IO">
-      <UniqueIdentifier>{12d6fd2c-9805-4334-9b95-b5e748f03df2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Renderer">
       <UniqueIdentifier>{44d22535-bf37-4ac2-b86c-f0bf77f2fc3f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Renderer">
       <UniqueIdentifier>{4695c0ce-1e84-4cc6-b25b-d89ad71d7e0a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\ImGUI">
-      <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ImGUI">
-      <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Common">
       <UniqueIdentifier>{640325d3-9b69-410f-8428-36a04f1e338c}</UniqueIdentifier>
@@ -58,26 +37,71 @@
     <Filter Include="Header Files\Common">
       <UniqueIdentifier>{3e87072f-3d41-403d-85ea-8919d59d91bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Renderer\Bindables">
-      <UniqueIdentifier>{88b16e8a-ee95-4357-abca-ecb3f84fbd25}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Renderer\Drawables">
       <UniqueIdentifier>{9076667c-8be2-4ed5-8884-0a9961c9d62e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Renderer\Bindables">
-      <UniqueIdentifier>{932de8dc-04f9-44ad-9dc3-403a72bb1280}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Renderer\Drawables">
       <UniqueIdentifier>{cc7003b6-cfb0-49b1-a423-7691a2e290f0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Renderer\Shapes">
-      <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Renderer\Lights">
       <UniqueIdentifier>{e92befca-41b5-4d90-8864-c5d59f985828}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Renderer\Lights">
       <UniqueIdentifier>{ba50ca77-da1a-4c3b-8323-01b781bdc950}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\_External">
+      <UniqueIdentifier>{715d0767-22ba-432f-8fd8-9277e9d1b2c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\_External">
+      <UniqueIdentifier>{70b23b94-642a-4313-9087-3cb6add23bec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\UI">
+      <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\UI">
+      <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Runtime">
+      <UniqueIdentifier>{84f4b2e2-8fb0-41ec-ac6e-653e0f2a15cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Runtime\IO">
+      <UniqueIdentifier>{12d6fd2c-9805-4334-9b95-b5e748f03df2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Runtime">
+      <UniqueIdentifier>{9f072894-a9bd-4f74-8b22-019c75fa39ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Runtime\IO">
+      <UniqueIdentifier>{f5efe1ae-fce1-4bb6-b188-f3515c77c15d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\Camera">
+      <UniqueIdentifier>{38e1458a-6472-4367-8978-c039979c196b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Camera">
+      <UniqueIdentifier>{e3073ebf-4d07-483b-9fd6-72c5c6dc3a8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\RHI">
+      <UniqueIdentifier>{18677345-aa5b-4815-982a-df2d026566c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\RHI">
+      <UniqueIdentifier>{00defb13-6d02-4066-a3e8-f5b56086dfd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\Model">
+      <UniqueIdentifier>{829f7351-0107-4a76-b223-30b1f6196013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Model">
+      <UniqueIdentifier>{0487562a-0b4f-4c81-8a76-8c4ecbd58302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\Drawables\Shapes">
+      <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\Drawables\Primitives">
+      <UniqueIdentifier>{73024be1-12b6-4696-aba9-9bc426d31b36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\RHI\Bindables">
+      <UniqueIdentifier>{88b16e8a-ee95-4357-abca-ecb3f84fbd25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\RHI\Bindables">
+      <UniqueIdentifier>{932de8dc-04f9-44ad-9dc3-403a72bb1280}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,101 +117,50 @@
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h">
       <Filter>external\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="source\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Windows\Keyboard.h">
-      <Filter>Header Files\Windows\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Windows\Mouse.h">
-      <Filter>Header Files\Windows\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Windows\Window.h">
-      <Filter>Header Files\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGUI\imgui_impl_dx12.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGUI\imgui_impl_win32.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\D3D12RHI.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\d3dx12.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Renderer.h">
       <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RHI.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Common\framework.h">
-      <Filter>Header Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="source\Common\ILException.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="source\Windows\WindowsThrowMacros.h">
-      <Filter>Header Files\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Mesh.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Camera.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\VertexBuffer.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TextureBuffer.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\IndexBuffer.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Topology.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ConstantBuffer.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Bindable.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BindableCommon.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+    <ClInclude Include="source\Renderer\CommonBindables.h">
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Drawable.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TransformBuffer.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ImGUI\ImGUI_Manager.h">
-      <Filter>Header Files\ImGUI</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PipelineState.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Sphere.h">
-      <Filter>Header Files\Renderer\Shapes</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Common\ILMath.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\IndexedTriangleList.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Object.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\RootSignature.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ShaderResourceView.h">
-      <Filter>Header Files\Renderer\Bindables</Filter>
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PointLight.h">
       <Filter>Header Files\Renderer\Lights</Filter>
@@ -195,11 +168,65 @@
     <ClInclude Include="source\Renderer\SolidSphere.h">
       <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Vertex.h">
-      <Filter>Header Files\Renderer</Filter>
+    <ClInclude Include="source\Common\ILUtility.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\d3dx12.h">
+      <Filter>Header Files\_External</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\imgui_impl_dx12.h">
+      <Filter>Header Files\_External</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\imgui_impl_win32.h">
+      <Filter>Header Files\_External</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\UIManager.h">
+      <Filter>Header Files\Renderer\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\framework.h">
+      <Filter>Header Files\_External</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Keyboard.h">
+      <Filter>Header Files\Runtime\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Mouse.h">
+      <Filter>Header Files\Runtime\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Application.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Window.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\WindowsThrowMacros.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Camera.h">
+      <Filter>Header Files\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RHI.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12RHI.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Mesh.h">
+      <Filter>Header Files\Renderer\Drawables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Model.h">
-      <Filter>Header Files\Renderer</Filter>
+      <Filter>Header Files\Renderer\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\IndexedTriangleList.h">
+      <Filter>Header Files\Renderer\Drawables\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Vertex.h">
+      <Filter>Header Files\Renderer\Drawables\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CommonShapes.h">
+      <Filter>Header Files\Renderer\Drawables\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Sphere.h">
+      <Filter>Header Files\Renderer\Drawables\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,29 +245,8 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp">
       <Filter>external\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="source\Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\Launch.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Windows\Keyboard.cpp">
-      <Filter>Source Files\Windows\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Windows\Mouse.cpp">
-      <Filter>Source Files\Windows\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Windows\Window.cpp">
-      <Filter>Source Files\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGUI\imgui_impl_dx12.cpp">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\D3D12RHI.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
@@ -248,47 +254,38 @@
     <ClCompile Include="source\Common\ILException.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Mesh.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Camera.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\Bindable.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\VertexBuffer.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Topology.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\TextureBuffer.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\IndexBuffer.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Drawable.cpp">
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\TransformBuffer.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ImGUI\ImGUI_Manager.cpp">
-      <Filter>Source Files\ImGUI</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PipelineState.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RootSignature.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ShaderResourceView.cpp">
-      <Filter>Source Files\Renderer\Bindables</Filter>
+      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PointLight.cpp">
       <Filter>Source Files\Renderer\Lights</Filter>
@@ -296,17 +293,44 @@
     <ClCompile Include="source\Renderer\SolidSphere.cpp">
       <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
+    <ClCompile Include="source\_External\imgui_impl_dx12.cpp">
+      <Filter>Source Files\_External</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui_impl_win32.cpp">
+      <Filter>Source Files\_External</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\UIManager.cpp">
+      <Filter>Source Files\Renderer\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Keyboard.cpp">
+      <Filter>Source Files\Runtime\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Mouse.cpp">
+      <Filter>Source Files\Runtime\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Application.cpp">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Window.cpp">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Camera.cpp">
+      <Filter>Source Files\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12RHI.cpp">
+      <Filter>Source Files\Renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Mesh.cpp">
+      <Filter>Source Files\Renderer\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Model.cpp">
+      <Filter>Source Files\Renderer\Model</Filter>
+    </ClCompile>
     <ClCompile Include="source\Renderer\Vertex.cpp">
-      <Filter>Source Files\Renderer</Filter>
+      <Filter>Source Files\Renderer\Drawables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\images\cube_face.jpeg">
-      <Filter>Resource Files\Images</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\images\cube.jpeg">
-      <Filter>Resource Files\Images</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\..\shaders\HLSL\PhongPS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
@@ -317,6 +341,24 @@
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\shaders\HLSL\SolidVS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecMap.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNormalMap.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecNormalMap.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNormalMap.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNotex.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNotex.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
   </ItemGroup>

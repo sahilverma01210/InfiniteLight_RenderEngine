@@ -1,6 +1,4 @@
 #include "Camera.h"
-#include "imgui/imgui.h"
-#include "../Common/ILMath.h"
 
 namespace Renderer
 {
@@ -53,9 +51,9 @@ namespace Renderer
 
 	void Camera::Reset(D3D12RHI& gfx) noexcept
 	{
-		pos = { 0.0f,7.5f,-18.0f };
+		pos = { -10.0f,0.0f,-20.0f };
 		pitch = 0.0f;
-		yaw = 0.0f;
+		yaw = 0.45f;
 
 		gfx.SetCamera(GetMatrix());
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));

@@ -10,7 +10,7 @@ namespace Renderer
 
 		std::unique_ptr<Bindable> cbuf = std::make_unique<ConstantBuffer>(gfx, 1, sizeof(cbData), &cbData);
 		pLightBindable = cbuf.get();
-		SolidSphere::staticBinds.push_back(std::move(cbuf));
+		Mesh::staticBinds.push_back(std::move(cbuf));
 	}
 
 	bool PointLight::SpawnControlWindow() noexcept
@@ -45,7 +45,7 @@ namespace Renderer
 	void PointLight::Reset() noexcept
 	{
 		cbData = { 
-			{ 1.5f,14.0f,-4.5f },
+			{ 0.0f,0.0f,-4.0f },
 			{ 0.05f,0.05f,0.05f },
 			{ 1.0f,1.0f,1.0f },
 			1.0f,

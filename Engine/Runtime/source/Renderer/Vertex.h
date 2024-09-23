@@ -1,18 +1,8 @@
 #pragma once
-#include <vector>
-#include <DirectXMath.h>
-#include <type_traits>
-#include "Object.h"
+#include "../_External/framework.h"
 
-namespace VertexSpace
+namespace Renderer
 {
-	struct VertexStruct
-	{
-		XMFLOAT3 position;
-		XMFLOAT3 normal;
-		XMFLOAT2 uvCoord;
-	};
-
 	struct BGRAColor
 	{
 		unsigned char a;
@@ -31,6 +21,8 @@ namespace VertexSpace
 			Position3D,
 			Texture2D,
 			Normal,
+			Tangent,
+			Bitangent,
 			Float3Color,
 			Float4Color,
 			BGRAColor,
@@ -42,42 +34,63 @@ namespace VertexSpace
 			using SysType = DirectX::XMFLOAT2;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* semantic = "POSITION";
+			static constexpr const char* code = "P2";
 		};
 		template<> struct Map<Position3D>
 		{
 			using SysType = DirectX::XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "POSITION";
+			static constexpr const char* code = "P3";
 		};
 		template<> struct Map<Texture2D>
 		{
 			using SysType = DirectX::XMFLOAT2;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* semantic = "TEXCOORD";
+			static constexpr const char* code = "T2";
 		};
 		template<> struct Map<Normal>
 		{
 			using SysType = DirectX::XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "NORMAL";
+			static constexpr const char* code = "N";
+		};
+		template<> struct Map<Tangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "TANGENT";
+			static constexpr const char* code = "Nt";
+		};
+		template<> struct Map<Bitangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "BITANGENT";
+			static constexpr const char* code = "Nb";
 		};
 		template<> struct Map<Float3Color>
 		{
 			using SysType = DirectX::XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "COLOR";
+			static constexpr const char* code = "C3";
 		};
 		template<> struct Map<Float4Color>
 		{
 			using SysType = DirectX::XMFLOAT4;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			static constexpr const char* semantic = "COLOR";
+			static constexpr const char* code = "C4";
 		};
 		template<> struct Map<BGRAColor>
 		{
-			using SysType = VertexSpace::BGRAColor;
+			using SysType = Renderer::BGRAColor;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 			static constexpr const char* semantic = "COLOR";
+			static constexpr const char* code = "C8";
 		};
 		class Element
 		{
@@ -88,6 +101,7 @@ namespace VertexSpace
 			size_t Size() const noexcept;
 			static constexpr size_t SizeOf(ElementType type) noexcept;
 			ElementType GetType() const noexcept;
+			const char* GetCode() const noexcept;
 			D3D12_INPUT_ELEMENT_DESC GetDesc() const noexcept;
 		private:
 			template<ElementType type>
@@ -125,7 +139,7 @@ namespace VertexSpace
 	// View into the Actual VertexBuffer for single vertex.
 	class Vertex
 	{
-		friend class VertexBuffer;
+		friend class VertexRawBuffer;
 	public:
 		template<VertexLayout::ElementType Type>
 		auto& Attr() noexcept
@@ -151,6 +165,12 @@ namespace VertexSpace
 				break;
 			case VertexLayout::Normal:
 				SetAttribute<VertexLayout::Normal>(pAttribute, std::forward<T>(val));
+				break;
+			case VertexLayout::Tangent:
+				SetAttribute<VertexLayout::Tangent>(pAttribute, std::forward<T>(val));
+				break;
+			case VertexLayout::Bitangent:
+				SetAttribute<VertexLayout::Bitangent>(pAttribute, std::forward<T>(val));
 				break;
 			case VertexLayout::Float3Color:
 				SetAttribute<VertexLayout::Float3Color>(pAttribute, std::forward<T>(val));
@@ -209,11 +229,13 @@ namespace VertexSpace
 	};
 
 	// Actual Buffer of multiple verices.
-	class VertexBuffer
+	class VertexRawBuffer
 	{
 	public:
-		VertexBuffer(VertexLayout layout) noexcept;
+		VertexRawBuffer() noexcept;
+		VertexRawBuffer(VertexLayout layout) noexcept;
 		const char* GetData() const noexcept;
+		void SetLayout(VertexLayout pLayout) noexcept;
 		const VertexLayout& GetLayout() const noexcept;
 		size_t Size() const noexcept;
 		size_t SizeBytes() const noexcept;
