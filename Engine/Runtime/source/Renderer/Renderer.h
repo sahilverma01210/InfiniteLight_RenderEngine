@@ -1,12 +1,13 @@
 #pragma once
-
 #include "../Common/ILMath.h"
-#include "../ImGUI/ImGUI_Manager.h"
 
-#include "D3D12RHI.h"
-#include "Camera.h"
-#include "PointLight.h"
-#include "Mesh.h"
+#include "D3D12RHI.h" // RHI
+#include "Camera.h" // Camera
+#include "UIManager.h" // UI
+#include "PointLight.h" // Lights
+#include "Model.h" // Model
+
+using namespace Common;
 
 namespace Renderer
 {
@@ -27,7 +28,7 @@ namespace Renderer
 		std::unique_ptr<D3D12RHI> pRHI;
 		Camera* camera;
 		PointLight* light;
-		ImGUI_Manager imguiManager;
+		UIManager uiManager;
 		std::unique_ptr<Model> model;
 	};
 }

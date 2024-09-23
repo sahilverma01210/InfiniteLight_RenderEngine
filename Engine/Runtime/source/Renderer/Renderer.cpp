@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 namespace Renderer
-{		
+{
 	Graphics::Graphics(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
 		:
 		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd))
@@ -11,21 +11,21 @@ namespace Renderer
 		pRHI->OnInit();
 
 		camera = new Camera(*pRHI);
+
+		model = std::make_unique<Model>(*pRHI, "models\\gobber\\GoblinX.obj");
+
 		light = new PointLight(*pRHI);
-
-		model = std::make_unique<Model>(*pRHI, "models\\nano_textured\\nanosuit.obj");
-
-		imguiManager.InitImGUI(*pRHI);
+		uiManager.InitUI(*pRHI);
 	}
 
 	void Graphics::StartFrame()
 	{
 		pRHI->StartFrame();
-		imguiManager.StartImGUIFrame(*pRHI);
+		uiManager.StartUIFrame(*pRHI);
 	}
 
 	void Graphics::Update()
-	{	
+	{
 		camera->Update(*pRHI);
 		light->Bind(*pRHI, camera->GetMatrix());
 
@@ -35,7 +35,7 @@ namespace Renderer
 
 		// Draw Model.
 		model->Draw(*pRHI);
-		
+
 		// Update ImGUI.
 		{
 			if (camera->m_imGUIwndOpen) camera->SpawnControlWindow(*pRHI);
@@ -47,13 +47,13 @@ namespace Renderer
 
 	void Graphics::EndFrame()
 	{
-		imguiManager.EndImGUIFrame(*pRHI);
+		uiManager.EndUIFrame(*pRHI);
 		pRHI->EndFrame();
 	}
 
 	void Graphics::Destroy()
 	{
-		imguiManager.DestroyImGUI(*pRHI);
+		uiManager.DestroyUI(*pRHI);
 		pRHI->OnDestroy();
 	}
 

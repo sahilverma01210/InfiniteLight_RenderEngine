@@ -1,5 +1,10 @@
 #pragma once
+#include "../Common/ILMath.h"
+
 #include "D3D12RHI.h"
+#include "UIManager.h"
+
+using namespace Common;
 
 namespace Renderer
 {

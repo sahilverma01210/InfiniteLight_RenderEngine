@@ -25,25 +25,20 @@
     <ClInclude Include="..\..\external\Libraries\include\imgui\imconfig.h" />
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui.h" />
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h" />
-    <ClInclude Include="source\Application.h" />
-    <ClInclude Include="source\Common\framework.h" />
     <ClInclude Include="source\Common\ILException.h" />
     <ClInclude Include="source\Common\ILMath.h" />
-    <ClInclude Include="source\ImGUI\ImGUI_Manager.h" />
-    <ClInclude Include="source\ImGUI\imgui_impl_dx12.h" />
-    <ClInclude Include="source\ImGUI\imgui_impl_win32.h" />
+    <ClInclude Include="source\Common\ILUtility.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
-    <ClInclude Include="source\Renderer\BindableCommon.h" />
+    <ClInclude Include="source\Renderer\CommonBindables.h" />
     <ClInclude Include="source\Renderer\Camera.h" />
+    <ClInclude Include="source\Renderer\CommonShapes.h" />
     <ClInclude Include="source\Renderer\ConstantBuffer.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
-    <ClInclude Include="source\Renderer\d3dx12.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\IndexBuffer.h" />
     <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
     <ClInclude Include="source\Renderer\Mesh.h" />
     <ClInclude Include="source\Renderer\Model.h" />
-    <ClInclude Include="source\Renderer\Object.h" />
     <ClInclude Include="source\Renderer\PipelineState.h" />
     <ClInclude Include="source\Renderer\PointLight.h" />
     <ClInclude Include="source\Renderer\Renderer.h" />
@@ -55,12 +50,18 @@
     <ClInclude Include="source\Renderer\TextureBuffer.h" />
     <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\TransformBuffer.h" />
+    <ClInclude Include="source\Renderer\UIManager.h" />
     <ClInclude Include="source\Renderer\VertexBuffer.h" />
     <ClInclude Include="source\Renderer\Vertex.h" />
-    <ClInclude Include="source\Windows\Keyboard.h" />
-    <ClInclude Include="source\Windows\Mouse.h" />
-    <ClInclude Include="source\Windows\Window.h" />
-    <ClInclude Include="source\Windows\WindowsThrowMacros.h" />
+    <ClInclude Include="source\Runtime\Application.h" />
+    <ClInclude Include="source\Runtime\Keyboard.h" />
+    <ClInclude Include="source\Runtime\Mouse.h" />
+    <ClInclude Include="source\Runtime\Window.h" />
+    <ClInclude Include="source\Runtime\WindowsThrowMacros.h" />
+    <ClInclude Include="source\_External\d3dx12.h" />
+    <ClInclude Include="source\_External\framework.h" />
+    <ClInclude Include="source\_External\imgui_impl_dx12.h" />
+    <ClInclude Include="source\_External\imgui_impl_win32.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp" />
@@ -68,11 +69,7 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="source\Application.cpp" />
     <ClCompile Include="source\Common\ILException.cpp" />
-    <ClCompile Include="source\ImGUI\ImGUI_Manager.cpp" />
-    <ClCompile Include="source\ImGUI\imgui_impl_dx12.cpp" />
-    <ClCompile Include="source\ImGUI\imgui_impl_win32.cpp" />
     <ClCompile Include="source\Launch.cpp" />
     <ClCompile Include="source\Renderer\Bindable.cpp" />
     <ClCompile Include="source\Renderer\Camera.cpp" />
@@ -81,6 +78,7 @@
     <ClCompile Include="source\Renderer\Drawable.cpp" />
     <ClCompile Include="source\Renderer\IndexBuffer.cpp" />
     <ClCompile Include="source\Renderer\Mesh.cpp" />
+    <ClCompile Include="source\Renderer\Model.cpp" />
     <ClCompile Include="source\Renderer\PipelineState.cpp" />
     <ClCompile Include="source\Renderer\PointLight.cpp" />
     <ClCompile Include="source\Renderer\Renderer.cpp" />
@@ -90,27 +88,15 @@
     <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
     <ClCompile Include="source\Renderer\Topology.cpp" />
     <ClCompile Include="source\Renderer\TransformBuffer.cpp" />
+    <ClCompile Include="source\Renderer\UIManager.cpp" />
     <ClCompile Include="source\Renderer\Vertex.cpp" />
     <ClCompile Include="source\Renderer\VertexBuffer.cpp" />
-    <ClCompile Include="source\Windows\Keyboard.cpp" />
-    <ClCompile Include="source\Windows\Mouse.cpp" />
-    <ClCompile Include="source\Windows\Window.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\..\images\cube_face.jpeg">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\..\images\cube.jpeg">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL &amp; copy %(Identity) "$(ProjectDir)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity);$(ProjectDir)\%(Identity)</Outputs>
-    </CustomBuild>
+    <ClCompile Include="source\Runtime\Application.cpp" />
+    <ClCompile Include="source\Runtime\Keyboard.cpp" />
+    <ClCompile Include="source\Runtime\Mouse.cpp" />
+    <ClCompile Include="source\Runtime\Window.cpp" />
+    <ClCompile Include="source\_External\imgui_impl_dx12.cpp" />
+    <ClCompile Include="source\_External\imgui_impl_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\shaders\HLSL\PhongPS.hlsl">
@@ -168,6 +154,55 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecMap.hlsl">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNormalMap.hlsl">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecNormalMap.hlsl">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNormalMap.hlsl">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNotex.hlsl">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNotex.hlsl">
       <FileType>Document</FileType>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>

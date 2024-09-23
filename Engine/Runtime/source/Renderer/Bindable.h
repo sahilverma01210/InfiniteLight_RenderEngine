@@ -1,5 +1,4 @@
 #pragma once
-
 #include "D3D12RHI.h"
 
 namespace Renderer

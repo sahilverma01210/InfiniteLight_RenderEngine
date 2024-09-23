@@ -1,39 +1,42 @@
 #include "ILException.h"
 
-ILException::ILException(int line, const char* file) noexcept
-	:
-	line(line),
-	file(file)
-{}
-
-const char* ILException::what() const noexcept
+namespace Common
 {
-	std::ostringstream oss;
-	oss << GetType() << std::endl
-		<< GetOriginString();
-	whatBuffer = oss.str();
-	return whatBuffer.c_str();
-}
+	ILException::ILException(int line, const char* file) noexcept
+		:
+		line(line),
+		file(file)
+	{}
 
-const char* ILException::GetType() const noexcept
-{
-	return "IL Exception";
-}
+	const char* ILException::what() const noexcept
+	{
+		std::ostringstream oss;
+		oss << GetType() << std::endl
+			<< GetOriginString();
+		whatBuffer = oss.str();
+		return whatBuffer.c_str();
+	}
 
-int ILException::GetLine() const noexcept
-{
-	return line;
-}
+	const char* ILException::GetType() const noexcept
+	{
+		return "IL Exception";
+	}
 
-const std::string& ILException::GetFile() const noexcept
-{
-	return file;
-}
+	int ILException::GetLine() const noexcept
+	{
+		return line;
+	}
 
-std::string ILException::GetOriginString() const noexcept
-{
-	std::ostringstream oss;
-	oss << "[File] " << file << std::endl
-		<< "[Line] " << line;
-	return oss.str();
+	const std::string& ILException::GetFile() const noexcept
+	{
+		return file;
+	}
+
+	std::string ILException::GetOriginString() const noexcept
+	{
+		std::ostringstream oss;
+		oss << "[File] " << file << std::endl
+			<< "[Line] " << line;
+		return oss.str();
+	}
 }
