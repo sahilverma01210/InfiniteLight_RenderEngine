@@ -15,7 +15,14 @@ namespace Renderer
 		model = std::make_unique<Model>(*pRHI, "models\\gobber\\GoblinX.obj");
 
 		light = new PointLight(*pRHI);
+<<<<<<< HEAD
 		uiManager.InitUI(*pRHI);
+=======
+
+		model = std::make_unique<Model>(*pRHI, "models\\nano_textured\\nanosuit.obj");
+
+		imguiManager.InitImGUI(*pRHI);
+>>>>>>> master
 	}
 
 	void Graphics::StartFrame()
@@ -25,7 +32,11 @@ namespace Renderer
 	}
 
 	void Graphics::Update()
+<<<<<<< HEAD
 	{
+=======
+	{	
+>>>>>>> master
 		camera->Update(*pRHI);
 		light->Bind(*pRHI, camera->GetMatrix());
 
