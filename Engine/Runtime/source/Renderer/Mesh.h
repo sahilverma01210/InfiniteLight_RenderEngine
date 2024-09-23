@@ -40,22 +40,4 @@ namespace Renderer
 		DirectX::XMFLOAT4X4 transform;
 		DirectX::XMFLOAT4X4 appliedTransform;
 	};
-<<<<<<< HEAD
-=======
-
-	class Model
-	{
-	public:
-		Model(D3D12RHI& gfx, const std::string fileName);
-		void Draw(D3D12RHI& gfx) const noexcept;
-		void ShowWindow(const char* windowName = nullptr) noexcept;
-		static std::unique_ptr<Mesh> ParseMesh(D3D12RHI& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
-		std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
-		~Model() noexcept;
-	private:
-		std::unique_ptr<Node> pRoot;
-		std::vector<std::unique_ptr<Mesh>> meshPtrs;
-		std::unique_ptr<class ModelWindow> pWindow;
-	};
->>>>>>> master
 }

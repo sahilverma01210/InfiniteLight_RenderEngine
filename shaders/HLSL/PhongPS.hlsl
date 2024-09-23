@@ -14,7 +14,6 @@ cbuffer ObjectCBuf : register(b2)
     float specularIntensity;
     float specularPower;
     float padding[2];
-    float padding[2];
 };
 
 Texture2D tex : register(t0);
@@ -36,6 +35,5 @@ float4 PSMain(float3 viewPos : POSITION, float3 n : NORMAL, float2 uv : TEXCOORD
 	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
     const float3 specular = att * (diffuseColor * diffuseIntensity) * specularIntensity * pow(max(0.0f, dot(normalize(-r), normalize(viewPos))), specularPower);
 	// final color
-    return float4(saturate((diffuse + ambient) * tex.Sample(samp, uv).rgb + specular), 1.0f);
     return float4(saturate((diffuse + ambient) * tex.Sample(samp, uv).rgb + specular), 1.0f);
 }

@@ -104,10 +104,9 @@ namespace Renderer
 
         InsertFence(gfx);
 
-        m_shaderResourceView = std::make_unique<ShaderResourceView>(gfx, m_offset, m_rootParameterIndex, m_texureBuffer.Get(), m_srvHeap);
+        CreateView(gfx);
 	}
 
-<<<<<<< HEAD
     void TextureBuffer::CreateView(D3D12RHI& gfx)
     {
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -121,20 +120,14 @@ namespace Renderer
         GetDevice(gfx)->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, CPUHandle);
     }
 
-=======
->>>>>>> master
     void TextureBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
     {
     }
 
 	void TextureBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
-<<<<<<< HEAD
         // bind the descriptor table containing the texture descriptor 
         GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
-=======
-        m_shaderResourceView->Bind(gfx);
->>>>>>> master
 	}
 
     bool TextureBuffer::HasAlpha() const noexcept
