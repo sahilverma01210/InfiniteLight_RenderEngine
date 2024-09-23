@@ -16,6 +16,7 @@ namespace Renderer
 		bool hasAlpha = false;
 		UINT m_rootParameterIndex;
 		UINT m_offset;
+		UINT m_offset;
 		ComPtr<ID3D12Resource> m_texureBuffer;
 		ID3D12DescriptorHeap* m_srvHeap;
 	};

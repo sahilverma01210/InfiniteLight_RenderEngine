@@ -8,6 +8,12 @@ namespace Renderer
         m_srvHeap(srvHeap),
         m_offset(offset)
 	{
+	TextureBuffer::TextureBuffer(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename, ID3D12DescriptorHeap* srvHeap, UINT offset)
+        : 
+        m_rootParameterIndex(rootParameterIndex),
+        m_srvHeap(srvHeap),
+        m_offset(offset)
+	{
         // load image data from disk 
         ScratchImage image;
         HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_NONE, nullptr, image);
