@@ -26,44 +26,17 @@ namespace Renderer
 	class Model
 	{
 	public:
-		Model(D3D12RHI& gfx, const std::string fileName);
+		Model(D3D12RHI& gfx, const std::string& pathString, float fscale = 1.0f);
 		void Draw(D3D12RHI& gfx) const noexcept;
 		void ShowWindow(const char* windowName = nullptr) noexcept;
-		static std::unique_ptr<Mesh> ParseMesh(D3D12RHI& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
-		std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
+		void SetRootTransform(DirectX::FXMMATRIX tf) noexcept;
 		~Model() noexcept;
+	private:
+		static std::unique_ptr<Mesh> ParseMesh(D3D12RHI& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path, float fscale);
+		std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
 	private:
 		std::unique_ptr<Node> pRoot;
 		std::vector<std::unique_ptr<Mesh>> meshPtrs;
 		std::unique_ptr<class ModelWindow> pWindow;
-
-		struct PSMaterialConstantFullmonte
-		{
-			BOOL  normalMapEnabled = TRUE;
-			float padding[3];
-		};
-
-		struct PSMaterialConstantDiffnorm
-		{
-			float specularIntensity = 0.18f;
-			float specularPower;
-			BOOL  normalMapEnabled = TRUE;
-			float padding[1];
-		};
-
-		struct PSMaterialConstantDiffuse
-		{
-			float specularIntensity = 0.18f;
-			float specularPower;
-			float padding[2];
-		};
-
-		struct PSMaterialConstantNotex
-		{
-			XMFLOAT4 materialColor = { 0.65f,0.65f,0.85f,1.0f };
-			float specularIntensity = 0.18f;
-			float specularPower;
-			float padding[2];
-		};
 	};
 }

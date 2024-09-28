@@ -12,7 +12,13 @@ namespace Renderer
 
 		camera = new Camera(*pRHI);
 
-		model = std::make_unique<Model>(*pRHI, "models\\gobber\\GoblinX.obj");
+		/*goblin = std::make_unique<Model>(*pRHI, "models\\gobber\\GoblinX.obj", 6.0f);
+		goblin->SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
+		nano = std::make_unique<Model>(*pRHI, "models\\nano_textured\\nanosuit.obj", 2.0f);
+		nano->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));*/
+		
+		sponza = std::make_unique<Model>(*pRHI, "models\\sponza\\sponza.obj", 1.0f / 20.0f);
+		//sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
 
 		light = new PointLight(*pRHI);
 		uiManager.InitUI(*pRHI);
@@ -34,14 +40,16 @@ namespace Renderer
 		light->Draw(*pRHI);
 
 		// Draw Model.
-		model->Draw(*pRHI);
+		/*goblin->Draw(*pRHI);
+		nano->Draw(*pRHI);*/
+		sponza->Draw(*pRHI);
 
 		// Update ImGUI.
 		{
 			if (camera->m_imGUIwndOpen) camera->SpawnControlWindow(*pRHI);
 			if (light->m_imGUIwndOpen) light->SpawnControlWindow();
-			ShowImguiDemoWindow();
-			model->ShowWindow();
+			/*goblin->ShowWindow();
+			nano->ShowWindow();*/
 		}
 	}
 

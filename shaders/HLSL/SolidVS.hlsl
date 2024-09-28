@@ -1,12 +1,8 @@
+#include "Transform.hlsl"
+
 struct VSOutput
 {
     float4 position : SV_POSITION;
-};
-
-cbuffer Transform : register(b0)
-{
-    matrix modelView;
-    matrix modelViewProj;
 };
 
 VSOutput VSMain(float4 position : POSITION) : SV_Position

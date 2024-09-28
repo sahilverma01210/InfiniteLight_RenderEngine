@@ -53,6 +53,7 @@
 
 #include <windows.h>
 #include <wrl.h>
+#include <tchar.h>
 
 using namespace Microsoft::WRL;
 
@@ -78,7 +79,6 @@ using namespace DirectX;
 #include <cmath> 
 #include <numbers> 
 #include <ranges>
-#include <tchar.h>
 #include <chrono>
 #include <queue>
 #include <bitset>
@@ -86,3 +86,4 @@ using namespace DirectX;
 #include <unordered_map>
 #include <vector>
 #include <type_traits>
+#include <filesystem>

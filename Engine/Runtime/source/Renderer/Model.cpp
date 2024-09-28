@@ -1,5 +1,7 @@
 #include "Model.h"
 
+using namespace Common;
+
 namespace Renderer
 {
 	// ModelException Definitions.
@@ -49,7 +51,23 @@ namespace Renderer
 				ImGui::NextColumn();
 				if (pSelectedNode != nullptr)
 				{
-					auto& transform = transforms[pSelectedNode->GetId()];
+					const auto id = pSelectedNode->GetId();
+					auto i = transforms.find(id);
+					if (i == transforms.end())
+					{
+						const auto& applied = pSelectedNode->GetAppliedTransform();
+						const auto angles = ExtractEulerAngles(applied);
+						const auto translation = ExtractTranslation(applied);
+						TransformParameters tp;
+						tp.roll = angles.z;
+						tp.pitch = angles.x;
+						tp.yaw = angles.y;
+						tp.x = translation.x;
+						tp.y = translation.y;
+						tp.z = translation.z;
+						std::tie(i, std::ignore) = transforms.insert({ id,tp });
+					}
+					auto& transform = i->second;
 					ImGui::Text("Orientation");
 					ImGui::SliderAngle("Roll", &transform.roll, -180.0f, 180.0f);
 					ImGui::SliderAngle("Pitch", &transform.pitch, -180.0f, 180.0f);
@@ -90,12 +108,12 @@ namespace Renderer
 
 	// Model Definitions.
 
-	Model::Model(D3D12RHI& gfx, const std::string fileName)
+	Model::Model(D3D12RHI& gfx, const std::string& pathString, float fscale)
 		:
 		pWindow(std::make_unique<ModelWindow>())
 	{
 		Assimp::Importer imp;
-		const auto pScene = imp.ReadFile(fileName.c_str(),
+		const auto pScene = imp.ReadFile(pathString.c_str(),
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_ConvertToLeftHanded |
@@ -110,7 +128,7 @@ namespace Renderer
 
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		{
-			meshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials));
+			meshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials, pathString, fscale));
 		}
 
 		int nextId = 0;
@@ -131,9 +149,16 @@ namespace Renderer
 		pWindow->Show(windowName, *pRoot);
 	}
 
-	std::unique_ptr<Mesh> Model::ParseMesh(D3D12RHI& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
+	void Model::SetRootTransform(DirectX::FXMMATRIX tf) noexcept
+	{
+		pRoot->SetAppliedTransform(tf);
+	}
+
+	std::unique_ptr<Mesh> Model::ParseMesh(D3D12RHI& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path, float fscale)
 	{
 		using namespace std::string_literals;
+
+		const auto rootPath = path.parent_path().string() + "\\";
 
 		UINT numSRVDescriptors = 0, srvDescriptorIndex = 0;
 
@@ -143,18 +168,18 @@ namespace Renderer
 		std::string diffPath, specPath, normPath;
 		std::wstring vertexShaderName, pixelShaderName;
 
-		std::string base("models\\gobber\\");
-
+		bool hasAlphaGloss = false;
 		bool hasSpecularMap = false;
 		bool hasNormalMap = false;
 		bool hasDiffuseMap = false;
 
-		float shininess = 35.0f;
-		const float scale = 1.0f;
+		float shininess = 2.0f;
+		XMFLOAT4 specularColor = { 0.18f,0.18f,0.18f,1.0f };
+		XMFLOAT4 diffuseColor = { 0.45f,0.45f,0.85f,1.0f };
+
+		const float scale = fscale;
 
 		VertexRawBuffer vbuf;
-
-		const void* pmc;
 
 		std::vector<unsigned short> indices;
 		indices.reserve(mesh.mNumFaces * 3);
@@ -176,31 +201,29 @@ namespace Renderer
 
 			if (material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName) == aiReturn_SUCCESS)
 			{
-				diffPath = base + texFileName.C_Str();
-				/*OutputDebugStringA(diffPath.c_str());
-				OutputDebugStringA("\n");*/
+				diffPath = rootPath + texFileName.C_Str();
 				hasDiffuseMap = true;
 				numSRVDescriptors++;
+			}
+			else
+			{
+				material.Get(AI_MATKEY_COLOR_DIFFUSE, reinterpret_cast<aiColor3D&>(diffuseColor));
 			}
 
 			if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 			{
-				specPath = base + texFileName.C_Str();
-				/*OutputDebugStringA(specPath.c_str());
-				OutputDebugStringA("\n");*/
+				specPath = rootPath + texFileName.C_Str();
 				hasSpecularMap = true;
 				numSRVDescriptors++;
 			}
 			else
 			{
-				material.Get(AI_MATKEY_SHININESS, shininess);
+				material.Get(AI_MATKEY_COLOR_SPECULAR, reinterpret_cast<aiColor3D&>(specularColor));
 			}
 
 			if (material.GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS)
 			{
-				normPath = base + texFileName.C_Str();
-				/*OutputDebugStringA(normPath.c_str());
-				OutputDebugStringA("\n");*/
+				normPath = rootPath + texFileName.C_Str();
 				hasNormalMap = true;
 				numSRVDescriptors++;
 			}
@@ -217,9 +240,6 @@ namespace Renderer
 				.Append(VertexLayout::Tangent)
 				.Append(VertexLayout::Bitangent)
 				.Append(VertexLayout::Texture2D));
-
-			PSMaterialConstantFullmonte* temp_pmc = new PSMaterialConstantFullmonte();
-			pmc = temp_pmc;
 
 			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 			{
@@ -244,10 +264,6 @@ namespace Renderer
 				.Append(VertexLayout::Bitangent)
 				.Append(VertexLayout::Texture2D));
 
-			PSMaterialConstantDiffnorm* temp_pmc = new PSMaterialConstantDiffnorm();
-			temp_pmc->specularPower = shininess;
-			pmc = temp_pmc;
-
 			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 			{
 				vbuf.EmplaceBack(
@@ -255,6 +271,25 @@ namespace Renderer
 					*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i]),
 					*reinterpret_cast<XMFLOAT3*>(&mesh.mTangents[i]),
 					*reinterpret_cast<XMFLOAT3*>(&mesh.mBitangents[i]),
+					*reinterpret_cast<XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+				);
+			}
+		}
+		else if (hasDiffuseMap && !hasNormalMap && hasSpecularMap)
+		{
+			vertexShaderName = L"PhongVS.hlsl";
+			pixelShaderName = L"PhongPSSpec.hlsl";
+
+			vbuf.SetLayout(VertexLayout{}
+				.Append(VertexLayout::Position3D)
+				.Append(VertexLayout::Normal)
+				.Append(VertexLayout::Texture2D));
+
+			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+			{
+				vbuf.EmplaceBack(
+					XMFLOAT3(mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale),
+					*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i]),
 					*reinterpret_cast<XMFLOAT2*>(&mesh.mTextureCoords[0][i])
 				);
 			}
@@ -268,10 +303,6 @@ namespace Renderer
 				.Append(VertexLayout::Position3D)
 				.Append(VertexLayout::Normal)
 				.Append(VertexLayout::Texture2D));
-
-			PSMaterialConstantDiffuse* temp_pmc = new PSMaterialConstantDiffuse();
-			temp_pmc->specularPower = shininess;
-			pmc = temp_pmc;
 
 			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 			{
@@ -290,10 +321,6 @@ namespace Renderer
 			vbuf.SetLayout(VertexLayout{}
 				.Append(VertexLayout::Position3D)
 				.Append(VertexLayout::Normal));
-
-			PSMaterialConstantNotex* temp_pmc = new PSMaterialConstantNotex();
-			temp_pmc->specularPower = shininess;
-			pmc = temp_pmc;
 
 			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 			{
@@ -314,8 +341,8 @@ namespace Renderer
 			ID3DBlob* pixelShader;
 
 			// Compile Shaders.
-			D3DCompileFromFile(gfx.GetAssetFullPath(vertexShaderName.c_str()).c_str(), nullptr, nullptr, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
-			D3DCompileFromFile(gfx.GetAssetFullPath(pixelShaderName.c_str()).c_str(), nullptr, nullptr, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(vertexShaderName.c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(pixelShaderName.c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
 			// Define the vertex input layout.
 			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vbuf.GetLayout().GetD3DLayout();
@@ -340,25 +367,96 @@ namespace Renderer
 
 			if (hasDiffuseMap)
 			{
-				bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(diffPath.begin(), diffPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				bindablePtrs.push_back(TextureBuffer::Resolve(gfx, 3, std::wstring(diffPath.begin(), diffPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				//bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(diffPath.begin(), diffPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
 				srvDescriptorIndex++;
 			}
 
 			if (hasSpecularMap)
 			{
-				bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(specPath.begin(), specPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				bindablePtrs.push_back(TextureBuffer::Resolve(gfx, 3, std::wstring(specPath.begin(), specPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				//bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(specPath.begin(), specPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
 				srvDescriptorIndex++;
 			}
 
 			if (hasNormalMap)
 			{
-				bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(normPath.begin(), normPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				bindablePtrs.push_back(TextureBuffer::Resolve(gfx, 3, std::wstring(normPath.begin(), normPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				//bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(normPath.begin(), normPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
+				hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
 				srvDescriptorIndex++;
 			}
 		}
 
+		if (mesh.mMaterialIndex >= 0)
+		{
+			auto& material = *pMaterials[mesh.mMaterialIndex];
+
+			if (!hasAlphaGloss)
+			{
+				material.Get(AI_MATKEY_SHININESS, shininess);
+			}
+		}
+
+
+		if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
+		{
+			Node::PSMaterialConstantFullmonte pmc;
+			pmc.specularPower = shininess;
+			pmc.hasGlossMap = hasAlphaGloss ? TRUE : FALSE;
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+		}
+		else if (hasDiffuseMap && hasNormalMap)
+		{
+			struct PSMaterialConstantDiffnorm
+			{
+				float specularIntensity;
+				float specularPower;
+				BOOL  normalMapEnabled = TRUE;
+				float padding[1];
+			} pmc;
+			pmc.specularPower = shininess;
+			pmc.specularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+		}
+		else if (hasDiffuseMap && !hasNormalMap && hasSpecularMap)
+		{
+			struct PSMaterialConstantDiffuseSpec
+			{
+				float specularPowerConst;
+				BOOL hasGloss;
+				float specularMapWeight;
+				float padding;
+			} pmc;
+			pmc.specularPowerConst = shininess;
+			pmc.hasGloss = hasAlphaGloss ? TRUE : FALSE;
+			pmc.specularMapWeight = 1.0f;
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+		}
+		else if (hasDiffuseMap)
+		{
+			struct PSMaterialConstantDiffuse
+			{
+				float specularIntensity;
+				float specularPower;
+				float padding[2];
+			} pmc;
+			pmc.specularPower = shininess;
+			pmc.specularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+		}
+		else if (!hasDiffuseMap && !hasNormalMap && !hasSpecularMap)
+		{
+			Node::PSMaterialConstantNotex pmc;
+			pmc.specularPower = shininess;
+			pmc.specularColor = specularColor;
+			pmc.materialColor = diffuseColor;
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+		}
+
 		bindablePtrs.push_back(std::make_shared<TransformBuffer>(gfx, 0));
-		bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+		
 
 		std::unique_ptr<Mesh> temp_mesh = std::make_unique<Mesh>(gfx, std::move(psoBindablePtr), std::move(bindablePtrs));
 		temp_mesh->SetNumIndices(indices.size() * sizeof(indices[0]));

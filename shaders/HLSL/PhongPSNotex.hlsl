@@ -1,39 +1,31 @@
-cbuffer LightCBuf : register(b1)
-{
-    float3 lightPos;
-    float3 ambient;
-    float3 diffuseColor;
-    float diffuseIntensity;
-    float attConst;
-    float attLin;
-    float attQuad;
-};
+#include "ShaderOps.hlsl"
+#include "LightVectorData.hlsl"
+#include "PointLight.hlsl"
 
 cbuffer ObjectCBuf : register(b2)
 {
-    float3 materialColor;
-    float specularIntensity;
+    float4 materialColor;
+    float4 specularColor;
     float specularPower;
-    float padding[2];
 };
 
 SamplerState samp;
 
-float4 PSMain(float3 viewPos : POSITION, float3 n : NORMAL) : SV_TARGET
+float4 PSMain(float3 viewFragPos : POSITION, float3 viewNormal : NORMAL) : SV_TARGET
 {
+	// normalize the mesh normal
+    viewNormal = normalize(viewNormal);
 	// fragment to light vector data
-    const float3 vToL = lightPos - viewPos;
-    const float distToL = length(vToL);
-    const float3 dirToL = vToL / distToL;
+    const LightVectorData lv = CalculateLightVectorData(viewLightPos, viewFragPos);
 	// attenuation
-    const float att = 1.0f / (attConst + attLin * distToL + attQuad * (distToL * distToL));
-	// diffuse intensity
-    const float3 diffuse = diffuseColor * diffuseIntensity * att * max(0.0f, dot(dirToL, n));
-	// reflected light vector
-    const float3 w = n * dot(vToL, n);
-    const float3 r = w * 2.0f - vToL;
-	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-    const float3 specular = att * (diffuseColor * diffuseIntensity) * specularIntensity * pow(max(0.0f, dot(normalize(-r), normalize(viewPos))), specularPower);
+    const float att = Attenuate(attConst, attLin, attQuad, lv.distToL);
+	// diffuse
+    const float3 diffuse = Diffuse(diffuseColor, diffuseIntensity, att, lv.dirToL, viewNormal);
+    // specular
+    const float3 specular = Speculate(
+        specularColor.rgb, 1.0f, viewNormal,
+        lv.vToL, viewFragPos, att, specularPower
+    );
 	// final color
-    return float4(saturate((diffuse + ambient) * materialColor + specular), 1.0f);
+    return float4(saturate((diffuse + ambient) * materialColor.rgb + specular), 1.0f);
 }

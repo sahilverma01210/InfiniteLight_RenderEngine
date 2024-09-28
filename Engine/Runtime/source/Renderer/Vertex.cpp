@@ -36,6 +36,16 @@ namespace Renderer
 		return desc;
 	}
 
+	std::string VertexLayout::GetCode() const noexcept
+	{
+		std::string code;
+		for (const auto& e : elements)
+		{
+			code += e.GetCode();
+		}
+		return code;
+	}
+
 	// VertexLayout::Element Definitions.
 
 	VertexLayout::Element::Element(ElementType type, size_t offset)

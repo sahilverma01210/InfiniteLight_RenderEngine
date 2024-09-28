@@ -46,14 +46,14 @@ namespace Renderer
 	void Camera::Update(D3D12RHI& gfx) noexcept
 	{
 		gfx.SetCamera(GetMatrix());
-		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));
+		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 400.0f));
 	}
 
 	void Camera::Reset(D3D12RHI& gfx) noexcept
 	{
-		pos = { -10.0f,0.0f,-20.0f };
+		pos = { -13.5f,6.0f,3.5f };
 		pitch = 0.0f;
-		yaw = 0.45f;
+		yaw = PI / 2.0f;
 
 		gfx.SetCamera(GetMatrix());
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));

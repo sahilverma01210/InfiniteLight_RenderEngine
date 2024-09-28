@@ -70,6 +70,11 @@ namespace Renderer
 		XMStoreFloat4x4(&appliedTransform, transform);
 	}
 
+	const DirectX::XMFLOAT4X4& Node::GetAppliedTransform() const noexcept
+	{
+		return appliedTransform;
+	}
+
 	int Node::GetId() const noexcept
 	{
 		return id;

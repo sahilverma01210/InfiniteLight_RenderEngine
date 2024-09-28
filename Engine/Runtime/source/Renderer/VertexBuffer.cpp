@@ -1,9 +1,17 @@
 #include "VertexBuffer.h"
+#include "BindableCodex.h"
 
 namespace Renderer
 {
     VertexBuffer::VertexBuffer(D3D12RHI& gfx, const char* data, UINT size, UINT layoutSize)
         :
+        VertexBuffer(gfx, "?", data, size, layoutSize)
+    {
+    }
+
+    VertexBuffer::VertexBuffer(D3D12RHI& gfx, const std::string& tag, const char* data, UINT size, UINT layoutSize)
+        :
+        tag(tag),
         m_vertexBufferSize(size)
     {
         // create committed resource (Vertex Buffer) for GPU access of vertex data.
@@ -83,5 +91,21 @@ namespace Renderer
     void VertexBuffer::Bind(D3D12RHI& gfx) noexcept
     {
         GetCommandList(gfx)->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+    }
+
+    std::shared_ptr<Bindable> VertexBuffer::Resolve(D3D12RHI& gfx, const std::string& tag, const char* data, UINT size, UINT layoutSize)
+    {
+        return Codex::Resolve<VertexBuffer>(gfx, tag, data, size, layoutSize);
+    }
+
+    std::string VertexBuffer::GenerateUID_(const std::string& tag)
+    {
+        using namespace std::string_literals;
+        return typeid(VertexBuffer).name() + "#"s + tag;
+    }
+
+    std::string VertexBuffer::GetUID() const noexcept
+    {
+        return GenerateUID(tag);
     }
 }

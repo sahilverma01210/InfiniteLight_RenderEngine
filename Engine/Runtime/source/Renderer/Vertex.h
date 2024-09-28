@@ -132,6 +132,7 @@ namespace Renderer
 		size_t Size() const noexcept;
 		size_t GetElementCount() const noexcept;
 		std::vector<D3D12_INPUT_ELEMENT_DESC> GetD3DLayout() const noexcept;
+		std::string GetCode() const noexcept;
 	private:
 		std::vector<Element> elements;
 	};

@@ -1,9 +1,18 @@
 #include "IndexBuffer.h"
+#include "BindableCodex.h"
 
 namespace Renderer
 {
-	IndexBuffer::IndexBuffer(D3D12RHI& gfx, UINT dataSize, std::vector<USHORT> pData)
-	{
+    IndexBuffer::IndexBuffer(D3D12RHI& gfx, UINT dataSize, std::vector<USHORT> pData)
+        :
+        IndexBuffer(gfx, "?", dataSize, pData)
+    {
+    }
+
+    IndexBuffer::IndexBuffer(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)
+        :
+        tag(tag)
+    {
         m_indexBufferSize = dataSize;
 
         // create committed resource (Index Buffer) for GPU access of Index data.
@@ -67,21 +76,37 @@ namespace Renderer
         InsertFence(gfx);
 
         CreateView(gfx);
-	}
+    }
 
-	void IndexBuffer::CreateView(D3D12RHI& gfx)
-	{
+    void IndexBuffer::CreateView(D3D12RHI& gfx)
+    {
         m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
         m_indexBufferView.SizeInBytes = m_indexBufferSize;
         m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
-	}
+    }
 
     void IndexBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
     {
     }
 
-	void IndexBuffer::Bind(D3D12RHI& gfx) noexcept
-	{
+    void IndexBuffer::Bind(D3D12RHI& gfx) noexcept
+    {
         GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView);
-	}
+    }
+
+    std::shared_ptr<Bindable> IndexBuffer::Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)
+    {
+        return Codex::Resolve<IndexBuffer>(gfx, tag, dataSize, pData);
+    }
+
+    std::string IndexBuffer::GetUID() const noexcept
+    {
+        return GenerateUID_(tag);
+    }
+
+    std::string IndexBuffer::GenerateUID_(const std::string& tag)
+    {
+        using namespace std::string_literals;
+        return typeid(IndexBuffer).name() + "#"s + tag;
+    }
 }

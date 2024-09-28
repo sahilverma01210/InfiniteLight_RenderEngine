@@ -1,10 +1,12 @@
 #include "TextureBuffer.h"
+#include "BindableCodex.h"
 
 namespace Renderer
 {
     TextureBuffer::TextureBuffer(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename, ID3D12DescriptorHeap* srvHeap, UINT offset)
         :
         m_rootParameterIndex(rootParameterIndex),
+        m_filename(filename),
         m_srvHeap(srvHeap),
         m_offset(offset)
     {
@@ -29,6 +31,18 @@ namespace Renderer
 
             for (int i = 0; i < mipChain.GetImageCount(); ++i) {
                 const auto img = mipChain.GetImage(i, 0, 0);
+
+                for (unsigned int y = 0; y < img->height; y++)
+                {
+                    for (unsigned int x = 0; x < img->width; x++)
+                    {
+                        if (img->pixels[y * img->width + x] != 255)
+                        {
+                            hasAlpha = true;
+                        }
+                    }
+                }
+
                 subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
                     .pData = img->pixels,
                     .RowPitch = (LONG_PTR)img->rowPitch,
@@ -133,5 +147,53 @@ namespace Renderer
     bool TextureBuffer::HasAlpha() const noexcept
     {
         return hasAlpha;
+    }
+
+    bool TextureBuffer::HasAlphaChannel(const DirectX::Image& image) {
+        switch (image.format) {
+            // Common formats with alpha channel
+        case DXGI_FORMAT_R32G32B32A32_FLOAT:
+        case DXGI_FORMAT_R32G32B32A32_UINT:
+        case DXGI_FORMAT_R32G32B32A32_SINT:
+        case DXGI_FORMAT_R16G16B16A16_FLOAT:
+        case DXGI_FORMAT_R16G16B16A16_UNORM:
+        case DXGI_FORMAT_R16G16B16A16_UINT:
+        case DXGI_FORMAT_R16G16B16A16_SNORM:
+        case DXGI_FORMAT_R16G16B16A16_SINT:
+        case DXGI_FORMAT_R10G10B10A2_UNORM:
+        case DXGI_FORMAT_R10G10B10A2_UINT:
+        case DXGI_FORMAT_B8G8R8A8_UNORM:
+        case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+        case DXGI_FORMAT_R8G8B8A8_UNORM:
+        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+        case DXGI_FORMAT_R8G8B8A8_UINT:
+        case DXGI_FORMAT_R8G8B8A8_SNORM:
+        case DXGI_FORMAT_R8G8B8A8_SINT:
+        case DXGI_FORMAT_A8_UNORM:
+            return true;
+
+            // Formats without alpha channel
+        default:
+            return false;
+        }
+    }
+
+    std::shared_ptr<Bindable> TextureBuffer::Resolve(D3D12RHI& gfx, UINT rootParameterIndex, const WCHAR* filename, ID3D12DescriptorHeap* srvHeap, UINT offset)
+    {
+        return Codex::Resolve<TextureBuffer>(gfx, rootParameterIndex, filename, srvHeap, offset);
+    }
+
+    std::string TextureBuffer::GenerateUID(UINT rootParameterIndex, const WCHAR* filename, ID3D12DescriptorHeap* srvHeap, UINT offset)
+    {
+        std::wstring wstringFileName = std::wstring(filename);
+        std::string stringFileName = std::string(wstringFileName.begin(), wstringFileName.end());
+
+        using namespace std::string_literals;
+        return typeid(TextureBuffer).name() + "#"s + std::to_string(rootParameterIndex) + "#" + std::to_string(offset) + stringFileName;
+    }
+
+    std::string TextureBuffer::GetUID() const noexcept
+    {
+        return GenerateUID(m_rootParameterIndex, m_filename, m_srvHeap, m_offset);
     }
 }
