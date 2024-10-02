@@ -4,35 +4,9 @@ namespace Renderer
 {   
 	PipelineState::PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
-        UINT numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews;
-        if (pipelineDesc.numSRVDescriptors > 0) numRootParameters++;
-        m_rootSignatureObject = std::make_unique<RootSignature>(gfx, numRootParameters);
-        
-        for (int i = 0; i < pipelineDesc.numConstants; i++) 
-            m_rootSignatureObject->Init32BitConstant(sizeof(XMMATRIX) / 4, i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-        
-        for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++) 
-            m_rootSignatureObject->InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_PIXEL);
-
-        if (pipelineDesc.numSRVDescriptors > 0)
-        {
-            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, pipelineDesc.numSRVDescriptors, 0 };
-            m_rootSignatureObject->InitDescriptorTable(pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
-
-            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-            srvHeapDesc.NumDescriptors = pipelineDesc.numSRVDescriptors;
-            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            GetDevice(gfx)->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
-
-            GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
-        }        
- 
-        m_rootSignatureObject->InitRootSignature(gfx);
-
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { &pipelineDesc.inputElementDescs , pipelineDesc.numElements };
-        m_psoDescription.pRootSignature = m_rootSignatureObject->GetRootSignature();
+        m_psoDescription.pRootSignature = pipelineDesc.rootSignature;
         m_psoDescription.VS = CD3DX12_SHADER_BYTECODE(&pipelineDesc.vertexShader);
         m_psoDescription.PS = CD3DX12_SHADER_BYTECODE(&pipelineDesc.pixelShader);
         m_psoDescription.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -49,18 +23,12 @@ namespace Renderer
         GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));
 	}
 
-    ID3D12DescriptorHeap* PipelineState::GetSRVHeap()
-    {
-        return m_srvHeap.Get();
-    }
-
     void PipelineState::Update(D3D12RHI& gfx, const void* pData) noexcept
     {
     }
 
 	void PipelineState::Bind(D3D12RHI& gfx) noexcept
 	{
-        m_rootSignatureObject->Bind(gfx);
         GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get());
 	}
 }

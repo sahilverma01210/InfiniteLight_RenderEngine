@@ -5,6 +5,18 @@
 
 namespace Renderer
 {
+    struct PipelineDescription
+    {
+        ID3DBlob& vertexShader;
+        ID3DBlob& pixelShader;
+        D3D12_INPUT_ELEMENT_DESC& inputElementDescs;
+        UINT numElements;
+        UINT numConstants;
+        UINT numConstantBufferViews;
+        UINT numSRVDescriptors;
+        ID3D12RootSignature* rootSignature = nullptr;
+    };
+
     class D3D12RHI : public RHI
     {
         friend class Bindable;

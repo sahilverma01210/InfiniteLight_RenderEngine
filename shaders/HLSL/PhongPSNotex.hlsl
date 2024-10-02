@@ -1,5 +1,6 @@
 #include "ShaderOps.hlsl"
 #include "LightVectorData.hlsl"
+
 #include "PointLight.hlsl"
 
 cbuffer ObjectCBuf : register(b2)
@@ -9,11 +10,10 @@ cbuffer ObjectCBuf : register(b2)
     float specularPower;
 };
 
-SamplerState samp;
 
-float4 PSMain(float3 viewFragPos : POSITION, float3 viewNormal : NORMAL) : SV_TARGET
-{
-	// normalize the mesh normal
+float4 main(float3 viewFragPos : Position, float3 viewNormal : Normal) : SV_Target
+{    
+    // normalize the mesh normal
     viewNormal = normalize(viewNormal);
 	// fragment to light vector data
     const LightVectorData lv = CalculateLightVectorData(viewLightPos, viewFragPos);

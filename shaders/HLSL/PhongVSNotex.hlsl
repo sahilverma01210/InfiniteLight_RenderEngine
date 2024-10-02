@@ -1,15 +1,15 @@
 #include "Transform.hlsl"
 
-struct VSOutput
+struct VSOut
 {
-    float3 viewPos : POSITION;
-    float3 viewNormal : NORMAL;
-    float4 pos : SV_POSITION;
+    float3 viewPos : Position;
+    float3 viewNormal : Normal;
+    float4 pos : SV_Position;
 };
 
-VSOutput VSMain(float3 pos : POSITION, float3 n : NORMAL)
+VSOut main(float3 pos : Position, float3 n : Normal)
 {
-    VSOutput vso;
+    VSOut vso;
     vso.viewPos = (float3) mul(float4(pos, 1.0f), modelView);
     vso.viewNormal = mul(n, (float3x3) modelView);
     vso.pos = mul(float4(pos, 1.0f), modelViewProj);

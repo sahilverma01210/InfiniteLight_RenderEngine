@@ -1,5 +1,6 @@
 #include "ShaderOps.hlsl"
 #include "LightVectorData.hlsl"
+
 #include "PointLight.hlsl"
 
 cbuffer ObjectCBuf : register(b2)
@@ -12,28 +13,32 @@ cbuffer ObjectCBuf : register(b2)
     float specularMapWeight;
 };
 
-Texture2D<float4> tex[3] : register(t0);
-SamplerState samp;
+Texture2D tex : register(t0);
+Texture2D spec : register(t1);
+Texture2D nmap : register(t2);
 
-float4 PSMain(float3 viewFragPos : POSITION, float3 viewNormal : NORMAL, float3 viewTan : TANGENT, float3 viewBitan : BITANGENT, float2 uv : TEXCOORD) : SV_TARGET
+SamplerState splr;
+
+
+float4 main(float3 viewFragPos : Position, float3 viewNormal : Normal, float3 viewTan : Tangent, float3 viewBitan : Bitangent, float2 tc : Texcoord) : SV_Target
 {
-	// normalize the mesh normal
+    // normalize the mesh normal
     viewNormal = normalize(viewNormal);
     // replace normal with mapped if normal mapping enabled
     if (normalMapEnabled)
     {
-        viewNormal = MapNormal(normalize(viewTan), normalize(viewBitan), viewNormal, uv, tex[2], samp);
+        viewNormal = MapNormal(normalize(viewTan), normalize(viewBitan), viewNormal, tc, nmap, splr);
     }
 	// fragment to light vector data
     const LightVectorData lv = CalculateLightVectorData(viewLightPos, viewFragPos);
     // specular parameter determination (mapped or uniform)
     float3 specularReflectionColor;
     float specularPower = specularPowerConst;
-    if (specularMapEnabled)
+    if( specularMapEnabled )
     {
-        const float4 specularSample = tex[1].Sample(samp, uv);
+        const float4 specularSample = spec.Sample(splr, tc);
         specularReflectionColor = specularSample.rgb * specularMapWeight;
-        if (hasGloss)
+        if( hasGloss )
         {
             specularPower = pow(2.0f, specularSample.a * 13.0f);
         }
@@ -52,5 +57,5 @@ float4 PSMain(float3 viewFragPos : POSITION, float3 viewNormal : NORMAL, float3 
         lv.vToL, viewFragPos, att, specularPower
     );
 	// final color = attenuate diffuse & ambient by diffuse texture color and add specular reflected
-    return float4(saturate((diffuse + ambient) * tex[0].Sample(samp, uv).rgb + specularReflected), 1.0f);
+    return float4(saturate((diffuse + ambient) * tex.Sample(splr, tc).rgb + specularReflected), 1.0f);
 }

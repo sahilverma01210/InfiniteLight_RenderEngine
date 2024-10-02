@@ -82,9 +82,11 @@ namespace Renderer
 
 	// Mesh Definitions.
 
-	Mesh::Mesh(D3D12RHI& gfx, std::unique_ptr<Bindable> psoBindPtr, std::vector<std::shared_ptr<Bindable>> bindPtrs)
+	Mesh::Mesh(D3D12RHI& gfx, std::unique_ptr<Bindable> rootSignBindablePtr, std::unique_ptr<Bindable> psoBindPtr, std::unique_ptr<Bindable> srvBindPtr, std::vector<std::shared_ptr<Bindable>> bindPtrs)
 	{
+		AddRootSignatureObject(std::move(rootSignBindablePtr));
 		AddPipelineStateObject(std::move(psoBindPtr));
+		if (srvBindPtr != nullptr) AddShaderResourceViewObject(std::move(srvBindPtr));
 
 		for (auto& pb : bindPtrs)
 		{

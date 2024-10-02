@@ -29,8 +29,8 @@ namespace Renderer
 		Camera* camera;
 		PointLight* light;
 		UIManager uiManager;
-		/*std::unique_ptr<Model> goblin;
-		std::unique_ptr<Model> nano;*/
+		//std::unique_ptr<Model> goblin;
+		//std::unique_ptr<Model> nano;
 		std::unique_ptr<Model> sponza;
 	};
 }

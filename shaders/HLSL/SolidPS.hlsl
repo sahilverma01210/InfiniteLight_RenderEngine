@@ -1,9 +1,9 @@
-cbuffer CubeColors : register(b2)
+cbuffer CBuf : register(b2)
 {
     float4 colors[1];
 };
 
-float4 PSMain() : SV_TARGET
+float4 main() : SV_Target
 {
     return colors[0];
 }

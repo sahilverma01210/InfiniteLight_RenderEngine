@@ -1,5 +1,6 @@
 #include "ShaderOps.hlsl"
 #include "LightVectorData.hlsl"
+
 #include "PointLight.hlsl"
 
 cbuffer ObjectCBuf : register(b2)
@@ -10,11 +11,13 @@ cbuffer ObjectCBuf : register(b2)
 };
 
 Texture2D tex : register(t0);
-SamplerState samp;
 
-float4 PSMain(float3 viewFragPos : POSITION, float3 viewNormal : NORMAL, float2 uv : TEXCOORD) : SV_TARGET
+SamplerState splr;
+
+
+float4 main(float3 viewFragPos : Position, float3 viewNormal : Normal, float2 tc : Texcoord) : SV_Target
 {
-	// renormalize interpolated normal
+    // renormalize interpolated normal
     viewNormal = normalize(viewNormal);
 	// fragment to light vector data
     const LightVectorData lv = CalculateLightVectorData(viewLightPos, viewFragPos);
@@ -25,5 +28,5 @@ float4 PSMain(float3 viewFragPos : POSITION, float3 viewNormal : NORMAL, float2 
 	// specular
     const float3 specular = Speculate(diffuseColor, diffuseIntensity, viewNormal, lv.vToL, viewFragPos, att, specularPower);
 	// final color
-    return float4(saturate((diffuse + ambient) * tex.Sample(samp, uv).rgb + specular), 1.0f);
+    return float4(saturate((diffuse + ambient) * tex.Sample(splr, tc).rgb + specular), 1.0f);
 }

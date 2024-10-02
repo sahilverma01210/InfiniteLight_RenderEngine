@@ -6,13 +6,13 @@ namespace Renderer
 	class ShaderResourceView : public Bindable
 	{
 	public:
-		ShaderResourceView(D3D12RHI& gfx, UINT offset, UINT rootParameterIndex, ID3D12Resource* texureBuffer, ID3D12DescriptorHeap* srvHeap);
+		ShaderResourceView(D3D12RHI& gfx, UINT rootParameterIndex, UINT numSRVDescriptors);
+		ID3D12DescriptorHeap* GetSRVHeap();
+		void AddResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer);
 		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
 	protected:
-		UINT m_offset;
 		UINT m_rootParameterIndex;
-		ID3D12DescriptorHeap* m_srvHeap;
-		ID3D12Resource* m_texureBuffer;
+		ComPtr<ID3D12DescriptorHeap> m_srvHeap;
 	};
 }

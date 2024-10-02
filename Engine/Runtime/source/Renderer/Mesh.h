@@ -12,7 +12,7 @@ namespace Renderer
 	class Mesh : public Drawable
 	{
 	public:
-		Mesh(D3D12RHI& gfx, std::unique_ptr<Bindable> psoBindPtr, std::vector<std::shared_ptr<Bindable>> bindPtrs);
+		Mesh(D3D12RHI& gfx, std::unique_ptr<Bindable> rootSignBindablePtr, std::unique_ptr<Bindable> psoBindPtr, std::unique_ptr<Bindable> srvBindPtr, std::vector<std::shared_ptr<Bindable>> bindPtrs);
 		void Draw(D3D12RHI& gfx, FXMMATRIX accumulatedTransform) const noexcept;
 		void SetNumIndices(UINT numIndices);
 		const UINT GetNumIndices() const noexcept;

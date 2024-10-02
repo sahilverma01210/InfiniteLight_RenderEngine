@@ -162,7 +162,9 @@ namespace Renderer
 
 		UINT numSRVDescriptors = 0, srvDescriptorIndex = 0;
 
+		std::unique_ptr<Bindable> rootSignBindablePtr;
 		std::unique_ptr<Bindable> psoBindablePtr;
+		std::unique_ptr<Bindable> srvBindablePtr;
 		std::vector<std::shared_ptr<Bindable>> bindablePtrs;
 
 		std::string diffPath, specPath, normPath;
@@ -341,8 +343,8 @@ namespace Renderer
 			ID3DBlob* pixelShader;
 
 			// Compile Shaders.
-			D3DCompileFromFile(gfx.GetAssetFullPath(vertexShaderName.c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
-			D3DCompileFromFile(gfx.GetAssetFullPath(pixelShaderName.c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(vertexShaderName.c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(pixelShaderName.c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
 			// Define the vertex input layout.
 			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vbuf.GetLayout().GetD3DLayout();
@@ -354,10 +356,10 @@ namespace Renderer
 
 			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, numSRVDescriptors };
 
+			rootSignBindablePtr = std::make_unique<RootSignature>(gfx, pipelineDesc);
 			psoBindablePtr = std::make_unique<PipelineState>(gfx, pipelineDesc);
+			if (pipelineDesc.numSRVDescriptors > 0) srvBindablePtr = std::make_unique<ShaderResourceView>(gfx, 3, numSRVDescriptors);
 		}
-
-		auto pso = dynamic_cast<PipelineState*>(psoBindablePtr.get());
 
 		// Add Other Bindables
 		{
@@ -365,28 +367,33 @@ namespace Renderer
 			bindablePtrs.push_back(std::make_shared<VertexBuffer>(gfx, vbuf.GetData(), UINT(vbuf.SizeBytes()), (UINT)vbuf.GetLayout().Size()));
 			bindablePtrs.push_back(std::make_shared<IndexBuffer>(gfx, indices.size() * sizeof(indices[0]), indices));
 
-			if (hasDiffuseMap)
+			if (srvBindablePtr != nullptr)
 			{
-				bindablePtrs.push_back(TextureBuffer::Resolve(gfx, 3, std::wstring(diffPath.begin(), diffPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
-				//bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(diffPath.begin(), diffPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
-				srvDescriptorIndex++;
-			}
+				auto srv = dynamic_cast<ShaderResourceView*>(srvBindablePtr.get());
 
-			if (hasSpecularMap)
-			{
-				bindablePtrs.push_back(TextureBuffer::Resolve(gfx, 3, std::wstring(specPath.begin(), specPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
-				//bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(specPath.begin(), specPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
-				hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
-				srvDescriptorIndex++;
-			}
+				if (hasDiffuseMap)
+				{
+					bindablePtrs.push_back(TextureBuffer::Resolve(gfx, std::wstring(diffPath.begin(), diffPath.end()).c_str()));
+					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->GetBuffer());
+					srvDescriptorIndex++;
+				}
 
-			if (hasNormalMap)
-			{
-				bindablePtrs.push_back(TextureBuffer::Resolve(gfx, 3, std::wstring(normPath.begin(), normPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
-				//bindablePtrs.push_back(std::make_shared<TextureBuffer>(gfx, 3, std::wstring(normPath.begin(), normPath.end()).c_str(), pso->GetSRVHeap(), srvDescriptorIndex));
-				hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
-				srvDescriptorIndex++;
-			}
+				if (hasSpecularMap)
+				{
+					bindablePtrs.push_back(TextureBuffer::Resolve(gfx, std::wstring(specPath.begin(), specPath.end()).c_str()));
+					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->GetBuffer());
+					hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
+					srvDescriptorIndex++;
+				}
+
+				if (hasNormalMap)
+				{
+					bindablePtrs.push_back(TextureBuffer::Resolve(gfx, std::wstring(normPath.begin(), normPath.end()).c_str()));
+					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->GetBuffer());
+					hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
+					srvDescriptorIndex++;
+				}
+			}			
 		}
 
 		if (mesh.mMaterialIndex >= 0)
@@ -458,7 +465,7 @@ namespace Renderer
 		bindablePtrs.push_back(std::make_shared<TransformBuffer>(gfx, 0));
 		
 
-		std::unique_ptr<Mesh> temp_mesh = std::make_unique<Mesh>(gfx, std::move(psoBindablePtr), std::move(bindablePtrs));
+		std::unique_ptr<Mesh> temp_mesh = std::make_unique<Mesh>(gfx, std::move(rootSignBindablePtr), std::move(psoBindablePtr), std::move(srvBindablePtr), std::move(bindablePtrs));
 		temp_mesh->SetNumIndices(indices.size() * sizeof(indices[0]));
 
 		return temp_mesh;

@@ -26,11 +26,15 @@ namespace Renderer
 			}
 			return nullptr;
 		}
+		void AddRootSignatureObject(std::unique_ptr<Bindable> bindable) noexcept;
 		void AddPipelineStateObject(std::unique_ptr<Bindable> bindable) noexcept;
+		void AddShaderResourceViewObject(std::unique_ptr<Bindable> bindable) noexcept;
 		void AddBindable(std::shared_ptr<Bindable> bindable) noexcept;
 	private:
 		virtual const UINT GetNumIndices() const noexcept = 0;
+		std::unique_ptr<Bindable> rootSignBindable;
 		std::unique_ptr<Bindable> psoBindable;
+		std::unique_ptr<Bindable> srvBindable;
 		std::vector<std::shared_ptr<Bindable>> bindables;
 		static std::vector<std::shared_ptr<Bindable>> staticBinds;
 	};

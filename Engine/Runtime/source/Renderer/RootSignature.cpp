@@ -2,9 +2,29 @@
 
 namespace Renderer
 {
-	RootSignature::RootSignature(D3D12RHI& gfx, UINT numRootParameters) : m_numRootParameters(numRootParameters)
+	RootSignature::RootSignature(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
-        m_rootParameters = new CD3DX12_ROOT_PARAMETER[numRootParameters];
+        m_numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews;
+
+        if (pipelineDesc.numSRVDescriptors > 0) m_numRootParameters++;
+
+        m_rootParameters = new CD3DX12_ROOT_PARAMETER[m_numRootParameters];
+
+        for (int i = 0; i < pipelineDesc.numConstants; i++)
+            Init32BitConstant(sizeof(XMMATRIX) / 4, i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+        for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++)
+            InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+
+        if (pipelineDesc.numSRVDescriptors > 0)
+        {
+            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, pipelineDesc.numSRVDescriptors, 0 };
+            InitDescriptorTable(pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
+        }
+
+        InitRootSignature(gfx);
+
+        pipelineDesc.rootSignature = m_rootSignature.Get();
 	}
 
     void RootSignature::Init32BitConstant(UINT num32BitValues, UINT rootParameterIndex, UINT registerSpace, D3D12_SHADER_VISIBILITY visibilityFlag)

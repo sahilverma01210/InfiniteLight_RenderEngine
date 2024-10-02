@@ -17,8 +17,8 @@ namespace Renderer
 			ID3DBlob* pixelShader;
 
 			// Compile Shaders.
-			D3DCompileFromFile(gfx.GetAssetFullPath(L"SolidVS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VSMain", "vs_5_0", 0, 0, &vertexShader, nullptr);
-			D3DCompileFromFile(gfx.GetAssetFullPath(L"SolidPS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PSMain", "ps_5_0", 0, 0, &pixelShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(L"SolidVS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(L"SolidPS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
 			// Define the vertex input layout.
 			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = model.vertices.GetLayout().GetD3DLayout();
@@ -30,6 +30,7 @@ namespace Renderer
 
 			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, 0 };
 
+			AddRootSignatureObject(std::make_unique<RootSignature>(gfx, pipelineDesc));
 			AddPipelineStateObject(std::make_unique<PipelineState>(gfx, pipelineDesc));
 		}
 
