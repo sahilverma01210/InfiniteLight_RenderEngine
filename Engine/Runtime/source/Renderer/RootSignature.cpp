@@ -20,9 +20,12 @@ namespace Renderer
         {
             const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, pipelineDesc.numSRVDescriptors, 0 };
             InitDescriptorTable(pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
+            InitRootSignature(gfx, true, 1);
         }
-
-        InitRootSignature(gfx);
+        else
+        {
+            InitRootSignature(gfx, false, 0);
+        }
 
         pipelineDesc.rootSignature = m_rootSignature.Get();
 	}
@@ -44,7 +47,7 @@ namespace Renderer
         m_rootParameters[rootParameterIndex].InitAsDescriptorTable(numDescriptorRanges, pDescriptorRanges, visibilityFlag);
     }
 
-    void RootSignature::InitRootSignature(D3D12RHI& gfx)
+    void RootSignature::InitRootSignature(D3D12RHI& gfx, bool initWithSampler, UINT numSampler)
     {
         // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
         const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -55,12 +58,25 @@ namespace Renderer
             D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
-        // define static sampler 
-        const CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-
         // define root signsture.
         CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-        rootSignatureDesc.Init(m_numRootParameters, m_rootParameters, 1, &staticSampler, rootSignatureFlags);
+
+        if (initWithSampler)
+        {
+            // define static sampler 
+            CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
+            staticSampler.Filter = D3D12_FILTER_ANISOTROPIC;
+            staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+            staticSampler.MipLODBias = 0.0f;
+            staticSampler.MinLOD = 0.0f;
+            staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+
+            rootSignatureDesc.Init(m_numRootParameters, m_rootParameters, numSampler, &staticSampler, rootSignatureFlags);
+        }
+        else
+        {
+            rootSignatureDesc.Init(m_numRootParameters, m_rootParameters, 0, nullptr, rootSignatureFlags);
+        }
 
         ComPtr<ID3DBlob> signatureBlob;
         ComPtr<ID3DBlob> errorBlob;

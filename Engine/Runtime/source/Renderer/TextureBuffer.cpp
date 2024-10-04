@@ -164,7 +164,7 @@ namespace Renderer
         }
     }
 
-    std::shared_ptr<Bindable> TextureBuffer::Resolve(D3D12RHI& gfx, const WCHAR* filename)
+    std::shared_ptr<TextureBuffer> TextureBuffer::Resolve(D3D12RHI& gfx, const WCHAR* filename)
     {
         return Codex::Resolve<TextureBuffer>(gfx, filename);
     }

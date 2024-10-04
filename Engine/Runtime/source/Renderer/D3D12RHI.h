@@ -14,6 +14,7 @@ namespace Renderer
         UINT numConstants;
         UINT numConstantBufferViews;
         UINT numSRVDescriptors;
+        bool backFaceCulling;
         ID3D12RootSignature* rootSignature = nullptr;
     };
 

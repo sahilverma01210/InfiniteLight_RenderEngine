@@ -7,6 +7,9 @@ namespace Runtime
 	#define WIDTH 1280.0f
 	#define HEIGHT 720.0f
 
+	/*#define WIDTH 1920.0f
+	#define HEIGHT 1080.0f*/
+
 	// Window title.
 	#define TITLE L"Infinite Light Render Engine"
 

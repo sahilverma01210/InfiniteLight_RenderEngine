@@ -93,7 +93,7 @@ namespace Renderer
         GetCommandList(gfx)->IASetVertexBuffers(0, 1, &m_vertexBufferView);
     }
 
-    std::shared_ptr<Bindable> VertexBuffer::Resolve(D3D12RHI& gfx, const std::string& tag, const char* data, UINT size, UINT layoutSize)
+    std::shared_ptr<VertexBuffer> VertexBuffer::Resolve(D3D12RHI& gfx, const std::string& tag, const char* data, UINT size, UINT layoutSize)
     {
         return Codex::Resolve<VertexBuffer>(gfx, tag, data, size, layoutSize);
     }

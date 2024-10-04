@@ -388,5 +388,8 @@
     <CustomBuild Include="..\..\shaders\HLSL\Transform.hlsl">
       <Filter>Resource Files\Shaders\HLSL\Common</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecNormMask.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

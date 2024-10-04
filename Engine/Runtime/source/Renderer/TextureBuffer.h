@@ -13,7 +13,7 @@ namespace Renderer
 		ID3D12Resource* GetBuffer();
 		bool HasAlpha() const noexcept;
 		bool HasAlphaChannel(const DirectX::Image& image);
-		static std::shared_ptr<Bindable> Resolve(D3D12RHI& gfx, const WCHAR* filename);
+		static std::shared_ptr<TextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
 		static std::string GenerateUID(const WCHAR* filename);
 		std::string GetUID() const noexcept override;
 	private:

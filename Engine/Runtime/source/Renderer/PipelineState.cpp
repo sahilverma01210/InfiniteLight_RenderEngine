@@ -4,13 +4,19 @@ namespace Renderer
 {   
 	PipelineState::PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
+        // Can be used for Alpha Blending & Transparency.
+        D3D12_BLEND_DESC blenderDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+
+        D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+        rasterizerDesc.CullMode = pipelineDesc.backFaceCulling ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
+
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { &pipelineDesc.inputElementDescs , pipelineDesc.numElements };
         m_psoDescription.pRootSignature = pipelineDesc.rootSignature;
         m_psoDescription.VS = CD3DX12_SHADER_BYTECODE(&pipelineDesc.vertexShader);
         m_psoDescription.PS = CD3DX12_SHADER_BYTECODE(&pipelineDesc.pixelShader);
-        m_psoDescription.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-        m_psoDescription.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+        m_psoDescription.RasterizerState = rasterizerDesc;
+        m_psoDescription.BlendState = blenderDesc;
         m_psoDescription.SampleMask = UINT_MAX;
         m_psoDescription.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         m_psoDescription.NumRenderTargets = 1;

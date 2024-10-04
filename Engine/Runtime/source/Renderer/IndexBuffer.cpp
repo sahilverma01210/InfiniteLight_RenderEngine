@@ -94,7 +94,7 @@ namespace Renderer
         GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView);
     }
 
-    std::shared_ptr<Bindable> IndexBuffer::Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)
+    std::shared_ptr<IndexBuffer> IndexBuffer::Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)
     {
         return Codex::Resolve<IndexBuffer>(gfx, tag, dataSize, pData);
     }

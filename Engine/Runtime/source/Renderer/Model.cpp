@@ -171,6 +171,7 @@ namespace Renderer
 		std::wstring vertexShaderName, pixelShaderName;
 
 		bool hasAlphaGloss = false;
+		bool hasAlphaDiffuse = false;
 		bool hasSpecularMap = false;
 		bool hasNormalMap = false;
 		bool hasDiffuseMap = false;
@@ -204,6 +205,9 @@ namespace Renderer
 			if (material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName) == aiReturn_SUCCESS)
 			{
 				diffPath = rootPath + texFileName.C_Str();
+				auto tex = TextureBuffer::Resolve(gfx, std::wstring(diffPath.begin(), diffPath.end()).c_str());
+				hasAlphaDiffuse = tex->HasAlpha();
+				bindablePtrs.push_back(std::move(tex));
 				hasDiffuseMap = true;
 				numSRVDescriptors++;
 			}
@@ -215,6 +219,9 @@ namespace Renderer
 			if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 			{
 				specPath = rootPath + texFileName.C_Str();
+				auto tex = TextureBuffer::Resolve(gfx, std::wstring(specPath.begin(), specPath.end()).c_str());
+				hasAlphaGloss = tex->HasAlpha();
+				bindablePtrs.push_back(std::move(tex));
 				hasSpecularMap = true;
 				numSRVDescriptors++;
 			}
@@ -222,10 +229,17 @@ namespace Renderer
 			{
 				material.Get(AI_MATKEY_COLOR_SPECULAR, reinterpret_cast<aiColor3D&>(specularColor));
 			}
+			if (!hasAlphaGloss)
+			{
+				material.Get(AI_MATKEY_SHININESS, shininess);
+			}
 
 			if (material.GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS)
 			{
 				normPath = rootPath + texFileName.C_Str();
+				auto tex = TextureBuffer::Resolve(gfx, std::wstring(normPath.begin(), normPath.end()).c_str());
+				hasAlphaGloss = tex->HasAlpha();
+				bindablePtrs.push_back(std::move(tex));
 				hasNormalMap = true;
 				numSRVDescriptors++;
 			}
@@ -234,7 +248,7 @@ namespace Renderer
 		if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 		{
 			vertexShaderName = L"PhongVSNormalMap.hlsl";
-			pixelShaderName = L"PhongPSSpecNormalMap.hlsl";
+			pixelShaderName = hasAlphaDiffuse ? L"PhongPSSpecNormMask.hlsl" : L"PhongPSSpecNormalMap.hlsl";
 
 			vbuf.SetLayout(VertexLayout{}
 				.Append(VertexLayout::Position3D)
@@ -337,7 +351,7 @@ namespace Renderer
 			throw std::runtime_error("terrible combination of textures in material smh");
 		}
 
-		// Add Pipeline State Obejct
+		// Create Pipeline State Obejct & Shader Resource View
 		{
 			ID3DBlob* vertexShader;
 			ID3DBlob* pixelShader;
@@ -354,7 +368,7 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, numSRVDescriptors };
+			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, numSRVDescriptors, hasAlphaDiffuse };
 
 			rootSignBindablePtr = std::make_unique<RootSignature>(gfx, pipelineDesc);
 			psoBindablePtr = std::make_unique<PipelineState>(gfx, pipelineDesc);
@@ -372,40 +386,24 @@ namespace Renderer
 				auto srv = dynamic_cast<ShaderResourceView*>(srvBindablePtr.get());
 
 				if (hasDiffuseMap)
-				{
-					bindablePtrs.push_back(TextureBuffer::Resolve(gfx, std::wstring(diffPath.begin(), diffPath.end()).c_str()));
-					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->GetBuffer());
+				{					
+					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[srvDescriptorIndex].get())->GetBuffer());					
 					srvDescriptorIndex++;
 				}
 
 				if (hasSpecularMap)
 				{
-					bindablePtrs.push_back(TextureBuffer::Resolve(gfx, std::wstring(specPath.begin(), specPath.end()).c_str()));
-					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->GetBuffer());
-					hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
+					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[srvDescriptorIndex].get())->GetBuffer());					
 					srvDescriptorIndex++;
 				}
 
 				if (hasNormalMap)
 				{
-					bindablePtrs.push_back(TextureBuffer::Resolve(gfx, std::wstring(normPath.begin(), normPath.end()).c_str()));
-					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->GetBuffer());
-					hasAlphaGloss = dynamic_cast<TextureBuffer*>(bindablePtrs[3 + srvDescriptorIndex].get())->HasAlpha();
+					srv->AddResource(gfx, srvDescriptorIndex, dynamic_cast<TextureBuffer*>(bindablePtrs[srvDescriptorIndex].get())->GetBuffer());					
 					srvDescriptorIndex++;
 				}
 			}			
 		}
-
-		if (mesh.mMaterialIndex >= 0)
-		{
-			auto& material = *pMaterials[mesh.mMaterialIndex];
-
-			if (!hasAlphaGloss)
-			{
-				material.Get(AI_MATKEY_SHININESS, shininess);
-			}
-		}
-
 
 		if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 		{

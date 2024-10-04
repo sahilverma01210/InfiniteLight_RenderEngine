@@ -16,7 +16,7 @@ namespace Renderer
 		GetCommandList(gfx)->IASetPrimitiveTopology(type);
 	}
 
-	std::shared_ptr<Bindable> Topology::Resolve(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type)
+	std::shared_ptr<Topology> Topology::Resolve(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type)
 	{
 		return Codex::Resolve<Topology>(gfx, type);
 	}

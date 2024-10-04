@@ -10,7 +10,7 @@ namespace Renderer
 		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData);
 		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
-		std::shared_ptr<Bindable> Resolve(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData)
+		std::shared_ptr<ConstantBuffer> Resolve(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData)
 		{
 			return Codex::Resolve<ConstantBuffer>(gfx, rootParameterIndex, dataSize, pData);
 		}

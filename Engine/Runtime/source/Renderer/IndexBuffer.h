@@ -11,7 +11,7 @@ namespace Renderer
 		void CreateView(D3D12RHI& gfx);
 		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
-		static std::shared_ptr<Bindable> Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData);
+		static std::shared_ptr<IndexBuffer> Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData);
 		template<typename...Ignore>
 		static std::string GenerateUID(const std::string& tag, Ignore&&...ignore)
 		{

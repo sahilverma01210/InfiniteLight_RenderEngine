@@ -10,7 +10,7 @@ namespace Renderer
 		void Init32BitConstant(UINT num32BitValues, UINT rootParameterIndex, UINT registerSpace, D3D12_SHADER_VISIBILITY visibilityFlag);
 		void InitConstantBufferView(UINT rootParameterIndex, UINT registerSpace, D3D12_SHADER_VISIBILITY visibilityFlag);
 		void InitDescriptorTable(UINT rootParameterIndex, UINT numDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY visibilityFlag);
-		void InitRootSignature(D3D12RHI& gfx);
+		void InitRootSignature(D3D12RHI& gfx, bool initWithSampler, UINT numSampler);
 		ID3D12RootSignature* GetRootSignature();
 		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
