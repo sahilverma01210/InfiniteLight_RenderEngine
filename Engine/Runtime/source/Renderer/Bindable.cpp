@@ -26,4 +26,13 @@ namespace Renderer
 	{
 		gfx.InsertFence();
 	}
+
+	DxgiInfoManager& Bindable::GetInfoManager(D3D12RHI& gfx)
+	{
+#ifndef NDEBUG
+		return gfx.infoManager;
+#else
+		throw std::logic_error("Tried to access gfx.infoManager in Release config");
+#endif
+	}
 }

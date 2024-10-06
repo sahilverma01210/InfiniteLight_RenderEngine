@@ -23,7 +23,7 @@ namespace Renderer
 
 	const char* ModelException::GetType() const noexcept
 	{
-		return "Chili Model Exception";
+		return "IL Model Exception";
 	}
 
 	const std::string& ModelException::GetNote() const noexcept

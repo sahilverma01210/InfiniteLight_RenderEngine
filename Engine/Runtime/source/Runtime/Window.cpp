@@ -493,34 +493,11 @@ namespace Runtime
 	}
 
 	// Window Exception Stuff
-	Window::Exception::Exception(int line, const char* file, HRESULT hr) noexcept
-		:
-		ILException(line, file),
-		hr(hr)
-	{}
-
-	const char* Window::Exception::what() const noexcept
-	{
-		std::ostringstream oss;
-		oss << GetType() << std::endl
-			<< "[Error Code] " << GetErrorCode() << std::endl
-			<< "[Description] " << GetErrorString() << std::endl
-			<< GetOriginString();
-		whatBuffer = oss.str();
-		return whatBuffer.c_str();
-	}
-
-	const char* Window::Exception::GetType() const noexcept
-	{
-		return "IL Window Exception";
-	}
-
 	std::string Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
 	{
 		char* pMsgBuf = nullptr;
-
 		// windows will allocate memory for err string and make our pointer point to it
-		DWORD nMsgLen = FormatMessageA(
+		const DWORD nMsgLen = FormatMessageA(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 			nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -538,13 +515,41 @@ namespace Runtime
 		return errorString;
 	}
 
-	HRESULT Window::Exception::GetErrorCode() const noexcept
+	Window::HrException::HrException(int line, const char* file, HRESULT hr) noexcept
+		:
+		Exception(line, file),
+		hr(hr)
+	{}
+
+	const char* Window::HrException::what() const noexcept
+	{
+		std::ostringstream oss;
+		oss << GetType() << std::endl
+			<< "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode()
+			<< std::dec << " (" << (unsigned long)GetErrorCode() << ")" << std::endl
+			<< "[Description] " << GetErrorDescription() << std::endl
+			<< GetOriginString();
+		whatBuffer = oss.str();
+		return whatBuffer.c_str();
+	}
+
+	const char* Window::HrException::GetType() const noexcept
+	{
+		return "Chili Window Exception";
+	}
+
+	HRESULT Window::HrException::GetErrorCode() const noexcept
 	{
 		return hr;
 	}
 
-	std::string Window::Exception::GetErrorString() const noexcept
+	std::string Window::HrException::GetErrorDescription() const noexcept
 	{
-		return TranslateErrorCode(hr);
+		return Exception::TranslateErrorCode(hr);
+	}
+
+	const char* Window::NoGfxException::GetType() const noexcept
+	{
+		return "Chili Window Exception [No Graphics]";
 	}
 }

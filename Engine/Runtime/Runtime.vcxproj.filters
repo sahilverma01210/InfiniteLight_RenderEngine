@@ -240,6 +240,12 @@
     <ClInclude Include="source\Renderer\RenderMath.h">
       <Filter>Header Files\Renderer\Common</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\DxgiInfoManager.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">
@@ -343,6 +349,12 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderMath.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\ILUtility.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\DxgiInfoManager.cpp">
+      <Filter>Source Files\Renderer\RHI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

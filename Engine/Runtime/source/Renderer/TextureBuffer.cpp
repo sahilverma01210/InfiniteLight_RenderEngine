@@ -20,6 +20,7 @@ namespace Renderer
         // generate mip chain 
         ScratchImage mipChain;
         GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain);
+        hasAlpha = !mipChain.IsAlphaAllOpaque();
 
         // collect subresource data
         std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
@@ -28,18 +29,6 @@ namespace Renderer
 
             for (int i = 0; i < mipChain.GetImageCount(); ++i) {
                 const auto img = mipChain.GetImage(i, 0, 0);
-
-                for (unsigned int y = 0; y < img->height; y++)
-                {
-                    for (unsigned int x = 0; x < img->width; x++)
-                    {
-                        if (img->pixels[y * img->width + x] != 255)
-                        {
-                            hasAlpha = true;
-                        }
-                    }
-                }
-
                 subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
                     .pData = img->pixels,
                     .RowPitch = (LONG_PTR)img->rowPitch,

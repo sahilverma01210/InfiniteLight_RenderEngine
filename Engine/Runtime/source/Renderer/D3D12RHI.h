@@ -1,7 +1,11 @@
 #pragma once
 #include "../_External/d3dx12.h"
+#include "../Common/ILException.h"
 
 #include "RHI.h"
+#include "DxgiInfoManager.h"
+
+using namespace Common;
 
 namespace Renderer
 {
@@ -22,6 +26,44 @@ namespace Renderer
     {
         friend class Bindable;
         friend class UIManager;
+    public:
+        class Exception : public ILException
+        {
+            using ILException::ILException;
+        public:
+            static std::string TranslateErrorCode(HRESULT hr) noexcept;
+        };
+        class HrException: public Exception
+        {
+        public:
+            HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs = {}) noexcept;
+            const char* what() const noexcept override;
+            const char* GetType() const noexcept override;
+            HRESULT GetErrorCode() const noexcept;
+            std::string GetErrorDescription() const noexcept;
+            std::string GetErrorInfo() const noexcept;
+        private:
+            HRESULT hr;
+            std::string info;
+        };
+        class InfoException : public Exception
+        {
+        public:
+            InfoException(int line, const char* file, std::vector<std::string> infoMsgs) noexcept;
+            const char* what() const noexcept override;
+            const char* GetType() const noexcept override;
+            std::string GetErrorInfo() const noexcept;
+        private:
+            std::string info;
+        };
+        class DeviceRemovedException : public HrException
+        {
+            using HrException::HrException;
+        public:
+            const char* GetType() const noexcept override;
+        private:
+            std::string reason;
+        };
     public:
         D3D12RHI(UINT width, UINT height, HWND hWnd);
         //D3D12RHI(const D3D12RHI&) = delete;
@@ -74,6 +116,10 @@ namespace Renderer
 
         UINT m_backBufferIndex;
         static const UINT m_backBufferCount = 2;
+
+#ifndef NDEBUG
+        DxgiInfoManager infoManager;
+#endif
 
         // Pipeline objects.
         CD3DX12_VIEWPORT m_viewport;

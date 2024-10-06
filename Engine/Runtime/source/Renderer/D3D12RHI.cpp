@@ -1,4 +1,5 @@
 #include "D3D12RHI.h"
+#include "D3D12RHIThrowMacros.h"
 
 namespace Renderer
 {
@@ -23,6 +24,9 @@ namespace Renderer
 
     void D3D12RHI::OnInit()
     {
+        // for checking results of d3d functions
+        HRESULT hr;
+
         UINT dxgiFactoryFlags = 0;
 
         // DirectX Graphics Infrastructure (DXGI) - Core component of DirectX API.
@@ -30,7 +34,7 @@ namespace Renderer
 
         // IDXGIFactory is an interface in the DirectX Graphics Infrastructure (DXGI) API, which is used for creating DXGI objects, such as swap chains, surfaces, and adapters.
         ComPtr<IDXGIFactory4> factory;
-        CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory));
+        D3D12RHI_THROW_INFO(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 
         // Create D3D Device.
         {
@@ -39,22 +43,22 @@ namespace Renderer
                 ComPtr<IDXGIAdapter> warpAdapter;
                 factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter));
 
-                D3D12CreateDevice(
+                D3D12RHI_THROW_INFO(D3D12CreateDevice(
                     warpAdapter.Get(),
                     D3D_FEATURE_LEVEL_12_0,
                     IID_PPV_ARGS(&m_device)
-                );
+                ));
             }
             else
             {
                 ComPtr<IDXGIAdapter1> hardwareAdapter;
                 GetHardwareAdapter(factory.Get(), &hardwareAdapter);
 
-                D3D12CreateDevice(
+                D3D12RHI_THROW_INFO(D3D12CreateDevice(
                     hardwareAdapter.Get(),
                     D3D_FEATURE_LEVEL_12_0,
                     IID_PPV_ARGS(&m_device)
-                );
+                ));
             }
         }
 
@@ -89,14 +93,14 @@ namespace Renderer
             }
 
             ComPtr<IDXGISwapChain1> swapChain;
-            factory->CreateSwapChainForHwnd(
+            D3D12RHI_THROW_INFO(factory->CreateSwapChainForHwnd(
                 m_commandQueue.Get(),        // Swap chain needs the queue so that it can force a flush on it.
                 m_hWnd,
                 &swapChainDesc,
                 nullptr,
                 nullptr,
                 &swapChain
-            );
+            ));
 
             swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain));
 
@@ -388,5 +392,125 @@ namespace Renderer
     std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
     {
         return m_assetsPath + assetName;
+    }
+
+    // D3D12 EXCEPTION METHODS
+    std::string D3D12RHI::Exception::TranslateErrorCode(HRESULT hr) noexcept
+    {
+        char* pMsgBuf = nullptr;
+
+        // windows will allocate memory for err string and make our pointer point to it
+        DWORD nMsgLen = FormatMessageA(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr
+        );
+        // 0 string length returned indicates a failure
+        if (nMsgLen == 0)
+        {
+            return "Unidentified error code";
+        }
+        // copy error string from windows-allocated buffer to std::string
+        std::string errorString = pMsgBuf;
+        // free windows buffer
+        LocalFree(pMsgBuf);
+        return errorString;
+    }
+
+    D3D12RHI::HrException::HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs) noexcept
+        :
+        Exception(line, file),
+        hr(hr)
+    {
+        // join all info messages with newlines into single string
+        for (const auto& m : infoMsgs)
+        {
+            info += m;
+            info.push_back('\n');
+        }
+        // remove final newline if exists
+        if (!info.empty())
+        {
+            info.pop_back();
+        }
+    }
+
+    const char* D3D12RHI::HrException::what() const noexcept
+    {
+        std::ostringstream oss;
+        oss << GetType() << std::endl
+            << "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode()
+            << std::dec << " (" << (unsigned long)GetErrorCode() << ")" << std::endl
+            << "[Description] " << GetErrorDescription() << std::endl;
+        if (!info.empty())
+        {
+            oss << "\n[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
+        }
+        oss << GetOriginString();
+        whatBuffer = oss.str();
+        return whatBuffer.c_str();
+    }
+
+    const char* D3D12RHI::HrException::GetType() const noexcept
+    {
+        return "IL D3D12 Exception";
+    }
+
+    HRESULT D3D12RHI::HrException::GetErrorCode() const noexcept
+    {
+        return hr;
+    }
+
+    std::string D3D12RHI::HrException::GetErrorDescription() const noexcept
+    {
+        return TranslateErrorCode(hr);
+    }
+
+    std::string D3D12RHI::HrException::GetErrorInfo() const noexcept
+    {
+        return info;
+    }
+
+    D3D12RHI::InfoException::InfoException(int line, const char* file, std::vector<std::string> infoMsgs) noexcept
+        :
+        Exception(line, file)
+    {
+        // join all info messages with newlines into single string
+        for (const auto& m : infoMsgs)
+        {
+            info += m;
+            info.push_back('\n');
+        }
+        // remove final newline if exists
+        if (!info.empty())
+        {
+            info.pop_back();
+        }
+    }
+
+    const char* D3D12RHI::InfoException::what() const noexcept
+    {
+        std::ostringstream oss;
+        oss << GetType() << std::endl
+            << "\n[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
+        oss << GetOriginString();
+        whatBuffer = oss.str();
+        return whatBuffer.c_str();
+    }
+
+    const char* D3D12RHI::InfoException::GetType() const noexcept
+    {
+        return "Chili Graphics Info Exception";
+    }
+
+    std::string D3D12RHI::InfoException::GetErrorInfo() const noexcept
+    {
+        return info;
+    }
+
+    const char* D3D12RHI::DeviceRemovedException::GetType() const noexcept
+    {
+        return "IL D3D12 Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
     }
 }

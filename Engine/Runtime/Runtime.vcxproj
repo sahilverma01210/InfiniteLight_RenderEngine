@@ -35,7 +35,9 @@
     <ClInclude Include="source\Renderer\CommonShapes.h" />
     <ClInclude Include="source\Renderer\ConstantBuffer.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
+    <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
+    <ClInclude Include="source\Renderer\DxgiInfoManager.h" />
     <ClInclude Include="source\Renderer\IndexBuffer.h" />
     <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
     <ClInclude Include="source\Renderer\Mesh.h" />
@@ -72,12 +74,14 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Common\ILException.cpp" />
+    <ClCompile Include="source\Common\ILUtility.cpp" />
     <ClCompile Include="source\Launch.cpp" />
     <ClCompile Include="source\Renderer\Bindable.cpp" />
     <ClCompile Include="source\Renderer\Camera.cpp" />
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
     <ClCompile Include="source\Renderer\Drawable.cpp" />
+    <ClCompile Include="source\Renderer\DxgiInfoManager.cpp" />
     <ClCompile Include="source\Renderer\IndexBuffer.cpp" />
     <ClCompile Include="source\Renderer\Mesh.cpp" />
     <ClCompile Include="source\Renderer\Model.cpp" />
