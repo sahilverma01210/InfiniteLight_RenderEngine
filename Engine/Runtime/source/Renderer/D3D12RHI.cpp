@@ -3,7 +3,7 @@
 
 namespace Renderer
 {
-    // PUBLIC D3D12RHI METHODS
+    // PUBLIC - D3D12RHI METHODS
 
     D3D12RHI::D3D12RHI(UINT width, UINT height, HWND hWnd) :
         m_width(width),
@@ -209,6 +209,18 @@ namespace Renderer
         }
     }
 
+    std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
+    {
+        return m_assetsPath + assetName;
+    }
+
+    void D3D12RHI::OnDestroy()
+    {
+        CloseHandle(m_fenceEvent);
+    }
+
+    // PUBLIC - TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
+
     void D3D12RHI::SetTransform(FXMMATRIX transformMatrix)
     {
         m_TransformMatrix = transformMatrix;
@@ -240,12 +252,7 @@ namespace Renderer
         return m_ProjectionMatrix;
     }
 
-    void D3D12RHI::OnDestroy()
-    {
-        CloseHandle(m_fenceEvent);
-    }
-
-    // Render Frame
+    // PUBLIC - RENDER FRAME METHODS
 
     void D3D12RHI::StartFrame()
     {
@@ -312,89 +319,8 @@ namespace Renderer
         m_swapChain->Present(1, 0);
     }
 
-    // HELPER PRIVATE D3D12RHI METHODS 
+    // PUBLIC - D3D12 EXCEPTION CLASS METHODS
 
-    void D3D12RHI::InsertFence()
-    {
-        m_commandQueue->Signal(m_fence.Get(), ++m_fenceValue);
-        m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent);
-        if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_FAILED) {
-            GetLastError();
-        }
-    }
-
-    _Use_decl_annotations_
-        void D3D12RHI::GetHardwareAdapter(
-            IDXGIFactory1* pFactory,
-            IDXGIAdapter1** ppAdapter,
-            bool requestHighPerformanceAdapter)
-    {
-        *ppAdapter = nullptr;
-
-        ComPtr<IDXGIAdapter1> adapter;
-
-        ComPtr<IDXGIFactory6> factory6;
-        if (SUCCEEDED(pFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
-        {
-            for (
-                UINT adapterIndex = 0;
-                SUCCEEDED(factory6->EnumAdapterByGpuPreference(
-                    adapterIndex,
-                    requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-                    IID_PPV_ARGS(&adapter)));
-                    ++adapterIndex)
-            {
-                DXGI_ADAPTER_DESC1 desc;
-                adapter->GetDesc1(&desc);
-
-                if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-                {
-                    // Don't select the Basic Render Driver adapter.
-                    // If you want a software adapter, pass in "/warp" on the command line.
-                    continue;
-                }
-
-                // Check to see whether the adapter supports Direct3D 12, but don't create the
-                // actual device yet.
-                if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
-                {
-                    break;
-                }
-            }
-        }
-
-        if (adapter.Get() == nullptr)
-        {
-            for (UINT adapterIndex = 0; SUCCEEDED(pFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
-            {
-                DXGI_ADAPTER_DESC1 desc;
-                adapter->GetDesc1(&desc);
-
-                if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-                {
-                    // Don't select the Basic Render Driver adapter.
-                    // If you want a software adapter, pass in "/warp" on the command line.
-                    continue;
-                }
-
-                // Check to see whether the adapter supports Direct3D 12, but don't create the
-                // actual device yet.
-                if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
-                {
-                    break;
-                }
-            }
-        }
-
-        *ppAdapter = adapter.Detach();
-    }
-
-    std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
-    {
-        return m_assetsPath + assetName;
-    }
-
-    // D3D12 EXCEPTION METHODS
     std::string D3D12RHI::Exception::TranslateErrorCode(HRESULT hr) noexcept
     {
         char* pMsgBuf = nullptr;
@@ -512,5 +438,85 @@ namespace Renderer
     const char* D3D12RHI::DeviceRemovedException::GetType() const noexcept
     {
         return "IL D3D12 Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
+    }
+
+    // PRIVATE - HELPER D3D12RHI METHODS
+
+    // Insert fence to command queue.
+    void D3D12RHI::InsertFence()
+    {
+        m_commandQueue->Signal(m_fence.Get(), ++m_fenceValue);
+        m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent);
+        if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_FAILED) {
+            GetLastError();
+        }
+    }
+
+    // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
+    // If no such adapter can be found, *ppAdapter will be set to nullptr.
+    _Use_decl_annotations_
+        void D3D12RHI::GetHardwareAdapter(
+            IDXGIFactory1* pFactory,
+            IDXGIAdapter1** ppAdapter,
+            bool requestHighPerformanceAdapter)
+    {
+        *ppAdapter = nullptr;
+
+        ComPtr<IDXGIAdapter1> adapter;
+
+        ComPtr<IDXGIFactory6> factory6;
+        if (SUCCEEDED(pFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
+        {
+            for (
+                UINT adapterIndex = 0;
+                SUCCEEDED(factory6->EnumAdapterByGpuPreference(
+                    adapterIndex,
+                    requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
+                    IID_PPV_ARGS(&adapter)));
+                    ++adapterIndex)
+            {
+                DXGI_ADAPTER_DESC1 desc;
+                adapter->GetDesc1(&desc);
+
+                if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+                {
+                    // Don't select the Basic Render Driver adapter.
+                    // If you want a software adapter, pass in "/warp" on the command line.
+                    continue;
+                }
+
+                // Check to see whether the adapter supports Direct3D 12, but don't create the
+                // actual device yet.
+                if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+                {
+                    break;
+                }
+            }
+        }
+
+        if (adapter.Get() == nullptr)
+        {
+            for (UINT adapterIndex = 0; SUCCEEDED(pFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
+            {
+                DXGI_ADAPTER_DESC1 desc;
+                adapter->GetDesc1(&desc);
+
+                if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+                {
+                    // Don't select the Basic Render Driver adapter.
+                    // If you want a software adapter, pass in "/warp" on the command line.
+                    continue;
+                }
+
+                // Check to see whether the adapter supports Direct3D 12, but don't create the
+                // actual device yet.
+                if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+                {
+                    break;
+                }
+            }
+        }
+
+        *ppAdapter = adapter.Detach();
     }
 }

@@ -2,6 +2,16 @@
 
 namespace Renderer
 {
+	UINT Bindable::GetWidth(D3D12RHI& gfx) noexcept
+	{
+		return gfx.m_width;
+	}
+
+	UINT Bindable::GetHeight(D3D12RHI& gfx) noexcept
+	{
+		return gfx.m_height;
+	}
+
 	ID3D12Device* Bindable::GetDevice(D3D12RHI& gfx) noexcept
 	{
 		return gfx.m_device.Get();

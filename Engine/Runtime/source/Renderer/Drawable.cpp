@@ -8,6 +8,8 @@ namespace Renderer
 	{
 		gfx.SetTransform(transform);
 
+		// Binding Bindables and Draw Call all together in order makes up the Render Pipeline.
+
 		rootSignBindable->Bind(gfx);
 		psoBindable->Bind(gfx);
 

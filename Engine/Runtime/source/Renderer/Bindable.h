@@ -15,6 +15,8 @@ namespace Renderer
 			return "";
 		}
 	protected:
+		static UINT GetWidth(D3D12RHI& gfx) noexcept;
+		static UINT GetHeight(D3D12RHI& gfx) noexcept;
 		static ID3D12Device* GetDevice(D3D12RHI& gfx) noexcept;
 		static ID3D12CommandQueue* GetCommandQueue(D3D12RHI& gfx) noexcept;
 		static ID3D12CommandAllocator* GetCommandAllocator(D3D12RHI& gfx) noexcept;

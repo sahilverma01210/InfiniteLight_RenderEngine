@@ -9,6 +9,13 @@ using namespace Common;
 
 namespace Renderer
 {
+    enum class Mode
+    {
+        Off,
+        Write,
+        Mask
+    };
+
     struct PipelineDescription
     {
         ID3DBlob& vertexShader;
@@ -19,6 +26,7 @@ namespace Renderer
         UINT numConstantBufferViews;
         UINT numSRVDescriptors;
         bool backFaceCulling;
+        Mode depthStencilMode;
         ID3D12RootSignature* rootSignature = nullptr;
     };
 
@@ -26,14 +34,39 @@ namespace Renderer
     {
         friend class Bindable;
         friend class UIManager;
+
     public:
+        // PUBLIC - D3D12RHI METHODS
+
+        D3D12RHI(UINT width, UINT height, HWND hWnd);
+        void OnInit();
+        std::wstring GetAssetFullPath(LPCWSTR assetName);
+        void OnDestroy();
+
+        // PUBLIC - TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
+
+        void SetTransform(FXMMATRIX transformMatrix);
+        void SetCamera(FXMMATRIX cameraMatrix);
+        void SetProjection(FXMMATRIX projectionMatrix);
+        XMMATRIX GetTransform();
+        XMMATRIX GetCamera();
+        XMMATRIX GetProjection();
+
+        // PUBLIC - RENDER FRAME METHODS
+
+        void StartFrame();
+        void DrawIndexed(UINT indexCountPerInstance);
+        void EndFrame();
+
+        // PUBLIC - D3D12 EXCEPTION CLASSES
+
         class Exception : public ILException
         {
             using ILException::ILException;
         public:
             static std::string TranslateErrorCode(HRESULT hr) noexcept;
         };
-        class HrException: public Exception
+        class HrException : public Exception
         {
         public:
             HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs = {}) noexcept;
@@ -64,29 +97,7 @@ namespace Renderer
         private:
             std::string reason;
         };
-    public:
-        D3D12RHI(UINT width, UINT height, HWND hWnd);
-        //D3D12RHI(const D3D12RHI&) = delete;
-        //D3D12RHI& operator=(const D3D12RHI&) = delete;
-        //~D3D12RHI();
 
-        void OnInit();
-
-        void SetTransform(FXMMATRIX transformMatrix);
-        void SetCamera(FXMMATRIX cameraMatrix);
-        void SetProjection(FXMMATRIX projectionMatrix);
-        XMMATRIX GetTransform();
-        XMMATRIX GetCamera();
-        XMMATRIX GetProjection();
-
-        void OnDestroy();
-
-        void StartFrame();
-        void DrawIndexed(UINT indexCountPerInstance);
-        void EndFrame();
-
-        // Helper function for resolving the full path of assets.
-        std::wstring GetAssetFullPath(LPCWSTR assetName);
     private:
         HWND m_hWnd;
 
@@ -141,6 +152,8 @@ namespace Renderer
         D3D12_CPU_DESCRIPTOR_HANDLE m_depthStensilViewHandle;
         D3D12_CPU_DESCRIPTOR_HANDLE m_shaderResourceViewHandle;
 
+        // PRIVATE - HELPER D3D12RHI METHODS
+        
         // Insert fence to command queue.
         void InsertFence();
 

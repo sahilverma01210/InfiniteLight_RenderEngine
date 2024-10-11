@@ -10,6 +10,30 @@ namespace Renderer
         D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
         rasterizerDesc.CullMode = pipelineDesc.backFaceCulling ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 
+        D3D12_DEPTH_STENCIL_DESC depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+
+        if (pipelineDesc.depthStencilMode == Mode::Write)
+        {
+            depthStencilDesc.StencilEnable = TRUE;
+            depthStencilDesc.StencilWriteMask = 0xFF;
+            depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+            depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+        }
+        else if (pipelineDesc.depthStencilMode == Mode::Mask)
+        {
+            depthStencilDesc.DepthEnable = FALSE;
+            depthStencilDesc.StencilEnable = TRUE;
+            depthStencilDesc.StencilReadMask = 0xFF;
+            depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL;
+            depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+        }
+        else
+        {
+            depthStencilDesc.DepthEnable = TRUE;
+            depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+            depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+        }
+
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { &pipelineDesc.inputElementDescs , pipelineDesc.numElements };
         m_psoDescription.pRootSignature = pipelineDesc.rootSignature;
@@ -22,9 +46,7 @@ namespace Renderer
         m_psoDescription.NumRenderTargets = 1;
         m_psoDescription.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
         m_psoDescription.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-        m_psoDescription.DepthStencilState.DepthEnable = TRUE;
-        m_psoDescription.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-        m_psoDescription.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+        m_psoDescription.DepthStencilState = depthStencilDesc;
         m_psoDescription.SampleDesc.Count = 1;
         GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));
 	}
