@@ -368,7 +368,7 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, numSRVDescriptors, hasAlphaDiffuse };
+			PipelineDescription pipelineDesc{ *vertexShader, *pixelShader, *inputElementDescs, vec.size(), 1, 2, numSRVDescriptors, !hasAlphaDiffuse };
 
 			rootSignBindablePtr = std::make_unique<RootSignature>(gfx, pipelineDesc);
 			psoBindablePtr = std::make_unique<PipelineState>(gfx, pipelineDesc);
