@@ -6,6 +6,7 @@
 #include "CommonShapes.h"
 #include "UIManager.h"
 #include "RenderMath.h"
+#include "DynamicConstant.h"
 
 namespace Renderer
 {

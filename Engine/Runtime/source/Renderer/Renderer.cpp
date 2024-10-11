@@ -1,4 +1,5 @@
 #include "Renderer.h"
+//#include "Testing.h"
 
 namespace Renderer
 {
@@ -6,6 +7,7 @@ namespace Renderer
 		:
 		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd))
 	{
+		//TestDynamicConstant();
 		//pRHI = std::make_unique<D3D12RHI>(width, height);
 
 		pRHI->OnInit();

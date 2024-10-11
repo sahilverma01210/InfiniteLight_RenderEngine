@@ -109,6 +109,12 @@
     <Filter Include="Resource Files\Shaders\HLSL\Common">
       <UniqueIdentifier>{95eed843-1cdc-433b-bf77-8adb470e37d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Testing Files">
+      <UniqueIdentifier>{23476e21-0f51-4188-a21e-0db85027055b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Common">
+      <UniqueIdentifier>{ea5ed81a-e67b-4fc9-b5f3-dc923f1c43a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -234,9 +240,6 @@
     <ClInclude Include="source\Renderer\Sphere.h">
       <Filter>Header Files\Renderer\Drawables\Shapes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BindableCodex.h">
-      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\RenderMath.h">
       <Filter>Header Files\Renderer\Common</Filter>
     </ClInclude>
@@ -245,6 +248,18 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h">
       <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BindableCodex.h">
+      <Filter>Header Files\Renderer\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Testing.h">
+      <Filter>Testing Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\DynamicConstant.h">
+      <Filter>Header Files\Renderer\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LayoutCodex.h">
+      <Filter>Header Files\Renderer\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -355,6 +370,15 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\DxgiInfoManager.cpp">
       <Filter>Source Files\Renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Testing.cpp">
+      <Filter>Testing Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\DynamicConstant.cpp">
+      <Filter>Source Files\Renderer\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\LayoutCodex.cpp">
+      <Filter>Source Files\Renderer\Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

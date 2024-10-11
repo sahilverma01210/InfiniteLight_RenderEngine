@@ -38,8 +38,10 @@
     <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\DxgiInfoManager.h" />
+    <ClInclude Include="source\Renderer\DynamicConstant.h" />
     <ClInclude Include="source\Renderer\IndexBuffer.h" />
     <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
+    <ClInclude Include="source\Renderer\LayoutCodex.h" />
     <ClInclude Include="source\Renderer\Mesh.h" />
     <ClInclude Include="source\Renderer\Model.h" />
     <ClInclude Include="source\Renderer\PipelineState.h" />
@@ -51,6 +53,7 @@
     <ClInclude Include="source\Renderer\ShaderResourceView.h" />
     <ClInclude Include="source\Renderer\SolidSphere.h" />
     <ClInclude Include="source\Renderer\Sphere.h" />
+    <ClInclude Include="source\Renderer\Testing.h" />
     <ClInclude Include="source\Renderer\TextureBuffer.h" />
     <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\TransformBuffer.h" />
@@ -82,7 +85,9 @@
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
     <ClCompile Include="source\Renderer\Drawable.cpp" />
     <ClCompile Include="source\Renderer\DxgiInfoManager.cpp" />
+    <ClCompile Include="source\Renderer\DynamicConstant.cpp" />
     <ClCompile Include="source\Renderer\IndexBuffer.cpp" />
+    <ClCompile Include="source\Renderer\LayoutCodex.cpp" />
     <ClCompile Include="source\Renderer\Mesh.cpp" />
     <ClCompile Include="source\Renderer\Model.cpp" />
     <ClCompile Include="source\Renderer\PipelineState.cpp" />
@@ -92,6 +97,7 @@
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
     <ClCompile Include="source\Renderer\ShaderResourceView.cpp" />
     <ClCompile Include="source\Renderer\SolidSphere.cpp" />
+    <ClCompile Include="source\Renderer\Testing.cpp" />
     <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
     <ClCompile Include="source\Renderer\Topology.cpp" />
     <ClCompile Include="source\Renderer\TransformBuffer.cpp" />

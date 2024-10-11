@@ -407,57 +407,78 @@ namespace Renderer
 
 		if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 		{
-			Node::PSMaterialConstantFullmonte pmc;
-			pmc.specularPower = shininess;
-			pmc.hasGlossMap = hasAlphaGloss ? TRUE : FALSE;
-			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+			RawLayout lay;
+			lay.Add<Bool>("normalMapEnabled");
+			lay.Add<Bool>("specularMapEnabled");
+			lay.Add<Bool>("hasGlossMap");
+			lay.Add<Float>("specularPower");
+			lay.Add<Float3>("specularColor");
+			lay.Add<Float>("specularMapWeight");
+
+			auto buf = Buffer(std::move(lay));
+			buf["normalMapEnabled"] = true;
+			buf["specularMapEnabled"] = true;
+			buf["hasGlossMap"] = hasAlphaGloss;
+			buf["specularPower"] = shininess;
+			buf["specularColor"] = XMFLOAT3{ 0.75f,0.75f,0.75f };
+			buf["specularMapWeight"] = 0.671f;
+
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
 		}
 		else if (hasDiffuseMap && hasNormalMap)
 		{
-			struct PSMaterialConstantDiffnorm
-			{
-				float specularIntensity;
-				float specularPower;
-				BOOL  normalMapEnabled = TRUE;
-				float padding[1];
-			} pmc;
-			pmc.specularPower = shininess;
-			pmc.specularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
-			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+			RawLayout layout;
+			layout.Add<Float>("specularIntensity");
+			layout.Add<Float>("specularPower");
+			layout.Add<Bool>("normalMapEnabled");
+
+			auto cbuf = Buffer(std::move(layout));
+			cbuf["specularIntensity"] = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
+			cbuf["specularPower"] = shininess;
+			cbuf["normalMapEnabled"] = true;
+
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)cbuf.GetRootLayoutElement().GetSizeInBytes(), (&cbuf)->GetData()));
 		}
 		else if (hasDiffuseMap && !hasNormalMap && hasSpecularMap)
 		{
-			struct PSMaterialConstantDiffuseSpec
-			{
-				float specularPowerConst;
-				BOOL hasGloss;
-				float specularMapWeight;
-				float padding;
-			} pmc;
-			pmc.specularPowerConst = shininess;
-			pmc.hasGloss = hasAlphaGloss ? TRUE : FALSE;
-			pmc.specularMapWeight = 1.0f;
-			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+			RawLayout lay;
+			lay.Add<Float>("specularPower");
+			lay.Add<Bool>("hasGloss");
+			lay.Add<Float>("specularMapWeight");
+
+			auto buf = Buffer(std::move(lay));
+			buf["specularPower"] = shininess;
+			buf["hasGloss"] = hasAlphaGloss;
+			buf["specularMapWeight"] = 1.0f;
+
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
 		}
 		else if (hasDiffuseMap)
 		{
-			struct PSMaterialConstantDiffuse
-			{
-				float specularIntensity;
-				float specularPower;
-				float padding[2];
-			} pmc;
-			pmc.specularPower = shininess;
-			pmc.specularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
-			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+			RawLayout lay;
+			lay.Add<Float>("specularIntensity");
+			lay.Add<Float>("specularPower");
+
+			auto buf = Buffer(std::move(lay));
+			buf["specularIntensity"] = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
+			buf["specularPower"] = shininess;
+			buf["specularMapWeight"] = 1.0f;
+
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
 		}
 		else if (!hasDiffuseMap && !hasNormalMap && !hasSpecularMap)
 		{
-			Node::PSMaterialConstantNotex pmc;
-			pmc.specularPower = shininess;
-			pmc.specularColor = specularColor;
-			pmc.materialColor = diffuseColor;
-			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(pmc), &pmc));
+			RawLayout lay;
+			lay.Add<Float4>("materialColor");
+			lay.Add<Float4>("specularColor");
+			lay.Add<Float>("specularPower");
+
+			auto buf = Buffer(std::move(lay));
+			buf["specularPower"] = shininess;
+			buf["specularColor"] = specularColor;
+			buf["materialColor"] = diffuseColor;
+
+			bindablePtrs.push_back(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
 		}
 
 		bindablePtrs.push_back(std::make_shared<TransformBuffer>(gfx, 0));
