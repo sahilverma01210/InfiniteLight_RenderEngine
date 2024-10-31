@@ -14,7 +14,7 @@ namespace Renderer
             Init32BitConstant(sizeof(XMMATRIX) / 4, i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
         for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++)
-            InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+            InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_ALL);
 
         if (pipelineDesc.numSRVDescriptors > 0)
         {

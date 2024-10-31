@@ -27,6 +27,7 @@
     <ClInclude Include="..\..\external\Libraries\include\imgui\imgui_internal.h" />
     <ClInclude Include="source\Common\ILException.h" />
     <ClInclude Include="source\Common\ILMath.h" />
+    <ClInclude Include="source\Common\ILTimer.h" />
     <ClInclude Include="source\Common\ILUtility.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
     <ClInclude Include="source\Renderer\BindableCodex.h" />
@@ -34,16 +35,25 @@
     <ClInclude Include="source\Renderer\Camera.h" />
     <ClInclude Include="source\Renderer\CommonShapes.h" />
     <ClInclude Include="source\Renderer\ConstantBuffer.h" />
+    <ClInclude Include="source\Renderer\Cube.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
     <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\DxgiInfoManager.h" />
     <ClInclude Include="source\Renderer\DynamicConstant.h" />
+    <ClInclude Include="source\Renderer\FrameCommander.h" />
     <ClInclude Include="source\Renderer\IndexBuffer.h" />
     <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
+    <ClInclude Include="source\Renderer\Job.h" />
     <ClInclude Include="source\Renderer\LayoutCodex.h" />
+    <ClInclude Include="source\Renderer\Material.h" />
     <ClInclude Include="source\Renderer\Mesh.h" />
     <ClInclude Include="source\Renderer\Model.h" />
+    <ClInclude Include="source\Renderer\ModelException.h" />
+    <ClInclude Include="source\Renderer\ModelProbe.h" />
+    <ClInclude Include="source\Renderer\Node.h" />
+    <ClInclude Include="source\Renderer\Pass.h" />
+    <ClInclude Include="source\Renderer\PerfLog.h" />
     <ClInclude Include="source\Renderer\PipelineState.h" />
     <ClInclude Include="source\Renderer\PointLight.h" />
     <ClInclude Include="source\Renderer\Renderer.h" />
@@ -53,6 +63,10 @@
     <ClInclude Include="source\Renderer\ShaderResourceView.h" />
     <ClInclude Include="source\Renderer\SolidSphere.h" />
     <ClInclude Include="source\Renderer\Sphere.h" />
+    <ClInclude Include="source\Renderer\Step.h" />
+    <ClInclude Include="source\Renderer\Technique.h" />
+    <ClInclude Include="source\Renderer\TechniqueProbe.h" />
+    <ClInclude Include="source\Renderer\TestCube.h" />
     <ClInclude Include="source\Renderer\Testing.h" />
     <ClInclude Include="source\Renderer\TextureBuffer.h" />
     <ClInclude Include="source\Renderer\Topology.h" />
@@ -77,6 +91,7 @@
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Common\ILException.cpp" />
+    <ClCompile Include="source\Common\ILTimer.cpp" />
     <ClCompile Include="source\Common\ILUtility.cpp" />
     <ClCompile Include="source\Launch.cpp" />
     <ClCompile Include="source\Renderer\Bindable.cpp" />
@@ -87,9 +102,13 @@
     <ClCompile Include="source\Renderer\DxgiInfoManager.cpp" />
     <ClCompile Include="source\Renderer\DynamicConstant.cpp" />
     <ClCompile Include="source\Renderer\IndexBuffer.cpp" />
+    <ClCompile Include="source\Renderer\Job.cpp" />
     <ClCompile Include="source\Renderer\LayoutCodex.cpp" />
+    <ClCompile Include="source\Renderer\Material.cpp" />
     <ClCompile Include="source\Renderer\Mesh.cpp" />
     <ClCompile Include="source\Renderer\Model.cpp" />
+    <ClCompile Include="source\Renderer\ModelException.cpp" />
+    <ClCompile Include="source\Renderer\Node.cpp" />
     <ClCompile Include="source\Renderer\PipelineState.cpp" />
     <ClCompile Include="source\Renderer\PointLight.cpp" />
     <ClCompile Include="source\Renderer\Renderer.cpp" />
@@ -97,6 +116,9 @@
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
     <ClCompile Include="source\Renderer\ShaderResourceView.cpp" />
     <ClCompile Include="source\Renderer\SolidSphere.cpp" />
+    <ClCompile Include="source\Renderer\Step.cpp" />
+    <ClCompile Include="source\Renderer\Technique.cpp" />
+    <ClCompile Include="source\Renderer\TestCube.cpp" />
     <ClCompile Include="source\Renderer\Testing.cpp" />
     <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
     <ClCompile Include="source\Renderer\Topology.cpp" />
@@ -112,7 +134,7 @@
     <ClCompile Include="source\_External\imgui_impl_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDif_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -125,7 +147,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongVS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDif_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
@@ -138,7 +160,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\SolidPS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\Solid_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -151,7 +173,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\SolidVS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\Solid_VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
@@ -166,7 +188,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNormalMap.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifNrm_PS.hlsl">
       <FileType>Document</FileType>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
@@ -175,7 +197,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecNormalMap.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpcNrm_PS.hlsl">
       <FileType>Document</FileType>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
@@ -184,27 +206,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNormalMap.hlsl">
-      <FileType>Document</FileType>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNotex.hlsl">
-      <FileType>Document</FileType>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNotex.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifNrm_VS.hlsl">
       <FileType>Document</FileType>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
@@ -215,7 +217,27 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpec.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\Phong_PS.hlsl">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\Phong_VS.hlsl">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpc_PS.hlsl">
       <FileType>Document</FileType>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
@@ -264,14 +286,52 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecNormMask.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifMskSpcNrm_PS.hlsl">
       <FileType>Document</FileType>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifMskSpcNrm_VS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpcNrm_VS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpc_VS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\shaders\HLSL\Offset_VS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="Globals">

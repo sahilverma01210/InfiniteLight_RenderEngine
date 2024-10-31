@@ -9,7 +9,7 @@ namespace Renderer
     {
         // load image data from disk 
         ScratchImage image;
-        HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_NONE, nullptr, image);
+        HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_IGNORE_SRGB, nullptr, image);
 
         /*if (FAILED(hr))
         {

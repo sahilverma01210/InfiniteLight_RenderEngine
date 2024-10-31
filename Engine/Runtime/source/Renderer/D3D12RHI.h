@@ -18,15 +18,15 @@ namespace Renderer
 
     struct PipelineDescription
     {
-        ID3DBlob& vertexShader;
-        ID3DBlob& pixelShader;
-        D3D12_INPUT_ELEMENT_DESC& inputElementDescs;
-        UINT numElements;
-        UINT numConstants;
-        UINT numConstantBufferViews;
-        UINT numSRVDescriptors;
-        bool backFaceCulling;
-        Mode depthStencilMode;
+        ID3DBlob* vertexShader = nullptr;
+        ID3DBlob* pixelShader = nullptr;
+        D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
+        UINT numElements = 0;
+        UINT numConstants = 0;
+        UINT numConstantBufferViews = 0;
+        UINT numSRVDescriptors = 0;
+        bool backFaceCulling = false;
+        Mode depthStencilMode = {};
         ID3D12RootSignature* rootSignature = nullptr;
     };
 
@@ -42,6 +42,7 @@ namespace Renderer
         void OnInit();
         std::wstring GetAssetFullPath(LPCWSTR assetName);
         void OnDestroy();
+        void Info(HRESULT hresult);
 
         // PUBLIC - TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
 

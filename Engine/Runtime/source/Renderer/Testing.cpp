@@ -1,8 +1,71 @@
 #include "DynamicConstant.h"
 #include "LayoutCodex.h"
+#include "Vertex.h"
 #include <cstring>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include "Material.h"
+#include "Mesh.h"
+#include "Testing.h"
+#include "RenderMath.h"
 
 namespace dx = DirectX;
+
+namespace Renderer {
+
+	void TestScaleMatrixTranslation()
+	{
+		auto tlMat = DirectX::XMMatrixTranslation(20.f, 30.f, 40.f);
+		tlMat = ScaleTranslation(tlMat, 0.1f);
+		dx::XMFLOAT4X4 f4;
+		dx::XMStoreFloat4x4(&f4, tlMat);
+		auto etl = ExtractTranslation(f4);
+		assert(etl.x == 2.f && etl.y == 3.f && etl.z == 4.f);
+	}
+
+	void TestDynamicMeshLoading()
+	{
+		Assimp::Importer imp;
+		const auto pScene = imp.ReadFile("models\\brick_wall\\brick_wall.obj",
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_ConvertToLeftHanded |
+			aiProcess_GenNormals |
+			aiProcess_CalcTangentSpace
+		);
+		auto layout = VertexLayout{}
+			.Append(VertexLayout::Position3D)
+			.Append(VertexLayout::Normal)
+			.Append(VertexLayout::Tangent)
+			.Append(VertexLayout::Bitangent)
+			.Append(VertexLayout::Texture2D);
+		VertexRawBuffer buf{ std::move(layout),*pScene->mMeshes[0] };
+		for (auto i = 0ull, end = buf.Size(); i < end; i++)
+		{
+			const auto a = buf[i].Attr<VertexLayout::Position3D>();
+			const auto b = buf[i].Attr<VertexLayout::Normal>();
+			const auto c = buf[i].Attr<VertexLayout::Tangent>();
+			const auto d = buf[i].Attr<VertexLayout::Bitangent>();
+			const auto e = buf[i].Attr<VertexLayout::Texture2D>();
+		}
+	}
+
+	void TestMaterialSystemLoading(D3D12RHI& gfx)
+	{
+		std::string path = "models\\brick_wall\\brick_wall.obj";
+		Assimp::Importer imp;
+		const auto pScene = imp.ReadFile(path,
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_ConvertToLeftHanded |
+			aiProcess_GenNormals |
+			aiProcess_CalcTangentSpace
+		);
+		Material mat{ gfx,*pScene->mMaterials[1],path };
+		Mesh mesh{ gfx,mat,*pScene->mMeshes[0] };
+	}
+}
 
 void TestDynamicConstant()
 {

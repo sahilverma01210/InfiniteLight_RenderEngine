@@ -115,6 +115,12 @@
     <Filter Include="Source Files\Renderer\Common">
       <UniqueIdentifier>{ea5ed81a-e67b-4fc9-b5f3-dc923f1c43a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\RenderQueue">
+      <UniqueIdentifier>{34c9a6e8-9d5b-48ab-b527-715361136937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\RenderQueue">
+      <UniqueIdentifier>{4be52e22-33ca-4818-beb7-e4cbb5354e5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -222,9 +228,6 @@
     <ClInclude Include="source\Renderer\D3D12RHI.h">
       <Filter>Header Files\Renderer\RHI</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Mesh.h">
-      <Filter>Header Files\Renderer\Drawables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Model.h">
       <Filter>Header Files\Renderer\Model</Filter>
     </ClInclude>
@@ -260,6 +263,51 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\LayoutCodex.h">
       <Filter>Header Files\Renderer\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TestCube.h">
+      <Filter>Testing Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Cube.h">
+      <Filter>Header Files\Renderer\Drawables\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Job.h">
+      <Filter>Header Files\Renderer\RenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Pass.h">
+      <Filter>Header Files\Renderer\RenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Step.h">
+      <Filter>Header Files\Renderer\RenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Technique.h">
+      <Filter>Header Files\Renderer\RenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\FrameCommander.h">
+      <Filter>Header Files\Renderer\RenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\ILTimer.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PerfLog.h">
+      <Filter>Header Files\Renderer\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TechniqueProbe.h">
+      <Filter>Header Files\Renderer\RenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Material.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ModelException.h">
+      <Filter>Header Files\Renderer\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Node.h">
+      <Filter>Header Files\Renderer\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Mesh.h">
+      <Filter>Header Files\Renderer\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ModelProbe.h">
+      <Filter>Header Files\Renderer\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -353,9 +401,6 @@
     <ClCompile Include="source\Renderer\D3D12RHI.cpp">
       <Filter>Source Files\Renderer\RHI</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Mesh.cpp">
-      <Filter>Source Files\Renderer\Drawables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\Model.cpp">
       <Filter>Source Files\Renderer\Model</Filter>
     </ClCompile>
@@ -380,36 +425,63 @@
     <ClCompile Include="source\Renderer\LayoutCodex.cpp">
       <Filter>Source Files\Renderer\Common</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\TestCube.cpp">
+      <Filter>Testing Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Job.cpp">
+      <Filter>Source Files\Renderer\RenderQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Step.cpp">
+      <Filter>Source Files\Renderer\RenderQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Technique.cpp">
+      <Filter>Source Files\Renderer\RenderQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\ILTimer.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Material.cpp">
+      <Filter>Source Files\Renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ModelException.cpp">
+      <Filter>Source Files\Renderer\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Node.cpp">
+      <Filter>Source Files\Renderer\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Mesh.cpp">
+      <Filter>Source Files\Renderer\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDif_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongVS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDif_VS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\SolidPS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\Solid_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\SolidVS.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\Solid_VS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNormalMap.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifNrm_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecNormalMap.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpcNrm_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNormalMap.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifNrm_VS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSNotex.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\Phong_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongVSNotex.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\Phong_VS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpec.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpc_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\shaders\HLSL\LightVectorData.hlsl">
@@ -424,7 +496,19 @@
     <CustomBuild Include="..\..\shaders\HLSL\Transform.hlsl">
       <Filter>Resource Files\Shaders\HLSL\Common</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\shaders\HLSL\PhongPSSpecNormMask.hlsl">
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifMskSpcNrm_PS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifMskSpcNrm_VS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpc_VS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\PhongDifSpcNrm_VS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\Offset_VS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
   </ItemGroup>

@@ -12,10 +12,10 @@ namespace Renderer
 	public:
 		SolidSphere(D3D12RHI& gfx, float radius);
 		void SetPos(XMFLOAT3 pos) noexcept;
-		const UINT GetNumIndices() const noexcept override;
 		XMMATRIX GetTransformXM() const noexcept override;
+		PipelineDescription GetPipelineDesc() noexcept;
 	private:
-		UINT m_numIndices;
 		XMFLOAT3 pos = { 1.0f,1.0f,1.0f };
+		PipelineDescription pipelineDesc{};
 	};
 }

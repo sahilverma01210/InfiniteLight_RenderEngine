@@ -18,10 +18,14 @@ namespace Renderer
 			return GenerateUID_(tag);
 		}
 		std::string GetUID() const noexcept override;
+		UINT GetNumOfIndices() {
+			return m_numOfIndices;
+		}
 	private:
 		static std::string GenerateUID_(const std::string& tag);
 	private:
 		std::string tag;
+		UINT m_numOfIndices;
 		UINT m_indexBufferSize;
 		ComPtr<ID3D12Resource> m_indexBuffer;
 		D3D12_INDEX_BUFFER_VIEW m_indexBufferView;

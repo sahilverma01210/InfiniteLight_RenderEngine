@@ -2,8 +2,9 @@
 #include "D3D12RHI.h"
 #include "UIManager.h"
 #include "SolidSphere.h"
-#include "Mesh.h"
+#include "Drawable.h"
 #include "Camera.h"
+#include "FrameCommander.h"
 
 namespace Renderer
 {
@@ -13,7 +14,7 @@ namespace Renderer
 		PointLight(D3D12RHI& gfx, float radius = 0.5f);
 		bool SpawnControlWindow() noexcept;
 		void Reset() noexcept;
-		void Draw(D3D12RHI& gfx) const noexcept;
+		void Submit(class FrameCommander& frame) const noexcept;
 		void Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
 
 		bool m_imGUIwndOpen = true;

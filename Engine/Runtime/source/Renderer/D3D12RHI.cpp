@@ -187,13 +187,13 @@ namespace Renderer
         {
             CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
             CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
-                DXGI_FORMAT_D32_FLOAT,
+                DXGI_FORMAT_D24_UNORM_S8_UINT,
                 m_width, m_height,
                 1, 0, 1, 0,
                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
             D3D12_CLEAR_VALUE clearValue = {};
-            clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-            clearValue.DepthStencil = { 1.0f, 0 };
+            clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            clearValue.DepthStencil = { 1.0f, 0xFF };
 
             m_device->CreateCommittedResource(
                 &heapProperties,
@@ -217,6 +217,11 @@ namespace Renderer
     void D3D12RHI::OnDestroy()
     {
         CloseHandle(m_fenceEvent);
+    }
+
+    void D3D12RHI::Info(HRESULT hr)
+    {
+        D3D12RHI_THROW_INFO(hr);
     }
 
     // PUBLIC - TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
@@ -283,7 +288,7 @@ namespace Renderer
             const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
             m_commandList->ClearRenderTargetView(m_renderTargetViewHandle[m_backBufferIndex], clear_color_with_alpha, 0, nullptr);
 
-            m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr);
         }
 
         // bind the heap containing the texture descriptor 
@@ -294,6 +299,7 @@ namespace Renderer
         m_commandList->RSSetScissorRects(1, &m_scissorRect);
 
         // Configure Output Merger (OM) Stage. Bind render target and depth view
+        m_commandList->OMSetStencilRef(0xFF);
         m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandle[m_backBufferIndex], FALSE, &m_depthStensilViewHandle);
     }
 

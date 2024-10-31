@@ -10,7 +10,7 @@ namespace Renderer
 
 		std::unique_ptr<Bindable> cbuf = std::make_unique<ConstantBuffer>(gfx, 1, sizeof(cbData), &cbData);
 		pLightBindable = cbuf.get();
-		Mesh::staticBinds.push_back(std::move(cbuf));
+		Drawable::lightBindable = std::move(cbuf);
 	}
 
 	bool PointLight::SpawnControlWindow() noexcept
@@ -55,10 +55,10 @@ namespace Renderer
 		};
 	}
 
-	void PointLight::Draw(D3D12RHI& gfx) const noexcept
+	void PointLight::Submit(FrameCommander& frame) const noexcept
 	{
 		mesh.SetPos(cbData.pos);
-		mesh.Draw(gfx, mesh.GetTransformXM());
+		mesh.Submit(frame);
 	}
 
 	void PointLight::Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept

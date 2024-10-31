@@ -6,6 +6,11 @@
 #include "UIManager.h" // UI
 #include "PointLight.h" // Lights
 #include "Model.h" // Model
+#include "TestCube.h"
+#include "Testing.h"
+#include "FrameCommander.h"
+#include "PerfLog.h"
+#include "Material.h"
 
 using namespace Common;
 
@@ -29,8 +34,12 @@ namespace Renderer
 		Camera* camera;
 		PointLight* light;
 		UIManager uiManager;
+		FrameCommander fc;
 		//std::unique_ptr<Model> goblin;
 		//std::unique_ptr<Model> nano;
 		std::unique_ptr<Model> sponza;
+		//std::unique_ptr<TestCube> cube;
+		//std::unique_ptr<TestCube> cube1;
+		//std::unique_ptr<Mesh> pLoaded;
 	};
 }

@@ -23,4 +23,11 @@ namespace Renderer
 	{
 		return { matrix._41,matrix._42,matrix._43 };
 	}
+	XMMATRIX ScaleTranslation(XMMATRIX matrix, float scale)
+	{
+		matrix.r[3].m128_f32[0] *= scale;
+		matrix.r[3].m128_f32[1] *= scale;
+		matrix.r[3].m128_f32[2] *= scale;
+		return matrix;
+	}
 }

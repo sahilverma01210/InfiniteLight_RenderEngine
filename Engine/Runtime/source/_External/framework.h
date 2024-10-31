@@ -82,6 +82,7 @@ using namespace DirectX;
 #include <cmath> 
 #include <numbers> 
 #include <ranges>
+#include <limits>
 #include <chrono>
 #include <queue>
 #include <bitset>
@@ -90,3 +91,5 @@ using namespace DirectX;
 #include <vector>
 #include <type_traits>
 #include <filesystem>
+#include <utility>
+#include <stdexcept>

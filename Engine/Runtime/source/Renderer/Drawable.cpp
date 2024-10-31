@@ -1,50 +1,71 @@
 #include "Drawable.h"
+#include "Material.h"
 
 namespace Renderer
 {
-	std::vector<std::shared_ptr<Bindable>> Drawable::staticBinds;
+	std::shared_ptr<Bindable> Drawable::lightBindable;
 
-	void Drawable::Draw(D3D12RHI& gfx, XMMATRIX transform) const
+	void Drawable::Submit(FrameCommander& frame) const noexcept
 	{
-		gfx.SetTransform(transform);
-
-		// Binding Bindables and Draw Call all together in order makes up the Render Pipeline.
-
-		rootSignBindable->Bind(gfx);
-		psoBindable->Bind(gfx);
-
-		for (auto& bindable : bindables)
+		for (const auto& tech : techniques)
 		{
-			bindable->Bind(gfx);
+			tech.Submit(frame, *this);
+		}
+	}
+
+	Drawable::Drawable(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale) noexcept
+	{
+		topologyBindable = Topology::Resolve(gfx);
+		vertexBufferBindable = mat.MakeVertexBindable(gfx, mesh, scale);
+		indexBufferBindable = mat.MakeIndexBindable(gfx, mesh);
+
+		for (auto& pipelineDesc : mat.GetPipelineDesc())
+		{
+			rootSignBindables.push_back(std::move(std::make_unique<RootSignature>(gfx, pipelineDesc)));
+			psoBindables.push_back(std::move(std::make_unique<PipelineState>(gfx, pipelineDesc)));
 		}
 
-		for (auto& b : staticBinds)
+		m_numIndices = indexBufferBindable->GetNumOfIndices();
+		
+		for (auto& t : mat.GetTechniques())
 		{
-			b->Bind(gfx);
+			AddTechnique(std::move(t));
 		}
-
-		if (srvBindable != nullptr) srvBindable->Bind(gfx);
-
-		gfx.DrawIndexed(GetNumIndices());
 	}
 
-	void Drawable::AddRootSignatureObject(std::unique_ptr<Bindable> bindable) noexcept
+	void Drawable::AddTechnique(Technique tech_in) noexcept
 	{
-		rootSignBindable = std::move(bindable);
+		tech_in.InitializeParentReferences(*this);
+		techniques.push_back(std::move(tech_in));
 	}
 
-	void Drawable::AddPipelineStateObject(std::unique_ptr<Bindable> bindable) noexcept
+	void Drawable::Bind(D3D12RHI& gfx, size_t targetPass) const noexcept
 	{
-		psoBindable = std::move(bindable);
+		topologyBindable->Bind(gfx);
+		vertexBufferBindable->Bind(gfx);
+		indexBufferBindable->Bind(gfx);
+		rootSignBindables[targetPass]->Bind(gfx);
+		psoBindables[targetPass]->Bind(gfx);
 	}
 
-	void Drawable::AddShaderResourceViewObject(std::unique_ptr<Bindable> bindable) noexcept
+	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept
 	{
-		srvBindable = std::move(bindable);
+		lightBindable->Bind(gfx);
 	}
 
-	void Drawable::AddBindable(std::shared_ptr<Bindable> bindable) noexcept
+	void Drawable::Accept(TechniqueProbe& probe)
 	{
-		bindables.push_back(std::move(bindable));
+		for (auto& t : techniques)
+		{
+			t.Accept(probe);
+		}
 	}
+
+	UINT Drawable::GetIndexCount() const noexcept
+	{
+		return m_numIndices;
+	}
+
+	Drawable::~Drawable()
+	{}
 }

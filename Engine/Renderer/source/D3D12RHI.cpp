@@ -6,30 +6,6 @@ using namespace DirectX;
 
 namespace Renderer::RHI
 {
-    // Define the geometry for a triangle.
-    Vertex triangleVertices[] =
-    {
-        { {-1.0f, -1.0f, -1.0f}, { 0.f, 0.f } }, // 0 
-        { {-1.0f,  1.0f, -1.0f}, { 0.f, 1.f } }, // 1 
-        { {1.0f,  1.0f, -1.0f}, { 1.f, 1.f } }, // 2 
-        { {1.0f, -1.0f, -1.0f}, { 1.f, 0.f } }, // 3 
-        { {-1.0f, -1.0f,  1.0f}, { 0.f, 1.f } }, // 4 
-        { {-1.0f,  1.0f,  1.0f}, { 0.f, 0.f } }, // 5 
-        { {1.0f,  1.0f,  1.0f}, { 1.f, 0.f } }, // 6 
-        { {1.0f, -1.0f,  1.0f}, { 1.f, 1.f } }  // 7 
-    };
-
-    // Cube indices (Cube Vertex Order to form Triangles)
-    const unsigned short indices[] =
-    {
-        0, 1, 2, 0, 2, 3,
-        4, 6, 5, 4, 7, 6,
-        4, 5, 1, 4, 1, 0,
-        3, 2, 6, 3, 6, 7,
-        1, 5, 6, 1, 6, 2,
-        4, 0, 3, 4, 3, 7
-    };
-
     // PUBLIC D3D12RHI METHODS
 
     D3D12RHI::D3D12RHI(UINT width, UINT height) :
@@ -233,13 +209,13 @@ namespace Renderer::RHI
         {
             CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
             CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
-                DXGI_FORMAT_D32_FLOAT,
+                DXGI_FORMAT_D24_UNORM_S8_UINT,
                 m_width, m_height,
                 1, 0, 1, 0,
                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
             D3D12_CLEAR_VALUE clearValue = {};
-            clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-            clearValue.DepthStencil = { 1.0f, 0 };
+            clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            clearValue.DepthStencil = { 1, 0 };
 
             m_device->CreateCommittedResource(
                 &heapProperties,
@@ -257,7 +233,12 @@ namespace Renderer::RHI
 
             m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
-            m_device->CreateDepthStencilView(m_depthBuffer.Get(), nullptr, m_depthStensilViewHandle);
+            D3D12_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+            descDSV.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            descDSV.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+            descDSV.Texture2D.MipSlice = 0u;
+
+            m_device->CreateDepthStencilView(m_depthBuffer.Get(), &descDSV, m_depthStensilViewHandle);
         }
 
         // Create Command Allocator & Command List.
@@ -360,232 +341,6 @@ namespace Renderer::RHI
         m_commandAllocator->Reset();
         m_commandList->Reset(m_commandAllocator.Get(), nullptr);
 
-        // Create the vertex buffer.
-        {
-            m_vertexBufferSize = sizeof(triangleVertices);
-
-            // create committed resource (Vertex Buffer) for GPU access of vertex data.
-            {
-                const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
-                const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize);
-                m_device->CreateCommittedResource(
-                    &heapProps,
-                    D3D12_HEAP_FLAG_NONE,
-                    &resourceDesc,
-                    D3D12_RESOURCE_STATE_COPY_DEST,
-                    nullptr, IID_PPV_ARGS(&m_vertexBuffer)
-                );
-            }
-
-            // create committed resource (Upload Buffer) for CPU upload of vertex data.
-            ComPtr<ID3D12Resource> vertexUploadBuffer;
-            {
-                auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
-                auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize) };
-
-                m_device->CreateCommittedResource(
-                    &heapProperties,
-                    D3D12_HEAP_FLAG_NONE,
-                    &resourceDesc,
-                    D3D12_RESOURCE_STATE_GENERIC_READ,
-                    nullptr,
-                    IID_PPV_ARGS(&vertexUploadBuffer));
-            }
-
-            // Copy the triangle data to the vertex buffer.
-            UINT8* pVertexDataBegin;
-            CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-            vertexUploadBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
-            memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-            vertexUploadBuffer->Unmap(0, nullptr);
-
-            // reset command list and allocator  
-            m_commandAllocator->Reset();
-            m_commandList->Reset(m_commandAllocator.Get(), nullptr);
-
-            // copy Upload Buffer to Vertex Buffer 
-            m_commandList->CopyResource(m_vertexBuffer.Get(), vertexUploadBuffer.Get());
-
-            // transition vertex buffer to vertex buffer state 
-            auto resourceBarrier0 = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-            m_commandList->ResourceBarrier(1, &resourceBarrier0);
-
-            // close command list and submit command list to queue as array with single element.
-            m_commandList->Close();
-            ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
-            m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
-
-            // insert fence to detect when upload is complete  
-            InsertFence();
-        }
-
-        // Initialize the vertex buffer view.
-        {
-            m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-            m_vertexBufferView.StrideInBytes = sizeof(Vertex);
-            m_vertexBufferView.SizeInBytes = m_vertexBufferSize;
-        }
-
-        // Create the index buffer.
-        {
-            m_indexBufferSize = sizeof(indices);
-
-            // create committed resource (Index Buffer) for GPU access of Index data.
-            {
-                const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
-                const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize);
-                m_device->CreateCommittedResource(
-                    &heapProps,
-                    D3D12_HEAP_FLAG_NONE,
-                    &resourceDesc,
-                    D3D12_RESOURCE_STATE_COPY_DEST,
-                    nullptr, IID_PPV_ARGS(&m_indexBuffer)
-                );
-            }
-
-            // create committed resource (Upload Buffer) for CPU upload of Index data.
-            ComPtr<ID3D12Resource> indexUploadBuffer;
-            {
-                auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
-                auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize) };
-
-                m_device->CreateCommittedResource(
-                    &heapProperties,
-                    D3D12_HEAP_FLAG_NONE,
-                    &resourceDesc,
-                    D3D12_RESOURCE_STATE_GENERIC_READ,
-                    nullptr,
-                    IID_PPV_ARGS(&indexUploadBuffer));
-            }            
-
-            // Copy the index data to the index buffer.
-            UINT8* pIndexDataBegin;
-            CD3DX12_RANGE readRangeI(0, 0);        // We do not intend to read from this resource on the CPU.
-            indexUploadBuffer->Map(0, &readRangeI, reinterpret_cast<void**>(&pIndexDataBegin));
-            memcpy(pIndexDataBegin, indices, sizeof(indices));
-            indexUploadBuffer->Unmap(0, nullptr);
-
-            // reset command list and allocator   
-            m_commandAllocator->Reset();
-            m_commandList->Reset(m_commandAllocator.Get(), nullptr);
-
-            // copy Upload Buffer to Index Buffer 
-            m_commandList->CopyResource(m_indexBuffer.Get(), indexUploadBuffer.Get());
-
-            // transition index buffer to index buffer state 
-            auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_indexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);
-            m_commandList->ResourceBarrier(1, &resourceBarrier1);
-
-            // close command list and submit command list to queue as array with single element.
-            m_commandList->Close();
-            ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
-            m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
-
-            // insert fence to detect when upload is complete  
-            InsertFence();
-        }
-
-        // Initialize the index buffer view.
-        {
-            m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
-            m_indexBufferView.SizeInBytes = m_indexBufferSize;
-            m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
-        }
-
-        // Create the texture buffer.
-        {
-            // load image data from disk 
-            ScratchImage image;
-            HRESULT hr = LoadFromWICFile(L"cube_face.jpeg", WIC_FLAGS_NONE, nullptr, image);
-
-            // generate mip chain 
-            ScratchImage mipChain;
-            GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain);
-
-            // collect subresource data
-            std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
-            {
-                subresourceData.reserve(mipChain.GetImageCount());
-
-for (int i = 0; i < mipChain.GetImageCount(); ++i) {
-    const auto img = mipChain.GetImage(i, 0, 0);
-    subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
-        .pData = img->pixels,
-        .RowPitch = (LONG_PTR)img->rowPitch,
-        .SlicePitch = (LONG_PTR)img->slicePitch,
-        });
-}
-            }
-
-            // create committed resource (Texture Buffer) for GPU access of Texture data.
-            {
-                auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
-                const auto& chainBase = *mipChain.GetImages();
-                auto resourceDesc = CD3DX12_RESOURCE_DESC{};
-                resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-                resourceDesc.Width = (UINT)chainBase.width;
-                resourceDesc.Height = (UINT)chainBase.height;
-                resourceDesc.DepthOrArraySize = 1;
-                resourceDesc.MipLevels = (UINT16)mipChain.GetImageCount();
-                resourceDesc.Format = chainBase.format;
-                resourceDesc.SampleDesc = { .Count = 1 };
-                resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-                resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-                m_device->CreateCommittedResource(
-                    &heapProperties,
-                    D3D12_HEAP_FLAG_NONE,
-                    &resourceDesc,
-                    D3D12_RESOURCE_STATE_COPY_DEST,
-                    nullptr,
-                    IID_PPV_ARGS(&m_texureBuffer)
-                );
-            }
-
-            // create committed resource (Upload Buffer) for CPU upload of Index data.
-            ComPtr<ID3D12Resource> texureUploadBuffer;
-            {
-                m_texureUploadBufferSize = GetRequiredIntermediateSize(m_texureBuffer.Get(), 0, (UINT)subresourceData.size());
-                auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
-                auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_texureUploadBufferSize) };
-
-                m_device->CreateCommittedResource(
-                    &heapProperties,
-                    D3D12_HEAP_FLAG_NONE,
-                    &resourceDesc,
-                    D3D12_RESOURCE_STATE_GENERIC_READ,
-                    nullptr,
-                    IID_PPV_ARGS(&texureUploadBuffer)
-                );
-            }
-
-            // reset command list and allocator   
-            m_commandAllocator->Reset();
-            m_commandList->Reset(m_commandAllocator.Get(), nullptr);
-
-            // write commands to copy data to upload texture (copying each subresource). Copy the texture data to the texture buffer.
-            UpdateSubresources(
-                m_commandList.Get(),
-                m_texureBuffer.Get(),
-                texureUploadBuffer.Get(),
-                0, 0,
-                (UINT)subresourceData.size(),
-                subresourceData.data()
-            );
-
-            // Transition texture buffer to texture buffer state  
-            auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-            m_commandList->ResourceBarrier(1, &resourceBarrier2);
-
-            // close command list and submit command list to queue as array with single element.
-            m_commandList->Close();
-            ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
-            m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
-
-            // insert fence to detect when upload is complete  
-            InsertFence();
-        }
-
         // Initialize the shader resource view.
         {
             // Describe and create a srv descriptor heap.
@@ -596,13 +351,11 @@ for (int i = 0; i < mipChain.GetImageCount(); ++i) {
             m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
 
             D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-            srvDesc.Format = m_texureBuffer->GetDesc().Format;
             srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
             srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-            srvDesc.Texture2D.MipLevels = m_texureBuffer->GetDesc().MipLevels;
 
             m_shaderResourceViewHandle = m_srvHeap->GetCPUDescriptorHandleForHeapStart();
-            m_device->CreateShaderResourceView(m_texureBuffer.Get(), &srvDesc, m_shaderResourceViewHandle);
+            m_device->CreateShaderResourceView(nullptr, &srvDesc, m_shaderResourceViewHandle);
         }
     }
 
@@ -632,7 +385,7 @@ for (int i = 0; i < mipChain.GetImageCount(); ++i) {
             const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
             m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
-            m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
         }
 
         // Set pipeline state.

@@ -11,10 +11,10 @@ namespace Renderer
 
     IndexBuffer::IndexBuffer(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)
         :
-        tag(tag)
+        tag(tag),
+        m_numOfIndices(pData.size()),
+        m_indexBufferSize(dataSize)
     {
-        m_indexBufferSize = dataSize;
-
         // create committed resource (Index Buffer) for GPU access of Index data.
         {
             const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
