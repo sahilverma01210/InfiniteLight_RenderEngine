@@ -242,7 +242,7 @@ namespace Renderer
 					ID3DBlob* pixelShader;
 
 					// Compile Shaders.
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Offset_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
+					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
 					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
 					PipelineDescription drawPipelineDesc{};
@@ -251,10 +251,10 @@ namespace Renderer
 					drawPipelineDesc.inputElementDescs = inputElementDescs;
 					drawPipelineDesc.numElements = vec.size();
 					drawPipelineDesc.numConstants = 1;
-					drawPipelineDesc.numConstantBufferViews = 2;
+					drawPipelineDesc.numConstantBufferViews = 1;
 					drawPipelineDesc.numSRVDescriptors = 0;
 					drawPipelineDesc.backFaceCulling = true;
-					drawPipelineDesc.depthStencilMode = Mode::Mask;
+					drawPipelineDesc.depthStencilMode = Mode::Off;
 
 					pipelineDesc.push_back(drawPipelineDesc);
 				}
@@ -267,14 +267,6 @@ namespace Renderer
 					auto buf = Buffer(std::move(lay));
 					buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,0.4f,0.4f };
 					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
-				}
-
-				{
-					RawLayout lay;
-					lay.Add<Float>("offset");
-					auto buf = Buffer(std::move(lay));
-					buf["offset"] = 0.1f;
-					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
 				}
 
 				outline.AddStep(std::move(draw));
