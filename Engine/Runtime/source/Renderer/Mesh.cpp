@@ -29,7 +29,9 @@ namespace Renderer
 	Mesh::Mesh(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale) noexcept
 		:
 	Drawable(gfx, mat, mesh, scale)
-	{}
+	{
+		enableLighting = true;
+	}
 
 	void Mesh::SetNumIndices(UINT numIndices)
 	{

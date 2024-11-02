@@ -1,4 +1,4 @@
-cbuffer CBuf : register(b2)
+cbuffer CBuf : register(b1)
 {
     float3 materialColor[1];
 };

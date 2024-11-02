@@ -217,7 +217,7 @@ namespace Renderer
 					maskPipelineDesc.numConstantBufferViews = 0;
 					maskPipelineDesc.numSRVDescriptors = 0;
 					maskPipelineDesc.backFaceCulling = false;
-					maskPipelineDesc.depthStencilMode = Mode::Mask;
+					maskPipelineDesc.depthStencilMode = Mode::Write;
 
 					pipelineDesc.push_back(maskPipelineDesc);
 				}
@@ -253,8 +253,8 @@ namespace Renderer
 					drawPipelineDesc.numConstants = 1;
 					drawPipelineDesc.numConstantBufferViews = 2;
 					drawPipelineDesc.numSRVDescriptors = 0;
-					drawPipelineDesc.backFaceCulling = false;
-					drawPipelineDesc.depthStencilMode = Mode::Write;
+					drawPipelineDesc.backFaceCulling = true;
+					drawPipelineDesc.depthStencilMode = Mode::Mask;
 
 					pipelineDesc.push_back(drawPipelineDesc);
 				}
@@ -263,17 +263,17 @@ namespace Renderer
 
 				{
 					RawLayout lay;
-					lay.Add<Float>("offset");
+					lay.Add<Float3>("materialColor");
 					auto buf = Buffer(std::move(lay));
-					buf["offset"] = 0.1f;
+					buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,0.4f,0.4f };
 					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
 				}
 
 				{
 					RawLayout lay;
-					lay.Add<Float3>("materialColor");
+					lay.Add<Float>("offset");
 					auto buf = Buffer(std::move(lay));
-					buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,0.4f,0.4f };
+					buf["offset"] = 0.1f;
 					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
 				}
 

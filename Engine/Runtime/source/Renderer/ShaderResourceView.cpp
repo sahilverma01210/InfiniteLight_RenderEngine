@@ -33,6 +33,11 @@ namespace Renderer
 		GetDevice(gfx)->CreateShaderResourceView(texureBuffer, &srvDesc, CPUHandle);
 	}
 
+	void ShaderResourceView::AddBackBufferAsResource(D3D12RHI& gfx)
+	{
+		AddResource(gfx, 0, GetBackBuffers(gfx)[GetSwapChain(gfx)->GetCurrentBackBufferIndex()].Get());
+	}
+
 	void ShaderResourceView::Update(D3D12RHI& gfx, const void* pData) noexcept
 	{
 	}

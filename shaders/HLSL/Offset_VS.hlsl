@@ -1,6 +1,6 @@
 #include "Transform.hlsl"
 
-cbuffer Offset : register(b1)
+cbuffer Offset : register(b2)
 {
     float offset;
 };

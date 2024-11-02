@@ -4,6 +4,8 @@ namespace Renderer
 {
 	SolidSphere::SolidSphere(D3D12RHI& gfx, float radius)
 	{
+		enableLighting = false;
+
 		auto model = Sphere::Make();
 		// deform vertices of model by linear transformation
 		model.Transform(XMMatrixScaling(radius, radius, radius));
@@ -42,7 +44,7 @@ namespace Renderer
 						pipelineDesc.inputElementDescs = inputElementDescs;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.numConstants = 1;
-						pipelineDesc.numConstantBufferViews = 2;
+						pipelineDesc.numConstantBufferViews = 1;
 						pipelineDesc.numSRVDescriptors = 0;
 						pipelineDesc.backFaceCulling = false;
 						pipelineDesc.depthStencilMode = Mode::Off;
@@ -53,7 +55,7 @@ namespace Renderer
 
 					only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 					const XMFLOAT3 lightColor = { 1.f, 1.f, 1.f };
-					only.AddBindable(std::make_shared<ConstantBuffer>(gfx, 2, sizeof(lightColor), &lightColor));
+					only.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, sizeof(lightColor), &lightColor));
 				}
 				solid.AddStep(std::move(only));
 			}

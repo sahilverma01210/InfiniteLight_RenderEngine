@@ -1,5 +1,6 @@
 #include "D3D12RHI.h"
 #include "D3D12RHIThrowMacros.h"
+#include "DepthStencil.h"
 
 namespace Renderer
 {
@@ -12,14 +13,15 @@ namespace Renderer
         m_useWarpDevice(false),
         m_backBufferIndex(0),
         m_viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height)),
-        m_scissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height)),
-        m_rtvDescriptorSize(0)
+        m_scissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height))
     {
         WCHAR assetsPath[512];
         GetAssetsPath(assetsPath, _countof(assetsPath));
         m_assetsPath = assetsPath;
 
         m_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+
+        OnInit();
     }
 
     void D3D12RHI::OnInit()
@@ -73,6 +75,42 @@ namespace Renderer
             m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue));
         }
 
+        // Create Command Allocator & Command List.
+        {
+            m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator));
+            m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList));
+
+            // Command lists are created in the recording state, but there is nothing
+            // to record yet. The main loop expects it to be closed, so close it now.
+            m_commandList->Close();
+        }
+
+        /*
+        * Fence fires Fence Event(which CPU listens) when a set of Command Lists in Command Queue have completed execution(in GPU).
+        */
+
+        // Create synchronization objects (Fence & Fence Event).
+        {
+            m_fenceValue = 0;
+            m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
+
+            // Fence signalling event - Create an event handle to use for frame synchronization.
+            m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+            if (m_fenceEvent == nullptr)
+            {
+                HRESULT_FROM_WIN32(GetLastError());
+            }
+        }
+
+        // Describe and create a SRV descriptor heap.
+        {
+            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            srvHeapDesc.NumDescriptors = 1;
+            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
+        }
+
         // Describe and create the swap chain.
         {
             DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
@@ -105,35 +143,20 @@ namespace Renderer
             swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain));
 
             swapChain.As(&m_swapChain);
+
+            m_backBuffers.resize(m_backBufferCount);
+
+            for (UINT n = 0; n < m_backBufferCount; n++)
+            {
+                m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_backBuffers[n]));
+            }
+
             m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
         }
 
-        // Create Command Allocator & Command List.
-        {
-            m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator));
-            m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList));
-
-            // Command lists are created in the recording state, but there is nothing
-            // to record yet. The main loop expects it to be closed, so close it now.
-            m_commandList->Close();
-        }
-
         /*
-        * Fence fires Fence Event(which CPU listens) when a set of Command Lists in Command Queue have completed execution(in GPU).
+        * Todo (optional) - Remove Render Target creation, clearing and binding since we already have that implemented in RenderTarget class.
         */
-
-        // Create synchronization objects (Fence & Fence Event).
-        {
-            m_fenceValue = 0;
-            m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
-
-            // Fence signalling event - Create an event handle to use for frame synchronization.
-            m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-            if (m_fenceEvent == nullptr)
-            {
-                HRESULT_FROM_WIN32(GetLastError());
-            }
-        }
 
         // Describe and create a RTV descriptor heap.
         {
@@ -145,68 +168,37 @@ namespace Renderer
             m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap));
         }
 
-        // Describe and create a DSV descriptor heap.
-        {
-            D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-            dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-            dsvHeapDesc.NumDescriptors = 1;
-            m_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap));
-        }
-
-        // Describe and create a SRV descriptor heap.
-        {
-            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-            srvHeapDesc.NumDescriptors = 1;
-            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
-        }
-
         // Create Frame Resources - Render Target View (RTV).
         {
-            m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            UINT m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
+            m_renderTargetViewHandles.resize(m_backBufferCount);
+
             for (UINT i = 0; i < m_backBufferCount; i++)
             {
-                m_renderTargetViewHandle[i] = rtvHandle;
+                m_renderTargetViewHandles[i] = rtvHandle;
                 rtvHandle.ptr += m_rtvDescriptorSize;
             }
 
             // Create a RTV for each frame.
             for (UINT n = 0; n < m_backBufferCount; n++)
             {
-                m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_backBuffers[n]));
-                m_device->CreateRenderTargetView(m_backBuffers[n].Get(), nullptr, m_renderTargetViewHandle[n]);
+                m_device->CreateRenderTargetView(m_backBuffers[n].Get(), nullptr, m_renderTargetViewHandles[n]);
                 rtvHandle.Offset(1, m_rtvDescriptorSize);
             }
         }
+    }
 
-        // Create Depth Buffer - Depth Stensil View (DSV).
-        {
-            CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-            CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
-                DXGI_FORMAT_D24_UNORM_S8_UINT,
-                m_width, m_height,
-                1, 0, 1, 0,
-                D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-            D3D12_CLEAR_VALUE clearValue = {};
-            clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-            clearValue.DepthStencil = { 1.0f, 0xFF };
+    UINT D3D12RHI::GetWidth()
+    {
+        return m_width;
+    }
 
-            m_device->CreateCommittedResource(
-                &heapProperties,
-                D3D12_HEAP_FLAG_NONE,
-                &desc,
-                D3D12_RESOURCE_STATE_DEPTH_WRITE,
-                &clearValue,
-                IID_PPV_ARGS(&m_depthBuffer));
-
-            m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
-
-            m_device->CreateDepthStencilView(m_depthBuffer.Get(), nullptr, m_depthStensilViewHandle);
-        }
+    UINT D3D12RHI::GetHeight()
+    {
+        return m_height;
     }
 
     std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
@@ -277,20 +269,6 @@ namespace Renderer
         // re-recording.
         m_commandList->Reset(m_commandAllocator.Get(), nullptr);
 
-        // Indicate that the back buffer will be used as a render target.
-        auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        m_commandList->ResourceBarrier(1, &resourceBarrier1);
-
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_backBufferIndex, m_rtvDescriptorSize);
-
-        // Clear Render Target View (Back Buffer View) and Depth Stensil View.
-        {
-            const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-            m_commandList->ClearRenderTargetView(m_renderTargetViewHandle[m_backBufferIndex], clear_color_with_alpha, 0, nullptr);
-
-            m_commandList->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr);
-        }
-
         // bind the heap containing the texture descriptor 
         m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
 
@@ -298,9 +276,23 @@ namespace Renderer
         m_commandList->RSSetViewports(1, &m_viewport);
         m_commandList->RSSetScissorRects(1, &m_scissorRect);
 
-        // Configure Output Merger (OM) Stage. Bind render target and depth view
-        m_commandList->OMSetStencilRef(0xFF);
-        m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandle[m_backBufferIndex], FALSE, &m_depthStensilViewHandle);
+        // Indicate that the back buffer will be used as a render target.
+        auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        m_commandList->ResourceBarrier(1, &resourceBarrier1);
+
+        // Clear Render Target.
+        const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        m_commandList->ClearRenderTargetView(m_renderTargetViewHandles[m_backBufferIndex], clear_color_with_alpha, 0, nullptr);
+    }
+
+    void D3D12RHI::BindSwapBuffer() noexcept
+    {
+        m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandles[m_backBufferIndex], FALSE, nullptr);
+    }
+
+    void D3D12RHI::BindSwapBuffer(const DepthStencil& depthStencil) noexcept
+    {
+        m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandles[m_backBufferIndex], FALSE, &depthStencil.m_depthStensilViewHandle);
     }
 
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)

@@ -7,6 +7,17 @@ namespace Renderer
         // Can be used for Alpha Blending & Transparency.
         D3D12_BLEND_DESC blenderDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 
+        if (pipelineDesc.blending)
+        {
+            blenderDesc.RenderTarget[0].BlendEnable = true;
+            blenderDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+            blenderDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+        }
+        else
+        {
+            blenderDesc.RenderTarget[0].BlendEnable = false;
+        }
+
         D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
         rasterizerDesc.CullMode = pipelineDesc.backFaceCulling ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 
@@ -14,22 +25,21 @@ namespace Renderer
 
         if (pipelineDesc.depthStencilMode == Mode::Write)
         {
+            depthStencilDesc.DepthEnable = FALSE;
+            depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
             depthStencilDesc.StencilEnable = TRUE;
             depthStencilDesc.StencilWriteMask = 0xFF;
-            depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL; // Stencil Buffer is compared with Stencil Reference Value to determine if corresponding rasterized pixel (from Pixel Shader Output) will be drawn.
+            depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS; // Stencil Buffer is compared with Stencil Reference Value to determine if corresponding rasterized pixel (from Pixel Shader Output) will be drawn.
             depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
         }
         else if (pipelineDesc.depthStencilMode == Mode::Mask)
         {
             depthStencilDesc.DepthEnable = FALSE;
+            depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
             depthStencilDesc.StencilEnable = TRUE;
             depthStencilDesc.StencilReadMask = 0xFF;
-            depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL; // Stencil Buffer is compared with Stencil Reference Value to determine if corresponding rasterized pixel (from Pixel Shader Output) will be drawn.
+            depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL; // Stencil Buffer is compared with Stencil Reference Value to determine if corresponding rasterized pixel (from Pixel Shader Output) will be drawn.
             depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-        }
-        else
-        {
-            depthStencilDesc.DepthEnable = TRUE;
         }
 
         // Describe and create the graphics pipeline state object (PSO).

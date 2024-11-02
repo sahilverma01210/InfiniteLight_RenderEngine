@@ -309,6 +309,15 @@
     <ClInclude Include="source\Renderer\ModelProbe.h">
       <Filter>Header Files\Renderer\Model</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\GraphicsResource.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\DepthStencil.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderTarget.h">
+      <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">
@@ -334,9 +343,6 @@
     </ClCompile>
     <ClCompile Include="source\Common\ILException.cpp">
       <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Bindable.cpp">
-      <Filter>Source Files\Renderer\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\VertexBuffer.cpp">
       <Filter>Source Files\Renderer\RHI\Bindables</Filter>
@@ -452,6 +458,15 @@
     <ClCompile Include="source\Renderer\Mesh.cpp">
       <Filter>Source Files\Renderer\Model</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\GraphicsResource.cpp">
+      <Filter>Source Files\Renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\DepthStencil.cpp">
+      <Filter>Source Files\Renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderTarget.cpp">
+      <Filter>Source Files\Renderer\RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\shaders\HLSL\PhongDif_PS.hlsl">
@@ -509,6 +524,12 @@
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\shaders\HLSL\Offset_VS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\Fullscreen_VS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\Blur_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
   </ItemGroup>

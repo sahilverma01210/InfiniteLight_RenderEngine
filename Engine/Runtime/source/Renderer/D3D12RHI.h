@@ -9,6 +9,8 @@ using namespace Common;
 
 namespace Renderer
 {
+    class DepthStencil;
+
     enum class Mode
     {
         Off,
@@ -27,12 +29,15 @@ namespace Renderer
         UINT numSRVDescriptors = 0;
         bool backFaceCulling = false;
         Mode depthStencilMode = {};
+        bool enableAnisotropic = true;
+        bool reflect = false;
+        bool blending = false;
         ID3D12RootSignature* rootSignature = nullptr;
     };
 
     class D3D12RHI : public RHI
     {
-        friend class Bindable;
+        friend class GraphicsResource;
         friend class UIManager;
 
     public:
@@ -40,6 +45,8 @@ namespace Renderer
 
         D3D12RHI(UINT width, UINT height, HWND hWnd);
         void OnInit();
+        UINT GetWidth();
+        UINT GetHeight();
         std::wstring GetAssetFullPath(LPCWSTR assetName);
         void OnDestroy();
         void Info(HRESULT hresult);
@@ -56,6 +63,8 @@ namespace Renderer
         // PUBLIC - RENDER FRAME METHODS
 
         void StartFrame();
+        void BindSwapBuffer() noexcept;
+        void BindSwapBuffer(const DepthStencil& depthStencil) noexcept;
         void DrawIndexed(UINT indexCountPerInstance);
         void EndFrame();
 
@@ -115,9 +124,6 @@ namespace Renderer
         XMMATRIX m_CameraMatrix;
         XMMATRIX m_ProjectionMatrix;
 
-        // Cube Parameters.
-        XMMATRIX m_rotationMatrix;
-
         // Synchronization objects.
         UINT64 m_fenceValue;
         HANDLE m_fenceEvent;
@@ -126,32 +132,27 @@ namespace Renderer
         // Root assets path.
         std::wstring m_assetsPath;
 
-        UINT m_backBufferIndex;
-        static const UINT m_backBufferCount = 2;
-
+        // Pipeline objects.
+        CD3DX12_VIEWPORT m_viewport;
+        CD3DX12_RECT m_scissorRect;
+        ComPtr<ID3D12Device> m_device;
+        ComPtr<ID3D12CommandQueue> m_commandQueue;
+        ComPtr<ID3D12CommandAllocator> m_commandAllocator;
+        ComPtr<ID3D12GraphicsCommandList> m_commandList;
+        ComPtr<IDXGISwapChain3> m_swapChain;
 #ifndef NDEBUG
         DxgiInfoManager infoManager;
 #endif
 
-        // Pipeline objects.
-        CD3DX12_VIEWPORT m_viewport;
-        CD3DX12_RECT m_scissorRect;
-        ComPtr<IDXGISwapChain3> m_swapChain;
-        ComPtr<ID3D12Device> m_device;
-        ComPtr<ID3D12Resource> m_backBuffers[m_backBufferCount]; // Back Buffers as Render Targets
-        ComPtr<ID3D12Resource> m_depthBuffer;
-        ComPtr<ID3D12CommandAllocator> m_commandAllocator;
-        ComPtr<ID3D12CommandQueue> m_commandQueue;
+        UINT m_backBufferIndex;
+        static const UINT m_backBufferCount = 2;
+
+        std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
         ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
-        ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
-        ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
         // View Handles
-        UINT m_rtvDescriptorSize;
-        D3D12_CPU_DESCRIPTOR_HANDLE m_renderTargetViewHandle[m_backBufferCount] = {};
-        D3D12_CPU_DESCRIPTOR_HANDLE m_depthStensilViewHandle;
-        D3D12_CPU_DESCRIPTOR_HANDLE m_shaderResourceViewHandle;
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_renderTargetViewHandles;
 
         // PRIVATE - HELPER D3D12RHI METHODS
         

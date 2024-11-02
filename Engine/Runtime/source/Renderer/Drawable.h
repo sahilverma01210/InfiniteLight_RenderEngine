@@ -36,6 +36,7 @@ namespace Renderer
 		UINT GetIndexCount() const noexcept;
 		virtual ~Drawable();
 	protected:
+		bool enableLighting;
 		UINT m_numIndices;
 		std::shared_ptr<Topology> topologyBindable;
 		std::shared_ptr<VertexBuffer> vertexBufferBindable;

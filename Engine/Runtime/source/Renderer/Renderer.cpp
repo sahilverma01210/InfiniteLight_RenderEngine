@@ -12,13 +12,12 @@ namespace Renderer
 {
 	Graphics::Graphics(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
 		:
-		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd))
+		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd)),
+		fc(*pRHI)
 	{
 		//TestScaleMatrixTranslation();
 		//TestDynamicConstant();
 		//pRHI = std::make_unique<D3D12RHI>(width, height);
-
-		pRHI->OnInit();
 
 		camera = new Camera(*pRHI);
 

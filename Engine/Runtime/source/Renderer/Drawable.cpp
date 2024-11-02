@@ -50,7 +50,7 @@ namespace Renderer
 
 	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept
 	{
-		lightBindable->Bind(gfx);
+		if (enableLighting) lightBindable->Bind(gfx);
 	}
 
 	void Drawable::Accept(TechniqueProbe& probe)
