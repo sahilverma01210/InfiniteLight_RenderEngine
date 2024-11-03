@@ -1,6 +1,7 @@
 #pragma once
 #include "Bindable.h"
 #include "BindableCodex.h"
+#include "TechniqueProbe.h"
 
 namespace Renderer
 {
@@ -8,8 +9,11 @@ namespace Renderer
 	{
 	public:
 		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData);
+		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, Buffer dataBuffer);
 		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
+		void Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
+		void Accept(TechniqueProbe& probe) override;
 		std::shared_ptr<ConstantBuffer> Resolve(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData)
 		{
 			return Codex::Resolve<ConstantBuffer>(gfx, rootParameterIndex, dataSize, pData);
@@ -25,8 +29,10 @@ namespace Renderer
 			return GenerateUID(m_rootParameterIndex);
 		}
 	private:
+		bool dirty = false;
 		UINT m_rootParameterIndex;
 		UINT m_constantBufferSize;
+		std::optional<Buffer> m_dataBuffer = std::nullopt;
 		ComPtr<ID3D12Resource> m_constantBuffer;
 		ComPtr<ID3D12Resource> m_constantUploadBuffer;
 	};

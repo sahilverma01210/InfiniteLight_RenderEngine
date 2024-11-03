@@ -182,7 +182,7 @@ namespace Renderer
 				}
 				buf["useNormalMap"].SetIfExists(true);
 				buf["normalMapWeight"].SetIfExists(1.0f);
-				step.AddBindable(std::make_shared<ConstantBuffer>(gfx, 2, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
+				step.AddBindable(std::make_shared<ConstantBuffer>(gfx, 2, buf));
 			}
 			phong.AddStep(std::move(step));
 			techniques.push_back(std::move(phong));
@@ -266,7 +266,7 @@ namespace Renderer
 					lay.Add<Float3>("materialColor");
 					auto buf = Buffer(std::move(lay));
 					buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,0.4f,0.4f };
-					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, (UINT)buf.GetRootLayoutElement().GetSizeInBytes(), (&buf)->GetData()));
+					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
 				}
 
 				outline.AddStep(std::move(draw));

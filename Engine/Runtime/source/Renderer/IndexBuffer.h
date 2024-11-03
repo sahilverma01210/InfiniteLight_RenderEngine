@@ -9,7 +9,6 @@ namespace Renderer
 		IndexBuffer(D3D12RHI& gfx, UINT dataSize, std::vector<USHORT> pData);
 		IndexBuffer(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData);
 		void CreateView(D3D12RHI& gfx);
-		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
 		static std::shared_ptr<IndexBuffer> Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData);
 		template<typename...Ignore>

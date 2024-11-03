@@ -8,8 +8,6 @@ namespace Renderer
 	{
 	public:
 		TextureBuffer(D3D12RHI& gfx, const WCHAR* filename);
-		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
-		void Bind(D3D12RHI& gfx) noexcept override;
 		ID3D12Resource* GetBuffer();
 		bool HasAlpha() const noexcept;
 		bool HasAlphaChannel(const DirectX::Image& image);

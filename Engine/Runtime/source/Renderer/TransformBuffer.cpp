@@ -15,10 +15,6 @@ namespace Renderer
 		m_scale = scale;
 	}
 
-	void TransformBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
-	{
-	}
-
 	void TransformBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
 		m_transform = {

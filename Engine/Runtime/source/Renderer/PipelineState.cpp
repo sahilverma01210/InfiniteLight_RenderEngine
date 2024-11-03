@@ -59,10 +59,6 @@ namespace Renderer
         HRESULT hr = GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));
 	}
 
-    void PipelineState::Update(D3D12RHI& gfx, const void* pData) noexcept
-    {
-    }
-
 	void PipelineState::Bind(D3D12RHI& gfx) noexcept
 	{
         GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get());

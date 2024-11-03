@@ -16,7 +16,6 @@ namespace Renderer
 
 		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex);
 		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex, float scale);
-		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept;
 		void InitializeParentReference(const Drawable& parent) noexcept override;
 		std::unique_ptr<CloningBindable> Clone() const noexcept override;

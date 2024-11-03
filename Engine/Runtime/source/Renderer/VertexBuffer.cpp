@@ -84,10 +84,6 @@ namespace Renderer
         m_vertexBufferView.SizeInBytes = m_vertexBufferSize;
     }
 
-    void VertexBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
-    {
-    }
-
     void VertexBuffer::Bind(D3D12RHI& gfx) noexcept
     {
         GetCommandList(gfx)->IASetVertexBuffers(0, 1, &m_vertexBufferView);

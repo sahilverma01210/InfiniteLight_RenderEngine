@@ -38,10 +38,6 @@ namespace Renderer
 		AddResource(gfx, 0, GetBackBuffers(gfx)[GetSwapChain(gfx)->GetCurrentBackBufferIndex()].Get());
 	}
 
-	void ShaderResourceView::Update(D3D12RHI& gfx, const void* pData) noexcept
-	{
-	}
-
 	void ShaderResourceView::Bind(D3D12RHI& gfx) noexcept
 	{
 		// bind the descriptor table containing the texture descriptor 

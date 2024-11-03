@@ -91,10 +91,6 @@ namespace Renderer
         return m_rootSignature.Get();
     }
 
-    void RootSignature::Update(D3D12RHI& gfx, const void* pData) noexcept
-    {
-    }
-
 	void RootSignature::Bind(D3D12RHI& gfx) noexcept
 	{
         GetCommandList(gfx)->SetGraphicsRootSignature(m_rootSignature.Get());

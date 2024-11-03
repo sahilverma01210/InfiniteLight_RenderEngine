@@ -1,4 +1,5 @@
 #include "SolidSphere.h"
+#include "DynamicConstant.h"
 
 namespace Renderer
 {
@@ -54,8 +55,12 @@ namespace Renderer
 					}
 
 					only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
-					const XMFLOAT3 lightColor = { 1.f, 1.f, 1.f };
-					only.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, sizeof(lightColor), &lightColor));
+
+					RawLayout lay;
+					lay.Add<Float3>("materialColor");
+					auto buf = Buffer(std::move(lay));
+					buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f };
+					only.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
 				}
 				solid.AddStep(std::move(only));
 			}

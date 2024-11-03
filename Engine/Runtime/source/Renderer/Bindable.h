@@ -1,5 +1,6 @@
 #pragma once
 #include "GraphicsResource.h"
+#include "DynamicConstant.h"
 
 namespace Renderer
 {
@@ -10,12 +11,11 @@ namespace Renderer
 	{
 	public:
 		virtual ~Bindable() = default;
-		virtual void Update(D3D12RHI& gfx, const void* pData) noexcept = 0;
-		virtual void Bind(D3D12RHI& gfx) noexcept = 0;
-		virtual void InitializeParentReference(const Drawable&) noexcept
-		{}
-		virtual void Accept(TechniqueProbe&)
-		{}
+		virtual void Update(D3D12RHI& gfx, const void* pData) noexcept {}
+		virtual void Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept {}
+		virtual void Bind(D3D12RHI& gfx) noexcept {}
+		virtual void InitializeParentReference(const Drawable&) noexcept {}
+		virtual void Accept(TechniqueProbe&) {}
 		virtual std::string GetUID() const noexcept
 		{
 			assert(false);

@@ -59,6 +59,13 @@ namespace Renderer
         InsertFence(gfx);
 	}
 
+    ConstantBuffer::ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, Buffer dataBuffer)
+        :
+        ConstantBuffer(gfx, rootParameterIndex, (UINT)dataBuffer.GetRootLayoutElement().GetSizeInBytes(), (&dataBuffer)->GetData())
+    {
+        m_dataBuffer.emplace(dataBuffer);
+    }
+
     void ConstantBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
     {
         // Copy the index data to the index buffer.
@@ -82,8 +89,30 @@ namespace Renderer
         InsertFence(gfx);
     }
 
+    void ConstantBuffer::Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept
+    {
+        Update(gfx, dataBuffer.GetData());
+    }
+
 	void ConstantBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
+        if (dirty)
+        {
+            Update(gfx, m_dataBuffer.value());
+            dirty = false;
+        }
+
         GetCommandList(gfx)->SetGraphicsRootConstantBufferView(m_rootParameterIndex, m_constantBuffer->GetGPUVirtualAddress());
 	}
+
+    void ConstantBuffer::Accept(TechniqueProbe& probe)
+    {
+        if (m_dataBuffer.has_value())
+        {
+            if (probe.VisitBuffer(m_dataBuffer.value()))
+            {
+                dirty = true;
+            }
+        }
+    }
 }

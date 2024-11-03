@@ -7,7 +7,6 @@ namespace Renderer
 	{
 	public:
 		Topology(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type);
-		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
 		static std::shared_ptr<Topology> Resolve(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		static std::string GenerateUID(D3D12_PRIMITIVE_TOPOLOGY type);

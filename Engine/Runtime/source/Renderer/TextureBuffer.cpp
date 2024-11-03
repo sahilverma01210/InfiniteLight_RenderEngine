@@ -105,15 +105,6 @@ namespace Renderer
         InsertFence(gfx);
     }
 
-    void TextureBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
-    {
-    }
-
-    void TextureBuffer::Bind(D3D12RHI& gfx) noexcept
-    {
-        
-    }
-
     ID3D12Resource* TextureBuffer::GetBuffer()
     {
         return m_texureBuffer.Get();
