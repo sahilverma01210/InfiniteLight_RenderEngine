@@ -84,6 +84,7 @@ using namespace DirectX;
 #include <ranges>
 #include <limits>
 #include <chrono>
+#include <thread>
 #include <queue>
 #include <bitset>
 #include <array>

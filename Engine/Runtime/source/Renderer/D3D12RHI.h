@@ -62,6 +62,7 @@ namespace Renderer
 
         // PUBLIC - RENDER FRAME METHODS
 
+        void ResizeFrame(UINT width, UINT height);
         void StartFrame();
         void BindSwapBuffer() noexcept;
         void BindSwapBuffer(const DepthStencil& depthStencil) noexcept;

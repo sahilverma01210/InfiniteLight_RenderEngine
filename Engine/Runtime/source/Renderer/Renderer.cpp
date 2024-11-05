@@ -254,6 +254,7 @@ namespace Renderer
 			modelProbe.SpawnWindow(*sponza);
 			if (camera->m_imGUIwndOpen) camera->SpawnControlWindow(*pRHI);
 			if (light->m_imGUIwndOpen) light->SpawnControlWindow();
+			fc.ShowWindows(*pRHI);
 			//cube->SpawnControlWindow(*pRHI, "Cube");
 			//cube1->SpawnControlWindow(*pRHI, "Cube1");
 			//goblin->ShowWindow();

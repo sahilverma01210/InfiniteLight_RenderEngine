@@ -121,6 +121,9 @@
     <Filter Include="Source Files\Renderer\RenderQueue">
       <UniqueIdentifier>{4be52e22-33ca-4818-beb7-e4cbb5354e5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Effects">
+      <UniqueIdentifier>{59d24f3d-ef38-41ca-a980-f9a8e87da239}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -317,6 +320,9 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderTarget.h">
       <Filter>Header Files\Renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BlurPack.h">
+      <Filter>Header Files\Renderer\Effects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -530,6 +536,9 @@
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\shaders\HLSL\Blur_PS.hlsl">
+      <Filter>Resource Files\Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\shaders\HLSL\BlurOutline_PS.hlsl">
       <Filter>Resource Files\Shaders\HLSL</Filter>
     </CustomBuild>
   </ItemGroup>

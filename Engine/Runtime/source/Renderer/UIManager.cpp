@@ -47,6 +47,10 @@ namespace Renderer
         ImGui::NewFrame();
     }
 
+    void UIManager::UpdateUIFrame(D3D12RHI& gfx)
+    {
+    }
+
     void UIManager::EndUIFrame(D3D12RHI& gfx)
     {
         // Rendering
@@ -69,5 +73,29 @@ namespace Renderer
             ImGui_ImplWin32_Shutdown();
             ImGui::DestroyContext();
         }
+    }
+    bool UIManager::HandleWindowResize(D3D12RHI& gfx)
+    {
+        //ImVec2 view = ImGui::GetContentRegionAvail();
+
+        //if (view.x != gfx.GetWidth() || view.y != gfx.GetHeight())
+        //{
+        //    if (view.x == 0 || view.y == 0)
+        //    {
+        //        // The window is too small or collapsed.
+        //        return false;
+        //    }
+
+        //    m_Window.width = view.x;
+        //    m_Window.height = view.y;
+
+        //    RecreateFramebuffer();
+
+        //    // The window state has been successfully changed.
+        //    return true;
+        //}
+
+        //// The window state has not changed.
+        return true;
     }
 }

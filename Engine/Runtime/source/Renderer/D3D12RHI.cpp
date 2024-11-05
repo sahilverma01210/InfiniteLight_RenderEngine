@@ -251,6 +251,23 @@ namespace Renderer
 
     // PUBLIC - RENDER FRAME METHODS
 
+    void D3D12RHI::ResizeFrame(UINT width, UINT height)
+    {
+        m_viewport.TopLeftX = 0.0f;
+        m_viewport.TopLeftY = 0.0f;
+        m_viewport.Width = static_cast<float>(width);
+        m_viewport.Height = static_cast<float>(height);
+
+        m_scissorRect.top = 0;
+        m_scissorRect.left = 0;
+        m_scissorRect.right = static_cast<LONG>(width);
+        m_scissorRect.bottom = static_cast<LONG>(height);
+
+        // configure Rasterizer Stage (RS).
+        m_commandList->RSSetViewports(1, &m_viewport);
+        m_commandList->RSSetScissorRects(1, &m_scissorRect);
+    }
+
     void D3D12RHI::StartFrame()
     {
         // Wait for Previous Frame to complete.
@@ -272,9 +289,7 @@ namespace Renderer
         // bind the heap containing the texture descriptor 
         m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
 
-        // configure Rasterizer Stage (RS).
-        m_commandList->RSSetViewports(1, &m_viewport);
-        m_commandList->RSSetScissorRects(1, &m_scissorRect);
+        ResizeFrame(m_width, m_height);
 
         // Indicate that the back buffer will be used as a render target.
         auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -288,17 +303,29 @@ namespace Renderer
     void D3D12RHI::BindSwapBuffer() noexcept
     {
         m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandles[m_backBufferIndex], FALSE, nullptr);
+
+        ResizeFrame(m_width, m_height);
     }
 
     void D3D12RHI::BindSwapBuffer(const DepthStencil& depthStencil) noexcept
     {
         m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandles[m_backBufferIndex], FALSE, &depthStencil.m_depthStensilViewHandle);
+
+        ResizeFrame(m_width, m_height);
     }
 
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)
     {
         // Draw Call.
         m_commandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0);
+
+        //OutputDebugStringA("Height: ");
+        //OutputDebugStringA(std::to_string(m_viewport.Height).c_str());
+        //OutputDebugStringA("\n");
+
+        //OutputDebugStringA("Width: ");
+        //OutputDebugStringA(std::to_string(m_viewport.Width).c_str());
+        //OutputDebugStringA("\n");
     }
 
     void D3D12RHI::EndFrame()

@@ -64,7 +64,7 @@ namespace Runtime
 		// create window & get hWnd
 		hWnd = CreateWindow(
 			WindowClass::GetName(), name,
-			WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
+			WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU,
 			CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top,
 			nullptr, nullptr, WindowClass::GetInstance(), this
 		);

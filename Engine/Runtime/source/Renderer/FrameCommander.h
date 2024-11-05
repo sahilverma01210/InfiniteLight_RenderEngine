@@ -8,6 +8,7 @@
 #include "DepthStencil.h"
 #include "RenderTarget.h"
 #include "Vertex.h"
+#include "BlurPack.h"
 
 namespace Renderer
 {
@@ -17,7 +18,9 @@ namespace Renderer
 		FrameCommander(D3D12RHI& gfx)
 			:
 			ds(gfx, gfx.GetWidth(), gfx.GetHeight()),
-			rt(gfx, gfx.GetWidth(), gfx.GetHeight())
+			rt1(gfx, gfx.GetWidth(), gfx.GetHeight()),
+			rt2(gfx, gfx.GetWidth(), gfx.GetHeight()),
+			blur(gfx)
 		{
 			topologyBindable = std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
@@ -48,7 +51,7 @@ namespace Renderer
 
 				// Compile Shaders.
 				D3DCompileFromFile(gfx.GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
-				D3DCompileFromFile(gfx.GetAssetFullPath(L"Blur_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
+				D3DCompileFromFile(gfx.GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
 				PipelineDescription pipelineDesc{};
 				pipelineDesc.vertexShader = vertexShader;
@@ -56,47 +59,66 @@ namespace Renderer
 				pipelineDesc.inputElementDescs = inputElementDescs;
 				pipelineDesc.numElements = vec.size();
 				pipelineDesc.numConstants = 0;
-				pipelineDesc.numConstantBufferViews = 0;
+				pipelineDesc.numConstantBufferViews = 2;
 				pipelineDesc.numSRVDescriptors = 1;
 				pipelineDesc.backFaceCulling = false;
-				pipelineDesc.depthStencilMode = Mode::Mask;
-				pipelineDesc.enableAnisotropic = false;
 				pipelineDesc.reflect = true;
-				pipelineDesc.blending = true;
+
+				pipelineDesc.depthStencilMode = Mode::Off;
+				pipelineDesc.enableAnisotropic = false;
+				pipelineDesc.blending = false;
 
 				rootSignBindable = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 				psoBindable = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
-				srvBindablePtr = std::make_shared<ShaderResourceView>(gfx, 0, 1);
-				srvBindablePtr->AddResource(gfx, 0, rt.GetBuffer());
+				srvBindablePtr = std::make_shared<ShaderResourceView>(gfx, 2, 1);
+				srvBindablePtr->AddResource(gfx, 0, rt1.GetBuffer());
+
+				pipelineDesc.depthStencilMode = Mode::Mask;
+				pipelineDesc.enableAnisotropic = true;
+				pipelineDesc.blending = true;
+
+				rootSignBindable1 = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
+				psoBindable1 = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
+				srvBindablePtr1 = std::make_shared<ShaderResourceView>(gfx, 2, 1);
+				srvBindablePtr1->AddResource(gfx, 0, rt2.GetBuffer());
 			}
 		}
 		void Accept(Job job, size_t target) noexcept
 		{
 			passes[target].Accept(job);
 		}
-		void Execute(D3D12RHI& gfx) const noexcept
+		void Execute(D3D12RHI& gfx) noexcept
 		{
 			ds.Clear(gfx);
-			rt.Clear(gfx);
+			rt1.Clear(gfx);
+			rt2.Clear(gfx);
+
 			gfx.BindSwapBuffer(ds);
-			//PerfLog::Start("Begin");
 			passes[0].Execute(gfx);
 			passes[1].Execute(gfx);
-			rt.BindAsTarget(gfx);
+			
+			rt1.BindAsTarget(gfx);
 			passes[2].Execute(gfx);
-			//PerfLog::Mark("Resolve 2x");
 
-			// fullscreen blur + blend pass
-			gfx.BindSwapBuffer(ds);
 			topologyBindable->Bind(gfx);
 			vertexBindable->Bind(gfx);
 			indexBindable->Bind(gfx);
+
+			rt2.BindAsTarget(gfx);
+			rt1.BindAsTexture(gfx);
 			rootSignBindable->Bind(gfx);
 			psoBindable->Bind(gfx);
 			srvBindablePtr->Bind(gfx);
-			rt.TransitionTo(gfx, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			blur.SetHorizontal(gfx);
 			gfx.DrawIndexed(indexBindable->GetNumOfIndices());
-			rt.TransitionTo(gfx, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+			gfx.BindSwapBuffer(ds);
+			rt2.BindAsTexture(gfx);
+			rootSignBindable1->Bind(gfx);
+			psoBindable1->Bind(gfx);
+			srvBindablePtr1->Bind(gfx);
+			blur.SetVertical(gfx);
+			gfx.DrawIndexed(indexBindable->GetNumOfIndices());
 		}
 		void Reset() noexcept
 		{
@@ -105,15 +127,28 @@ namespace Renderer
 				p.Reset();
 			}
 		}
+		void ShowWindows(D3D12RHI& gfx)
+		{
+			if (ImGui::Begin("Blur"))
+			{
+				blur.RenderWidgets(gfx);
+			}
+			ImGui::End();
+		}
 	private:
 		std::array<Pass, 3> passes;
 		DepthStencil ds;
-		RenderTarget rt;
+		RenderTarget rt1;
+		RenderTarget rt2;
+		BlurPack blur;
 		std::shared_ptr<Topology> topologyBindable;
 		std::shared_ptr<VertexBuffer> vertexBindable;
 		std::shared_ptr<IndexBuffer> indexBindable;
 		std::unique_ptr<RootSignature> rootSignBindable;
+		std::unique_ptr<RootSignature> rootSignBindable1;
 		std::unique_ptr<PipelineState> psoBindable;
+		std::unique_ptr<PipelineState> psoBindable1;
 		std::shared_ptr<ShaderResourceView> srvBindablePtr;
+		std::shared_ptr<ShaderResourceView> srvBindablePtr1;
 	};
 }

@@ -4,6 +4,9 @@
 namespace Renderer
 {
 	RenderTarget::RenderTarget(D3D12RHI& gfx, UINT width, UINT height)
+        :
+        width(width),
+        height(height)
 	{
         auto const heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -62,15 +65,24 @@ namespace Renderer
     {
         GetCommandList(gfx)->ClearRenderTargetView(m_renderTargetViewHandle, color.data(), 0, nullptr);
     }
-	void RenderTarget::BindAsTexture(D3D12RHI& gfx, UINT slot) const noexcept
+	void RenderTarget::BindAsTexture(D3D12RHI& gfx) const noexcept
 	{
+        TransitionTo(gfx, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 	void RenderTarget::BindAsTarget(D3D12RHI& gfx) const noexcept
 	{
+        TransitionTo(gfx, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
 		GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, nullptr);
+
+        gfx.ResizeFrame(width, height);
 	}
 	void RenderTarget::BindAsTarget(D3D12RHI& gfx, const DepthStencil& depthStencil) const noexcept
 	{
+        TransitionTo(gfx, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
 		GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, &depthStencil.m_depthStensilViewHandle);
+
+        gfx.ResizeFrame(width, height);
 	}
 }
