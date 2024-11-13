@@ -21,7 +21,7 @@ namespace Renderer
 		{
 			Technique solid;
 			{
-				Step only(0);
+				Step only("lambertian");
 				{
 					// Add Pipeline State Obejct
 					{

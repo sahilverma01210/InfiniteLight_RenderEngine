@@ -1,8 +1,6 @@
 #pragma once
 #include "D3D12RHI.h"
 #include "CommonBindables.h"
-#include <vector>
-#include <filesystem>
 #include "Technique.h"
 #include "Vertex.h"
 
@@ -11,6 +9,9 @@ struct aiMesh;
 
 namespace Renderer
 {
+	class VertexBuffer;
+	class IndexBuffer;
+
 	class Material
 	{
 	public:

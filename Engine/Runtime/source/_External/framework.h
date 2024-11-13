@@ -74,6 +74,7 @@ using namespace DirectX;
 #include <optional>
 #include <random>
 #include <algorithm>
+#include <iterator>
 #include <memory>
 #include <exception>
 #include <sstream>
@@ -94,3 +95,5 @@ using namespace DirectX;
 #include <filesystem>
 #include <utility>
 #include <stdexcept>
+#include <cctype>
+#include <typeinfo>

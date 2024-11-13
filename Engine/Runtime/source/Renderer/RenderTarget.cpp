@@ -5,8 +5,8 @@ namespace Renderer
 {
 	RenderTarget::RenderTarget(D3D12RHI& gfx, UINT width, UINT height)
         :
-        width(width),
-        height(height)
+        m_width(width),
+        m_height(height)
 	{
         auto const heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -22,12 +22,12 @@ namespace Renderer
             D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
             IID_PPV_ARGS(&m_texureBuffer));
 
-        UINT backBufferCount = GetBackBuffers(gfx).size();
+        //UINT backBufferCount = GetBackBuffers(gfx).size();
 
         // Describe and create a RTV descriptor heap.
         {
             D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-            rtvHeapDesc.NumDescriptors = backBufferCount;
+            rtvHeapDesc.NumDescriptors = 1;
             rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
             rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
             rtvHeapDesc.NodeMask = 1;
@@ -47,42 +47,118 @@ namespace Renderer
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
 	}
+
+    RenderTarget::RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture)
+    {
+        //UINT backBufferCount = GetBackBuffers(gfx).size();
+
+        // Describe and create a RTV descriptor heap.
+        {
+            D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+            rtvHeapDesc.NumDescriptors = 1;
+            rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+            rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+            rtvHeapDesc.NodeMask = 1;
+            GetDevice(gfx)->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap));
+        }
+
+        // Create Frame Resources - Render Target View (RTV).
+        {
+            UINT m_rtvDescriptorSize = GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+            CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+
+            m_renderTargetViewHandle = rtvHandle;
+            rtvHandle.ptr += m_rtvDescriptorSize;
+
+            GetDevice(gfx)->CreateRenderTargetView(pTexture, nullptr, m_renderTargetViewHandle);
+            rtvHandle.Offset(1, m_rtvDescriptorSize);
+        }
+    }
+
+	void RenderTarget::BindAsBuffer(D3D12RHI& gfx) noexcept
+	{
+        D3D12_CPU_DESCRIPTOR_HANDLE* null = nullptr;
+        BindAsBuffer(gfx, null);
+	}
+
+    void RenderTarget::BindAsBuffer(D3D12RHI& gfx, BufferResource* depthStencil) noexcept
+    {
+        assert(dynamic_cast<DepthStencil*>(depthStencil) != nullptr);
+        BindAsBuffer(gfx, &(static_cast<DepthStencil*>(depthStencil)->m_depthStensilViewHandle));
+    }
+
+	void RenderTarget::BindAsBuffer(D3D12RHI& gfx, DepthStencil* depthStencil) noexcept
+	{
+        BindAsBuffer(gfx, depthStencil ? &depthStencil->m_depthStensilViewHandle : nullptr);
+	}
+
+    void RenderTarget::BindAsBuffer(D3D12RHI& gfx, D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilView) noexcept
+    {
+        //TransitionTo(gfx, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, pDepthStencilView);
+    }
+
+    void RenderTarget::Clear(D3D12RHI& gfx) noexcept
+    {
+        const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        GetCommandList(gfx)->ClearRenderTargetView(m_renderTargetViewHandle, clear_color_with_alpha, 0, nullptr);
+    }
+
+    void RenderTarget::Clear(D3D12RHI& gfx, const std::array<float, 4>& color) const noexcept
+    {
+        GetCommandList(gfx)->ClearRenderTargetView(m_renderTargetViewHandle, color.data(), 0, nullptr);
+    }
+
     ID3D12Resource* RenderTarget::GetBuffer() const noexcept
     {
         return m_texureBuffer.Get();
     }
+
     void RenderTarget::TransitionTo(D3D12RHI& gfx, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept
     {
         auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_texureBuffer.Get(), beforeState, afterState);
         GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier2);
     }
-    void RenderTarget::Clear(D3D12RHI& gfx) const noexcept
+
+    void RenderTarget::ResizeFrame(UINT width, UINT height)
     {
-        const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        GetCommandList(gfx)->ClearRenderTargetView(m_renderTargetViewHandle, clear_color_with_alpha, 0, nullptr);
+        m_width = width;
+        m_height = height;
     }
-    void RenderTarget::Clear(D3D12RHI& gfx, const std::array<float, 4>& color) const noexcept
+
+    UINT RenderTarget::GetWidth() const noexcept
     {
-        GetCommandList(gfx)->ClearRenderTargetView(m_renderTargetViewHandle, color.data(), 0, nullptr);
+        return m_width;
     }
-	void RenderTarget::BindAsTexture(D3D12RHI& gfx) const noexcept
-	{
-        TransitionTo(gfx, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
-	void RenderTarget::BindAsTarget(D3D12RHI& gfx) const noexcept
-	{
-        TransitionTo(gfx, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-		GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, nullptr);
+    UINT RenderTarget::GetHeight() const noexcept
+    {
+        return m_height;
+    }
 
-        gfx.ResizeFrame(width, height);
-	}
-	void RenderTarget::BindAsTarget(D3D12RHI& gfx, const DepthStencil& depthStencil) const noexcept
-	{
-        TransitionTo(gfx, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    ShaderInputRenderTarget::ShaderInputRenderTarget(D3D12RHI& gfx, UINT width, UINT height, UINT rootParameterIndex, UINT numSRVDescriptors)
+        :
+        RenderTarget(gfx, width, height)
+    {
+        //TransitionTo(gfx, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-		GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, &depthStencil.m_depthStensilViewHandle);
+        srvBindable = std::make_shared<ShaderResourceView>(gfx, rootParameterIndex, numSRVDescriptors);
+        srvBindable->AddResource(gfx, 0, m_texureBuffer.Get());
+    }
 
-        gfx.ResizeFrame(width, height);
-	}
+    void ShaderInputRenderTarget::Bind(D3D12RHI& gfx) noexcept
+    {
+        srvBindable->Bind(gfx);
+    }
+
+    void OutputOnlyRenderTarget::Bind(D3D12RHI& gfx) noexcept
+    {
+        assert("Cannot bind OuputOnlyRenderTarget as shader input" && false);
+    }
+
+    OutputOnlyRenderTarget::OutputOnlyRenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture)
+        :
+        RenderTarget(gfx, pTexture)
+    {}
 }

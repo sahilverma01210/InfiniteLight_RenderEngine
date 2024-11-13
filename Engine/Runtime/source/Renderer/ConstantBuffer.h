@@ -13,6 +13,8 @@ namespace Renderer
 		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
 		void Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept override;
 		void Bind(D3D12RHI& gfx) noexcept override;
+		Buffer GetBuffer() const noexcept;
+		void SetBuffer(const Buffer& buf_in);
 		void Accept(TechniqueProbe& probe) override;
 		std::shared_ptr<ConstantBuffer> Resolve(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData)
 		{

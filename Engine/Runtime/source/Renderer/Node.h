@@ -5,7 +5,8 @@ namespace Renderer
 {
 	class Model;
 	class Mesh;
-	class FrameCommander;
+	class TechniqueProbe;
+	class ModelProbe;
 
 	class Node
 	{
@@ -28,7 +29,7 @@ namespace Renderer
 			float padding[3];
 		};
 		Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const XMMATRIX& transform) noexcept;
-		void Submit(FrameCommander& frame, DirectX::FXMMATRIX accumulatedTransform) const noexcept;
+		void Submit(DirectX::FXMMATRIX accumulatedTransform) const noexcept;
 		void SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 		const DirectX::XMFLOAT4X4& GetAppliedTransform() const noexcept;
 		int GetId() const noexcept;
@@ -36,8 +37,8 @@ namespace Renderer
 		{
 			return childPtrs.size() > 0;
 		}
-		void Accept(class ModelProbe& probe);
-		void Accept(class TechniqueProbe& probe);
+		void Accept(ModelProbe& probe);
+		void Accept(TechniqueProbe& probe);
 		const std::string& GetName() const
 		{
 			return name;

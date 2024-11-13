@@ -6,11 +6,8 @@
 #include "UIManager.h" // UI
 #include "PointLight.h" // Lights
 #include "Model.h" // Model
-#include "TestCube.h"
-#include "Testing.h"
-#include "FrameCommander.h"
+#include "BlurOutlineRenderGraph.h"
 #include "PerfLog.h"
-#include "Material.h"
 
 using namespace Common;
 
@@ -20,7 +17,7 @@ namespace Renderer
 	{
 	public:
 		Graphics(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);
-		void StartFrame();
+		void StartFrame(UINT width, UINT height);
 		void Update();
 		void EndFrame();
 		void Destroy();
@@ -34,12 +31,7 @@ namespace Renderer
 		Camera* camera;
 		PointLight* light;
 		UIManager uiManager;
-		FrameCommander fc;
-		//std::unique_ptr<Model> goblin;
-		//std::unique_ptr<Model> nano;
+		BlurOutlineRenderGraph rg;
 		std::unique_ptr<Model> sponza;
-		//std::unique_ptr<TestCube> cube;
-		//std::unique_ptr<TestCube> cube1;
-		//std::unique_ptr<Mesh> pLoaded;
 	};
 }

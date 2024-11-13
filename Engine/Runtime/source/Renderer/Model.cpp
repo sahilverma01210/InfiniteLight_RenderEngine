@@ -49,10 +49,10 @@ namespace Renderer
 		pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
 	}
 
-	void Model::Submit(FrameCommander& frame) const noexcept
+	void Model::Submit() const noexcept
 	{
 		//pWindow->ApplyParameters();
-		pRoot->Submit(frame, XMMatrixIdentity());
+		pRoot->Submit(XMMatrixIdentity());
 	}
 
 	void Model::SetRootTransform(DirectX::FXMMATRIX tf) noexcept
@@ -87,6 +87,14 @@ namespace Renderer
 	void Model::Accept(ModelProbe& probe)
 	{
 		pRoot->Accept(probe);
+	}
+
+	void Model::LinkTechniques(RenderGraph& rg)
+	{
+		for (auto& pMesh : meshPtrs)
+		{
+			pMesh->LinkTechniques(rg);
+		}
 	}
 
 	Model::~Model() noexcept

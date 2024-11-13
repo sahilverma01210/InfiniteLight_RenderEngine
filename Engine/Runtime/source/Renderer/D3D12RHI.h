@@ -9,7 +9,8 @@ using namespace Common;
 
 namespace Renderer
 {
-    class DepthStencil;
+    class Bindable;
+    class RenderTarget;
 
     enum class Mode
     {
@@ -47,9 +48,11 @@ namespace Renderer
         void OnInit();
         UINT GetWidth();
         UINT GetHeight();
+        UINT GetCurrentBackBufferIndex();
         std::wstring GetAssetFullPath(LPCWSTR assetName);
         void OnDestroy();
         void Info(HRESULT hresult);
+        std::vector<std::shared_ptr<RenderTarget>> GetTarget();
 
         // PUBLIC - TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
 
@@ -63,9 +66,7 @@ namespace Renderer
         // PUBLIC - RENDER FRAME METHODS
 
         void ResizeFrame(UINT width, UINT height);
-        void StartFrame();
-        void BindSwapBuffer() noexcept;
-        void BindSwapBuffer(const DepthStencil& depthStencil) noexcept;
+        void StartFrame(UINT width, UINT height);
         void DrawIndexed(UINT indexCountPerInstance);
         void EndFrame();
 
@@ -118,7 +119,6 @@ namespace Renderer
         // Viewport dimensions.
         UINT m_width;
         UINT m_height;
-        float m_aspectRatio;
 
         // View Projection Matrix.
         XMMATRIX m_TransformMatrix;
@@ -149,10 +149,11 @@ namespace Renderer
         static const UINT m_backBufferCount = 2;
 
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
-        ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
 
+        std::vector<std::shared_ptr<RenderTarget>> pTarget;
         // View Handles
+        ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_renderTargetViewHandles;
 
         // PRIVATE - HELPER D3D12RHI METHODS

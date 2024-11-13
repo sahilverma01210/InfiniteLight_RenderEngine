@@ -7,10 +7,7 @@ namespace Renderer
 		mesh(gfx, radius)
 	{
 		Reset();
-
-		std::unique_ptr<Bindable> cbuf = std::make_unique<ConstantBuffer>(gfx, 1, sizeof(cbData), &cbData);
-		pLightBindable = cbuf.get();
-		Drawable::lightBindable = std::move(cbuf);
+		Drawable::lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 1, sizeof(cbData), &cbData));
 	}
 
 	bool PointLight::SpawnControlWindow() noexcept
@@ -55,10 +52,10 @@ namespace Renderer
 		};
 	}
 
-	void PointLight::Submit(FrameCommander& frame) const noexcept
+	void PointLight::Submit() const noexcept
 	{
 		mesh.SetPos(cbData.pos);
-		mesh.Submit(frame);
+		mesh.Submit();
 	}
 
 	void PointLight::Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept
@@ -66,8 +63,11 @@ namespace Renderer
 		auto dataCopy = cbData;
 		const auto pos = XMLoadFloat3(&cbData.pos);
 		XMStoreFloat3(&dataCopy.pos, XMVector3Transform(pos, view));
-		pLightBindable->Update(gfx, &dataCopy);
-		//cbuf.Update(gfx, &pos);
-		//cbuf.Bind(gfx);
+		Drawable::lightBindable->Update(gfx, &dataCopy);
+	}
+
+	void PointLight::LinkTechniques(RenderGraph& rg)
+	{
+		mesh.LinkTechniques(rg);
 	}
 }

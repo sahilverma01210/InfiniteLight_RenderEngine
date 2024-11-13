@@ -4,18 +4,20 @@
 #include "SolidSphere.h"
 #include "Drawable.h"
 #include "Camera.h"
-#include "FrameCommander.h"
 
 namespace Renderer
 {
+	class RenderGraph;
+
 	class PointLight
 	{
 	public:
 		PointLight(D3D12RHI& gfx, float radius = 0.5f);
 		bool SpawnControlWindow() noexcept;
 		void Reset() noexcept;
-		void Submit(class FrameCommander& frame) const noexcept;
+		void Submit() const noexcept;
 		void Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
+		void LinkTechniques(RenderGraph&);
 
 		bool m_imGUIwndOpen = true;
 	private:
@@ -32,6 +34,5 @@ namespace Renderer
 	private:
 		PointLightCBuf cbData;
 		mutable SolidSphere mesh;
-		Bindable* pLightBindable;
 	};
 }

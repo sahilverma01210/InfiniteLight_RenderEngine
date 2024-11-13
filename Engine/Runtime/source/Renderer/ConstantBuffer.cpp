@@ -105,6 +105,17 @@ namespace Renderer
         GetCommandList(gfx)->SetGraphicsRootConstantBufferView(m_rootParameterIndex, m_constantBuffer->GetGPUVirtualAddress());
 	}
 
+    Buffer ConstantBuffer::GetBuffer() const noexcept
+    {
+        return m_dataBuffer.value();
+    }
+
+    void ConstantBuffer::SetBuffer(const Buffer& buf_in)
+    {
+        m_dataBuffer.value().CopyFrom(buf_in);
+        dirty = true;
+    }
+
     void ConstantBuffer::Accept(TechniqueProbe& probe)
     {
         if (m_dataBuffer.has_value())

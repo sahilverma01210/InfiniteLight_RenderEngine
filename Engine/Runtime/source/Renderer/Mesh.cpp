@@ -20,10 +20,10 @@ namespace Renderer
 	//	}
 	//}
 
-	void Mesh::Submit(FrameCommander& frame, DirectX::FXMMATRIX accumulatedTranform) const noexcept
+	void Mesh::Submit(DirectX::FXMMATRIX accumulatedTranform) const noexcept
 	{
 		XMStoreFloat4x4(&transform, accumulatedTranform);
-		Drawable::Submit(frame);
+		Drawable::Submit();
 	}
 
 	Mesh::Mesh(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale) noexcept

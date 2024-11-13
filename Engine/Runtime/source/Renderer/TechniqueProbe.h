@@ -3,22 +3,26 @@
 
 namespace Renderer
 {
+	class Buffer;
+	class Technique;
+	class Step;
+
 	class TechniqueProbe
 	{
 	public:
-		void SetTechnique(class Technique* pTech_in)
+		void SetTechnique(Technique* pTech_in)
 		{
 			pTech = pTech_in;
 			techIdx++;
 			OnSetTechnique();
 		}
-		void SetStep(class Step* pStep_in)
+		void SetStep(Step* pStep_in)
 		{
 			pStep = pStep_in;
 			stepIdx++;
 			OnSetStep();
 		}
-		bool VisitBuffer(class Buffer& buf)
+		bool VisitBuffer(Buffer& buf)
 		{
 			bufIdx++;
 			return OnVisitBuffer(buf);
@@ -26,13 +30,13 @@ namespace Renderer
 	protected:
 		virtual void OnSetTechnique() {}
 		virtual void OnSetStep() {}
-		virtual bool OnVisitBuffer(class Buffer&)
+		virtual bool OnVisitBuffer(Buffer&)
 		{
 			return false;
 		}
 	protected:
-		class Technique* pTech = nullptr;
-		class Step* pStep = nullptr;
+		Technique* pTech = nullptr;
+		Step* pStep = nullptr;
 		size_t techIdx;
 		size_t stepIdx;
 		size_t bufIdx;

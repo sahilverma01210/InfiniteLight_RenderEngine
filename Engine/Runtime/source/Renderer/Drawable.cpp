@@ -5,11 +5,11 @@ namespace Renderer
 {
 	std::shared_ptr<Bindable> Drawable::lightBindable;
 
-	void Drawable::Submit(FrameCommander& frame) const noexcept
+	void Drawable::Submit() const noexcept
 	{
 		for (const auto& tech : techniques)
 		{
-			tech.Submit(frame, *this);
+			tech.Submit(*this);
 		}
 	}
 
@@ -58,6 +58,14 @@ namespace Renderer
 		for (auto& t : techniques)
 		{
 			t.Accept(probe);
+		}
+	}
+
+	void Drawable::LinkTechniques(RenderGraph& rg)
+	{
+		for (auto& tech : techniques)
+		{
+			tech.Link(rg);
 		}
 	}
 

@@ -11,6 +11,7 @@ namespace Renderer
 {
 	class TechniqueProbe;
 	class Material;
+	class RenderGraph;
 
 	class Drawable
 	{
@@ -29,10 +30,11 @@ namespace Renderer
 			psoBindables.push_back(std::move(bindable));
 		}
 		void AddTechnique(Technique tech_in) noexcept;
-		void Submit(class FrameCommander& frame) const noexcept;
+		void Submit() const noexcept;
 		void Bind(D3D12RHI& gfx, size_t targetPass) const noexcept;
 		void BindLighting(D3D12RHI& gfx) const noexcept;
 		void Accept(TechniqueProbe& probe);
+		void LinkTechniques(RenderGraph&);
 		UINT GetIndexCount() const noexcept;
 		virtual ~Drawable();
 	protected:

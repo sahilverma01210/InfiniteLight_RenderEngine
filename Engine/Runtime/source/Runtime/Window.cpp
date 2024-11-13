@@ -56,7 +56,7 @@ namespace Runtime
 		wr.right = width + wr.left;
 		wr.top = 100;
 		wr.bottom = height + wr.top;
-		if (FAILED(AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE)))
+		if (FAILED(AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, FALSE)))
 		{
 			throw ILWND_LAST_EXCEPT();
 		};
@@ -64,11 +64,11 @@ namespace Runtime
 		// create window & get hWnd
 		hWnd = CreateWindow(
 			WindowClass::GetName(), name,
-			WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU,
+			WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU,
 			CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top,
 			nullptr, nullptr, WindowClass::GetInstance(), this
 		);
-
+		
 		// check for error
 		if (hWnd == nullptr)
 		{
@@ -132,7 +132,19 @@ namespace Runtime
 
 	void Window::UpdateWindow(float angle)
 	{
-		graphics->StartFrame();
+		//RECT rect;
+		//if (GetClientRect(hWnd, &rect))
+		//{
+		//	width = rect.right - rect.left;
+		//	height = rect.bottom - rect.top;
+		//}
+
+		//OutputDebugStringA(std::to_string(width).c_str());
+		//OutputDebugStringA("\n");
+		//OutputDebugStringA(std::to_string(height).c_str());
+		//OutputDebugStringA("\n");
+
+		graphics->StartFrame(width, height);
 		graphics->Update();
 
 		const auto e = kbd.ReadKey();
