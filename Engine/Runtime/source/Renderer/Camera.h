@@ -11,7 +11,7 @@ namespace Renderer
 	class Camera
 	{
 	public:
-		Camera(D3D12RHI& gfx) noexcept;
+		Camera(D3D12RHI& gfx, XMFLOAT3 homePos = { 0.0f,0.0f,0.0f }, float homePitch = 0.0f, float homeYaw = 0.0f) noexcept;
 		XMMATRIX GetMatrix() const noexcept;
 		bool SpawnControlWindow(D3D12RHI& gfx) noexcept;
 		void Update(D3D12RHI& gfx) noexcept;
@@ -20,6 +20,9 @@ namespace Renderer
 		void Translate(XMFLOAT3 translation) noexcept;
 		bool m_imGUIwndOpen = true;
 	private:
+		XMFLOAT3 homePos;
+		float homePitch;
+		float homeYaw;
 		XMFLOAT3 pos;
 		float pitch;
 		float yaw;

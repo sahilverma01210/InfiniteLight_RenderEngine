@@ -4,7 +4,6 @@
 #include "DepthStencil.h"
 #include "RenderGraphCompileException.h"
 
-
 namespace Renderer
 {
 	BindingPass::BindingPass(std::string name, std::vector<std::shared_ptr<Bindable>> binds)
@@ -38,9 +37,11 @@ namespace Renderer
 
 	void BindingPass::BindBufferResources(D3D12RHI& gfx) const noexcept
 	{
-		if (renderTargetVector[gfx.GetCurrentBackBufferIndex()])
+		UINT renderSize = renderTargetVector.size();
+
+		if (renderSize)
 		{
-			renderTargetVector[gfx.GetCurrentBackBufferIndex()]->BindAsBuffer(gfx, depthStencil.get());
+			renderTargetVector[renderSize == 1 ? 0 : gfx.GetCurrentBackBufferIndex()]->BindAsBuffer(gfx, depthStencil.get());
 		}
 		else
 		{

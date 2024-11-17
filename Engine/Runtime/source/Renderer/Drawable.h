@@ -21,17 +21,9 @@ namespace Renderer
 		Drawable(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale = 1.0f) noexcept;
 		Drawable(const Drawable&) = delete;
 		virtual XMMATRIX GetTransformXM() const noexcept = 0;
-		void AddRootSignatureObject(std::unique_ptr<RootSignature> bindable) noexcept
-		{
-			rootSignBindables.push_back(std::move(bindable));
-		}
-		void AddPipelineStateObject(std::unique_ptr<PipelineState> bindable) noexcept
-		{
-			psoBindables.push_back(std::move(bindable));
-		}
 		void AddTechnique(Technique tech_in) noexcept;
 		void Submit() const noexcept;
-		void Bind(D3D12RHI& gfx, size_t targetPass) const noexcept;
+		void Bind(D3D12RHI& gfx, std::string targetPass) const noexcept;
 		void BindLighting(D3D12RHI& gfx) const noexcept;
 		void Accept(TechniqueProbe& probe);
 		void LinkTechniques(RenderGraph&);
@@ -43,8 +35,8 @@ namespace Renderer
 		std::shared_ptr<Topology> topologyBindable;
 		std::shared_ptr<VertexBuffer> vertexBufferBindable;
 		std::shared_ptr<IndexBuffer> indexBufferBindable;
-		std::vector<std::unique_ptr<RootSignature>> rootSignBindables;
-		std::vector<std::unique_ptr<PipelineState>> psoBindables;
+		std::unordered_map<std::string, std::unique_ptr<RootSignature>> rootSignBindables;
+		std::unordered_map<std::string, std::unique_ptr<PipelineState>> psoBindables;
 		std::vector<Technique> techniques;
 	private:
 		static std::shared_ptr<Bindable> lightBindable;

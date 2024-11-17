@@ -4,6 +4,10 @@
 #include "OutlineDrawingPass.h"
 #include "OutlineMaskGenerationPass.h"
 
+/*
+* Todo (Optional): Configure this Render Graph and use it in Renderer. Configure OutlineDrawingPass for the same.
+*/
+
 namespace Renderer
 {
 	ScaleOutlineRenderGraph::ScaleOutlineRenderGraph(D3D12RHI& gfx)

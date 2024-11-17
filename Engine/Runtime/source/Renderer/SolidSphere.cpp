@@ -50,8 +50,8 @@ namespace Renderer
 						pipelineDesc.backFaceCulling = false;
 						pipelineDesc.depthStencilMode = Mode::Off;
 
-						rootSignBindables.push_back(std::move(std::make_unique<RootSignature>(gfx, pipelineDesc)));
-						psoBindables.push_back(std::move(std::make_unique<PipelineState>(gfx, pipelineDesc)));
+						rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
+						psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
 					}
 
 					only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));

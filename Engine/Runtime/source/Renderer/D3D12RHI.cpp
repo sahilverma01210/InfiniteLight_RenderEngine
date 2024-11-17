@@ -155,41 +155,9 @@ namespace Renderer
 
         for (UINT n = 0; n < m_backBufferCount; n++)
         {
-            //pTarget.push_back(std::move(std::make_shared<OutputOnlyRenderTarget>(*this, m_backBuffers[n].Get())));
-            pTarget.push_back(std::shared_ptr<RenderTarget>{ new OutputOnlyRenderTarget(*this,m_backBuffers[n].Get()) });
+            RenderTarget* rt = new RenderTarget(*this, m_backBuffers[n].Get());
+            pTarget.push_back(std::shared_ptr<RenderTarget>(rt));
         }
-
-        //// Describe and create a RTV descriptor heap.
-        //{
-        //    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-        //    rtvHeapDesc.NumDescriptors = m_backBufferCount;
-        //    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        //    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        //    rtvHeapDesc.NodeMask = 1;
-        //    m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap));
-        //}
-
-        //// Create Frame Resources - Render Target View (RTV).
-        //{
-        //    UINT m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        //
-        //    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-        //
-        //    m_renderTargetViewHandles.resize(m_backBufferCount);
-        //
-        //    for (UINT i = 0; i < m_backBufferCount; i++)
-        //    {
-        //        m_renderTargetViewHandles[i] = rtvHandle;
-        //        rtvHandle.ptr += m_rtvDescriptorSize;
-        //    }
-        //
-        //    // Create a RTV for each frame.
-        //    for (UINT n = 0; n < m_backBufferCount; n++)
-        //    {
-        //        m_device->CreateRenderTargetView(m_backBuffers[n].Get(), nullptr, m_renderTargetViewHandles[n]);
-        //        rtvHandle.Offset(1, m_rtvDescriptorSize);
-        //    }
-        //}
     }
 
     UINT D3D12RHI::GetWidth()
@@ -205,6 +173,12 @@ namespace Renderer
     UINT D3D12RHI::GetCurrentBackBufferIndex()
     {
         return m_swapChain->GetCurrentBackBufferIndex();
+    }
+
+    void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept
+    {
+        auto resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState);
+        m_commandList->ResourceBarrier(1, &resourceBarrier);
     }
 
     std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
@@ -312,25 +286,7 @@ namespace Renderer
         // Indicate that the back buffer will be used as a render target.
         auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         m_commandList->ResourceBarrier(1, &resourceBarrier1);
-
-        //// Clear Render Target.
-        //const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        //m_commandList->ClearRenderTargetView(m_renderTargetViewHandles[m_backBufferIndex], clear_color_with_alpha, 0, nullptr);
     }
-
-    //void D3D12RHI::BindSwapBuffer() noexcept
-    //{
-    //    m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandles[m_backBufferIndex], FALSE, nullptr);
-    //
-    //    ResizeFrame(m_width, m_height);
-    //}
-
-    //void D3D12RHI::BindSwapBuffer(const DepthStencil& depthStencil) noexcept
-    //{
-    //    m_commandList->OMSetRenderTargets(1, &m_renderTargetViewHandles[m_backBufferIndex], FALSE, &depthStencil.m_depthStensilViewHandle);
-    //
-    //    ResizeFrame(m_width, m_height);
-    //}
 
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)
     {
@@ -360,6 +316,18 @@ namespace Renderer
 
         // Present the frame.
         m_swapChain->Present(1, 0);
+    }
+
+    // RENDER TARGET METHODS
+
+    void D3D12RHI::SetRenderTargetBuffer(ID3D12Resource* buffer)
+    {
+        m_currentTargetBuffer = buffer;
+    }
+
+    ID3D12Resource* D3D12RHI::GetRenderTargetBuffer()
+    {
+        return m_currentTargetBuffer;
     }
 
     // PUBLIC - D3D12 EXCEPTION CLASS METHODS

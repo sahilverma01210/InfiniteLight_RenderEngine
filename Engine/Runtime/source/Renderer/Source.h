@@ -14,7 +14,7 @@ namespace Renderer
 		virtual void PostLinkValidate() const = 0;
 		virtual std::shared_ptr<Bindable> YieldBindable();
 		virtual std::shared_ptr<BufferResource> YieldBuffer();
-		virtual std::vector<std::shared_ptr<BufferResource>> YieldBuffer(bool isVector);
+		virtual std::vector<std::shared_ptr<BufferResource>> YieldBufferBucket();
 		virtual ~Source() = default;
 		bool isVector = false;
 	protected:
@@ -70,7 +70,7 @@ namespace Renderer
 		}
 		void PostLinkValidate() const
 		{}
-		std::vector<std::shared_ptr<BufferResource>> YieldBuffer(bool isVector) override
+		std::vector<std::shared_ptr<BufferResource>> YieldBufferBucket() override
 		{
 			if (linked)
 			{

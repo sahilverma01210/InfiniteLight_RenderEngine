@@ -12,7 +12,7 @@ namespace Renderer
 	void Job::Execute(D3D12RHI& gfx) const noexcept
 	{
 		gfx.SetTransform(pDrawable->GetTransformXM());
-		pDrawable->Bind(gfx, 0);
+		pDrawable->Bind(gfx, pStep->GetTargetPass());
 		pStep->Bind(gfx);
 		if (pStep->GetTargetPass() == "lambertian") pDrawable->BindLighting(gfx); // Only Lambertian Step or Pass uses Lighting data in Material/SolidSphere.
 		gfx.DrawIndexed(pDrawable->GetIndexCount());

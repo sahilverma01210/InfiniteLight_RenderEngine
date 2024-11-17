@@ -13,6 +13,10 @@ namespace Renderer
 		void AddBind(std::shared_ptr<Bindable> bind) noexcept;
 		void BindAll(D3D12RHI& gfx) const noexcept;
 		void Finalize() override;
+		UINT GetBindsSize()
+		{
+			return binds.size();
+		}
 	protected:
 		template<class T>
 		void AddBindSink(std::string name)

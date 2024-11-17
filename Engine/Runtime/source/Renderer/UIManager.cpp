@@ -6,6 +6,12 @@ namespace Renderer
     {
         // Initialize Win32 ImGUI.
         {
+            namespace fs = std::filesystem;
+            if (!fs::exists("imgui.ini") && fs::exists("imgui_default.ini"))
+            {
+                fs::copy_file("imgui_default.ini", "imgui.ini");
+            }
+
             // Setup Dear ImGui context
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();

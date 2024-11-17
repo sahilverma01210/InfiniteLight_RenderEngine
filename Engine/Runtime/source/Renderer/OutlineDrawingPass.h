@@ -1,10 +1,10 @@
 #pragma once
 #include "RenderQueuePass.h"
 #include "Job.h"
-//#include "PixelShader.h"
-//#include "VertexShader.h"
-//#include "Stencil.h"
-//#include "Rasterizer.h"
+
+/*
+* Todo (Optional): Configure this Pass and use it in Render Graph. Modify Material outlineDraw Step PipelineDesc for the same.
+*/
 
 namespace Renderer
 {
@@ -17,12 +17,11 @@ namespace Renderer
 			:
 			RenderQueuePass(std::move(name))
 		{
-			//RegisterSink(DirectBufferSink<RenderTarget>::Make("renderTarget", renderTarget));
-			//RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", depthStencil));
-			//RegisterSource(DirectBufferSource<RenderTarget>::Make("renderTarget", renderTarget));
-			//RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", depthStencil));
-			//AddBind(VertexShader::Resolve(gfx, "Solid_VS.cso"));
-			//AddBind(PixelShader::Resolve(gfx, "Solid_PS.cso"));
+			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", renderTargetVector));
+			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", depthStencil));
+			RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTarget", renderTargetVector));
+			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", depthStencil));
+			
 			//AddBind(Stencil::Resolve(gfx, Stencil::Mode::Mask));
 			//AddBind(Rasterizer::Resolve(gfx, false));
 		}

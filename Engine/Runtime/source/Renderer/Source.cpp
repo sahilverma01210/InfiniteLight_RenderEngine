@@ -32,7 +32,7 @@ namespace Renderer
 		throw RGC_EXCEPTION("Output cannot be accessed as buffer");
 	}
 
-	std::vector<std::shared_ptr<BufferResource>> Source::YieldBuffer(bool isVector)
+	std::vector<std::shared_ptr<BufferResource>> Source::YieldBufferBucket()
 	{
 		throw RGC_EXCEPTION("Output cannot be accessed as bindable");
 	}

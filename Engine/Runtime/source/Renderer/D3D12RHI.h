@@ -12,6 +12,13 @@ namespace Renderer
     class Bindable;
     class RenderTarget;
 
+    enum class SamplerFilterType
+    {
+        Anisotropic,
+        Bilinear,
+        Point,
+    };
+
     enum class Mode
     {
         Off,
@@ -30,7 +37,7 @@ namespace Renderer
         UINT numSRVDescriptors = 0;
         bool backFaceCulling = false;
         Mode depthStencilMode = {};
-        bool enableAnisotropic = true;
+        SamplerFilterType samplerFilterType = SamplerFilterType::Anisotropic;
         bool reflect = false;
         bool blending = false;
         ID3D12RootSignature* rootSignature = nullptr;
@@ -49,6 +56,7 @@ namespace Renderer
         UINT GetWidth();
         UINT GetHeight();
         UINT GetCurrentBackBufferIndex();
+        void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept;
         std::wstring GetAssetFullPath(LPCWSTR assetName);
         void OnDestroy();
         void Info(HRESULT hresult);
@@ -69,6 +77,11 @@ namespace Renderer
         void StartFrame(UINT width, UINT height);
         void DrawIndexed(UINT indexCountPerInstance);
         void EndFrame();
+
+        // RENDER TARGET METHODS
+
+        void SetRenderTargetBuffer(ID3D12Resource* buffer);
+        ID3D12Resource* GetRenderTargetBuffer();
 
         // PUBLIC - D3D12 EXCEPTION CLASSES
 
@@ -148,13 +161,11 @@ namespace Renderer
         UINT m_backBufferIndex;
         static const UINT m_backBufferCount = 2;
 
+        ID3D12Resource* m_currentTargetBuffer = nullptr;
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
 
         std::vector<std::shared_ptr<RenderTarget>> pTarget;
-        // View Handles
-        ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
-        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_renderTargetViewHandles;
 
         // PRIVATE - HELPER D3D12RHI METHODS
         

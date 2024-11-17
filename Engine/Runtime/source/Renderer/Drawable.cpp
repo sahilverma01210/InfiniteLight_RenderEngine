@@ -21,8 +21,8 @@ namespace Renderer
 
 		for (auto& pipelineDesc : mat.GetPipelineDesc())
 		{
-			rootSignBindables.push_back(std::move(std::make_unique<RootSignature>(gfx, pipelineDesc)));
-			psoBindables.push_back(std::move(std::make_unique<PipelineState>(gfx, pipelineDesc)));
+			rootSignBindables[pipelineDesc.first] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc.second));
+			psoBindables[pipelineDesc.first] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc.second));
 		}
 
 		m_numIndices = indexBufferBindable->GetNumOfIndices();
@@ -39,13 +39,13 @@ namespace Renderer
 		techniques.push_back(std::move(tech_in));
 	}
 
-	void Drawable::Bind(D3D12RHI& gfx, size_t targetPass) const noexcept
+	void Drawable::Bind(D3D12RHI& gfx, std::string targetPass) const noexcept
 	{
 		topologyBindable->Bind(gfx);
 		vertexBufferBindable->Bind(gfx);
 		indexBufferBindable->Bind(gfx);
-		rootSignBindables[targetPass]->Bind(gfx);
-		psoBindables[targetPass]->Bind(gfx);
+		rootSignBindables.at(targetPass)->Bind(gfx);
+		psoBindables.at(targetPass)->Bind(gfx);
 	}
 
 	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept

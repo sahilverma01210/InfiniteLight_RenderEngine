@@ -50,8 +50,6 @@ namespace Renderer
 
     RenderTarget::RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture)
     {
-        //UINT backBufferCount = GetBackBuffers(gfx).size();
-
         // Describe and create a RTV descriptor heap.
         {
             D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
@@ -95,8 +93,8 @@ namespace Renderer
 
     void RenderTarget::BindAsBuffer(D3D12RHI& gfx, D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilView) noexcept
     {
-        //TransitionTo(gfx, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
         GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, pDepthStencilView);
+        gfx.SetRenderTargetBuffer(m_texureBuffer.Get());
     }
 
     void RenderTarget::Clear(D3D12RHI& gfx) noexcept
@@ -115,12 +113,6 @@ namespace Renderer
         return m_texureBuffer.Get();
     }
 
-    void RenderTarget::TransitionTo(D3D12RHI& gfx, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept
-    {
-        auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_texureBuffer.Get(), beforeState, afterState);
-        GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier2);
-    }
-
     void RenderTarget::ResizeFrame(UINT width, UINT height)
     {
         m_width = width;
@@ -136,29 +128,4 @@ namespace Renderer
     {
         return m_height;
     }
-
-    ShaderInputRenderTarget::ShaderInputRenderTarget(D3D12RHI& gfx, UINT width, UINT height, UINT rootParameterIndex, UINT numSRVDescriptors)
-        :
-        RenderTarget(gfx, width, height)
-    {
-        //TransitionTo(gfx, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-        srvBindable = std::make_shared<ShaderResourceView>(gfx, rootParameterIndex, numSRVDescriptors);
-        srvBindable->AddResource(gfx, 0, m_texureBuffer.Get());
-    }
-
-    void ShaderInputRenderTarget::Bind(D3D12RHI& gfx) noexcept
-    {
-        srvBindable->Bind(gfx);
-    }
-
-    void OutputOnlyRenderTarget::Bind(D3D12RHI& gfx) noexcept
-    {
-        assert("Cannot bind OuputOnlyRenderTarget as shader input" && false);
-    }
-
-    OutputOnlyRenderTarget::OutputOnlyRenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture)
-        :
-        RenderTarget(gfx, pTexture)
-    {}
 }

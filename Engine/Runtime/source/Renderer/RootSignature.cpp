@@ -20,11 +20,11 @@ namespace Renderer
         {
             const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, pipelineDesc.numSRVDescriptors, 0 };
             InitDescriptorTable(pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
-            InitRootSignature(gfx, true, 1, pipelineDesc.enableAnisotropic, pipelineDesc.reflect);
+            InitRootSignature(gfx, true, 1, pipelineDesc.samplerFilterType, pipelineDesc.reflect);
         }
         else
         {
-            InitRootSignature(gfx, false, 0, pipelineDesc.enableAnisotropic, pipelineDesc.reflect);
+            InitRootSignature(gfx, false, 0, pipelineDesc.samplerFilterType, pipelineDesc.reflect);
         }
 
         pipelineDesc.rootSignature = m_rootSignature.Get();
@@ -47,7 +47,7 @@ namespace Renderer
         m_rootParameters[rootParameterIndex].InitAsDescriptorTable(numDescriptorRanges, pDescriptorRanges, visibilityFlag);
     }
 
-    void RootSignature::InitRootSignature(D3D12RHI& gfx, bool initWithSampler, UINT numSampler, bool anisoEnable, bool reflect)
+    void RootSignature::InitRootSignature(D3D12RHI& gfx, bool initWithSampler, UINT numSampler, SamplerFilterType type, bool reflect)
     {
         // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
         const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
@@ -65,7 +65,15 @@ namespace Renderer
         {
             // define static sampler 
             CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-            staticSampler.Filter = anisoEnable ? D3D12_FILTER_ANISOTROPIC : D3D12_FILTER_MIN_MAG_MIP_POINT;
+            staticSampler.Filter = [type]() {
+                switch (type)
+                {
+                case SamplerFilterType::Anisotropic: return D3D12_FILTER_ANISOTROPIC;
+                case SamplerFilterType::Point: return D3D12_FILTER_MIN_MAG_MIP_POINT;
+                default:
+                case SamplerFilterType::Bilinear: return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+                }
+                }();
             staticSampler.AddressU = reflect ? D3D12_TEXTURE_ADDRESS_MODE_MIRROR : D3D12_TEXTURE_ADDRESS_MODE_WRAP;
             staticSampler.AddressV = reflect ? D3D12_TEXTURE_ADDRESS_MODE_MIRROR : D3D12_TEXTURE_ADDRESS_MODE_WRAP;
             staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;

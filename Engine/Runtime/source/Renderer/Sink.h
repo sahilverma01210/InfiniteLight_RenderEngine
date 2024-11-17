@@ -89,7 +89,7 @@ namespace Renderer
 		{
 			if (source.isVector)
 			{
-				for (std::shared_ptr<BufferResource> buffer : source.YieldBuffer(true))
+				for (std::shared_ptr<BufferResource> buffer : source.YieldBufferBucket())
 				{
 					auto p = std::dynamic_pointer_cast<T>(buffer);
 					targetVector.push_back(std::move(p));

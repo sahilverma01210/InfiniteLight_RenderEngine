@@ -77,9 +77,11 @@ namespace Renderer
 	class MP : ModelProbe
 	{
 	public:
+		MP(std::string name) : name(std::move(name))
+		{}
 		void SpawnWindow(Model& model)
 		{
-			ImGui::Begin("Model");
+			ImGui::Begin(name.c_str());
 			ImGui::Columns(2, nullptr, true);
 			model.Accept(*this);
 			ImGui::NextColumn();
@@ -172,6 +174,7 @@ namespace Renderer
 		};
 		std::unordered_map<int, TransformParameters> transformParams;
 	private:
+		std::string name;
 		TransformParameters& ResolveTransform() noexcept
 		{
 			const auto id = pSelectedNode->GetId();

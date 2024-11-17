@@ -115,14 +115,14 @@
     <Filter Include="Source Files\Renderer\Common">
       <UniqueIdentifier>{ea5ed81a-e67b-4fc9-b5f3-dc923f1c43a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Renderer\RenderQueue">
-      <UniqueIdentifier>{34c9a6e8-9d5b-48ab-b527-715361136937}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Renderer\RenderQueue">
-      <UniqueIdentifier>{4be52e22-33ca-4818-beb7-e4cbb5354e5a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Renderer\Effects">
       <UniqueIdentifier>{59d24f3d-ef38-41ca-a980-f9a8e87da239}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\RenderGraph">
+      <UniqueIdentifier>{4be52e22-33ca-4818-beb7-e4cbb5354e5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\RenderGraph">
+      <UniqueIdentifier>{34c9a6e8-9d5b-48ab-b527-715361136937}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -274,19 +274,16 @@
       <Filter>Header Files\Renderer\Drawables\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Job.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Pass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Step.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Technique.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\FrameCommander.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Common\ILTimer.h">
       <Filter>Header Files\Common</Filter>
@@ -295,7 +292,7 @@
       <Filter>Header Files\Renderer\Common</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TechniqueProbe.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Material.h">
       <Filter>Header Files\Renderer\RHI</Filter>
@@ -321,68 +318,65 @@
     <ClInclude Include="source\Renderer\RenderTarget.h">
       <Filter>Header Files\Renderer\RHI</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BlurPack.h">
-      <Filter>Header Files\Renderer\Effects</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\StepLinkingProbe.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderQueuePass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderGraphCompileException.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderGraph.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Sink.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\LambertianPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\FullscreenPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BufferResource.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BufferClearPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BindingPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\OutlineDrawingPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Source.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TransformCbufScaling.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\VerticalBlurPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\HorizontalBlurPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h">
-      <Filter>Header Files\Renderer\RenderQueue</Filter>
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TestModelProbe.h">
       <Filter>Testing Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TransformCbufScaling.h">
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -501,13 +495,13 @@
       <Filter>Testing Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Job.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Step.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Technique.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Common\ILTimer.cpp">
       <Filter>Source Files\Common</Filter>
@@ -534,52 +528,49 @@
       <Filter>Source Files\Renderer\RHI</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Pass.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\FrameCommander.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\StepLinkingProbe.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderQueuePass.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderGraphCompileException.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderGraph.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Source.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Sink.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\FullscreenPass.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\BufferClearPass.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\BindingPass.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\TransformCbufScaling.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\VerticalBlurPass.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\HorizontalBlurPass.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp">
-      <Filter>Source Files\Renderer\RenderQueue</Filter>
+      <Filter>Source Files\Renderer\RenderGraph</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

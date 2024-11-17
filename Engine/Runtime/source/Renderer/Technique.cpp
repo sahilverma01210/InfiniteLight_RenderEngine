@@ -1,6 +1,5 @@
 #include "Technique.h"
 #include "Drawable.h"
-#include "FrameCommander.h"
 #include "TechniqueProbe.h"
 
 namespace Renderer

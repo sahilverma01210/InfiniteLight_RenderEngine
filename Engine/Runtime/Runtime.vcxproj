@@ -34,7 +34,6 @@
     <ClInclude Include="source\Renderer\BindingPass.h" />
     <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h" />
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h" />
-    <ClInclude Include="source\Renderer\BlurPack.h" />
     <ClInclude Include="source\Renderer\BufferClearPass.h" />
     <ClInclude Include="source\Renderer\BufferResource.h" />
     <ClInclude Include="source\Renderer\CommonBindables.h" />
@@ -48,7 +47,6 @@
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\DxgiInfoManager.h" />
     <ClInclude Include="source\Renderer\DynamicConstant.h" />
-    <ClInclude Include="source\Renderer\FrameCommander.h" />
     <ClInclude Include="source\Renderer\FullscreenPass.h" />
     <ClInclude Include="source\Renderer\GraphicsResource.h" />
     <ClInclude Include="source\Renderer\HorizontalBlurPass.h" />
@@ -128,7 +126,6 @@
     <ClCompile Include="source\Renderer\Drawable.cpp" />
     <ClCompile Include="source\Renderer\DxgiInfoManager.cpp" />
     <ClCompile Include="source\Renderer\DynamicConstant.cpp" />
-    <ClCompile Include="source\Renderer\FrameCommander.cpp" />
     <ClCompile Include="source\Renderer\FullscreenPass.cpp" />
     <ClCompile Include="source\Renderer\GraphicsResource.cpp" />
     <ClCompile Include="source\Renderer\HorizontalBlurPass.cpp" />

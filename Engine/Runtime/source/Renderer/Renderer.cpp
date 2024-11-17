@@ -8,7 +8,7 @@ namespace Renderer
 		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd)),
 		rg(*pRHI)
 	{
-		camera = new Camera(*pRHI);
+		camera = new Camera(*pRHI, { -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f);
 
 		sponza = std::make_unique<Model>(*pRHI, "models\\sponza\\sponza.obj", 1.0f / 20.0f);
 		sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
@@ -38,11 +38,12 @@ namespace Renderer
 
 		// Update UI.
 		{
-			static MP modelProbe;
+			static MP sponzeProbe{ "Sponza" };
 
-			modelProbe.SpawnWindow(*sponza);
+			sponzeProbe.SpawnWindow(*sponza);
 			if (camera->m_imGUIwndOpen) camera->SpawnControlWindow(*pRHI);
 			if (light->m_imGUIwndOpen) light->SpawnControlWindow();
+			rg.RenderWidgets(*pRHI);
 		}
 	}
 

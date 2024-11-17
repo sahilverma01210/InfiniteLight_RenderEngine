@@ -17,7 +17,7 @@ namespace Common
 	{
 		constexpr T twoPi = (T)2 * (T)PI_D;
 		const T mod = fmod(theta, twoPi);
-		if (mod > (T)PI_D)
+		if (mod > -(T)PI_D)
 		{
 			return mod - twoPi;
 		}

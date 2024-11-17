@@ -25,10 +25,6 @@ namespace Common
 			*out++ = std::move(s.substr(a, s.length() - a));
 		}
 	}
-	inline std::vector<std::string> SplitString(const std::string& s, const std::string& delim)
-	{
-		std::vector<std::string> strings;
-		SplitStringIter(s, delim, std::back_inserter(strings));
-		return strings;
-	}
+	std::vector<std::string> SplitString(const std::string& s, const std::string& delim);
+	bool StringContains(std::string_view haystack, std::string_view needle);
 }

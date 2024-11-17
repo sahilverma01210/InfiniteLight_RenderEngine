@@ -112,7 +112,7 @@ namespace Renderer
 					phongPipelineDesc.backFaceCulling = !hasAlpha;
 					phongPipelineDesc.depthStencilMode = Mode::Off;
 
-					pipelineDesc.push_back(phongPipelineDesc);
+					pipelineDesc["lambertian"] = phongPipelineDesc;
 				}
 
 				{
@@ -190,91 +190,91 @@ namespace Renderer
 			techniques.push_back(std::move(phong));
 		}
 
-		//// outline technique
-		//{
-		//	Technique outline("Outline", false);
-		//	{
-		//		Step mask("outlineMask");
-		//
-		//		// Define the vertex input layout.
-		//		std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
-		//		D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
-		//
-		//		for (size_t i = 0; i < vec.size(); ++i) {
-		//			inputElementDescs[i] = vec[i];
-		//		}
-		//
-		//		// Add Pipeline State Obejct
-		//		{
-		//			ID3DBlob* vertexShader;
-		//
-		//			// Compile Shaders.
-		//			D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
-
-		//			PipelineDescription maskPipelineDesc{};
-		//			maskPipelineDesc.vertexShader = vertexShader;
-		//			maskPipelineDesc.inputElementDescs = inputElementDescs;
-		//			maskPipelineDesc.numElements = vec.size();
-		//			maskPipelineDesc.numConstants = 1;
-		//			maskPipelineDesc.numConstantBufferViews = 0;
-		//			maskPipelineDesc.numSRVDescriptors = 0;
-		//			maskPipelineDesc.backFaceCulling = false;
-		//			maskPipelineDesc.depthStencilMode = Mode::Write;
-
-		//			pipelineDesc.push_back(maskPipelineDesc);
-		//		}
-		//
-		//		mask.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
-		//		outline.AddStep(std::move(mask));
-		//	}
-		//	{
-		//		Step draw("outlineDraw");
-
-		//		// Define the vertex input layout.
-		//		std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
-		//		D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
-
-		//		for (size_t i = 0; i < vec.size(); ++i) {
-		//			inputElementDescs[i] = vec[i];
-		//		}
-
-		//		// Add Pipeline State Obejct
-		//		{
-		//			ID3DBlob* vertexShader;
-		//			ID3DBlob* pixelShader;
-
-		//			// Compile Shaders.
-		//			D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
-		//			D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
-
-		//			PipelineDescription drawPipelineDesc{};
-		//			drawPipelineDesc.vertexShader = vertexShader;
-		//			drawPipelineDesc.pixelShader = pixelShader;
-		//			drawPipelineDesc.inputElementDescs = inputElementDescs;
-		//			drawPipelineDesc.numElements = vec.size();
-		//			drawPipelineDesc.numConstants = 1;
-		//			drawPipelineDesc.numConstantBufferViews = 1;
-		//			drawPipelineDesc.numSRVDescriptors = 0;
-		//			drawPipelineDesc.backFaceCulling = true;
-		//			drawPipelineDesc.depthStencilMode = Mode::Off;
-
-		//			pipelineDesc.push_back(drawPipelineDesc);
-		//		}
-
-		//		draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
-
-		//		{
-		//			RawLayout lay;
-		//			lay.Add<Float3>("materialColor");
-		//			auto buf = Buffer(std::move(lay));
-		//			buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,0.4f,0.4f };
-		//			draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
-		//		}
-
-		//		outline.AddStep(std::move(draw));
-		//	}
-		//	techniques.push_back(std::move(outline));
-		//}
+		// outline technique
+		{
+			Technique outline("Outline", false);
+			{
+				Step mask("outlineMask");
+		
+				// Define the vertex input layout.
+				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
+				D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+		
+				for (size_t i = 0; i < vec.size(); ++i) {
+					inputElementDescs[i] = vec[i];
+				}
+		
+				// Add Pipeline State Obejct
+				{
+					ID3DBlob* vertexShader;
+		
+					// Compile Shaders.
+					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
+		
+					PipelineDescription maskPipelineDesc{};
+					maskPipelineDesc.vertexShader = vertexShader;
+					maskPipelineDesc.inputElementDescs = inputElementDescs;
+					maskPipelineDesc.numElements = vec.size();
+					maskPipelineDesc.numConstants = 1;
+					maskPipelineDesc.numConstantBufferViews = 0;
+					maskPipelineDesc.numSRVDescriptors = 0;
+					maskPipelineDesc.backFaceCulling = false;
+					maskPipelineDesc.depthStencilMode = Mode::Write;
+		
+					pipelineDesc["outlineMask"] = maskPipelineDesc;
+				}
+		
+				mask.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
+				outline.AddStep(std::move(mask));
+			}
+			{
+				Step draw("outlineDraw");
+			
+				// Define the vertex input layout.
+				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
+				D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+			
+				for (size_t i = 0; i < vec.size(); ++i) {
+					inputElementDescs[i] = vec[i];
+				}
+			
+				// Add Pipeline State Obejct
+				{
+					ID3DBlob* vertexShader;
+					ID3DBlob* pixelShader;
+			
+					// Compile Shaders.
+					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
+					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
+			
+					PipelineDescription drawPipelineDesc{};
+					drawPipelineDesc.vertexShader = vertexShader;
+					drawPipelineDesc.pixelShader = pixelShader;
+					drawPipelineDesc.inputElementDescs = inputElementDescs;
+					drawPipelineDesc.numElements = vec.size();
+					drawPipelineDesc.numConstants = 1;
+					drawPipelineDesc.numConstantBufferViews = 1;
+					drawPipelineDesc.numSRVDescriptors = 0;
+					drawPipelineDesc.backFaceCulling = true;
+					drawPipelineDesc.depthStencilMode = Mode::Off;
+			
+					pipelineDesc["outlineDraw"] = drawPipelineDesc;
+				}
+			
+				draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
+			
+				{
+					RawLayout lay;
+					lay.Add<Float3>("materialColor");
+					auto buf = Buffer(std::move(lay));
+					buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,0.4f,0.4f };
+					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
+				}
+			
+				outline.AddStep(std::move(draw));
+			}
+			techniques.push_back(std::move(outline));
+		}
 	}
 
 	VertexRawBuffer Material::ExtractVertices(const aiMesh& mesh) const noexcept
@@ -315,7 +315,7 @@ namespace Renderer
 		auto indices = ExtractIndices(mesh);
 		return IndexBuffer::Resolve(gfx, MakeMeshTag(mesh), indices.size() * sizeof(indices[0]), indices);
 	}
-	std::vector<PipelineDescription> Material::GetPipelineDesc() noexcept
+	std::unordered_map<std::string, PipelineDescription> Material::GetPipelineDesc() noexcept
 	{
 		return pipelineDesc;
 	}
