@@ -68,21 +68,19 @@ namespace Renderer
 
     void ConstantBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
     {
-        // Copy the index data to the index buffer.
+        // Copy the data to the buffer.
         UINT8* pConstantDataBegin;
         CD3DX12_RANGE readRangeC(0, 0);        // We do not intend to read from this resource on the CPU.
         m_constantUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin));
         memcpy(pConstantDataBegin, pData, m_constantBufferSize);
         m_constantUploadBuffer->Unmap(0, nullptr);
 
-        // transition vertex buffer to vertex buffer state 
         auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
         GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier1);
 
-        // copy Upload Buffer to Index Buffer 
+        // copy Upload Buffer to Constant Buffer 
         GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get());
 
-        // transition vertex buffer to vertex buffer state 
         auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier2);
 

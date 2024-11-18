@@ -36,6 +36,8 @@
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h" />
     <ClInclude Include="source\Renderer\BufferClearPass.h" />
     <ClInclude Include="source\Renderer\BufferResource.h" />
+    <ClInclude Include="source\Renderer\CameraContainer.h" />
+    <ClInclude Include="source\Renderer\CameraIndicator.h" />
     <ClInclude Include="source\Renderer\CommonBindables.h" />
     <ClInclude Include="source\Renderer\Camera.h" />
     <ClInclude Include="source\Renderer\CommonShapes.h" />
@@ -47,6 +49,7 @@
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\DxgiInfoManager.h" />
     <ClInclude Include="source\Renderer\DynamicConstant.h" />
+    <ClInclude Include="source\Renderer\Frustum.h" />
     <ClInclude Include="source\Renderer\FullscreenPass.h" />
     <ClInclude Include="source\Renderer\GraphicsResource.h" />
     <ClInclude Include="source\Renderer\HorizontalBlurPass.h" />
@@ -64,6 +67,7 @@
     <ClInclude Include="source\Renderer\OutlineDrawingPass.h" />
     <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h" />
     <ClInclude Include="source\Renderer\Pass.h" />
+    <ClInclude Include="source\Renderer\Projection.h" />
     <ClInclude Include="source\Renderer\Sink.h" />
     <ClInclude Include="source\Renderer\PerfLog.h" />
     <ClInclude Include="source\Renderer\PipelineState.h" />
@@ -96,6 +100,7 @@
     <ClInclude Include="source\Renderer\VertexBuffer.h" />
     <ClInclude Include="source\Renderer\Vertex.h" />
     <ClInclude Include="source\Renderer\VerticalBlurPass.h" />
+    <ClInclude Include="source\Renderer\WireframePass.h" />
     <ClInclude Include="source\Runtime\Application.h" />
     <ClInclude Include="source\Runtime\Keyboard.h" />
     <ClInclude Include="source\Runtime\Mouse.h" />
@@ -120,12 +125,15 @@
     <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp" />
     <ClCompile Include="source\Renderer\BufferClearPass.cpp" />
     <ClCompile Include="source\Renderer\Camera.cpp" />
+    <ClCompile Include="source\Renderer\CameraContainer.cpp" />
+    <ClCompile Include="source\Renderer\CameraIndicator.cpp" />
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
     <ClCompile Include="source\Renderer\DepthStencil.cpp" />
     <ClCompile Include="source\Renderer\Drawable.cpp" />
     <ClCompile Include="source\Renderer\DxgiInfoManager.cpp" />
     <ClCompile Include="source\Renderer\DynamicConstant.cpp" />
+    <ClCompile Include="source\Renderer\Frustum.cpp" />
     <ClCompile Include="source\Renderer\FullscreenPass.cpp" />
     <ClCompile Include="source\Renderer\GraphicsResource.cpp" />
     <ClCompile Include="source\Renderer\HorizontalBlurPass.cpp" />
@@ -138,6 +146,7 @@
     <ClCompile Include="source\Renderer\ModelException.cpp" />
     <ClCompile Include="source\Renderer\Node.cpp" />
     <ClCompile Include="source\Renderer\Pass.cpp" />
+    <ClCompile Include="source\Renderer\Projection.cpp" />
     <ClCompile Include="source\Renderer\Sink.cpp" />
     <ClCompile Include="source\Renderer\Source.cpp" />
     <ClCompile Include="source\Renderer\PipelineState.cpp" />

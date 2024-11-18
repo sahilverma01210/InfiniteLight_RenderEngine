@@ -7,6 +7,7 @@
 #include "HorizontalBlurPass.h"
 #include "VerticalBlurPass.h"
 #include "BlurOutlineDrawingPass.h"
+#include "WireframePass.h"
 #include "RenderTarget.h"
 #include "DynamicConstant.h"
 #include "UIManager.h"
@@ -92,7 +93,13 @@ namespace Renderer
 			pass->SetSinkLinkage("direction", "$.blurVertical");
 			AppendPass(std::move(pass));
 		}
-		SetSinkTarget("backbuffer", "vertical.renderTarget");
+		{
+			auto pass = std::make_unique<WireframePass>(gfx, "wireframe");
+			pass->SetSinkLinkage("renderTarget", "vertical.renderTarget");
+			pass->SetSinkLinkage("depthStencil", "vertical.depthStencil");
+			AppendPass(std::move(pass));
+		}
+		SetSinkTarget("backbuffer", "wireframe.renderTarget");
 
 		Finalize();
 	}

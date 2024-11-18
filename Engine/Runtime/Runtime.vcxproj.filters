@@ -378,6 +378,21 @@
     <ClInclude Include="source\Renderer\TransformCbufScaling.h">
       <Filter>Header Files\Renderer\RenderGraph</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\CameraContainer.h">
+      <Filter>Header Files\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Projection.h">
+      <Filter>Header Files\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CameraIndicator.h">
+      <Filter>Header Files\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Frustum.h">
+      <Filter>Header Files\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\WireframePass.h">
+      <Filter>Header Files\Renderer\RenderGraph</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\Libraries\include\imgui\imgui.cpp">
@@ -571,6 +586,18 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp">
       <Filter>Source Files\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\CameraContainer.cpp">
+      <Filter>Source Files\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Projection.cpp">
+      <Filter>Source Files\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\CameraIndicator.cpp">
+      <Filter>Source Files\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Frustum.cpp">
+      <Filter>Source Files\Renderer\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

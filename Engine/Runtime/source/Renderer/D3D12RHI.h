@@ -23,7 +23,9 @@ namespace Renderer
     {
         Off,
         Write,
-        Mask
+        Mask,
+        DepthOff,
+        DepthReversed
     };
 
     struct PipelineDescription

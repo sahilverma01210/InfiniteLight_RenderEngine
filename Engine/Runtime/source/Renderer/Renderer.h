@@ -2,7 +2,7 @@
 #include "../Common/ILMath.h"
 
 #include "D3D12RHI.h" // RHI
-#include "Camera.h" // Camera
+#include "CameraContainer.h" // Camera
 #include "UIManager.h" // UI
 #include "PointLight.h" // Lights
 #include "Model.h" // Model
@@ -28,7 +28,7 @@ namespace Renderer
 	private:
 		bool showDemoWindow = false;
 		std::unique_ptr<D3D12RHI> pRHI;
-		Camera* camera;
+		CameraContainer cameras;
 		PointLight* light;
 		UIManager uiManager;
 		BlurOutlineRenderGraph rg;

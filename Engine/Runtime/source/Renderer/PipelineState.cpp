@@ -41,6 +41,15 @@ namespace Renderer
             depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL; // Stencil Buffer is compared with Stencil Reference Value to determine if corresponding rasterized pixel (from Pixel Shader Output) will be drawn.
             depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
         }
+        else if (pipelineDesc.depthStencilMode == Mode::DepthOff)
+        {
+            depthStencilDesc.DepthEnable = FALSE;
+            depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+        }
+        else if (pipelineDesc.depthStencilMode == Mode::DepthReversed)
+        {
+            depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
+        }
 
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { pipelineDesc.inputElementDescs , pipelineDesc.numElements };
