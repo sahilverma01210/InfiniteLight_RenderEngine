@@ -1,0 +1,675 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source\Renderer">
+      <UniqueIdentifier>{4695c0ce-1e84-4cc6-b25b-d89ad71d7e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Common">
+      <UniqueIdentifier>{640325d3-9b69-410f-8428-36a04f1e338c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Common\Private">
+      <UniqueIdentifier>{e10fabdf-961f-4591-8b36-da377413f1df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Common\Public">
+      <UniqueIdentifier>{58b34ae0-496a-4013-860f-e4f72ebb1e44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_External">
+      <UniqueIdentifier>{70b23b94-642a-4313-9087-3cb6add23bec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_External\Private">
+      <UniqueIdentifier>{4235d5a2-7a0f-4a78-b69c-247d52e410c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_External\Public">
+      <UniqueIdentifier>{8831a42e-f89b-4d87-846c-2e6e19877f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Runtime">
+      <UniqueIdentifier>{9f072894-a9bd-4f74-8b22-019c75fa39ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Runtime\Private">
+      <UniqueIdentifier>{206efa66-9d1c-443e-8c49-4e6bdf9b8e5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Runtime\Private\IO">
+      <UniqueIdentifier>{f5efe1ae-fce1-4bb6-b188-f3515c77c15d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Runtime\Public">
+      <UniqueIdentifier>{7545201f-6abf-4b78-b2e7-dd87f1bd63e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Runtime\Public\IO">
+      <UniqueIdentifier>{12d6fd2c-9805-4334-9b95-b5e748f03df2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Testing">
+      <UniqueIdentifier>{23476e21-0f51-4188-a21e-0db85027055b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Testing\Private">
+      <UniqueIdentifier>{509a2bd8-045d-4943-b840-aab02c3df360}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Testing\Public">
+      <UniqueIdentifier>{6cad0e26-a6e8-49e9-b1ba-76698000b49b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{6af78863-ef57-4030-a07e-75ca554c7cd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL">
+      <UniqueIdentifier>{b1d787f9-27b5-4c4a-ad33-6604c3bc201e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Common">
+      <UniqueIdentifier>{95eed843-1cdc-433b-bf77-8adb470e37d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_External\Private\ImGUI">
+      <UniqueIdentifier>{ce1695af-d028-4d5a-8c15-33037d64019e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_External\Public\ImGUI">
+      <UniqueIdentifier>{960f76d2-2e34-497f-891b-1b779669b2b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private">
+      <UniqueIdentifier>{463d7965-e8db-452b-ba4a-66e59a7f4ea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Camera">
+      <UniqueIdentifier>{e3073ebf-4d07-483b-9fd6-72c5c6dc3a8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Common">
+      <UniqueIdentifier>{ea5ed81a-e67b-4fc9-b5f3-dc923f1c43a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Drawables">
+      <UniqueIdentifier>{cc7003b6-cfb0-49b1-a423-7691a2e290f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Lights">
+      <UniqueIdentifier>{e92befca-41b5-4d90-8864-c5d59f985828}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Model">
+      <UniqueIdentifier>{0487562a-0b4f-4c81-8a76-8c4ecbd58302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RenderGraph">
+      <UniqueIdentifier>{4be52e22-33ca-4818-beb7-e4cbb5354e5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RHI">
+      <UniqueIdentifier>{00defb13-6d02-4066-a3e8-f5b56086dfd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RHI\Bindables">
+      <UniqueIdentifier>{932de8dc-04f9-44ad-9dc3-403a72bb1280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\UI">
+      <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public">
+      <UniqueIdentifier>{967d906d-9899-4ff4-a0dc-5c16635a5197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Camera">
+      <UniqueIdentifier>{38e1458a-6472-4367-8978-c039979c196b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Common">
+      <UniqueIdentifier>{0cc981e7-f830-46a5-8883-ea1ef83b6d16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Drawables">
+      <UniqueIdentifier>{9076667c-8be2-4ed5-8884-0a9961c9d62e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Drawables\Shapes">
+      <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Drawables\Primitives">
+      <UniqueIdentifier>{73024be1-12b6-4696-aba9-9bc426d31b36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Lights">
+      <UniqueIdentifier>{ba50ca77-da1a-4c3b-8323-01b781bdc950}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Model">
+      <UniqueIdentifier>{829f7351-0107-4a76-b223-30b1f6196013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\RenderGraph">
+      <UniqueIdentifier>{34c9a6e8-9d5b-48ab-b527-715361136937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\RHI">
+      <UniqueIdentifier>{18677345-aa5b-4815-982a-df2d026566c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\RHI\Bindables">
+      <UniqueIdentifier>{88b16e8a-ee95-4357-abca-ecb3f84fbd25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\UI">
+      <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\Renderer\VertexBuffer.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TextureBuffer.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\IndexBuffer.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Topology.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ConstantBuffer.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Bindable.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CommonBindables.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Drawable.h">
+      <Filter>Source\Renderer\Public\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TransformBuffer.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PipelineState.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RootSignature.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ShaderResourceView.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PointLight.h">
+      <Filter>Source\Renderer\Public\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\SolidSphere.h">
+      <Filter>Source\Renderer\Public\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\UIManager.h">
+      <Filter>Source\Renderer\Public\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Keyboard.h">
+      <Filter>Source\Runtime\Public\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Mouse.h">
+      <Filter>Source\Runtime\Public\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Camera.h">
+      <Filter>Source\Renderer\Public\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RHI.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12RHI.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Model.h">
+      <Filter>Source\Renderer\Public\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\IndexedTriangleList.h">
+      <Filter>Source\Renderer\Public\Drawables\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Vertex.h">
+      <Filter>Source\Renderer\Public\Drawables\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CommonShapes.h">
+      <Filter>Source\Renderer\Public\Drawables\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Sphere.h">
+      <Filter>Source\Renderer\Public\Drawables\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderMath.h">
+      <Filter>Source\Renderer\Public\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\DxgiInfoManager.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BindableCodex.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\DynamicConstant.h">
+      <Filter>Source\Renderer\Public\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LayoutCodex.h">
+      <Filter>Source\Renderer\Public\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Cube.h">
+      <Filter>Source\Renderer\Public\Drawables\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Job.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Pass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Step.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Technique.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PerfLog.h">
+      <Filter>Source\Renderer\Public\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TechniqueProbe.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Material.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ModelException.h">
+      <Filter>Source\Renderer\Public\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Node.h">
+      <Filter>Source\Renderer\Public\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Mesh.h">
+      <Filter>Source\Renderer\Public\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ModelProbe.h">
+      <Filter>Source\Renderer\Public\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\GraphicsResource.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\DepthStencil.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderTarget.h">
+      <Filter>Source\Renderer\Public\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\StepLinkingProbe.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderQueuePass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderGraphCompileException.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Sink.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LambertianPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\FullscreenPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BufferResource.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BufferClearPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BindingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\OutlineDrawingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Source.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\VerticalBlurPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\HorizontalBlurPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TransformCbufScaling.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CameraContainer.h">
+      <Filter>Source\Renderer\Public\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Projection.h">
+      <Filter>Source\Renderer\Public\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CameraIndicator.h">
+      <Filter>Source\Renderer\Public\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Frustum.h">
+      <Filter>Source\Renderer\Public\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\WireframePass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\d3dx12.h">
+      <Filter>Source\_External\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\framework.h">
+      <Filter>Source\_External\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\ILException.h">
+      <Filter>Source\Common\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\ILMath.h">
+      <Filter>Source\Common\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\ILTimer.h">
+      <Filter>Source\Common\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Common\ILUtility.h">
+      <Filter>Source\Common\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Application.h">
+      <Filter>Source\Runtime\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\Window.h">
+      <Filter>Source\Runtime\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\WindowsThrowMacros.h">
+      <Filter>Source\Runtime\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TestCube.h">
+      <Filter>Source\Testing\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Testing.h">
+      <Filter>Source\Testing\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TestModelProbe.h">
+      <Filter>Source\Testing\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\imgui\backends\imgui_impl_dx12.h">
+      <Filter>Source\_External\Public\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\imgui\backends\imgui_impl_win32.h">
+      <Filter>Source\_External\Public\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\imgui\imconfig.h">
+      <Filter>Source\_External\Public\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\imgui\imgui.h">
+      <Filter>Source\_External\Public\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\imgui\imgui_internal.h">
+      <Filter>Source\_External\Public\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Renderer.h">
+      <Filter>Source\Renderer\Public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\Launch.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\VertexBuffer.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Topology.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\TextureBuffer.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\IndexBuffer.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ConstantBuffer.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Drawable.cpp">
+      <Filter>Source\Renderer\Private\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\TransformBuffer.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\PipelineState.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RootSignature.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ShaderResourceView.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\PointLight.cpp">
+      <Filter>Source\Renderer\Private\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\SolidSphere.cpp">
+      <Filter>Source\Renderer\Private\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\UIManager.cpp">
+      <Filter>Source\Renderer\Private\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Keyboard.cpp">
+      <Filter>Source\Runtime\Private\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Mouse.cpp">
+      <Filter>Source\Runtime\Private\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Camera.cpp">
+      <Filter>Source\Renderer\Private\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12RHI.cpp">
+      <Filter>Source\Renderer\Private\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Model.cpp">
+      <Filter>Source\Renderer\Private\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Vertex.cpp">
+      <Filter>Source\Renderer\Private\Drawables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\DxgiInfoManager.cpp">
+      <Filter>Source\Renderer\Private\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\DynamicConstant.cpp">
+      <Filter>Source\Renderer\Private\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\LayoutCodex.cpp">
+      <Filter>Source\Renderer\Private\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Job.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Step.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Technique.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Material.cpp">
+      <Filter>Source\Renderer\Private\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ModelException.cpp">
+      <Filter>Source\Renderer\Private\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Node.cpp">
+      <Filter>Source\Renderer\Private\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Mesh.cpp">
+      <Filter>Source\Renderer\Private\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\GraphicsResource.cpp">
+      <Filter>Source\Renderer\Private\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\DepthStencil.cpp">
+      <Filter>Source\Renderer\Private\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderTarget.cpp">
+      <Filter>Source\Renderer\Private\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Pass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\StepLinkingProbe.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderQueuePass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderGraphCompileException.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderGraph.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Source.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Sink.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\FullscreenPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\BufferClearPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\BindingPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\TransformCbufScaling.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\VerticalBlurPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\HorizontalBlurPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\CameraContainer.cpp">
+      <Filter>Source\Renderer\Private\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Projection.cpp">
+      <Filter>Source\Renderer\Private\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\CameraIndicator.cpp">
+      <Filter>Source\Renderer\Private\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Frustum.cpp">
+      <Filter>Source\Renderer\Private\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\ILException.cpp">
+      <Filter>Source\Common\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\ILTimer.cpp">
+      <Filter>Source\Common\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Common\ILUtility.cpp">
+      <Filter>Source\Common\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Application.cpp">
+      <Filter>Source\Runtime\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\Window.cpp">
+      <Filter>Source\Runtime\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderMath.cpp">
+      <Filter>Source\Renderer\Private\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\TestCube.cpp">
+      <Filter>Source\Testing\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Testing.cpp">
+      <Filter>Source\Testing\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui\imgui.cpp">
+      <Filter>Source\_External\Private\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui\imgui_demo.cpp">
+      <Filter>Source\_External\Private\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui\imgui_draw.cpp">
+      <Filter>Source\_External\Private\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui\imgui_tables.cpp">
+      <Filter>Source\_External\Private\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui\imgui_widgets.cpp">
+      <Filter>Source\_External\Private\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui\backends\imgui_impl_dx12.cpp">
+      <Filter>Source\_External\Private\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\_External\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>Source\_External\Private\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Renderer.cpp">
+      <Filter>Source\Renderer\Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shaders\HLSL\LightVectorData.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PointLight.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\ShaderOps.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Transform.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\BlurOutline_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Fullscreen_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Phong_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Phong_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDif_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDif_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifNrm_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifNrm_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpc_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpc_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Solid_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Solid_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config\packages.config" />
+  </ItemGroup>
+</Project>
