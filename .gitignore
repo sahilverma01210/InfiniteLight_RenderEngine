@@ -76,10 +76,10 @@ StyleCopReport.xml
 *.ilk
 *.meta
 *.obj
-!Engine/Runtime/models/*.obj
-!Engine/Runtime/models/**/*.obj
-!Engine/Runtime/models/*.gltf
-!Engine/Runtime/models/**/*.gltf
+!Engine/data/models/*.obj
+!Engine/data/models/**/*.obj
+!Engine/data/models/*.gltf
+!Engine/data/models/**/*.gltf
 *.iobj
 *.pch
 *.pdb

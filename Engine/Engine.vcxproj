@@ -486,7 +486,9 @@
       <EnableUAC>true</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mtd.dll $(OutDir)</Command>
+      <Command>if not exist $(OutDir)\assimp-vc141-mtd.dll (
+xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mtd.dll $(OutDir)
+)</Command>
       <Message>
       </Message>
     </PostBuildEvent>
@@ -521,7 +523,7 @@
       </DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mt.dll $(OutDir)</Command>
+      <Command>if not exist $(OutDir)\assimp-vc141-mt.dll ( xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mt.dll $(OutDir) )</Command>
       <Message>
       </Message>
     </PostBuildEvent>
