@@ -22,7 +22,7 @@ namespace Renderer
 		Drawable(const Drawable&) = delete;
 		virtual XMMATRIX GetTransformXM() const noexcept = 0;
 		void AddTechnique(Technique tech_in) noexcept;
-		void Submit() const noexcept;
+		void Submit(size_t channels) const noexcept;
 		void Bind(D3D12RHI& gfx, std::string targetPass) const noexcept;
 		void BindLighting(D3D12RHI& gfx) const noexcept;
 		void Accept(TechniqueProbe& probe);

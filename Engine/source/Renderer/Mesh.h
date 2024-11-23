@@ -17,7 +17,7 @@ namespace Renderer
 		Mesh(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale = 1.0f) noexcept;
 		void SetNumIndices(UINT numIndices);
 		XMMATRIX GetTransformXM() const noexcept override;
-		void Submit(DirectX::FXMMATRIX accumulatedTranform) const noexcept;
+		void Submit(size_t channels, DirectX::FXMMATRIX accumulatedTranform) const noexcept;
 	private:
 		mutable XMFLOAT4X4 transform;
 	};

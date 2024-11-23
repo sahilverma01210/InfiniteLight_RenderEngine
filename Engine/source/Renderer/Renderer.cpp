@@ -2,6 +2,7 @@
 #include "TestModelProbe.h"
 #include "Camera.h"
 #include "PerfLog.h"
+#include "Channels.h"
 
 namespace Renderer
 {
@@ -10,16 +11,19 @@ namespace Renderer
 		pRHI(std::make_unique<D3D12RHI>(width, height, hWnd)),
 		rg(*pRHI)
 	{
-		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "A", dx::XMFLOAT3{ -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f));
-		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "B", dx::XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f));
-
 		sponza = std::make_unique<Model>(*pRHI, "data\\models\\sponza\\sponza.obj", 1.0f / 20.0f);
 		sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
-		light = new PointLight(*pRHI);
+		light = new PointLight(*pRHI, { 10.0f,5.0f,0.0f });
+		
+		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "A", dx::XMFLOAT3{ -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f));
+		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "B", dx::XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f));
+		cameras.AddCamera(light->ShareCamera());
 
 		light->LinkTechniques(rg);
 		sponza->LinkTechniques(rg);
 		cameras.LinkTechniques(rg);
+
+		//rg.BindShadowCamera(*light->ShareCamera());
 
 		uiManager.InitUI(*pRHI);
 	}
@@ -35,12 +39,21 @@ namespace Renderer
 	{
 		cameras->Update(*pRHI);
 		light->Bind(*pRHI, cameras->GetMatrix());
+		rg.BindMainCamera(cameras.GetActiveCamera());
 
-		light->Submit();
-		cameras.Submit();
-		sponza->Submit();
+		light->Submit(Channel::main);
+		cameras.Submit(Channel::main);
+		sponza->Submit(Channel::main);
+
+		//sponza->Submit(Channel::shadow);
 
 		rg.Execute(*pRHI);
+
+		if (savingDepth)
+		{
+			rg.DumpShadowMap(*pRHI, "shadow.png");
+			savingDepth = false;
+		}
 
 		// Update UI.
 		{
@@ -58,6 +71,11 @@ namespace Renderer
 		uiManager.EndUIFrame(*pRHI);
 		pRHI->EndFrame();
 		rg.Reset();
+		if (savingDepth)
+		{
+			rg.StoreDepth(*pRHI, "depth.png");
+			savingDepth = false;
+		}
 		PerfLog::Mark("Resolve 2x");
 	}
 

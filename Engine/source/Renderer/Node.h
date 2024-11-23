@@ -29,7 +29,7 @@ namespace Renderer
 			float padding[3];
 		};
 		Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const XMMATRIX& transform) noexcept;
-		void Submit(DirectX::FXMMATRIX accumulatedTransform) const noexcept;
+		void Submit(size_t channels, DirectX::FXMMATRIX accumulatedTransform) const noexcept;
 		void SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 		const DirectX::XMFLOAT4X4& GetAppliedTransform() const noexcept;
 		int GetId() const noexcept;

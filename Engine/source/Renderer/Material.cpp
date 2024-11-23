@@ -2,6 +2,7 @@
 #include "CommonBindables.h"
 #include "DynamicConstant.h"
 #include "TransformBuffer.h"
+#include "Channels.h"
 
 namespace Renderer
 {
@@ -25,7 +26,7 @@ namespace Renderer
 
 		// phong technique
 		{
-			Technique phong{ "Phong" };
+			Technique phong{ "Phong",Channel::main };
 			Step step("lambertian");
 			std::wstring shaderCode = L"Phong";
 			aiString diffFileName, specFileName, normFileName;
@@ -192,7 +193,7 @@ namespace Renderer
 
 		// outline technique
 		{
-			Technique outline("Outline", false);
+			Technique outline{ "Outline",Channel::main,false };
 			{
 				Step mask("outlineMask");
 		
@@ -275,6 +276,47 @@ namespace Renderer
 			}
 			techniques.push_back(std::move(outline));
 		}
+		//// shadow map technique
+		//{
+		//	Technique map{ "ShadowMap",Channel::shadow,true };
+		//	{
+		//		Step draw("shadowMap");
+		//
+		//		// Define the vertex input layout.
+		//		std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
+		//		D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+		//
+		//		for (size_t i = 0; i < vec.size(); ++i) {
+		//			inputElementDescs[i] = vec[i];
+		//		}
+		//
+		//		// Add Pipeline State Obejct
+		//		{
+		//			ID3DBlob* vertexShader;
+		//
+		//			// Compile Shaders.
+		//			D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
+		//
+		//			PipelineDescription shadowMapkPipelineDesc{};
+		//			shadowMapkPipelineDesc.vertexShader = vertexShader;
+		//			shadowMapkPipelineDesc.inputElementDescs = inputElementDescs;
+		//			shadowMapkPipelineDesc.numElements = vec.size();
+		//			shadowMapkPipelineDesc.numConstants = 1;
+		//			shadowMapkPipelineDesc.numConstantBufferViews = 0;
+		//			shadowMapkPipelineDesc.numSRVDescriptors = 0;
+		//			shadowMapkPipelineDesc.backFaceCulling = false;
+		//			shadowMapkPipelineDesc.depthStencilMode = Mode::Off;
+		//			shadowMapkPipelineDesc.blending = false;
+		//
+		//			pipelineDesc["shadowMap"] = shadowMapkPipelineDesc;
+		//		}
+		//
+		//		draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
+		//
+		//		map.AddStep(std::move(draw));
+		//	}
+		//	techniques.push_back(std::move(map));
+		//}
 	}
 
 	VertexRawBuffer Material::ExtractVertices(const aiMesh& mesh) const noexcept

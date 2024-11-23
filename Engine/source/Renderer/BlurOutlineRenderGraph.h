@@ -7,12 +7,16 @@ namespace Renderer
 	class D3D12RHI;
 	class Bindable;
 	class RenderTarget;
+	class Camera;
 
 	class BlurOutlineRenderGraph : public RenderGraph
 	{
 	public:
 		BlurOutlineRenderGraph(D3D12RHI& gfx);
 		void RenderWidgets(D3D12RHI& gfx);
+		void DumpShadowMap(D3D12RHI& gfx, const std::string& path);
+		void BindMainCamera(Camera& cam);
+		void BindShadowCamera(Camera& cam);
 		void SetKernelBox(int radius) noexcept;
 	private:
 		// private functions

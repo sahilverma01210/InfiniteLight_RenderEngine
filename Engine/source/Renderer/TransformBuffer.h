@@ -10,8 +10,9 @@ namespace Renderer
 	public:
 		struct Transforms
 		{
+			//XMMATRIX model;
+			XMMATRIX modelView;
 			XMMATRIX modelViewProj;
-			XMMATRIX model;
 		};
 
 		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex);

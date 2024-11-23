@@ -44,13 +44,13 @@ namespace Renderer
 	{
 		gfx.SetCamera((*this)->GetMatrix());
 	}
-	void CameraContainer::AddCamera(std::unique_ptr<Camera> pCam)
+	void CameraContainer::AddCamera(std::shared_ptr<Camera> pCam)
 	{
 		cameras.push_back(std::move(pCam));
 	}
 	Camera* CameraContainer::operator->()
 	{
-		return cameras[active].get();
+		return &GetActiveCamera();
 	}
 	CameraContainer::~CameraContainer()
 	{}
@@ -62,15 +62,19 @@ namespace Renderer
 			pcam->LinkTechniques(rg);
 		}
 	}
-	void CameraContainer::Submit() const
+	void CameraContainer::Submit(size_t channels) const
 	{
 		for (size_t i = 0; i < cameras.size(); i++)
 		{
 			if (i != active)
 			{
-				cameras[i]->Submit();
+				cameras[i]->Submit(channels);
 			}
 		}
+	}
+	Camera& CameraContainer::GetActiveCamera()
+	{
+		return *cameras[active];
 	}
 	Camera& CameraContainer::GetControlledCamera()
 	{

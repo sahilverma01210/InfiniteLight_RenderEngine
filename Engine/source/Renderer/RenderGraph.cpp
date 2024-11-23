@@ -12,7 +12,7 @@ namespace Renderer
 	RenderGraph::RenderGraph(D3D12RHI& gfx)
 		:
 		backBufferTargets(gfx.GetTarget()),
-		masterDepth(std::make_shared<OutputOnlyDepthStencil>(gfx))
+		masterDepth(std::make_shared<DepthStencil>(gfx))
 	{
 		// setup global sinks and sources
 		AddGlobalSource(DirectBufferBucketSource<RenderTarget>::Make("backbuffer", backBufferTargets));
@@ -88,11 +88,30 @@ namespace Renderer
 		passes.push_back(std::move(pass));
 	}
 
+	Pass& RenderGraph::FindPassByName(const std::string& name)
+	{
+		const auto i = std::find_if(passes.begin(), passes.end(), [&name](auto& p) {
+			return p->GetName() == name;
+			});
+		if (i == passes.end())
+		{
+			throw std::runtime_error{ "Failed to find pass name" };
+		}
+		return **i;
+	}
+
 	void RenderGraph::LinkSinks(Pass& pass)
 	{
 		for (auto& si : pass.GetSinks())
 		{
 			const auto& inputSourcePassName = si->GetPassName();
+
+			if (inputSourcePassName.empty())
+			{
+				std::ostringstream oss;
+				oss << "In pass named [" << pass.GetName() << "] sink named [" << si->GetRegisteredName() << "] has no target source set.";
+				throw RGC_EXCEPTION(oss.str());
+			}
 
 			// check check whether target source is global
 			if (inputSourcePassName == "$")
@@ -182,5 +201,9 @@ namespace Renderer
 			throw RGC_EXCEPTION("In RenderGraph::GetRenderQueue, pass was not RenderQueuePass: " + passName);
 		}
 		throw RGC_EXCEPTION("In RenderGraph::GetRenderQueue, pass not found: " + passName);
+	}
+	void RenderGraph::StoreDepth(D3D12RHI& gfx, const std::string& path)
+	{
+		//masterDepth->ToSurface(gfx).Save(path);
 	}
 }

@@ -1,5 +1,6 @@
 #include "SolidSphere.h"
 #include "DynamicConstant.h"
+#include "Channels.h"
 
 namespace Renderer
 {
@@ -19,7 +20,7 @@ namespace Renderer
 		indexBufferBindable = std::move(std::make_shared<IndexBuffer>(gfx, model.indices.size() * sizeof(model.indices[0]), model.indices));
 
 		{
-			Technique solid;
+			Technique solid{ Channel::main };
 			{
 				Step only("lambertian");
 				{

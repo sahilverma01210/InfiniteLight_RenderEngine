@@ -2,6 +2,7 @@
 #include "CommonBindables.h"
 #include "Vertex.h"
 #include "Sphere.h"
+#include "Channels.h"
 
 namespace Renderer
 {
@@ -58,7 +59,7 @@ namespace Renderer
 		indexBufferBindable = IndexBuffer::Resolve(gfx, geometryTag, indices.size() * sizeof(indices[0]), indices);
 
 		{
-			Technique line;
+			Technique line{ Channel::main };
 			Step only("lambertian");
 
 			// Add Pipeline State Obejct

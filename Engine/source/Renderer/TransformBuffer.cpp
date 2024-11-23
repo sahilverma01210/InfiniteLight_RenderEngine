@@ -17,11 +17,15 @@ namespace Renderer
 
 	void TransformBuffer::Bind(D3D12RHI& gfx) noexcept
 	{
+		assert(pParent != nullptr);
+		const auto model = pParent->GetTransformXM();
+		const auto modelView = model * gfx.GetCamera();
+
 		m_transform = {
-			XMMatrixTranspose(gfx.GetTransform() * gfx.GetCamera()) * XMMatrixScaling(m_scale,m_scale,m_scale),
+			//XMMatrixTranspose(model),
+			XMMatrixTranspose(modelView) * XMMatrixScaling(m_scale,m_scale,m_scale),
 			XMMatrixTranspose(
-				gfx.GetTransform() *
-				gfx.GetCamera() *
+				modelView *
 				gfx.GetProjection()
 			) * XMMatrixScaling(m_scale,m_scale,m_scale)
 		};

@@ -4,7 +4,50 @@
 
 namespace Renderer
 {
-    DepthStencil::DepthStencil(D3D12RHI& gfx, UINT width, UINT height, bool canBindShaderInput)
+    DXGI_FORMAT MapUsageTypeless(DepthStencil::Usage usage)
+    {
+        switch (usage)
+        {
+        case DepthStencil::Usage::DepthStencil:
+            return DXGI_FORMAT::DXGI_FORMAT_R24G8_TYPELESS;
+        case DepthStencil::Usage::ShadowDepth:
+            return DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
+        }
+        throw std::runtime_error{ "Base usage for Typeless format map in DepthStencil." };
+    }
+    DXGI_FORMAT MapUsageTyped(DepthStencil::Usage usage)
+    {
+        switch (usage)
+        {
+        case DepthStencil::Usage::DepthStencil:
+            return DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
+        case DepthStencil::Usage::ShadowDepth:
+            return DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
+        }
+        throw std::runtime_error{ "Base usage for Typed format map in DepthStencil." };
+    }
+    DXGI_FORMAT MapUsageColored(DepthStencil::Usage usage)
+    {
+        switch (usage)
+        {
+        case DepthStencil::Usage::DepthStencil:
+            return DXGI_FORMAT::DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+        case DepthStencil::Usage::ShadowDepth:
+            return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+        }
+        throw std::runtime_error{ "Base usage for Colored format map in DepthStencil." };
+    }
+
+    DepthStencil::DepthStencil(D3D12RHI& gfx)
+        :
+        DepthStencil(gfx, gfx.GetWidth(), gfx.GetHeight(), Usage::DepthStencil)
+    {
+    }
+
+    DepthStencil::DepthStencil(D3D12RHI& gfx, UINT width, UINT height, Usage usage)
+        :
+        width(width),
+        height(height)
 	{
         // Describe and create a DSV descriptor heap.
         {
@@ -18,12 +61,12 @@ namespace Renderer
         {
             CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
             CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
-                DXGI_FORMAT_D24_UNORM_S8_UINT,
+                MapUsageTyped(usage),
                 width, height,
                 1, 0, 1, 0,
                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
             D3D12_CLEAR_VALUE clearValue = {};
-            clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            clearValue.Format = MapUsageTyped(usage);
             clearValue.DepthStencil = { 1.0f, 0xFF };
 
             GetDevice(gfx)->CreateCommittedResource(
@@ -36,7 +79,12 @@ namespace Renderer
 
             m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
-            GetDevice(gfx)->CreateDepthStencilView(m_depthBuffer.Get(), nullptr, m_depthStensilViewHandle);
+            D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
+            descView.Format = MapUsageTyped(usage);
+            descView.Flags = D3D12_DSV_FLAG_NONE;
+            descView.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+            descView.Texture2D.MipSlice = 0;
+            GetDevice(gfx)->CreateDepthStencilView(m_depthBuffer.Get(), &descView, m_depthStensilViewHandle);
         }
 	}
 
@@ -71,38 +119,12 @@ namespace Renderer
         GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier2);
     }
 
-    ShaderInputDepthStencil::ShaderInputDepthStencil(D3D12RHI& gfx, UINT rootParameterIndex, UINT numSRVDescriptors)
-        :
-        ShaderInputDepthStencil(gfx, gfx.GetWidth(), gfx.GetHeight(), rootParameterIndex, numSRVDescriptors)
-    {}
-
-    ShaderInputDepthStencil::ShaderInputDepthStencil(D3D12RHI& gfx, UINT width, UINT height, UINT rootParameterIndex, UINT numSRVDescriptors)
-        :
-        DepthStencil(gfx, width, height, true)
+    unsigned int DepthStencil::GetWidth() const
     {
-        TransitionTo(gfx, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-        srvBindable = std::make_shared<ShaderResourceView>(gfx, rootParameterIndex, numSRVDescriptors);
-        srvBindable->AddResource(gfx, 0, m_depthBuffer.Get());
+        return width;
     }
-
-    void ShaderInputDepthStencil::Bind(D3D12RHI& gfx) noexcept
+    unsigned int DepthStencil::GetHeight() const
     {
-        srvBindable->Bind(gfx);
-    }
-
-    OutputOnlyDepthStencil::OutputOnlyDepthStencil(D3D12RHI& gfx)
-        :
-        OutputOnlyDepthStencil(gfx, gfx.GetWidth(), gfx.GetHeight())
-    {}
-
-    OutputOnlyDepthStencil::OutputOnlyDepthStencil(D3D12RHI& gfx, UINT width, UINT height)
-        :
-        DepthStencil(gfx, width, height, false)
-    {}
-
-    void OutputOnlyDepthStencil::Bind(D3D12RHI& gfx) noexcept
-    {
-        assert("OutputOnlyDepthStencil cannot be bound as shader input" && false);
+        return height;
     }
 }

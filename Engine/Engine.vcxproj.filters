@@ -397,6 +397,15 @@
     <ClInclude Include="source\Renderer\Renderer.h">
       <Filter>Source\Renderer\Public</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\Channels.h">
+      <Filter>Source\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ShadowMappingPass.h">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ShadowCameraBuffer.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
@@ -602,6 +611,9 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\Renderer.cpp">
       <Filter>Source\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ShadowCameraBuffer.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

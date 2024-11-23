@@ -2,6 +2,7 @@
 #include "CommonBindables.h"
 #include "Vertex.h"
 #include "Sphere.h"
+#include "Channels.h"
 
 namespace Renderer
 {
@@ -60,7 +61,7 @@ namespace Renderer
 		indexBufferBindable = IndexBuffer::Resolve(gfx, "$frustum", indices.size() * sizeof(indices[0]), indices);
 
 		{
-			Technique line;
+			Technique line{ Channel::main };
 			{
 				Step unoccluded("lambertian");
 

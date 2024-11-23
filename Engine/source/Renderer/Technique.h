@@ -1,5 +1,6 @@
 #pragma once
 #include "Step.h"
+#include "Channels.h"
 #include <vector>
 
 namespace Renderer
@@ -11,9 +12,9 @@ namespace Renderer
 	class Technique
 	{
 	public:
-		Technique() = default;
-		Technique(std::string name, bool startActive = true) noexcept;
-		void Submit(const Drawable& drawable) const noexcept;
+		Technique(size_t channels);
+		Technique(std::string name, size_t channels, bool startActive = true) noexcept;
+		void Submit(const Drawable& drawable, size_t channels) const noexcept;
 		void AddStep(Step step) noexcept;
 		bool IsActive() const noexcept;
 		void SetActiveState(bool active_in) noexcept;
@@ -25,5 +26,6 @@ namespace Renderer
 		bool active = true;
 		std::vector<Step> steps;
 		std::string name;
+		size_t channels;
 	};
 }

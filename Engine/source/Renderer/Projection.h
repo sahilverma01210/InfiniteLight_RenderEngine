@@ -15,7 +15,7 @@ namespace Renderer
 		void RenderWidgets(D3D12RHI& gfx);
 		void SetPos(DirectX::XMFLOAT3);
 		void SetRotation(DirectX::XMFLOAT3);
-		void Submit() const;
+		void Submit(size_t channel) const;
 		void LinkTechniques(RenderGraph& rg);
 		void Reset(D3D12RHI& gfx);
 	private:

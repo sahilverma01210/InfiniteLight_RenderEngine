@@ -49,10 +49,10 @@ namespace Renderer
 		pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
 	}
 
-	void Model::Submit() const noexcept
+	void Model::Submit(size_t channels) const noexcept
 	{
 		//pWindow->ApplyParameters();
-		pRoot->Submit(XMMatrixIdentity());
+		pRoot->Submit(channels, XMMatrixIdentity());
 	}
 
 	void Model::SetRootTransform(DirectX::FXMMATRIX tf) noexcept

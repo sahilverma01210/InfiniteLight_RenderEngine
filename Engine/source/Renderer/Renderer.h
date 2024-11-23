@@ -26,6 +26,7 @@ namespace Renderer
 		void ToggleImguiDemoWindow();
 		void ShowImguiDemoWindow();
 	private:
+		bool savingDepth = false;
 		bool showDemoWindow = false;
 		std::unique_ptr<D3D12RHI> pRHI;
 		CameraContainer cameras;

@@ -5,11 +5,11 @@ namespace Renderer
 {
 	std::shared_ptr<Bindable> Drawable::lightBindable;
 
-	void Drawable::Submit() const noexcept
+	void Drawable::Submit(size_t channels) const noexcept
 	{
 		for (const auto& tech : techniques)
 		{
-			tech.Submit(*this);
+			tech.Submit(*this, channels);
 		}
 	}
 

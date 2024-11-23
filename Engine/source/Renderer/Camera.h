@@ -16,17 +16,21 @@ namespace Renderer
 	class Camera
 	{
 	public:
-		Camera(D3D12RHI& gfx, std::string name, XMFLOAT3 homePos = { 0.0f,0.0f,0.0f }, float homePitch = 0.0f, float homeYaw = 0.0f) noexcept;
+		Camera(D3D12RHI& gfx, std::string name, XMFLOAT3 homePos = { 0.0f,0.0f,0.0f }, float homePitch = 0.0f, float homeYaw = 0.0f, bool tethered = false) noexcept;
 		XMMATRIX GetMatrix() const noexcept;
+		XMMATRIX GetProjection() const noexcept;
 		void SpawnControlWidgets(D3D12RHI& gfx) noexcept;
-		void Update(D3D12RHI& gfx) noexcept;
+		void Update(D3D12RHI& gfx) const;
 		void Reset(D3D12RHI& gfx) noexcept;
 		void Rotate(float dx, float dy) noexcept;
 		void Translate(XMFLOAT3 translation) noexcept;
+		XMFLOAT3 GetPos() const noexcept;
+		void SetPos(const XMFLOAT3& pos) noexcept;
 		const std::string& GetName() const noexcept;
 		void LinkTechniques(RenderGraph& rg);
-		void Submit() const;
+		void Submit(size_t channels) const;
 	private:
+		bool tethered;
 		std::string name;
 		XMFLOAT3 homePos;
 		float homePitch;
