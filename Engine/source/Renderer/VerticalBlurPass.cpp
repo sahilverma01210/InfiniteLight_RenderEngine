@@ -12,11 +12,26 @@ namespace Renderer
 
 		D3DCompileFromFile(gfx.GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
 
+
+		CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
+
+		// define static sampler 
+		CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
+		staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+		staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+		staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+		staticSampler.MipLODBias = 0.0f;
+		staticSampler.MinLOD = 0.0f;
+		staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+
+		samplers[0] = staticSampler;
+
 		pipelineDesc.pixelShader = pixelShader;
 		pipelineDesc.blending = true;
 		pipelineDesc.depthStencilMode = Mode::Mask;
-		pipelineDesc.samplerFilterType = SamplerFilterType::Bilinear;
-		pipelineDesc.reflect = true;
+		pipelineDesc.numSamplers = 1;
+		pipelineDesc.samplers = samplers;
 
 		rootSignBindable = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 		psoBindable = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));

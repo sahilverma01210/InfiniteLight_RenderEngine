@@ -41,6 +41,20 @@ namespace Renderer
 							inputElementDescs[i] = vec[i];
 						}
 
+						CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
+
+						// define static sampler 
+						CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
+						staticSampler.Filter = D3D12_FILTER_ANISOTROPIC;
+						staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+						staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+						staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+						staticSampler.MipLODBias = 0.0f;
+						staticSampler.MinLOD = 0.0f;
+						staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+
+						samplers[0] = staticSampler;
+
 						pipelineDesc.vertexShader = vertexShader;
 						pipelineDesc.pixelShader = pixelShader;
 						pipelineDesc.inputElementDescs = inputElementDescs;
@@ -50,6 +64,8 @@ namespace Renderer
 						pipelineDesc.numSRVDescriptors = 0;
 						pipelineDesc.backFaceCulling = false;
 						pipelineDesc.depthStencilMode = Mode::Off;
+						pipelineDesc.numSamplers = 1;
+						pipelineDesc.samplers = samplers;
 
 						rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 						psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));

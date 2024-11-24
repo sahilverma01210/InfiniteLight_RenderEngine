@@ -12,13 +12,6 @@ namespace Renderer
     class Bindable;
     class RenderTarget;
 
-    enum class SamplerFilterType
-    {
-        Anisotropic,
-        Bilinear,
-        Point,
-    };
-
     enum class Mode
     {
         Off,
@@ -30,19 +23,19 @@ namespace Renderer
 
     struct PipelineDescription
     {
-        ID3DBlob* vertexShader = nullptr;
-        ID3DBlob* pixelShader = nullptr;
-        D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
         UINT numElements = 0;
         UINT numConstants = 0;
         UINT numConstantBufferViews = 0;
         UINT numSRVDescriptors = 0;
+        UINT numSamplers = 0;
         bool backFaceCulling = false;
-        Mode depthStencilMode = {};
-        SamplerFilterType samplerFilterType = SamplerFilterType::Anisotropic;
-        bool reflect = false;
         bool blending = false;
+        Mode depthStencilMode = {};
+        ID3DBlob* vertexShader = nullptr;
+        ID3DBlob* pixelShader = nullptr;
+        D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
         ID3D12RootSignature* rootSignature = nullptr;
+        CD3DX12_STATIC_SAMPLER_DESC* samplers = nullptr;
     };
 
     class D3D12RHI : public RHI

@@ -20,12 +20,25 @@ namespace Renderer
         {
             const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, pipelineDesc.numSRVDescriptors, 0 };
             InitDescriptorTable(pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
-            InitRootSignature(gfx, true, 1, pipelineDesc.samplerFilterType, pipelineDesc.reflect);
         }
-        else
-        {
-            InitRootSignature(gfx, false, 0, pipelineDesc.samplerFilterType, pipelineDesc.reflect);
-        }
+
+        // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
+        const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+
+        // define root signsture.
+        CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+        rootSignatureDesc.Init(m_numRootParameters, m_rootParameters, pipelineDesc.numSamplers, pipelineDesc.numSamplers ? pipelineDesc.samplers : nullptr, rootSignatureFlags);
+
+        ComPtr<ID3DBlob> signatureBlob;
+        ComPtr<ID3DBlob> errorBlob;
+        D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+        GetDevice(gfx)->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
 
         pipelineDesc.rootSignature = m_rootSignature.Get();
 	}
@@ -45,53 +58,6 @@ namespace Renderer
     void RootSignature::InitDescriptorTable(UINT rootParameterIndex, UINT numDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY visibilityFlag)
     {
         m_rootParameters[rootParameterIndex].InitAsDescriptorTable(numDescriptorRanges, pDescriptorRanges, visibilityFlag);
-    }
-
-    void RootSignature::InitRootSignature(D3D12RHI& gfx, bool initWithSampler, UINT numSampler, SamplerFilterType type, bool reflect)
-    {
-        // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
-        const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-
-        // define root signsture.
-        CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-
-        if (initWithSampler)
-        {
-            // define static sampler 
-            CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-            staticSampler.Filter = [type]() {
-                switch (type)
-                {
-                case SamplerFilterType::Anisotropic: return D3D12_FILTER_ANISOTROPIC;
-                case SamplerFilterType::Point: return D3D12_FILTER_MIN_MAG_MIP_POINT;
-                default:
-                case SamplerFilterType::Bilinear: return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-                }
-                }();
-            staticSampler.AddressU = reflect ? D3D12_TEXTURE_ADDRESS_MODE_MIRROR : D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-            staticSampler.AddressV = reflect ? D3D12_TEXTURE_ADDRESS_MODE_MIRROR : D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-            staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-            staticSampler.MipLODBias = 0.0f;
-            staticSampler.MinLOD = 0.0f;
-            staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-
-            rootSignatureDesc.Init(m_numRootParameters, m_rootParameters, numSampler, &staticSampler, rootSignatureFlags);
-        }
-        else
-        {
-            rootSignatureDesc.Init(m_numRootParameters, m_rootParameters, 0, nullptr, rootSignatureFlags);
-        }
-
-        ComPtr<ID3DBlob> signatureBlob;
-        ComPtr<ID3DBlob> errorBlob;
-        D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
-        GetDevice(gfx)->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
     }
 
     ID3D12RootSignature* RootSignature::GetRootSignature()

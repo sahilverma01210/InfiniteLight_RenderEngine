@@ -60,6 +60,20 @@ namespace Renderer
 		vertexBufferBindable = std::make_shared<VertexBuffer>(gfx, vertices.GetData(), UINT(vertices.SizeBytes()), (UINT)vertices.GetLayout().Size());
 		indexBufferBindable = IndexBuffer::Resolve(gfx, "$frustum", indices.size() * sizeof(indices[0]), indices);
 
+		CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
+
+		// define static sampler 
+		CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
+		staticSampler.Filter = D3D12_FILTER_ANISOTROPIC;
+		staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+		staticSampler.MipLODBias = 0.0f;
+		staticSampler.MinLOD = 0.0f;
+		staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+
+		samplers[0] = staticSampler;
+
 		{
 			Technique line{ Channel::main };
 			{
@@ -91,6 +105,8 @@ namespace Renderer
 					pipelineDesc.numSRVDescriptors = 0;
 					pipelineDesc.backFaceCulling = false;
 					pipelineDesc.depthStencilMode = Mode::Off;
+					pipelineDesc.numSamplers = 1;
+					pipelineDesc.samplers = samplers;
 
 					rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 					psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -111,29 +127,6 @@ namespace Renderer
 
 				// Add Pipeline State Obejct
 				{
-					ID3DBlob* vertexShader;
-					ID3DBlob* pixelShader;
-
-					// Compile Shaders.
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
-
-					// Define the vertex input layout.
-					std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vertices.GetLayout().GetD3DLayout();
-					D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
-
-					for (size_t i = 0; i < vec.size(); ++i) {
-						inputElementDescs[i] = vec[i];
-					}
-
-					pipelineDesc.vertexShader = vertexShader;
-					pipelineDesc.pixelShader = pixelShader;
-					pipelineDesc.inputElementDescs = inputElementDescs;
-					pipelineDesc.numElements = vec.size();
-					pipelineDesc.numConstants = 1;
-					pipelineDesc.numConstantBufferViews = 1;
-					pipelineDesc.numSRVDescriptors = 0;
-					pipelineDesc.backFaceCulling = false;
 					pipelineDesc.depthStencilMode = Mode::DepthReversed;
 
 					rootSignBindables["wireframe"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));

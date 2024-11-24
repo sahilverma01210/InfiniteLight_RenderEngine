@@ -24,6 +24,20 @@ namespace Renderer
 		vtxLayout.Append(VertexLayout::Position3D);
 		vtxLayout.Append(VertexLayout::Normal);
 
+		CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
+
+		// define static sampler 
+		CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
+		staticSampler.Filter = D3D12_FILTER_ANISOTROPIC;
+		staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+		staticSampler.MipLODBias = 0.0f;
+		staticSampler.MinLOD = 0.0f;
+		staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+
+		samplers[0] = staticSampler;
+
 		// phong technique
 		{
 			Technique phong{ "Phong",Channel::main };
@@ -112,6 +126,8 @@ namespace Renderer
 					phongPipelineDesc.numSRVDescriptors = numSRVDescriptors;
 					phongPipelineDesc.backFaceCulling = !hasAlpha;
 					phongPipelineDesc.depthStencilMode = Mode::Off;
+					phongPipelineDesc.numSamplers = 1;
+					phongPipelineDesc.samplers = samplers;
 
 					pipelineDesc["lambertian"] = phongPipelineDesc;
 				}
@@ -221,6 +237,8 @@ namespace Renderer
 					maskPipelineDesc.numSRVDescriptors = 0;
 					maskPipelineDesc.backFaceCulling = false;
 					maskPipelineDesc.depthStencilMode = Mode::Write;
+					maskPipelineDesc.numSamplers = 1;
+					maskPipelineDesc.samplers = samplers;
 		
 					pipelineDesc["outlineMask"] = maskPipelineDesc;
 				}
@@ -258,6 +276,8 @@ namespace Renderer
 					drawPipelineDesc.numSRVDescriptors = 0;
 					drawPipelineDesc.backFaceCulling = true;
 					drawPipelineDesc.depthStencilMode = Mode::Off;
+					drawPipelineDesc.numSamplers = 1;
+					drawPipelineDesc.samplers = samplers;
 			
 					pipelineDesc["outlineDraw"] = drawPipelineDesc;
 				}

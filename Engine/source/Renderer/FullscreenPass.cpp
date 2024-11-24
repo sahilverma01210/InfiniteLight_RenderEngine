@@ -42,7 +42,6 @@ namespace Renderer
 			pipelineDesc.numConstantBufferViews = 2;
 			pipelineDesc.numSRVDescriptors = 1;
 			pipelineDesc.backFaceCulling = true;
-			pipelineDesc.reflect = true;
 		}
 	}
 
