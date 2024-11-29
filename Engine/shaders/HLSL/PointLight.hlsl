@@ -1,4 +1,4 @@
-cbuffer PointLightCBuf : register(b1)
+cbuffer PointLightCBuf : register(b2)
 {
     float3 viewLightPos;
     float3 ambient;

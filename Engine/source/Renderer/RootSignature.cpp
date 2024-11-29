@@ -11,7 +11,7 @@ namespace Renderer
         m_rootParameters = new CD3DX12_ROOT_PARAMETER[m_numRootParameters];
 
         for (int i = 0; i < pipelineDesc.numConstants; i++)
-            Init32BitConstant(sizeof(XMMATRIX) / 4, i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+            Init32BitConstant(pipelineDesc.num32BitConstants, i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
         for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++)
             InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_ALL);
@@ -37,7 +37,14 @@ namespace Renderer
 
         ComPtr<ID3DBlob> signatureBlob;
         ComPtr<ID3DBlob> errorBlob;
-        D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+        HRESULT hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+        if (FAILED(hr)) {
+            if (errorBlob) {
+                OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+                OutputDebugStringA("\n");
+            }
+        }
+
         GetDevice(gfx)->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
 
         pipelineDesc.rootSignature = m_rootSignature.Get();

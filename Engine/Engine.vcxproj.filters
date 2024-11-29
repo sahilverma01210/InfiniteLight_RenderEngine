@@ -400,11 +400,11 @@
     <ClInclude Include="source\Renderer\Channels.h">
       <Filter>Source\Renderer\Public</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\ShadowMappingPass.h">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\ShadowCameraBuffer.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ShadowMappingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -638,9 +638,6 @@
     <CustomBuild Include="shaders\HLSL\Fullscreen_VS.hlsl">
       <Filter>Shaders\HLSL</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Phong_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Phong_VS.hlsl">
       <Filter>Shaders\HLSL</Filter>
     </CustomBuild>
@@ -679,6 +676,27 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Solid_VS.hlsl">
       <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\ShadowTest_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\ShadowTest_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PShadow.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\VShadow.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Phong_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\_PShadow_Dynamic.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\_PShadow_Static.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

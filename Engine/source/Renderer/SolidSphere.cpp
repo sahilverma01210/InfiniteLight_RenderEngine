@@ -30,8 +30,8 @@ namespace Renderer
 						ID3DBlob* pixelShader;
 
 						// Compile Shaders.
-						D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
-						D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &pixelShader, nullptr);
+						D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+						D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 
 						// Define the vertex input layout.
 						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = model.vertices.GetLayout().GetD3DLayout();
@@ -60,6 +60,7 @@ namespace Renderer
 						pipelineDesc.inputElementDescs = inputElementDescs;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.numConstants = 1;
+						pipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 						pipelineDesc.numConstantBufferViews = 1;
 						pipelineDesc.numSRVDescriptors = 0;
 						pipelineDesc.backFaceCulling = false;

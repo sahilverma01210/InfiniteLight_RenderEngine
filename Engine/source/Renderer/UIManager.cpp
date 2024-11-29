@@ -30,16 +30,10 @@ namespace Renderer
 
         // Initialize D3D12 ImGUI.
         {
-            // Increment the Handle Pointers to point after loaded cube texture Handle.
-            D3D12_CPU_DESCRIPTOR_HANDLE srvHeapHandleCPU = gfx.m_srvHeap->GetCPUDescriptorHandleForHeapStart();
-            srvHeapHandleCPU.ptr += gfx.m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-            D3D12_GPU_DESCRIPTOR_HANDLE srvHeapHandleGPU = gfx.m_srvHeap->GetGPUDescriptorHandleForHeapStart();
-            srvHeapHandleGPU.ptr += gfx.m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
             ImGui_ImplDX12_Init(gfx.m_device.Get(), 1,
                 DXGI_FORMAT_R8G8B8A8_UNORM, nullptr,
-                srvHeapHandleCPU,
-                srvHeapHandleGPU);
+                gfx.m_srvHeap->GetCPUDescriptorHandleForHeapStart(),
+                gfx.m_srvHeap->GetGPUDescriptorHandleForHeapStart());
         }
     }
 

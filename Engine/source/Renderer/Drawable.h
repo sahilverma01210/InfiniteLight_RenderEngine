@@ -40,5 +40,6 @@ namespace Renderer
 		std::vector<Technique> techniques;
 	private:
 		static std::shared_ptr<Bindable> lightBindable;
+		static std::shared_ptr<Bindable> lightShadowBindable;
 	};
 }

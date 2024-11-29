@@ -17,7 +17,7 @@ namespace Renderer
 		bool SpawnControlWindow() noexcept;
 		void Reset() noexcept;
 		void Submit(size_t channels) const noexcept;
-		void Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
+		void Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
 		void LinkTechniques(RenderGraph&);
 		std::shared_ptr<Camera> ShareCamera() const noexcept;
 		bool m_imGUIwndOpen = true;
@@ -32,9 +32,14 @@ namespace Renderer
 			float attLin;
 			float attQuad;
 		};
+		struct ShadowLightTransform
+		{
+			XMMATRIX ViewProj;
+		};
 	private:
 		PointLightCBuf home;
 		PointLightCBuf cbData;
+		ShadowLightTransform shadowData;
 		mutable SolidSphere mesh;
 		std::shared_ptr<Camera> pCamera;
 	};

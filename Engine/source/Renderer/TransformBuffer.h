@@ -10,7 +10,7 @@ namespace Renderer
 	public:
 		struct Transforms
 		{
-			//XMMATRIX model;
+			XMMATRIX model;
 			XMMATRIX modelView;
 			XMMATRIX modelViewProj;
 		};

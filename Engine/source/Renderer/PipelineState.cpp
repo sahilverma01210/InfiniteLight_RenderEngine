@@ -21,6 +21,14 @@ namespace Renderer
         D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
         rasterizerDesc.CullMode = pipelineDesc.backFaceCulling ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 
+        // Hardcoded Values ()
+        if (pipelineDesc.shadowMapping)
+        {
+            rasterizerDesc.DepthBias = 40;
+            rasterizerDesc.SlopeScaledDepthBias = 4.66f;
+            rasterizerDesc.DepthBiasClamp = 0.5f;
+        }
+
         D3D12_DEPTH_STENCIL_DESC depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
         if (pipelineDesc.depthStencilMode == Mode::Write)
@@ -62,7 +70,7 @@ namespace Renderer
         m_psoDescription.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         m_psoDescription.NumRenderTargets = 1;
         m_psoDescription.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-        m_psoDescription.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+        m_psoDescription.DSVFormat = gfx.MapUsageTyped(pipelineDesc.depthUsage);
         m_psoDescription.DepthStencilState = depthStencilDesc;
         m_psoDescription.SampleDesc.Count = 1;
         HRESULT hr = GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));

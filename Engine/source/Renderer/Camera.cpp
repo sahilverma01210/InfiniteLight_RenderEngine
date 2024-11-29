@@ -20,7 +20,9 @@ namespace Renderer
 			indicator.SetPos(pos);
 			proj.SetPos(pos);
 		}
+		gfx.ResetCommandList();
 		Reset(gfx);
+		gfx.ExecuteCommandList();
 	}
 
 	XMMATRIX Camera::GetMatrix() const noexcept

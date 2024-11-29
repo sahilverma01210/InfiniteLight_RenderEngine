@@ -4,6 +4,7 @@
 namespace Renderer
 {
 	std::shared_ptr<Bindable> Drawable::lightBindable;
+	std::shared_ptr<Bindable> Drawable::lightShadowBindable;
 
 	void Drawable::Submit(size_t channels) const noexcept
 	{
@@ -50,7 +51,11 @@ namespace Renderer
 
 	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept
 	{
-		if (enableLighting) lightBindable->Bind(gfx);
+		if (enableLighting)
+		{
+			lightBindable->Bind(gfx);
+			lightShadowBindable->Bind(gfx);
+		}
 	}
 
 	void Drawable::Accept(TechniqueProbe& probe)

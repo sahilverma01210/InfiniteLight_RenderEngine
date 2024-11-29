@@ -12,21 +12,15 @@ namespace Renderer
 	{
 		friend class RenderTarget;
 	public:
-		enum class Usage
-		{
-			DepthStencil,
-			ShadowDepth,
-		};
-	public:
 		DepthStencil(D3D12RHI& gfx);
-		DepthStencil(D3D12RHI& gfx, UINT width, UINT height, Usage usage);
+		DepthStencil(D3D12RHI& gfx, UINT width, UINT height, DepthUsage usage);
 		void BindAsBuffer(D3D12RHI& gfx) noexcept override;
 		void BindAsBuffer(D3D12RHI& gfx, BufferResource* renderTarget) noexcept override;
 		void BindAsBuffer(D3D12RHI& gfx, RenderTarget* rt) noexcept;
 		void Clear(D3D12RHI& gfx) noexcept override;
 		unsigned int GetWidth() const;
 		unsigned int GetHeight() const;
-		void TransitionTo(D3D12RHI& gfx, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept;
+		ID3D12Resource* GetBuffer() const noexcept;
 	protected:
 		ComPtr<ID3D12Resource> m_depthBuffer;
 		ComPtr<ID3D12DescriptorHeap> m_dsvHeap;

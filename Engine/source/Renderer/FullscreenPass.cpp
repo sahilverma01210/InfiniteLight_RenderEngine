@@ -33,7 +33,7 @@ namespace Renderer
 			ID3DBlob* vertexShader;
 		
 			// Compile Shaders.
-			D3DCompileFromFile(gfx.GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(gfx.GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 		
 			pipelineDesc.vertexShader = vertexShader;
 			pipelineDesc.inputElementDescs = inputElementDescs;

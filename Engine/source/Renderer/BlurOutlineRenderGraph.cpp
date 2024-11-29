@@ -32,13 +32,13 @@ namespace Renderer
 			pass->SetSinkLinkage("buffer", "$.masterDepth");
 			AppendPass(std::move(pass));
 		}
-		//{
-		//	auto pass = std::make_unique<ShadowMappingPass>(gfx, "shadowMap");
-		//	AppendPass(std::move(pass));
-		//}
+		{
+			auto pass = std::make_unique<ShadowMappingPass>(gfx, "shadowMap");
+			AppendPass(std::move(pass));
+		}
 		{
 			auto pass = std::make_unique<LambertianPass>(gfx, "lambertian");
-			//pass->SetSinkLinkage("shadowMap", "shadowMap.map");
+			pass->SetSinkLinkage("shadowMap", "shadowMap.map");
 			pass->SetSinkLinkage("renderTarget", "clearRT.buffer");
 			pass->SetSinkLinkage("depthStencil", "clearDS.buffer");
 			AppendPass(std::move(pass));

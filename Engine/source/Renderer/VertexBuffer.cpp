@@ -41,35 +41,17 @@ namespace Renderer
                 IID_PPV_ARGS(&m_vertexUploadBuffer));
         }
 
-        //// Copy the triangle data to the vertex buffer.
-        //UINT8* pVertexDataBegin;
-        //CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-        //vertexUploadBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
-        //memcpy(pVertexDataBegin, &pData, m_vertexBufferSize);
-        //vertexUploadBuffer->Unmap(0, nullptr);
-
-        // reset command list and allocator  
-        GetCommandAllocator(gfx)->Reset();
-        GetCommandList(gfx)->Reset(GetCommandAllocator(gfx), nullptr);
-
         D3D12_SUBRESOURCE_DATA vertexData = {};
         vertexData.pData = data;
         vertexData.RowPitch = m_vertexBufferSize;
         vertexData.SlicePitch = vertexData.RowPitch;
 
+        gfx.ResetCommandList();
+
         UpdateSubresources(GetCommandList(gfx), m_vertexBuffer.Get(), m_vertexUploadBuffer.Get(), 0, 0, 1, &vertexData);
 
-        //// copy Upload Buffer to Vertex Buffer 
-        //GetCommandList(gfx)->CopyResource(m_vertexBuffer.Get(), vertexUploadBuffer.Get());
-
-        // transition vertex buffer to vertex buffer state 
-        auto resourceBarrier0 = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-        GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier0);
-
-        // close command list and submit command list to queue as array with single element.
-        GetCommandList(gfx)->Close();
-        ID3D12CommandList* const commandLists[] = { GetCommandList(gfx) };
-        GetCommandQueue(gfx)->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
+        gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+        gfx.ExecuteCommandList();
 
         InsertFence(gfx);
 
@@ -92,14 +74,11 @@ namespace Renderer
         memcpy(pConstantDataBegin, pData, m_vertexBufferSize);
         m_vertexUploadBuffer->Unmap(0, nullptr);
 
-        auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
-        GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier1);
+        gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
 
-        // copy Upload Buffer to Constant Buffer 
         GetCommandList(gfx)->CopyResource(m_vertexBuffer.Get(), m_vertexUploadBuffer.Get());
 
-        auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-        GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier2);
+        gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
         InsertFence(gfx);
     }

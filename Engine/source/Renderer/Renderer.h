@@ -32,7 +32,7 @@ namespace Renderer
 		CameraContainer cameras;
 		PointLight* light;
 		UIManager uiManager;
-		BlurOutlineRenderGraph rg;
+		std::unique_ptr<BlurOutlineRenderGraph> rg;
 		std::unique_ptr<Model> sponza;
 	};
 }

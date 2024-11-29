@@ -19,7 +19,8 @@ namespace Renderer
 
 		Reset();
 		pCamera = std::make_shared<Camera>(gfx, "Light", cbData.pos, 0.0f, 0.0f, true);
-		Drawable::lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 1, sizeof(cbData), &cbData));
+		Drawable::lightShadowBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 1, sizeof(shadowData), &shadowData));
+		Drawable::lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(cbData), &cbData));
 	}
 
 	bool PointLight::SpawnControlWindow() noexcept
@@ -68,11 +69,19 @@ namespace Renderer
 		mesh.Submit(channels);
 	}
 
-	void PointLight::Bind(D3D12RHI& gfx, FXMMATRIX view) const noexcept
+	void PointLight::Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept
 	{
 		auto dataCopy = cbData;
 		const auto pos = XMLoadFloat3(&cbData.pos);
 		XMStoreFloat3(&dataCopy.pos, XMVector3Transform(pos, view));
+
+		auto shadowDataCopy = shadowData;
+		const auto ViewProj = XMMatrixTranspose(
+			pCamera->GetMatrix() * pCamera->GetProjection()
+		);
+		shadowDataCopy.ViewProj = ViewProj;
+
+		Drawable::lightShadowBindable->Update(gfx, &shadowDataCopy);
 		Drawable::lightBindable->Update(gfx, &dataCopy);
 	}
 

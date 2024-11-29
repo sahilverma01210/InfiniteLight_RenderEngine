@@ -21,7 +21,8 @@ namespace Renderer
 			:
 			RenderQueuePass(std::move(name))
 		{
-			depthStencil = std::make_unique<DepthStencil>(gfx, gfx.GetWidth(), gfx.GetHeight(), DepthStencil::Usage::ShadowDepth);
+			depthStencil = std::make_unique<DepthStencil>(gfx, gfx.GetWidth(), gfx.GetHeight(), DepthUsage::ShadowDepth);
+			gfx.SetDepthBuffer(depthStencil.get()->GetBuffer());
 			RegisterSource(DirectBindableSource<DepthStencil>::Make("map", depthStencil));
 		}
 		void Execute(D3D12RHI& gfx) const noexcept override

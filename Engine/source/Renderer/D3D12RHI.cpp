@@ -37,6 +37,19 @@ namespace Renderer
         ComPtr<IDXGIFactory4> factory;
         D3D12RHI_THROW_INFO(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 
+        // Enable D3D12 CPU & GPU Debug Layers.
+        {
+            ComPtr<ID3D12Debug> debugController;
+            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+                debugController->EnableDebugLayer();
+            }
+        
+            ComPtr<ID3D12Debug1> debugController1;
+            if (SUCCEEDED(debugController.As(&debugController1))) {
+                debugController1->SetEnableGPUBasedValidation(TRUE);
+            }
+        }
+
         // Create D3D Device.
         {
             if (m_useWarpDevice)
@@ -175,6 +188,21 @@ namespace Renderer
         return m_swapChain->GetCurrentBackBufferIndex();
     }
 
+    void D3D12RHI::ResetCommandList()
+    {
+        InsertFence();
+
+        m_commandAllocator->Reset();
+        m_commandList->Reset(m_commandAllocator.Get(), nullptr);
+    }
+
+    void D3D12RHI::ExecuteCommandList()
+    {
+        m_commandList->Close();
+        ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
+        m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
+    }
+
     void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept
     {
         auto resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState);
@@ -290,16 +318,7 @@ namespace Renderer
 
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)
     {
-        // Draw Call.
         m_commandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0);
-
-        //OutputDebugStringA("Height: ");
-        //OutputDebugStringA(std::to_string(m_viewport.Height).c_str());
-        //OutputDebugStringA("\n");
-
-        //OutputDebugStringA("Width: ");
-        //OutputDebugStringA(std::to_string(m_viewport.Width).c_str());
-        //OutputDebugStringA("\n");
     }
 
     void D3D12RHI::EndFrame()
@@ -325,9 +344,19 @@ namespace Renderer
         m_currentTargetBuffer = buffer;
     }
 
+    void D3D12RHI::SetDepthBuffer(ID3D12Resource* buffer)
+    {
+        m_currentDepthBuffer = buffer;
+    }
+
     ID3D12Resource* D3D12RHI::GetRenderTargetBuffer()
     {
         return m_currentTargetBuffer;
+    }
+
+    ID3D12Resource* D3D12RHI::GetDepthBuffer()
+    {
+        return m_currentDepthBuffer;
     }
 
     // PUBLIC - D3D12 EXCEPTION CLASS METHODS

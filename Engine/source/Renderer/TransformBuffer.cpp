@@ -22,7 +22,7 @@ namespace Renderer
 		const auto modelView = model * gfx.GetCamera();
 
 		m_transform = {
-			//XMMatrixTranspose(model),
+			XMMatrixTranspose(model),
 			XMMatrixTranspose(modelView) * XMMatrixScaling(m_scale,m_scale,m_scale),
 			XMMatrixTranspose(
 				modelView *
