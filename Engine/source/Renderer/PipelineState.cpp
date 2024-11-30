@@ -58,6 +58,11 @@ namespace Renderer
         {
             depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
         }
+        else if (pipelineDesc.depthStencilMode == Mode::DepthFirst)
+        {
+            depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+            depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+        }
 
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { pipelineDesc.inputElementDescs , pipelineDesc.numElements };

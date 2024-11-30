@@ -406,6 +406,9 @@
     <ClInclude Include="source\Renderer\ShadowMappingPass.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\SkyboxPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
@@ -697,6 +700,12 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\_PShadow_Static.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Skybox_PS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
+      <Filter>Shaders\HLSL</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

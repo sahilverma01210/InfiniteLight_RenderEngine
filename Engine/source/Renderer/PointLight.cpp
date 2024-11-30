@@ -1,5 +1,6 @@
 #include "PointLight.h"
 #include "Camera.h"
+#include "../Common/ILMath.h"
 
 namespace Renderer
 {
@@ -18,7 +19,7 @@ namespace Renderer
 		};
 
 		Reset();
-		pCamera = std::make_shared<Camera>(gfx, "Light", cbData.pos, 0.0f, 0.0f, true);
+		pCamera = std::make_shared<Camera>(gfx, "Light", cbData.pos, 0.0f, PI / 2.0f, true);
 		Drawable::lightShadowBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 1, sizeof(shadowData), &shadowData));
 		Drawable::lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(cbData), &cbData));
 	}

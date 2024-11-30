@@ -12,16 +12,11 @@ namespace Renderer
 		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		GetDevice(gfx)->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
 
-		// reset command list and allocator   
-		GetCommandAllocator(gfx)->Reset();
-		GetCommandList(gfx)->Reset(GetCommandAllocator(gfx), nullptr);
+		gfx.ResetCommandList();
 
 		GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
 
-		// close command list and submit command list to queue as array with single element.
-		GetCommandList(gfx)->Close();
-		ID3D12CommandList* const commandLists[] = { GetCommandList(gfx) };
-		GetCommandQueue(gfx)->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
+		gfx.ExecuteCommandList();
 
 		InsertFence(gfx);
 	}
@@ -31,7 +26,7 @@ namespace Renderer
 		return m_srvHeap.Get();
 	}
 
-	void ShaderResourceView::AddResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer)
+	void ShaderResourceView::AddResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer, bool isCubeMap)
 	{
 		DXGI_FORMAT targetTextureFormat;
 
@@ -50,9 +45,20 @@ namespace Renderer
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = targetTextureFormat;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Texture2D.MipLevels = texureBuffer->GetDesc().MipLevels;
+
+		if (isCubeMap)
+		{
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+			srvDesc.TextureCube.MostDetailedMip = 0;
+			srvDesc.TextureCube.MipLevels = texureBuffer->GetDesc().MipLevels;
+			srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+		}
+		else
+		{
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			srvDesc.Texture2D.MipLevels = texureBuffer->GetDesc().MipLevels;
+		}
 
 		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = m_srvHeap->GetCPUDescriptorHandleForHeapStart();
 		CPUHandle.ptr += GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * offset;

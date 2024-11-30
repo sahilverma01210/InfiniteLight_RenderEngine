@@ -9,6 +9,7 @@
 #include "BlurOutlineDrawingPass.h"
 #include "WireframePass.h"
 #include "ShadowMappingPass.h"
+#include "SkyboxPass.h"
 #include "RenderTarget.h"
 #include "DynamicConstant.h"
 #include "UIManager.h"
@@ -44,8 +45,14 @@ namespace Renderer
 			AppendPass(std::move(pass));
 		}
 		{
-			auto pass = std::make_unique<OutlineMaskGenerationPass>(gfx, "outlineMask");
+			auto pass = std::make_unique<SkyboxPass>(gfx, "skybox");
+			pass->SetSinkLinkage("renderTarget", "lambertian.renderTarget");
 			pass->SetSinkLinkage("depthStencil", "lambertian.depthStencil");
+			AppendPass(std::move(pass));
+		}
+		{
+			auto pass = std::make_unique<OutlineMaskGenerationPass>(gfx, "outlineMask");
+			pass->SetSinkLinkage("depthStencil", "skybox.depthStencil");
 			AppendPass(std::move(pass));
 		}
 		{
@@ -92,7 +99,7 @@ namespace Renderer
 				AddGlobalSource(DirectBindableSource<ConstantBuffer>::Make("blurVertical", blurVertical));
 			}
 
-			pass->SetSinkLinkage("renderTarget", "lambertian.renderTarget");
+			pass->SetSinkLinkage("renderTarget", "skybox.renderTarget");
 			pass->SetSinkLinkage("depthStencil", "outlineMask.depthStencil");
 			pass->SetSinkLinkage("scratchIn", "horizontal.scratchOut");
 			pass->SetSinkLinkage("kernel", "$.blurKernel");
@@ -169,6 +176,7 @@ namespace Renderer
 	void BlurOutlineRenderGraph::BindMainCamera(Camera& cam)
 	{
 		dynamic_cast<LambertianPass&>(FindPassByName("lambertian")).BindMainCamera(cam);
+		dynamic_cast<SkyboxPass&>(FindPassByName("skybox")).BindMainCamera(cam);
 	}
 
 	void BlurOutlineRenderGraph::BindShadowCamera(Camera& cam)

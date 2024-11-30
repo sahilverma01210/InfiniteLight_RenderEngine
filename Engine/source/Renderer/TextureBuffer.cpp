@@ -11,12 +11,6 @@ namespace Renderer
         ScratchImage image;
         HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_IGNORE_SRGB, nullptr, image);
 
-        /*if (FAILED(hr))
-        {
-            OutputDebugString(filename);
-            OutputDebugString(std::to_wstring(hr).c_str());
-        }*/
-
         // generate mip chain 
         ScratchImage mipChain;
         GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain);
@@ -79,9 +73,7 @@ namespace Renderer
             );
         }
 
-        // reset command list and allocator   
-        GetCommandAllocator(gfx)->Reset();
-        GetCommandList(gfx)->Reset(GetCommandAllocator(gfx), nullptr);
+        gfx.ResetCommandList();
 
         // write commands to copy data to upload texture (copying each subresource). Copy the texture data to the texture buffer.
         UpdateSubresources(
@@ -93,14 +85,8 @@ namespace Renderer
             subresourceData.data()
         );
 
-        // Transition texture buffer to texture buffer state  
-        auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        GetCommandList(gfx)->ResourceBarrier(1, &resourceBarrier2);
-
-        // close command list and submit command list to queue as array with single element.
-        GetCommandList(gfx)->Close();
-        ID3D12CommandList* const commandLists[] = { GetCommandList(gfx) };
-        GetCommandQueue(gfx)->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
+        gfx.TransitionResource(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        gfx.ExecuteCommandList();
 
         InsertFence(gfx);
     }
@@ -161,5 +147,114 @@ namespace Renderer
     std::string TextureBuffer::GetUID() const noexcept
     {
         return GenerateUID(m_filename);
+    }
+
+    CubeMapTextureBuffer::CubeMapTextureBuffer(D3D12RHI& gfx, const WCHAR* foldername)
+        :
+        m_foldername(foldername)
+    {
+        // load image data from disk 
+        ScratchImage images[6];
+        for (int i = 0; i < 6; i++)
+        {
+            std::wstring path = std::wstring(foldername) + L"\\" + std::to_wstring(i) + L".png";
+            LoadFromWICFile(path.c_str(), WIC_FLAGS_IGNORE_SRGB, nullptr, images[i]);
+        }        
+
+        // collect subresource data
+        std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
+        {
+            for (int i = 0; i < 6; ++i) {
+                const auto img = images[i].GetImage(0, 0, 0);
+                subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
+                    .pData = img->pixels,
+                    .RowPitch = (LONG_PTR)img->rowPitch,
+                    .SlicePitch = (LONG_PTR)img->slicePitch,
+                    });
+            }
+        }
+
+        // create committed resource (Texture Buffer) for GPU access of Texture data.
+        {
+            auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
+            const auto& image = *images[0].GetImages();
+            auto resourceDesc = CD3DX12_RESOURCE_DESC{};
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+            resourceDesc.Width = (UINT)image.width;
+            resourceDesc.Height = (UINT)image.height;
+            resourceDesc.DepthOrArraySize = (UINT)subresourceData.size();
+            resourceDesc.MipLevels = 1;
+            resourceDesc.Format = image.format;
+            resourceDesc.SampleDesc = { .Count = 1 };
+            resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+            resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+            GetDevice(gfx)->CreateCommittedResource(
+                &heapProperties,
+                D3D12_HEAP_FLAG_NONE,
+                &resourceDesc,
+                D3D12_RESOURCE_STATE_COPY_DEST,
+                nullptr,
+                IID_PPV_ARGS(&m_texureBuffer)
+            );
+        }
+
+        // create committed resource (Upload Buffer) for CPU upload of Index data.
+        ComPtr<ID3D12Resource> texureUploadBuffer;
+        {
+            UINT texureUploadBufferSize = GetRequiredIntermediateSize(m_texureBuffer.Get(), 0, (UINT)subresourceData.size());
+            auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
+            auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(texureUploadBufferSize) };
+
+            GetDevice(gfx)->CreateCommittedResource(
+                &heapProperties,
+                D3D12_HEAP_FLAG_NONE,
+                &resourceDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&texureUploadBuffer)
+            );
+        }
+
+        gfx.ResetCommandList();
+
+        // write commands to copy data to upload texture (copying each subresource). Copy the texture data to the texture buffer.
+        UpdateSubresources(
+            GetCommandList(gfx),
+            m_texureBuffer.Get(),
+            texureUploadBuffer.Get(),
+            0, 0,
+            (UINT)subresourceData.size(),
+            subresourceData.data()
+        );
+
+        gfx.TransitionResource(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        gfx.ExecuteCommandList();
+
+        InsertFence(gfx);
+    }
+
+    ID3D12Resource* CubeMapTextureBuffer::GetBuffer()
+    {
+        return m_texureBuffer.Get();
+    }
+
+    std::shared_ptr<CubeMapTextureBuffer> CubeMapTextureBuffer::Resolve(D3D12RHI& gfx, const WCHAR* filename)
+    {
+        return Codex::Resolve<CubeMapTextureBuffer>(gfx, filename);
+    }
+
+    std::string CubeMapTextureBuffer::GenerateUID(const WCHAR* filename)
+    {
+        std::wstring wstringFileName = std::wstring(filename);
+        std::string stringFileName = std::string(wstringFileName.begin(), wstringFileName.end());
+
+        using namespace std::string_literals;
+        return typeid(CubeMapTextureBuffer).name() + "#"s + stringFileName;
+    }
+
+    std::string CubeMapTextureBuffer::GetUID() const noexcept
+    {
+        return GenerateUID(m_foldername);
     }
 }

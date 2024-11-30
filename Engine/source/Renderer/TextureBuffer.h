@@ -19,4 +19,17 @@ namespace Renderer
 		const WCHAR* m_filename;
 		ComPtr<ID3D12Resource> m_texureBuffer;
 	};
+
+	class CubeMapTextureBuffer : public Bindable
+	{
+	public:
+		CubeMapTextureBuffer(D3D12RHI& gfx, const WCHAR* foldername);
+		ID3D12Resource* GetBuffer();
+		static std::shared_ptr<CubeMapTextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
+		static std::string GenerateUID(const WCHAR* filename);
+		std::string GetUID() const noexcept override;
+	private:
+		const WCHAR* m_foldername;
+		ComPtr<ID3D12Resource> m_texureBuffer;
+	};
 }
