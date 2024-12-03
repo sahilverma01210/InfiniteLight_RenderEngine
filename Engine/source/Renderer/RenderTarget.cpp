@@ -48,7 +48,7 @@ namespace Renderer
         }
 	}
 
-    RenderTarget::RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture)
+    RenderTarget::RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture, std::optional<UINT> face)
     {
         // Describe and create a RTV descriptor heap.
         {
@@ -62,6 +62,22 @@ namespace Renderer
 
         // Create Frame Resources - Render Target View (RTV).
         {
+            // create the target view on the texture
+            D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+            rtvDesc.Format = pTexture->GetDesc().Format;
+            if (face.has_value())
+            {
+                rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+                rtvDesc.Texture2DArray.ArraySize = 1;
+                rtvDesc.Texture2DArray.FirstArraySlice = *face;
+                rtvDesc.Texture2DArray.MipSlice = 0;
+            }
+            else
+            {
+                rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+                rtvDesc.Texture2D = D3D12_TEX2D_RTV{ 0 };
+            }
+
             UINT m_rtvDescriptorSize = GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -69,7 +85,7 @@ namespace Renderer
             m_renderTargetViewHandle = rtvHandle;
             rtvHandle.ptr += m_rtvDescriptorSize;
 
-            GetDevice(gfx)->CreateRenderTargetView(pTexture, nullptr, m_renderTargetViewHandle);
+            GetDevice(gfx)->CreateRenderTargetView(pTexture, &rtvDesc, m_renderTargetViewHandle);
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
     }

@@ -13,6 +13,7 @@ namespace Renderer
 		friend class RenderTarget;
 	public:
 		DepthStencil(D3D12RHI& gfx);
+		DepthStencil(D3D12RHI& gfx, ID3D12Resource* depthBuffer, UINT face);
 		DepthStencil(D3D12RHI& gfx, UINT width, UINT height, DepthUsage usage);
 		void BindAsBuffer(D3D12RHI& gfx) noexcept override;
 		void BindAsBuffer(D3D12RHI& gfx, BufferResource* renderTarget) noexcept override;
@@ -24,8 +25,8 @@ namespace Renderer
 	protected:
 		ComPtr<ID3D12Resource> m_depthBuffer;
 		ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
-		unsigned int width;
-		unsigned int height;
+		unsigned int m_width;
+		unsigned int m_height;
 		D3D12_CPU_DESCRIPTOR_HANDLE m_depthStensilViewHandle;
 	};
 }

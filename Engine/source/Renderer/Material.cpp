@@ -58,7 +58,7 @@ namespace Renderer
 					ID3DBlob* vertexShader;
 
 					// Compile Shaders.
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+					D3DCompileFromFile(gfx.GetAssetFullPath(L"Shadow_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
 					PipelineDescription shadowMapkPipelineDesc{};
 					shadowMapkPipelineDesc.vertexShader = vertexShader;
@@ -222,7 +222,7 @@ namespace Renderer
 					std::shared_ptr<ShaderResourceView> srvBindablePtr = std::make_shared<ShaderResourceView>(gfx, 4, numSRVDescriptors);
 
 					// Link Shadow Texture;
-					srvBindablePtr->AddResource(gfx, srvDescriptorIndex, gfx.GetDepthBuffer());
+					srvBindablePtr->AddResource(gfx, srvDescriptorIndex, gfx.GetDepthBuffer(), true);
 					srvDescriptorIndex++;
 
 					if (hasDiffuseMap)

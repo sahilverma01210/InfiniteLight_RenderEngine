@@ -4,6 +4,9 @@
 
 namespace Renderer
 {
+	class DepthStencil;
+	class RenderTarget;
+
 	class TextureBuffer : public Bindable
 	{
 	public:
@@ -31,5 +34,27 @@ namespace Renderer
 	private:
 		const WCHAR* m_foldername;
 		ComPtr<ID3D12Resource> m_texureBuffer;
+	};
+
+	class DepthCubeMapTextureBuffer : public Bindable
+	{
+	public:
+		DepthCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);
+		ID3D12Resource* GetBuffer();
+		std::shared_ptr<DepthStencil> GetDepthBuffer(size_t index) const;
+	private:
+		ComPtr<ID3D12Resource> m_texureBuffer;
+		std::vector<std::shared_ptr<DepthStencil>> depthBuffers;
+	};
+
+	class TargetCubeMapTextureBuffer : public Bindable
+	{
+	public:
+		TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);
+		ID3D12Resource* GetBuffer();
+		std::shared_ptr<RenderTarget> GetRenderTarget(size_t index) const;
+	private:
+		ComPtr<ID3D12Resource> m_texureBuffer;
+		std::vector<std::shared_ptr<RenderTarget>> renderTargets;
 	};
 }

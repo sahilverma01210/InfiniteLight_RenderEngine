@@ -1,5 +1,7 @@
 #include "TextureBuffer.h"
 #include "BindableCodex.h"
+#include "DepthStencil.h"
+#include "RenderTarget.h"
 
 namespace Renderer
 {
@@ -256,5 +258,80 @@ namespace Renderer
     std::string CubeMapTextureBuffer::GetUID() const noexcept
     {
         return GenerateUID(m_foldername);
+    }
+
+    DepthCubeMapTextureBuffer::DepthCubeMapTextureBuffer(D3D12RHI& gfx, UINT size)
+    {
+        auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
+        auto resourceDesc = CD3DX12_RESOURCE_DESC{};
+        resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        resourceDesc.Width = (UINT)size;
+        resourceDesc.Height = (UINT)size;
+        resourceDesc.DepthOrArraySize = 6;
+        resourceDesc.MipLevels = 1;
+        resourceDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+        resourceDesc.SampleDesc = { .Count = 1 };
+        resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+        resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+        GetDevice(gfx)->CreateCommittedResource(
+            &heapProperties,
+            D3D12_HEAP_FLAG_NONE,
+            &resourceDesc,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            nullptr,
+            IID_PPV_ARGS(&m_texureBuffer));
+
+        // make depth buffer resources for capturing shadow map
+        for (UINT face = 0; face < 6; face++)
+        {
+            depthBuffers.push_back(std::make_shared<DepthStencil>(gfx, m_texureBuffer.Get(), face));
+        }
+    }
+
+    ID3D12Resource* DepthCubeMapTextureBuffer::GetBuffer()
+    {
+        return m_texureBuffer.Get();
+    }
+
+    std::shared_ptr<DepthStencil> DepthCubeMapTextureBuffer::GetDepthBuffer(size_t index) const
+    {
+        return depthBuffers[index];
+    }
+    TargetCubeMapTextureBuffer::TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size)
+    {
+        auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
+        auto resourceDesc = CD3DX12_RESOURCE_DESC{};
+        resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        resourceDesc.Width = (UINT)size;
+        resourceDesc.Height = (UINT)size;
+        resourceDesc.DepthOrArraySize = 6;
+        resourceDesc.MipLevels = 1;
+        resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        resourceDesc.SampleDesc = { .Count = 1 };
+        resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+        resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+        GetDevice(gfx)->CreateCommittedResource(
+            &heapProperties,
+            D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
+            &resourceDesc,
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            nullptr,
+            IID_PPV_ARGS(&m_texureBuffer));
+
+        // make depth buffer resources for capturing shadow map
+        for (UINT face = 0; face < 6; face++)
+        {
+            renderTargets.push_back(std::make_shared<RenderTarget>(gfx, m_texureBuffer.Get(), face));
+        }
+    }
+    ID3D12Resource* TargetCubeMapTextureBuffer::GetBuffer()
+    {
+        return m_texureBuffer.Get();
+    }
+    std::shared_ptr<RenderTarget> TargetCubeMapTextureBuffer::GetRenderTarget(size_t index) const
+    {
+        return renderTargets[index];
     }
 }

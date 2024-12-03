@@ -24,9 +24,9 @@ namespace Renderer
         // Hardcoded Values ()
         if (pipelineDesc.shadowMapping)
         {
-            rasterizerDesc.DepthBias = 40;
-            rasterizerDesc.SlopeScaledDepthBias = 4.66f;
-            rasterizerDesc.DepthBiasClamp = 0.5f;
+            rasterizerDesc.DepthBias = 50;
+            rasterizerDesc.SlopeScaledDepthBias = 2.0f;
+            rasterizerDesc.DepthBiasClamp = 0.1f;
         }
 
         D3D12_DEPTH_STENCIL_DESC depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

@@ -10,10 +10,39 @@ namespace Renderer
     {
     }
 
+    DepthStencil::DepthStencil(D3D12RHI& gfx, ID3D12Resource* depthBuffer, UINT face)
+        :
+        m_depthBuffer(depthBuffer),
+        m_width(depthBuffer->GetDesc().Width),
+        m_height(depthBuffer->GetDesc().Height)
+    {
+        // Describe and create a DSV descriptor heap.
+        {
+            D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+            dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+            dsvHeapDesc.NumDescriptors = 1;
+            GetDevice(gfx)->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap));
+        }
+
+        // Create Depth Buffer - Depth Stensil View (DSV).
+        {
+            m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+
+            D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
+            descView.Format = DXGI_FORMAT_D32_FLOAT;
+            descView.Flags = D3D12_DSV_FLAG_NONE;
+            descView.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+            descView.Texture2DArray.MipSlice = 0;
+            descView.Texture2DArray.ArraySize = 1;
+            descView.Texture2DArray.FirstArraySlice = face;
+            GetDevice(gfx)->CreateDepthStencilView(m_depthBuffer.Get(), &descView, m_depthStensilViewHandle);
+        }
+    }
+
     DepthStencil::DepthStencil(D3D12RHI& gfx, UINT width, UINT height, DepthUsage usage)
         :
-        width(width),
-        height(height)
+        m_width(width),
+        m_height(height)
 	{
         // Describe and create a DSV descriptor heap.
         {
@@ -28,7 +57,7 @@ namespace Renderer
             CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
             CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
                 gfx.MapUsageTypeless(usage),
-                width, height,
+                m_width, m_height,
                 1, 0, 1, 0,
                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
             D3D12_CLEAR_VALUE clearValue = {};
@@ -77,11 +106,11 @@ namespace Renderer
 
     unsigned int DepthStencil::GetWidth() const
     {
-        return width;
+        return m_width;
     }
     unsigned int DepthStencil::GetHeight() const
     {
-        return height;
+        return m_height;
     }
     ID3D12Resource* DepthStencil::GetBuffer() const noexcept
     {

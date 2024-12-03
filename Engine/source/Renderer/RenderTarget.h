@@ -13,7 +13,7 @@ namespace Renderer
 		friend D3D12RHI;
 	public:
 		RenderTarget(D3D12RHI& gfx, UINT width, UINT height);
-		RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture);
+		RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture, std::optional<UINT> face = std::nullopt);
 		void BindAsBuffer(D3D12RHI& gfx) noexcept override;
 		void BindAsBuffer(D3D12RHI& gfx, BufferResource* depthStencil) noexcept override;
 		void BindAsBuffer(D3D12RHI& gfx, DepthStencil* depthStencil) noexcept;

@@ -14,8 +14,8 @@ namespace Renderer
 			{ 1.0f,1.0f,1.0f },
 			1.0f,
 			1.0f,
-			0.045f,
-			0.0075f,
+			0.025f,
+			0.0030f,
 		};
 
 		Reset();
@@ -77,8 +77,9 @@ namespace Renderer
 		XMStoreFloat3(&dataCopy.pos, XMVector3Transform(pos, view));
 
 		auto shadowDataCopy = shadowData;
+		const auto cameraPos = pCamera->GetPos();
 		const auto ViewProj = XMMatrixTranspose(
-			pCamera->GetMatrix() * pCamera->GetProjection()
+			XMMatrixTranslation(-cameraPos.x, -cameraPos.y, -cameraPos.z)
 		);
 		shadowDataCopy.ViewProj = ViewProj;
 
