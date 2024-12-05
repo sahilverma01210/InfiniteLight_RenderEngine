@@ -1,5 +1,5 @@
 #pragma once
-#include <chrono>
+#include "../_External/common.h"
 
 namespace Common
 {
@@ -9,6 +9,7 @@ namespace Common
 		ILTimer() noexcept;
 		float Mark() noexcept;
 		float Peek() const noexcept;
+
 	private:
 		std::chrono::steady_clock::time_point last;
 	};

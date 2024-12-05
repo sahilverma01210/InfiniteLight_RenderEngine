@@ -1,27 +1,29 @@
 #pragma once
-#include <vector>
-#include <memory>
+#include "../_External/common.h"
+
+#include "UIManager.h"
+#include "Camera.h"
+#include "D3D12RHI.h"
+#include "RenderGraph.h"
 
 namespace Renderer
 {
-	class Camera;
-	class D3D12RHI;
-	class RenderGraph;
-
 	class CameraContainer
 	{
 	public:
+		~CameraContainer();
 		void SpawnWindow(D3D12RHI& gfx);
 		void Bind(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
 		Camera* operator->();
-		~CameraContainer();
 		void LinkTechniques(RenderGraph& rg);
 		void Submit(size_t channels) const;
 		Camera& GetActiveCamera();
-		bool m_imGUIwndOpen = true;
 	private:
 		Camera& GetControlledCamera();
+
+	public:
+		bool m_imGUIwndOpen = true;
 	private:
 		std::vector<std::shared_ptr<Camera>> cameras;
 		int active = 0;

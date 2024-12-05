@@ -1,5 +1,5 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
 
 namespace Renderer
 {
@@ -7,11 +7,12 @@ namespace Renderer
 	{
 	public:
 		DxgiInfoManager();
-		~DxgiInfoManager() = default;
 		DxgiInfoManager(const DxgiInfoManager&) = delete;
+		~DxgiInfoManager() = default;
 		DxgiInfoManager& operator=(const DxgiInfoManager&) = delete;
 		void Set() noexcept;
 		std::vector<std::string> GetMessages() const;
+
 	private:
 		unsigned long long next = 0u;
 		ComPtr<IDXGIInfoQueue> pDxgiInfoQueue;

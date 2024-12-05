@@ -30,6 +30,7 @@ namespace Renderer
 		{
 			return GenerateUID(m_rootParameterIndex);
 		}
+
 	private:
 		bool dirty = false;
 		UINT m_rootParameterIndex;

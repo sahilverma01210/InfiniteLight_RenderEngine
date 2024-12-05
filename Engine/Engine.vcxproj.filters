@@ -41,15 +41,6 @@
     <Filter Include="Source\Runtime\Public\IO">
       <UniqueIdentifier>{12d6fd2c-9805-4334-9b95-b5e748f03df2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Testing">
-      <UniqueIdentifier>{23476e21-0f51-4188-a21e-0db85027055b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Testing\Private">
-      <UniqueIdentifier>{509a2bd8-045d-4943-b840-aab02c3df360}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Testing\Public">
-      <UniqueIdentifier>{6cad0e26-a6e8-49e9-b1ba-76698000b49b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{6af78863-ef57-4030-a07e-75ca554c7cd1}</UniqueIdentifier>
     </Filter>
@@ -110,9 +101,6 @@
     <Filter Include="Source\Renderer\Public\Drawables\Shapes">
       <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Public\Drawables\Primitives">
-      <UniqueIdentifier>{73024be1-12b6-4696-aba9-9bc426d31b36}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer\Public\Lights">
       <UniqueIdentifier>{ba50ca77-da1a-4c3b-8323-01b781bdc950}</UniqueIdentifier>
     </Filter>
@@ -130,6 +118,33 @@
     </Filter>
     <Filter Include="Source\Renderer\Public\UI">
       <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\RenderGraph\Passes">
+      <UniqueIdentifier>{93ecefa4-eabd-407d-b0e0-1eff9e7a8337}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\RenderGraph\Graphs">
+      <UniqueIdentifier>{87f3a57c-42a0-461d-a1c9-01dd58ab1be6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RenderGraph\Passes">
+      <UniqueIdentifier>{359e1464-2c4b-4c7a-97ed-aa63629ee69d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RenderGraph\Graphs">
+      <UniqueIdentifier>{2d0fa85d-1a76-4674-a3f0-8b0972856b2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\RenderGraph\Probes">
+      <UniqueIdentifier>{b0ca8af6-409a-4814-8383-5179285b664d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RenderGraph\Probes">
+      <UniqueIdentifier>{7a46160b-7d5c-40c9-8dfc-56f4c3c8e966}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_External\Public\Assimp">
+      <UniqueIdentifier>{b922efd4-06b1-4df3-a4eb-c5c98c92a448}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_External\Public\DX12">
+      <UniqueIdentifier>{bb7446d4-5c38-49c1-8a4e-aa16d804a355}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Common\Primitives">
+      <UniqueIdentifier>{73024be1-12b6-4696-aba9-9bc426d31b36}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -197,10 +212,10 @@
       <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\IndexedTriangleList.h">
-      <Filter>Source\Renderer\Public\Drawables\Primitives</Filter>
+      <Filter>Source\Renderer\Public\Common\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Vertex.h">
-      <Filter>Source\Renderer\Public\Drawables\Primitives</Filter>
+      <Filter>Source\Renderer\Public\Common\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\CommonShapes.h">
       <Filter>Source\Renderer\Public\Drawables\Shapes</Filter>
@@ -232,9 +247,6 @@
     <ClInclude Include="source\Renderer\Job.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Pass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Step.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
@@ -243,9 +255,6 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\PerfLog.h">
       <Filter>Source\Renderer\Public\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TechniqueProbe.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Material.h">
       <Filter>Source\Renderer\Public\RHI</Filter>
@@ -259,9 +268,6 @@
     <ClInclude Include="source\Renderer\Mesh.h">
       <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\ModelProbe.h">
-      <Filter>Source\Renderer\Public\Model</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\GraphicsResource.h">
       <Filter>Source\Renderer\Public\RHI</Filter>
     </ClInclude>
@@ -271,61 +277,16 @@
     <ClInclude Include="source\Renderer\RenderTarget.h">
       <Filter>Source\Renderer\Public\RHI</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\StepLinkingProbe.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RenderQueuePass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\RenderGraphCompileException.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RenderGraph.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Sink.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\LambertianPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\FullscreenPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\BufferResource.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BufferClearPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\BindingPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\OutlineDrawingPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Source.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\VerticalBlurPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\HorizontalBlurPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TransformCbufScaling.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\CameraContainer.h">
@@ -340,13 +301,7 @@
     <ClInclude Include="source\Renderer\Frustum.h">
       <Filter>Source\Renderer\Public\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\WireframePass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\_External\d3dx12.h">
-      <Filter>Source\_External\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="source\_External\framework.h">
+    <ClInclude Include="source\_External\common.h">
       <Filter>Source\_External\Public</Filter>
     </ClInclude>
     <ClInclude Include="source\Common\ILException.h">
@@ -369,15 +324,6 @@
     </ClInclude>
     <ClInclude Include="source\Runtime\WindowsThrowMacros.h">
       <Filter>Source\Runtime\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TestCube.h">
-      <Filter>Source\Testing\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Testing.h">
-      <Filter>Source\Testing\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TestModelProbe.h">
-      <Filter>Source\Testing\Public</Filter>
     </ClInclude>
     <ClInclude Include="source\_External\imgui\backends\imgui_impl_dx12.h">
       <Filter>Source\_External\Public\ImGUI</Filter>
@@ -403,14 +349,80 @@
     <ClInclude Include="source\Renderer\ShadowCameraBuffer.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\ShadowMappingPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\SkyboxPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Viewport.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BindingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BufferClearPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\FullscreenPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\HorizontalBlurPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LambertianPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\OutlineDrawingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Pass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderQueuePass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ShadowMappingPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\SkyboxPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\WireframePass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\VerticalBlurPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\StepLinkingProbe.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Probes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TestModelProbe.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Probes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ModelProbe.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Probes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TechniqueProbe.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Probes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\assimp\assimp.h">
+      <Filter>Source\_External\Public\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\dx12\d3dx12.h">
+      <Filter>Source\_External\Public\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_External\dx12\directX12.h">
+      <Filter>Source\_External\Public\DX12</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -471,9 +483,6 @@
     <ClCompile Include="source\Renderer\Model.cpp">
       <Filter>Source\Renderer\Private\Model</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Vertex.cpp">
-      <Filter>Source\Renderer\Private\Drawables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\DxgiInfoManager.cpp">
       <Filter>Source\Renderer\Private\RHI</Filter>
     </ClCompile>
@@ -513,49 +522,13 @@
     <ClCompile Include="source\Renderer\RenderTarget.cpp">
       <Filter>Source\Renderer\Private\RHI</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Pass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\StepLinkingProbe.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\RenderQueuePass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\RenderGraphCompileException.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\RenderGraph.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Source.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Sink.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\FullscreenPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\BufferClearPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\BindingPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\TransformCbufScaling.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\VerticalBlurPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\HorizontalBlurPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\CameraContainer.cpp">
@@ -588,12 +561,6 @@
     <ClCompile Include="source\Renderer\RenderMath.cpp">
       <Filter>Source\Renderer\Private\Common</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\TestCube.cpp">
-      <Filter>Source\Testing\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Testing.cpp">
-      <Filter>Source\Testing\Private</Filter>
-    </ClCompile>
     <ClCompile Include="source\_External\imgui\imgui.cpp">
       <Filter>Source\_External\Private\ImGUI</Filter>
     </ClCompile>
@@ -620,6 +587,42 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\ShadowCameraBuffer.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\BindingPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\BufferClearPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\FullscreenPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\HorizontalBlurPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Pass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderQueuePass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\VerticalBlurPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderGraph.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\StepLinkingProbe.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\Probes</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Vertex.cpp">
+      <Filter>Source\Renderer\Private\Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

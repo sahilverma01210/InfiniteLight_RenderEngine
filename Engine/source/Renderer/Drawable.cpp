@@ -1,5 +1,4 @@
 #include "Drawable.h"
-#include "Material.h"
 
 namespace Renderer
 {

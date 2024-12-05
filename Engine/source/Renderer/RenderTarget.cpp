@@ -1,5 +1,4 @@
 #include "RenderTarget.h"
-#include "DepthStencil.h"
 
 namespace Renderer
 {
@@ -21,8 +20,6 @@ namespace Renderer
             &desc,
             D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
             IID_PPV_ARGS(&m_texureBuffer));
-
-        //UINT backBufferCount = GetBackBuffers(gfx).size();
 
         // Describe and create a RTV descriptor heap.
         {

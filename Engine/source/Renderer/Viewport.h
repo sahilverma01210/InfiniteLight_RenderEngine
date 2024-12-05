@@ -25,6 +25,7 @@ namespace Renderer
 		{
 			GetCommandList(gfx)->RSSetViewports(1u, &vp);
 		}
+
 	private:
 		D3D12_VIEWPORT vp{};
 	};

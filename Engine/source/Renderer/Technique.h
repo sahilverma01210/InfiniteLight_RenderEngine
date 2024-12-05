@@ -1,14 +1,11 @@
 #pragma once
 #include "Step.h"
 #include "Channels.h"
-#include <vector>
+#include "Drawable.h"
+#include "TechniqueProbe.h"
 
 namespace Renderer
 {
-	class TechniqueProbe;
-	class Drawable;
-	class RenderGraph;
-
 	class Technique
 	{
 	public:
@@ -22,6 +19,7 @@ namespace Renderer
 		void Accept(TechniqueProbe& probe);
 		const std::string& GetName() const noexcept;
 		void Link(RenderGraph&);
+
 	private:
 		bool active = true;
 		std::vector<Step> steps;

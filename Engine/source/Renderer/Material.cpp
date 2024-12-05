@@ -1,8 +1,4 @@
 #include "Material.h"
-#include "CommonBindables.h"
-#include "DynamicConstant.h"
-#include "TransformBuffer.h"
-#include "Channels.h"
 
 namespace Renderer
 {
@@ -254,7 +250,7 @@ namespace Renderer
 				{
 					aiColor3D color = { 0.45f,0.45f,0.85f };
 					material.Get(AI_MATKEY_COLOR_DIFFUSE, color);
-					r = reinterpret_cast<DirectX::XMFLOAT3&>(color);
+					r = reinterpret_cast<XMFLOAT3&>(color);
 				}
 				buf["useGlossAlpha"].SetIfExists(hasGlossAlpha);
 				buf["useSpecularMap"].SetIfExists(true);
@@ -262,7 +258,7 @@ namespace Renderer
 				{
 					aiColor3D color = { 0.18f,0.18f,0.18f };
 					material.Get(AI_MATKEY_COLOR_SPECULAR, color);
-					r = reinterpret_cast<DirectX::XMFLOAT3&>(color);
+					r = reinterpret_cast<XMFLOAT3&>(color);
 				}
 				buf["specularWeight"].SetIfExists(1.0f);
 				if (auto r = buf["specularGloss"]; r.Exists())
@@ -361,7 +357,7 @@ namespace Renderer
 				RawLayout lay;
 				lay.Add<Float3>("materialColor");
 				auto buf = Buffer(std::move(lay));
-				buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,0.4f,0.4f };
+				buf["materialColor"] = XMFLOAT3{ 1.0f,0.4f,0.4f };
 				draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
 			
 				outline.AddStep(std::move(draw));
@@ -395,7 +391,7 @@ namespace Renderer
 		{
 			for (auto i = 0u; i < vtc.Size(); i++)
 			{
-				DirectX::XMFLOAT3& pos = vtc[i].Attr<VertexLayout::ElementType::Position3D>();
+				XMFLOAT3& pos = vtc[i].Attr<VertexLayout::ElementType::Position3D>();
 				pos.x *= scale;
 				pos.y *= scale;
 				pos.z *= scale;

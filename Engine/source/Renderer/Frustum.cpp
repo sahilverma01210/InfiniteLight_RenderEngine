@@ -1,8 +1,4 @@
 #include "Frustum.h"
-#include "CommonBindables.h"
-#include "Vertex.h"
-#include "Sphere.h"
-#include "Channels.h"
 
 namespace Renderer
 {
@@ -19,14 +15,14 @@ namespace Renderer
 			const float nearY = height / 2.0f;
 			const float farX = nearX * zRatio;
 			const float farY = nearY * zRatio;
-			vertices.EmplaceBack(dx::XMFLOAT3{ -nearX,nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ nearX,nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ nearX,-nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ -nearX,-nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ -farX,farY,farZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ farX,farY,farZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ farX,-farY,farZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ -farX,-farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ -nearX,nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ nearX,nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ nearX,-nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ -nearX,-nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ -farX,farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ farX,farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ farX,-farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ -farX,-farY,farZ });
 		}
 
 		std::vector<unsigned short> indices;
@@ -120,7 +116,7 @@ namespace Renderer
 				RawLayout lay;
 				lay.Add<Float3>("materialColor");
 				auto buf = Buffer(std::move(lay));
-				buf["materialColor"] = DirectX::XMFLOAT3{ 0.6f,0.2f,0.2f };
+				buf["materialColor"] = XMFLOAT3{ 0.6f,0.2f,0.2f };
 				unoccluded.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
 
 				line.AddStep(std::move(unoccluded));
@@ -141,7 +137,7 @@ namespace Renderer
 				RawLayout lay;
 				lay.Add<Float3>("materialColor");
 				auto buf = Buffer(std::move(lay));
-				buf["materialColor"] = DirectX::XMFLOAT3{ 0.25f,0.08f,0.08f };
+				buf["materialColor"] = XMFLOAT3{ 0.25f,0.08f,0.08f };
 				occluded.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
 
 				line.AddStep(std::move(occluded));
@@ -160,28 +156,28 @@ namespace Renderer
 			const float nearY = height / 2.0f;
 			const float farX = nearX * zRatio;
 			const float farY = nearY * zRatio;
-			vertices.EmplaceBack(dx::XMFLOAT3{ -nearX,nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ nearX,nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ nearX,-nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ -nearX,-nearY,nearZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ -farX,farY,farZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ farX,farY,farZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ farX,-farY,farZ });
-			vertices.EmplaceBack(dx::XMFLOAT3{ -farX,-farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ -nearX,nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ nearX,nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ nearX,-nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ -nearX,-nearY,nearZ });
+			vertices.EmplaceBack(XMFLOAT3{ -farX,farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ farX,farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ farX,-farY,farZ });
+			vertices.EmplaceBack(XMFLOAT3{ -farX,-farY,farZ });
 		}
 		vertexBufferBindable->Update(gfx, vertices.GetData());
 	}
-	void Frustum::SetPos(DirectX::XMFLOAT3 pos) noexcept
+	void Frustum::SetPos(XMFLOAT3 pos) noexcept
 	{
 		this->pos = pos;
 	}
-	void Frustum::SetRotation(DirectX::XMFLOAT3 rot) noexcept
+	void Frustum::SetRotation(XMFLOAT3 rot) noexcept
 	{
 		this->rot = rot;
 	}
-	DirectX::XMMATRIX Frustum::GetTransformXM() const noexcept
+	XMMATRIX Frustum::GetTransformXM() const noexcept
 	{
-		return dx::XMMatrixRotationRollPitchYawFromVector(dx::XMLoadFloat3(&rot)) *
-			dx::XMMatrixTranslationFromVector(dx::XMLoadFloat3(&pos));
+		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rot)) *
+			XMMatrixTranslationFromVector(XMLoadFloat3(&pos));
 	}
 }

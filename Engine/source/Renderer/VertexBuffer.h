@@ -1,5 +1,6 @@
 #pragma once
 #include "Bindable.h"
+#include "BindableCodex.h"
 
 namespace Renderer
 {
@@ -20,6 +21,7 @@ namespace Renderer
 		std::string GetUID() const noexcept override;
 	private:
 		static std::string GenerateUID_(const std::string& tag);
+
 	private:
 		std::string tag;
 		UINT m_vertexBufferSize;

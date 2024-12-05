@@ -14,6 +14,7 @@ namespace Renderer
 		const char* what() const noexcept override;
 		const char* GetType() const noexcept override;
 		const std::string& GetMessage() const noexcept;
+
 	private:
 		std::string message;
 	};

@@ -1,22 +1,8 @@
 #include "Model.h"
-#undef min
-#undef max
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include "ModelException.h"
-#include "Node.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "RenderMath.h"
 
 namespace Renderer
 {
-	// Model Definitions.
-
 	Model::Model(D3D12RHI& gfx, const std::string& pathString, float scale)
-		//:
-		//pWindow(std::make_unique<ModelWindow>())
 	{
 		Assimp::Importer imp;
 		const auto pScene = imp.ReadFile(pathString.c_str(),
@@ -49,22 +35,24 @@ namespace Renderer
 		pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
 	}
 
+	Model::~Model() noexcept
+	{
+	}
+
 	void Model::Submit(size_t channels) const noexcept
 	{
-		//pWindow->ApplyParameters();
 		pRoot->Submit(channels, XMMatrixIdentity());
 	}
 
-	void Model::SetRootTransform(DirectX::FXMMATRIX tf) noexcept
+	void Model::SetRootTransform(FXMMATRIX tf) noexcept
 	{
 		pRoot->SetAppliedTransform(tf);
 	}
 
 	std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept
 	{
-		namespace dx = DirectX;
-		const auto transform = ScaleTranslation(dx::XMMatrixTranspose(dx::XMLoadFloat4x4(
-			reinterpret_cast<const dx::XMFLOAT4X4*>(&node.mTransformation)
+		const auto transform = ScaleTranslation(XMMatrixTranspose(XMLoadFloat4x4(
+			reinterpret_cast<const XMFLOAT4X4*>(&node.mTransformation)
 		)), scale);
 
 		std::vector<Mesh*> curMeshPtrs;
@@ -95,9 +83,5 @@ namespace Renderer
 		{
 			pMesh->LinkTechniques(rg);
 		}
-	}
-
-	Model::~Model() noexcept
-	{
 	}
 }

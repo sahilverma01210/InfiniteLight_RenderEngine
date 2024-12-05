@@ -4,7 +4,7 @@ namespace Renderer
 {
 	XMFLOAT3 ExtractEulerAngles(const XMFLOAT4X4& mat)
 	{
-		DirectX::XMFLOAT3 euler;
+		XMFLOAT3 euler;
 
 		euler.x = asinf(-mat._32);                  // Pitch
 		if (cosf(euler.x) > 0.0001)                // Not at poles

@@ -1,13 +1,8 @@
-// framework.h : include file for standard system include files,
-// or project specific include files that are used frequently, but
-// are changed infrequently.
+/*
+* Includes Common Windows SDK and Standard Libraries.
+*/
 
 #pragma once
-
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
 // target Windows 7 or later
 #define _WIN32_WINNT 0x0601
@@ -55,20 +50,12 @@
 #include <windows.h>
 #include <wrl.h>
 #include <tchar.h>
-
-using namespace Microsoft::WRL;
-
 #include <shellapi.h>
 #include <initguid.h> 
 
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <dxgidebug.h>
-#include <D3Dcompiler.h>
-#include <DirectXMath.h>
-#include <DirectXTex.h>
+using namespace Microsoft::WRL;
 
-using namespace DirectX;
+// Standard C++ Libraries.
 
 #include <string>
 #include <optional>
@@ -96,4 +83,6 @@ using namespace DirectX;
 #include <utility>
 #include <stdexcept>
 #include <cctype>
+#include <cassert>
 #include <typeinfo>
+#include <fstream>

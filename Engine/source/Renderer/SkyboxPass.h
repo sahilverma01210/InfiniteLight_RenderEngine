@@ -1,7 +1,6 @@
 #pragma once
 #include "RenderQueuePass.h"
 #include "Job.h"
-#include <vector>
 #include "Sink.h"
 #include "Source.h"
 #include "Camera.h"
@@ -17,13 +16,19 @@ namespace Renderer
 
 	class SkyboxPass : public BindingPass
 	{
+	private:
+		struct Transforms
+		{
+			XMMATRIX viewProj;
+		};
+
 	public:
 		SkyboxPass(D3D12RHI& gfx, std::string name)
 			:
 			BindingPass(std::move(name))
 		{
 			auto model = Cube::Make();
-			model.Transform(DirectX::XMMatrixScaling(3.0f, 3.0f, 3.0f));
+			model.Transform(XMMatrixScaling(3.0f, 3.0f, 3.0f));
 			m_numIndices = model.indices.size() * sizeof(model.indices[0]);
 			VertexRawBuffer vbuf = model.vertices;
 
@@ -107,11 +112,9 @@ namespace Renderer
 			skyboxTransform->Update(gfx, &skyboxDataCopy);
 			gfx.DrawIndexed(m_numIndices);
 		}
+
 	private:
-		struct Transforms
-		{
-			XMMATRIX viewProj;
-		} skyboxData;
+		Transforms skyboxData;
 		UINT m_numIndices;
 		const Camera* pMainCamera = nullptr;
 		std::shared_ptr<ConstantBuffer> skyboxTransform;

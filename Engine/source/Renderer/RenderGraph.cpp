@@ -1,11 +1,4 @@
 #include "RenderGraph.h"
-#include "DepthStencil.h"
-#include "RenderTarget.h"
-#include "CommonBindables.h"
-#include "RenderGraphCompileException.h"
-#include "RenderQueuePass.h"
-#include "Sink.h"
-#include "Source.h"
 
 namespace Renderer
 {
@@ -201,9 +194,5 @@ namespace Renderer
 			throw RGC_EXCEPTION("In RenderGraph::GetRenderQueue, pass was not RenderQueuePass: " + passName);
 		}
 		throw RGC_EXCEPTION("In RenderGraph::GetRenderQueue, pass not found: " + passName);
-	}
-	void RenderGraph::StoreDepth(D3D12RHI& gfx, const std::string& path)
-	{
-		//masterDepth->ToSurface(gfx).Save(path);
 	}
 }

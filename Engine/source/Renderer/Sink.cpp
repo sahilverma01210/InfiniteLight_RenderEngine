@@ -1,11 +1,4 @@
 #include "Sink.h"
-#include "Source.h"
-#include "RenderGraphCompileException.h"
-#include "../Common/ILUtility.h"
-#include "Bindable.h"
-#include "BufferResource.h"
-#include <sstream>
-#include <cctype>
 
 namespace Renderer
 {

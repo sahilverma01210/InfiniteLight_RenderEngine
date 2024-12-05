@@ -41,12 +41,6 @@ namespace Runtime
 
 	void Application::UpdateFrame()
 	{
-		//// Rotating Cube.
-		//const float c = sin(timer.Peek()) / 2.0f + 0.5f;
-		//window.UpdateWindow(timer.Peek(),
-		//	0.0f,
-		//	0.0f);
-
 		// Rotating Cube following Mouse Left Click.
 		window.UpdateWindow(timer.Mark());
 	}

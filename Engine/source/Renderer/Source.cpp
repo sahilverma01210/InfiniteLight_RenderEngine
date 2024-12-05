@@ -1,7 +1,4 @@
 #include "Source.h"
-#include "RenderGraphCompileException.h"
-#include <algorithm>
-#include <cctype>
 
 namespace Renderer
 {

@@ -1,6 +1,4 @@
 #include "VerticalBlurPass.h"
-#include "Sink.h"
-#include "Source.h"
 
 namespace Renderer
 {

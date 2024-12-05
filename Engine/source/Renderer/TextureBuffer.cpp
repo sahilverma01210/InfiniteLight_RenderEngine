@@ -103,7 +103,7 @@ namespace Renderer
         return hasAlpha;
     }
 
-    bool TextureBuffer::HasAlphaChannel(const DirectX::Image& image) {
+    bool TextureBuffer::HasAlphaChannel(const Image& image) {
         switch (image.format) {
             // Common formats with alpha channel
         case DXGI_FORMAT_R32G32B32A32_FLOAT:

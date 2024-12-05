@@ -1,23 +1,22 @@
 #pragma once
-#include <DirectXMath.h>
 #include "Frustum.h"
+#include "UIManager.h"
+#include "D3D12RHI.h"
 
 namespace Renderer
 {
-	class D3D12RHI;
-	class RenderGraph;
-
 	class Projection
 	{
 	public:
 		Projection(D3D12RHI& gfx, float width, float height, float nearZ, float farZ);
-		DirectX::XMMATRIX GetMatrix() const;
+		XMMATRIX GetMatrix() const;
 		void RenderWidgets(D3D12RHI& gfx);
-		void SetPos(DirectX::XMFLOAT3);
-		void SetRotation(DirectX::XMFLOAT3);
+		void SetPos(XMFLOAT3);
+		void SetRotation(XMFLOAT3);
 		void Submit(size_t channel) const;
 		void LinkTechniques(RenderGraph& rg);
 		void Reset(D3D12RHI& gfx);
+
 	private:
 		float width;
 		float height;

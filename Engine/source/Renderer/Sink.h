@@ -1,10 +1,12 @@
 #pragma once
 #include "../Common/ILUtility.h"
+
 #include "Source.h"
 #include "Bindable.h"
 #include "BufferResource.h"
 #include "RenderTarget.h"
 #include "DepthStencil.h"
+#include "RenderGraphCompileException.h"
 
 namespace Renderer
 {
@@ -14,16 +16,17 @@ namespace Renderer
 	class Sink
 	{
 	public:
+		virtual ~Sink() = default;
 		const std::string& GetRegisteredName() const noexcept;
 		const std::string& GetPassName() const noexcept;
 		const std::string& GetOutputName() const noexcept;
 		void SetTarget(std::string passName, std::string outputName);
 		virtual void Bind(Source& source) = 0;
 		virtual void PostLinkValidate() const = 0;
-		virtual ~Sink() = default;
 		bool isVector = false;
 	protected:
 		Sink(std::string registeredName);
+
 	private:
 		std::string registeredName;
 		std::string passName;
@@ -35,6 +38,12 @@ namespace Renderer
 	{
 		static_assert(std::is_base_of_v<BufferResource, T>, "DirectBufferSink target type must be a BufferResource type");
 	public:
+		DirectBufferSink(std::string registeredName, std::shared_ptr<T>& bind)
+			:
+			Sink(std::move(registeredName)),
+			target(bind)
+		{
+		}
 		static std::unique_ptr<Sink> Make(std::string registeredName, std::shared_ptr<T>& target)
 		{
 			return std::make_unique<DirectBufferSink>(std::move(registeredName), target);
@@ -59,11 +68,7 @@ namespace Renderer
 			target = std::move(p);
 			linked = true;
 		}
-		DirectBufferSink(std::string registeredName, std::shared_ptr<T>& bind)
-			:
-			Sink(std::move(registeredName)),
-			target(bind)
-		{}
+
 	private:
 		std::shared_ptr<T>& target;
 		bool linked = false;
@@ -74,6 +79,13 @@ namespace Renderer
 	{
 		static_assert(std::is_base_of_v<BufferResource, T>, "DirectBufferSink target type must be a BufferResource type");
 	public:
+		DirectBufferBucketSink(std::string registeredName, std::vector<std::shared_ptr<T>>& bindVector)
+			:
+			Sink(std::move(registeredName)),
+			targetVector(bindVector)
+		{
+			isVector = true;
+		}
 		static std::unique_ptr<Sink> Make(std::string registeredName, std::vector<std::shared_ptr<T>>& targetVector)
 		{
 			return std::make_unique<DirectBufferBucketSink>(std::move(registeredName), targetVector);
@@ -97,13 +109,7 @@ namespace Renderer
 				linked = true;
 			}
 		}
-		DirectBufferBucketSink(std::string registeredName, std::vector<std::shared_ptr<T>>& bindVector)
-			:
-			Sink(std::move(registeredName)),
-			targetVector(bindVector)
-		{
-			isVector = true;
-		}
+
 	private:
 		std::vector<std::shared_ptr<T>>& targetVector;
 		bool linked = false;
@@ -114,6 +120,13 @@ namespace Renderer
 	{
 		static_assert(std::is_base_of_v<Bindable, T>, "DirectBindableSink target type must be a Bindable type");
 	public:
+		ContainerBindableSink(std::string registeredName, std::vector<std::shared_ptr<Bindable>>& container, size_t index)
+			:
+			Sink(std::move(registeredName)),
+			container(container),
+			index(index)
+		{
+		}
 		void PostLinkValidate() const override
 		{
 			if (!linked)
@@ -134,12 +147,7 @@ namespace Renderer
 			container[index] = std::move(p);
 			linked = true;
 		}
-		ContainerBindableSink(std::string registeredName, std::vector<std::shared_ptr<Bindable>>& container, size_t index)
-			:
-			Sink(std::move(registeredName)),
-			container(container),
-			index(index)
-		{}
+
 	private:
 		std::vector<std::shared_ptr<Bindable>>& container;
 		size_t index;
@@ -151,6 +159,12 @@ namespace Renderer
 	{
 		static_assert(std::is_base_of_v<Bindable, T>, "DirectBindableSink target type must be a Bindable type");
 	public:
+		DirectBindableSink(std::string registeredName, std::shared_ptr<T>& target)
+			:
+			Sink(std::move(registeredName)),
+			target(target)
+		{
+		}
 		static std::unique_ptr<Sink> Make(std::string registeredName, std::shared_ptr<T>& target)
 		{
 			return std::make_unique<DirectBindableSink>(std::move(registeredName), target);
@@ -175,11 +189,7 @@ namespace Renderer
 			target = std::move(p);
 			linked = true;
 		}
-		DirectBindableSink(std::string registeredName, std::shared_ptr<T>& target)
-			:
-			Sink(std::move(registeredName)),
-			target(target)
-		{}
+
 	private:
 		std::shared_ptr<T>& target;
 		bool linked = false;

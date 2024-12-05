@@ -9,6 +9,7 @@ namespace Renderer
 	public:
 		PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc);
 		void Bind(D3D12RHI& gfx) noexcept override;
+
 	private:
 		ComPtr<ID3D12PipelineState> m_pipelineState;
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC m_psoDescription;

@@ -1,5 +1,5 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
 
 namespace Common
 {

@@ -1,6 +1,4 @@
 #include "SolidSphere.h"
-#include "DynamicConstant.h"
-#include "Channels.h"
 
 namespace Renderer
 {
@@ -77,7 +75,7 @@ namespace Renderer
 					RawLayout lay;
 					lay.Add<Float3>("materialColor");
 					auto buf = Buffer(std::move(lay));
-					buf["materialColor"] = DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f };
+					buf["materialColor"] = XMFLOAT3{ 1.0f,1.0f,1.0f };
 					only.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
 				}
 				solid.AddStep(std::move(only));

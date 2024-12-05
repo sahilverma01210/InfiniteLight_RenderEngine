@@ -1,5 +1,5 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
 
 namespace Renderer
 {
@@ -35,14 +35,12 @@ namespace Renderer
 		{
 			return false;
 		}
+
 	protected:
 		Technique* pTech = nullptr;
 		Step* pStep = nullptr;
 		size_t techIdx;
 		size_t stepIdx;
 		size_t bufIdx;
-		//size_t techIdx = std::numeric_limits<size_t>::max();
-		//size_t stepIdx = std::numeric_limits<size_t>::max();
-		//size_t bufIdx = std::numeric_limits<size_t>::max();
 	};
 }

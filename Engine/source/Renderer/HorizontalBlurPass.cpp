@@ -1,8 +1,4 @@
 #include "HorizontalBlurPass.h"
-#include "RenderTarget.h"
-#include "Sink.h"
-#include "Source.h"
-#include "ConstantBuffer.h"
 
 namespace Renderer
 {

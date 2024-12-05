@@ -1,8 +1,4 @@
 #include "Renderer.h"
-#include "TestModelProbe.h"
-#include "Camera.h"
-#include "PerfLog.h"
-#include "Channels.h"
 
 namespace Renderer
 {
@@ -15,8 +11,8 @@ namespace Renderer
 		sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
 		light = new PointLight(*pRHI, { 10.0f,5.0f,0.0f });
 		
-		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "A", dx::XMFLOAT3{ -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f));
-		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "B", dx::XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f));
+		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "A", XMFLOAT3{ -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f));
+		cameras.AddCamera(std::make_unique<Camera>(*pRHI, "B", XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f));
 		cameras.AddCamera(light->ShareCamera());
 
 		light->LinkTechniques(*rg);

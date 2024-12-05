@@ -1,4 +1,6 @@
 #pragma once
+#include "../Common/ILMath.h"
+
 #include "D3D12RHI.h"
 #include "UIManager.h"
 #include "SolidSphere.h"
@@ -7,20 +9,8 @@
 
 namespace Renderer
 {
-	class RenderGraph;
-	class Camera;
-
 	class PointLight
 	{
-	public:
-		PointLight(D3D12RHI& gfx, XMFLOAT3 pos = { 10.0f,9.0f,2.5f }, float radius = 0.5f);
-		bool SpawnControlWindow() noexcept;
-		void Reset() noexcept;
-		void Submit(size_t channels) const noexcept;
-		void Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
-		void LinkTechniques(RenderGraph&);
-		std::shared_ptr<Camera> ShareCamera() const noexcept;
-		bool m_imGUIwndOpen = true;
 	private:
 		struct PointLightCBuf
 		{
@@ -36,6 +26,18 @@ namespace Renderer
 		{
 			XMMATRIX ViewProj;
 		};
+
+	public:
+		PointLight(D3D12RHI& gfx, XMFLOAT3 pos = { 10.0f,9.0f,2.5f }, float radius = 0.5f);
+		bool SpawnControlWindow() noexcept;
+		void Reset() noexcept;
+		void Submit(size_t channels) const noexcept;
+		void Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
+		void LinkTechniques(RenderGraph&);
+		std::shared_ptr<Camera> ShareCamera() const noexcept;
+
+	public:
+		bool m_imGUIwndOpen = true;
 	private:
 		PointLightCBuf home;
 		PointLightCBuf cbData;

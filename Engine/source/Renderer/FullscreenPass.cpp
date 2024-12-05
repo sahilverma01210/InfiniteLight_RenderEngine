@@ -1,6 +1,4 @@
 #include "FullscreenPass.h"
-#include "CommonBindables.h"
-#include "Vertex.h"
 
 namespace Renderer
 {

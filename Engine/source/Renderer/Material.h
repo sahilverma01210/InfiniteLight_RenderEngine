@@ -3,15 +3,15 @@
 #include "CommonBindables.h"
 #include "Technique.h"
 #include "Vertex.h"
+#include "DynamicConstant.h"
+#include "TransformBuffer.h"
+#include "Channels.h"
 
 struct aiMaterial;
 struct aiMesh;
 
 namespace Renderer
 {
-	class VertexBuffer;
-	class IndexBuffer;
-
 	class Material
 	{
 	public:
@@ -24,6 +24,7 @@ namespace Renderer
 		std::vector<Technique> GetTechniques() noexcept;
 	private:
 		std::string MakeMeshTag(const aiMesh& mesh) const noexcept;
+
 	private:
 		VertexLayout vtxLayout;
 		std::unordered_map<std::string, PipelineDescription> pipelineDesc;

@@ -1,8 +1,4 @@
 #include "BindingPass.h"
-#include "Bindable.h"
-#include "RenderTarget.h"
-#include "DepthStencil.h"
-#include "RenderGraphCompileException.h"
 
 namespace Renderer
 {
@@ -29,10 +25,10 @@ namespace Renderer
 	void BindingPass::Finalize()
 	{
 		Pass::Finalize();
-		//if (!renderTarget && !depthStencil)
-		//{
-		//	throw RGC_EXCEPTION("BindingPass [" + GetName() + "] needs at least one of a renderTarget or depthStencil");
-		//}
+		if (!renderTargetVector.size() && !depthStencil)
+		{
+			throw RGC_EXCEPTION("BindingPass [" + GetName() + "] needs at least one of a renderTarget or depthStencil");
+		}
 	}
 
 	void BindingPass::BindBufferResources(D3D12RHI& gfx) const noexcept

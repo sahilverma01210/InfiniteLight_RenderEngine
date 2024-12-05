@@ -1,5 +1,6 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
+
 #include "RenderGraphCompileException.h"
 
 namespace Renderer
@@ -10,15 +11,17 @@ namespace Renderer
 	class Source
 	{
 	public:
+		virtual ~Source() = default;
 		const std::string& GetName() const noexcept;
 		virtual void PostLinkValidate() const = 0;
 		virtual std::shared_ptr<Bindable> YieldBindable();
 		virtual std::shared_ptr<BufferResource> YieldBuffer();
 		virtual std::vector<std::shared_ptr<BufferResource>> YieldBufferBucket();
-		virtual ~Source() = default;
-		bool isVector = false;
 	protected:
 		Source(std::string name);
+
+	public:
+		bool isVector = false;
 	private:
 		std::string name;
 	};
@@ -27,15 +30,15 @@ namespace Renderer
 	class DirectBufferSource : public Source
 	{
 	public:
-		static std::unique_ptr<DirectBufferSource> Make(std::string name, std::shared_ptr<T>& ebuffer)
-		{
-			return std::make_unique<DirectBufferSource>(std::move(name), ebuffer);
-		}
 		DirectBufferSource(std::string name, std::shared_ptr<T>& buffer)
 			:
 			Source(std::move(name)),
 			buffer(buffer)
 		{
+		}
+		static std::unique_ptr<DirectBufferSource> Make(std::string name, std::shared_ptr<T>& ebuffer)
+		{
+			return std::make_unique<DirectBufferSource>(std::move(name), ebuffer);
 		}
 		void PostLinkValidate() const
 		{}
@@ -48,6 +51,7 @@ namespace Renderer
 			linked = true;
 			return buffer;
 		}
+
 	private:
 		std::shared_ptr<T>& buffer;
 		bool linked = false;
@@ -57,16 +61,16 @@ namespace Renderer
 	class DirectBufferBucketSource : public Source
 	{
 	public:
-		static std::unique_ptr<DirectBufferBucketSource> Make(std::string name, std::vector<std::shared_ptr<T>>& ebufferVector)
-		{
-			return std::make_unique<DirectBufferBucketSource>(std::move(name), ebufferVector);
-		}
 		DirectBufferBucketSource(std::string name, std::vector<std::shared_ptr<T>>& bufferVector)
 			:
 			Source(std::move(name)),
 			bufferVector(bufferVector)
 		{
 			isVector = true;
+		}
+		static std::unique_ptr<DirectBufferBucketSource> Make(std::string name, std::vector<std::shared_ptr<T>>& ebufferVector)
+		{
+			return std::make_unique<DirectBufferBucketSource>(std::move(name), ebufferVector);
 		}
 		void PostLinkValidate() const
 		{}
@@ -86,6 +90,7 @@ namespace Renderer
 				});
 			return bufferResources;
 		}
+
 	private:
 		std::vector<std::shared_ptr<T>>& bufferVector;
 		bool linked = false;
@@ -95,21 +100,23 @@ namespace Renderer
 	class DirectBindableSource : public Source
 	{
 	public:
-		static std::unique_ptr<DirectBindableSource> Make(std::string name, std::shared_ptr<T>& buffer)
-		{
-			return std::make_unique<DirectBindableSource>(std::move(name), buffer);
-		}
 		DirectBindableSource(std::string name, std::shared_ptr<T>& bind)
 			:
 			Source(std::move(name)),
 			bind(bind)
-		{}
+		{
+		}
+		static std::unique_ptr<DirectBindableSource> Make(std::string name, std::shared_ptr<T>& buffer)
+		{
+			return std::make_unique<DirectBindableSource>(std::move(name), buffer);
+		}
 		void PostLinkValidate() const
 		{}
 		std::shared_ptr<Bindable> YieldBindable() override
 		{
 			return bind;
 		}
+
 	private:
 		std::shared_ptr<T>& bind;
 	};

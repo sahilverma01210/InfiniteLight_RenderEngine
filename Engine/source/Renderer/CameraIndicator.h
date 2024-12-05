@@ -1,5 +1,9 @@
 #pragma once
 #include "Drawable.h"
+#include "CommonBindables.h"
+#include "Vertex.h"
+#include "Sphere.h"
+#include "Channels.h"
 
 namespace Renderer
 {
@@ -7,12 +11,13 @@ namespace Renderer
 	{
 	public:
 		CameraIndicator(D3D12RHI& gfx);
-		void SetPos(DirectX::XMFLOAT3 pos) noexcept;
-		void SetRotation(DirectX::XMFLOAT3 pos) noexcept;
-		DirectX::XMMATRIX GetTransformXM() const noexcept override;
+		void SetPos(XMFLOAT3 pos) noexcept;
+		void SetRotation(XMFLOAT3 pos) noexcept;
+		XMMATRIX GetTransformXM() const noexcept override;
+
 	private:
-		DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
-		DirectX::XMFLOAT3 rot = { 0.0f,0.0f,0.0f };
+		XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
+		XMFLOAT3 rot = { 0.0f,0.0f,0.0f };
 		PipelineDescription pipelineDesc{};
 	};
 }

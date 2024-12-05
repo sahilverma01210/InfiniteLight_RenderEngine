@@ -1,10 +1,7 @@
 #pragma once
-#include "../_External/framework.h"
-#undef min
-#undef max
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "../_External/dx12/directX12.h"
+#include "../_External/common.h"
+#include "../_External/assimp/assimp.h"
 
 #define DVTX_ELEMENT_AI_EXTRACTOR(member) static SysType Extract( const aiMesh& mesh,size_t i ) noexcept {return *reinterpret_cast<const SysType*>(&mesh.member[i]);}
 #define LAYOUT_ELEMENT_TYPES \
@@ -42,7 +39,7 @@ namespace Renderer
 		template<ElementType> struct Map;
 		template<> struct Map<Position2D>
 		{
-			using SysType = DirectX::XMFLOAT2;
+			using SysType = XMFLOAT2;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* semantic = "POSITION";
 			static constexpr const char* code = "P2";
@@ -50,7 +47,7 @@ namespace Renderer
 		};
 		template<> struct Map<Position3D>
 		{
-			using SysType = DirectX::XMFLOAT3;
+			using SysType = XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "POSITION";
 			static constexpr const char* code = "P3";
@@ -58,7 +55,7 @@ namespace Renderer
 		};
 		template<> struct Map<Texture2D>
 		{
-			using SysType = DirectX::XMFLOAT2;
+			using SysType = XMFLOAT2;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* semantic = "TEXCOORD";
 			static constexpr const char* code = "T2";
@@ -66,7 +63,7 @@ namespace Renderer
 		};
 		template<> struct Map<Normal>
 		{
-			using SysType = DirectX::XMFLOAT3;
+			using SysType = XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "NORMAL";
 			static constexpr const char* code = "N";
@@ -74,7 +71,7 @@ namespace Renderer
 		};
 		template<> struct Map<Tangent>
 		{
-			using SysType = DirectX::XMFLOAT3;
+			using SysType = XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "TANGENT";
 			static constexpr const char* code = "Nt";
@@ -82,7 +79,7 @@ namespace Renderer
 		};
 		template<> struct Map<Bitangent>
 		{
-			using SysType = DirectX::XMFLOAT3;
+			using SysType = XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "BITANGENT";
 			static constexpr const char* code = "Nb";
@@ -90,7 +87,7 @@ namespace Renderer
 		};
 		template<> struct Map<Float3Color>
 		{
-			using SysType = DirectX::XMFLOAT3;
+			using SysType = XMFLOAT3;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "COLOR";
 			static constexpr const char* code = "C3";
@@ -98,7 +95,7 @@ namespace Renderer
 		};
 		template<> struct Map<Float4Color>
 		{
-			using SysType = DirectX::XMFLOAT4;
+			using SysType = XMFLOAT4;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			static constexpr const char* semantic = "COLOR";
 			static constexpr const char* code = "C4";
@@ -120,18 +117,8 @@ namespace Renderer
 			static constexpr const char* code = "!INV!";
 			DVTX_ELEMENT_AI_EXTRACTOR(mFaces)
 		};
-		template<template<VertexLayout::ElementType> class F, typename... Args>
-		static constexpr auto Bridge(VertexLayout::ElementType type, Args&&... args) noexcept
-		{
-			switch (type)
-			{
-#define X(el) case VertexLayout::el: return F<VertexLayout::el>::Exec( std::forward<Args>( args )... );
-				LAYOUT_ELEMENT_TYPES
-#undef X
-			}
-			assert("Invalid element type" && false);
-			return F<VertexLayout::Count>::Exec(std::forward<Args>(args)...);
-		}
+
+	public:
 		class Element
 		{
 		public:
@@ -147,6 +134,20 @@ namespace Renderer
 			ElementType type;
 			size_t offset;
 		};
+
+	public:
+		template<template<VertexLayout::ElementType> class F, typename... Args>
+		static constexpr auto Bridge(VertexLayout::ElementType type, Args&&... args) noexcept
+		{
+			switch (type)
+			{
+#define X(el) case VertexLayout::el: return F<VertexLayout::el>::Exec( std::forward<Args>( args )... );
+				LAYOUT_ELEMENT_TYPES
+#undef X
+			}
+			assert("Invalid element type" && false);
+			return F<VertexLayout::Count>::Exec(std::forward<Args>(args)...);
+		}
 	public:
 		template<ElementType Type>
 		const Element& Resolve() const noexcept
@@ -168,6 +169,7 @@ namespace Renderer
 		std::vector<D3D12_INPUT_ELEMENT_DESC> GetD3DLayout() const noexcept;
 		std::string GetCode() const noexcept;
 		bool Has(ElementType type) const noexcept;
+
 	private:
 		std::vector<Element> elements;
 	};
@@ -176,6 +178,7 @@ namespace Renderer
 	class Vertex
 	{
 		friend class VertexRawBuffer;
+
 	private:
 		// necessary for Bridge to SetAttribute
 		template<VertexLayout::ElementType type>
@@ -187,6 +190,7 @@ namespace Renderer
 				return pVertex->SetAttribute<type>(pAttribute, std::forward<T>(val));
 			}
 		};
+
 	public:
 		template<VertexLayout::ElementType Type>
 		auto& Attr() noexcept
@@ -206,9 +210,9 @@ namespace Renderer
 	protected:
 		Vertex(char* pData, const VertexLayout& layout) noexcept;
 	private:
-		template<typename First, typename ...Rest>
 		// Template Recursion (Parameter Pack).
 		// enables parameter pack setting of multiple parameters by element index
+		template<typename First, typename ...Rest>
 		void SetAttributeByIndex(size_t i, First&& first, Rest&&... rest) noexcept
 		{
 			SetAttributeByIndex(i, std::forward<First>(first));
@@ -228,6 +232,7 @@ namespace Renderer
 				assert("Parameter attribute type mismatch" && false);
 			}
 		}
+
 	private:
 		char* pData = nullptr;
 		const VertexLayout& layout;
@@ -242,6 +247,7 @@ namespace Renderer
 		{
 			return const_cast<Vertex&>(vertex).Attr<Type>();
 		}
+
 	private:
 		Vertex vertex;
 	};
@@ -272,6 +278,7 @@ namespace Renderer
 		ConstVertex Back() const noexcept;
 		ConstVertex Front() const noexcept;
 		ConstVertex operator[](size_t i) const noexcept;
+
 	private:
 		std::vector<char> buffer;
 		VertexLayout layout;

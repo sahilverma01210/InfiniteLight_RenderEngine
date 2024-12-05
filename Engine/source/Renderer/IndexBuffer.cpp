@@ -1,5 +1,4 @@
 #include "IndexBuffer.h"
-#include "BindableCodex.h"
 
 namespace Renderer
 {

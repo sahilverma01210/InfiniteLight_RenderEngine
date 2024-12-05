@@ -12,6 +12,7 @@ namespace Renderer
 		void InitDescriptorTable(UINT rootParameterIndex, UINT numDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY visibilityFlag);
 		ID3D12RootSignature* GetRootSignature();
 		void Bind(D3D12RHI& gfx) noexcept override;
+
 	private:
 		UINT m_numRootParameters;
 		CD3DX12_ROOT_PARAMETER* m_rootParameters;

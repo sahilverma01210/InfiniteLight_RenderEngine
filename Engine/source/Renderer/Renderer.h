@@ -1,13 +1,16 @@
 #pragma once
 #include "../Common/ILMath.h"
 
-#include "D3D12RHI.h" // RHI
-#include "CameraContainer.h" // Camera
-#include "UIManager.h" // UI
-#include "PointLight.h" // Lights
-#include "Model.h" // Model
+#include "D3D12RHI.h"
+#include "CameraContainer.h"
+#include "UIManager.h"
+#include "PointLight.h"
+#include "Model.h"
 #include "BlurOutlineRenderGraph.h"
 #include "PerfLog.h"
+#include "TestModelProbe.h"
+#include "Camera.h"
+#include "Channels.h"
 
 using namespace Common;
 
@@ -25,8 +28,8 @@ namespace Renderer
 		void Translate(XMFLOAT3 translation);
 		void ToggleImguiDemoWindow();
 		void ShowImguiDemoWindow();
+
 	private:
-		bool savingDepth = false;
 		bool showDemoWindow = false;
 		std::unique_ptr<D3D12RHI> pRHI;
 		CameraContainer cameras;

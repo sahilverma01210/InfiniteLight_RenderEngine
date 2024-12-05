@@ -1,11 +1,10 @@
 #include "CameraContainer.h"
-#include "UIManager.h"
-#include "Camera.h"
-#include "D3D12RHI.h"
-#include "RenderGraph.h"
 
 namespace Renderer
 {
+	CameraContainer::~CameraContainer()
+	{
+	}
 	void CameraContainer::SpawnWindow(D3D12RHI& gfx)
 	{
 		if (ImGui::Begin("Cameras"))
@@ -52,9 +51,6 @@ namespace Renderer
 	{
 		return &GetActiveCamera();
 	}
-	CameraContainer::~CameraContainer()
-	{}
-
 	void CameraContainer::LinkTechniques(RenderGraph& rg)
 	{
 		for (auto& pcam : cameras)

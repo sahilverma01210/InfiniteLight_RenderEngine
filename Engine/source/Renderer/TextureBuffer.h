@@ -13,10 +13,11 @@ namespace Renderer
 		TextureBuffer(D3D12RHI& gfx, const WCHAR* filename);
 		ID3D12Resource* GetBuffer();
 		bool HasAlpha() const noexcept;
-		bool HasAlphaChannel(const DirectX::Image& image);
+		bool HasAlphaChannel(const Image& image);
 		static std::shared_ptr<TextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
 		static std::string GenerateUID(const WCHAR* filename);
 		std::string GetUID() const noexcept override;
+
 	private:
 		bool hasAlpha = false;
 		const WCHAR* m_filename;
@@ -31,6 +32,7 @@ namespace Renderer
 		static std::shared_ptr<CubeMapTextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
 		static std::string GenerateUID(const WCHAR* filename);
 		std::string GetUID() const noexcept override;
+
 	private:
 		const WCHAR* m_foldername;
 		ComPtr<ID3D12Resource> m_texureBuffer;
@@ -42,6 +44,7 @@ namespace Renderer
 		DepthCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);
 		ID3D12Resource* GetBuffer();
 		std::shared_ptr<DepthStencil> GetDepthBuffer(size_t index) const;
+
 	private:
 		ComPtr<ID3D12Resource> m_texureBuffer;
 		std::vector<std::shared_ptr<DepthStencil>> depthBuffers;
@@ -53,6 +56,7 @@ namespace Renderer
 		TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);
 		ID3D12Resource* GetBuffer();
 		std::shared_ptr<RenderTarget> GetRenderTarget(size_t index) const;
+
 	private:
 		ComPtr<ID3D12Resource> m_texureBuffer;
 		std::vector<std::shared_ptr<RenderTarget>> renderTargets;

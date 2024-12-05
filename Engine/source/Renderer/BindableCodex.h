@@ -1,10 +1,6 @@
 #pragma once
-
 #include "Bindable.h"
 #include "BindableCodex.h"
-#include <type_traits>
-#include <memory>
-#include <unordered_map>
 
 namespace Renderer
 {
@@ -39,6 +35,7 @@ namespace Renderer
 			static Codex codex;
 			return codex;
 		}
+
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Bindable>> binds;
 	};

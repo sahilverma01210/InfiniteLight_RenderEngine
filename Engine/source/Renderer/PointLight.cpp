@@ -1,6 +1,4 @@
 #include "PointLight.h"
-#include "Camera.h"
-#include "../Common/ILMath.h"
 
 namespace Renderer
 {

@@ -1,6 +1,4 @@
 #include "Camera.h"
-#include "D3D12RHI.h"
-#include "UIManager.h"
 
 namespace Renderer
 {
@@ -69,7 +67,7 @@ namespace Renderer
 		}
 		if (rotDirty)
 		{
-			const dx::XMFLOAT3 angles = { pitch,yaw,0.0f };
+			const XMFLOAT3 angles = { pitch,yaw,0.0f };
 			indicator.SetRotation(angles);
 			proj.SetRotation(angles);
 		}
@@ -98,7 +96,7 @@ namespace Renderer
 		pitch = homePitch;
 		yaw = homeYaw;
 
-		const dx::XMFLOAT3 angles = { pitch,yaw,0.0f };
+		const XMFLOAT3 angles = { pitch,yaw,0.0f };
 		indicator.SetRotation(angles);
 		proj.SetRotation(angles);
 		proj.Reset(gfx);
@@ -111,7 +109,7 @@ namespace Renderer
 	{
 		yaw = wrap_angle(yaw + dx * rotationSpeed);
 		pitch = std::clamp(pitch + dy * rotationSpeed, 0.995f * -PI / 2.0f, 0.995f * PI / 2.0f);
-		const dx::XMFLOAT3 angles = { pitch,yaw,0.0f };
+		const XMFLOAT3 angles = { pitch,yaw,0.0f };
 		indicator.SetRotation(angles);
 		proj.SetRotation(angles);
 	}
@@ -120,10 +118,10 @@ namespace Renderer
 	{
 		if (!tethered)
 		{
-			dx::XMStoreFloat3(&translation, dx::XMVector3Transform(
-				dx::XMLoadFloat3(&translation),
-				dx::XMMatrixRotationRollPitchYaw(pitch, yaw, 0.0f) *
-				dx::XMMatrixScaling(travelSpeed, travelSpeed, travelSpeed)
+			XMStoreFloat3(&translation, XMVector3Transform(
+				XMLoadFloat3(&translation),
+				XMMatrixRotationRollPitchYaw(pitch, yaw, 0.0f) *
+				XMMatrixScaling(travelSpeed, travelSpeed, travelSpeed)
 			));
 			pos = {
 				pos.x + translation.x,

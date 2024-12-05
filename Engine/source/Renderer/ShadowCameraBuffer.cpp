@@ -1,5 +1,4 @@
 #include "ShadowCameraBuffer.h"
-#include "Camera.h"
 
 namespace Renderer
 {
@@ -16,7 +15,7 @@ namespace Renderer
 
 	void ShadowCameraBuffer::Update(D3D12RHI& gfx)
 	{
-		t.ViewProj = dx::XMMatrixTranspose(
+		t.ViewProj = XMMatrixTranspose(
 			pCamera->GetMatrix() * pCamera->GetProjection()
 		);
 		pVcbuf->Update(gfx, &t);

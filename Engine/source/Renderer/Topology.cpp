@@ -1,5 +1,4 @@
 #include "Topology.h"
-#include "BindableCodex.h"
 
 namespace Renderer
 {

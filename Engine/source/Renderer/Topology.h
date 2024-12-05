@@ -1,5 +1,6 @@
 #pragma once
 #include "Bindable.h"
+#include "BindableCodex.h"
 
 namespace Renderer
 {
@@ -11,6 +12,7 @@ namespace Renderer
 		static std::shared_ptr<Topology> Resolve(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		static std::string GenerateUID(D3D12_PRIMITIVE_TOPOLOGY type);
 		std::string GetUID() const noexcept override;
+
 	protected:
 		D3D12_PRIMITIVE_TOPOLOGY type;
 	};

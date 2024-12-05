@@ -1,6 +1,5 @@
 #include "LayoutCodex.h"
 
-
 namespace Renderer
 {
 	CookedLayout LayoutCodex::Resolve(RawLayout&& layout)

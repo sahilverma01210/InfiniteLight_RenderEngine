@@ -1,16 +1,15 @@
 #pragma once
 #include "Pass.h"
+#include "DepthStencil.h"
+#include "RenderTarget.h"
+#include "CommonBindables.h"
+#include "RenderGraphCompileException.h"
+#include "RenderQueuePass.h"
+#include "Sink.h"
+#include "Source.h"
 
 namespace Renderer
 {
-	class D3D12RHI;
-	class RenderTarget;
-	class DepthStencil;
-	class Pass;
-	class RenderQueuePass;
-	class Source;
-	class Sink;
-
 	class RenderGraph
 	{
 	public:
@@ -30,6 +29,7 @@ namespace Renderer
 	private:
 		void LinkSinks(Pass& pass);
 		void LinkGlobalSinks();
+
 	protected:
 		std::vector<std::shared_ptr<RenderTarget>> backBufferTargets;
 		std::shared_ptr<DepthStencil> masterDepth;

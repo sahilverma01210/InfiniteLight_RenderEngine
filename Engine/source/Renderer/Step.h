@@ -26,6 +26,7 @@ namespace Renderer
 		void Link(RenderGraph& rg);
 		std::vector<std::shared_ptr<Bindable>> GetBindables() noexcept;
 		std::string GetTargetPass() const;
+
 	private:
 		std::vector<std::shared_ptr<Bindable>> bindables;
 		RenderQueuePass* pTargetPass = nullptr;

@@ -1,10 +1,6 @@
 #define DCB_IMPL_SOURCE
 #include "DynamicConstant.h"
-#include <string>
-#include <algorithm>
-#include <cctype>
 #include "LayoutCodex.h"
-
 
 namespace Renderer
 {

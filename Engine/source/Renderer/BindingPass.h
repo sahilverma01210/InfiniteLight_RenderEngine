@@ -1,11 +1,13 @@
 #pragma once
 #include "Pass.h"
 #include "Sink.h"
+#include "Bindable.h"
+#include "RenderTarget.h"
+#include "DepthStencil.h"
+#include "RenderGraphCompileException.h"
 
 namespace Renderer
 {
-	class Bindable;
-
 	class BindingPass : public Pass
 	{
 	protected:
@@ -17,7 +19,6 @@ namespace Renderer
 		{
 			return binds.size();
 		}
-	protected:
 		template<class T>
 		void AddBindSink(std::string name)
 		{
@@ -25,10 +26,12 @@ namespace Renderer
 			binds.emplace_back();
 			RegisterSink(std::make_unique<ContainerBindableSink<T>>(std::move(name), binds, index));
 		}
-		std::vector<std::shared_ptr<RenderTarget>> renderTargetVector;
-		std::shared_ptr<DepthStencil> depthStencil;
 	private:
 		void BindBufferResources(D3D12RHI& gfx) const noexcept;
+
+	protected:
+		std::vector<std::shared_ptr<RenderTarget>> renderTargetVector;
+		std::shared_ptr<DepthStencil> depthStencil;
 	private:
 		std::vector<std::shared_ptr<Bindable>> binds;
 	};

@@ -1,8 +1,4 @@
 #include "ScaleOutlineRenderGraph.h"
-#include "BufferClearPass.h"
-#include "LambertianPass.h"
-#include "OutlineDrawingPass.h"
-#include "OutlineMaskGenerationPass.h"
 
 /*
 * Todo (Optional): Configure this Render Graph and use it in Renderer. Configure OutlineDrawingPass for the same.

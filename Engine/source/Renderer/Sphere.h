@@ -12,30 +12,29 @@ namespace Renderer
 	public:
 		static IndexedTriangleList MakeTesselated(VertexRawBuffer layout, int latDiv, int longDiv)
 		{
-			namespace dx = DirectX;
 			assert(latDiv >= 3);
 			assert(longDiv >= 3);
 
 			constexpr float radius = 1.0f;
-			const auto base = dx::XMVectorSet(0.0f, 0.0f, radius, 0.0f);
+			const auto base = XMVectorSet(0.0f, 0.0f, radius, 0.0f);
 			const float lattitudeAngle = PI / latDiv;
 			const float longitudeAngle = 2.0f * PI / longDiv;
 
 			VertexRawBuffer vb{ std::move(layout) };
 			for (int iLat = 1; iLat < latDiv; iLat++)
 			{
-				const auto latBase = dx::XMVector3Transform(
+				const auto latBase = XMVector3Transform(
 					base,
-					dx::XMMatrixRotationX(lattitudeAngle * iLat)
+					XMMatrixRotationX(lattitudeAngle * iLat)
 				);
 				for (int iLong = 0; iLong < longDiv; iLong++)
 				{
-					dx::XMFLOAT3 calculatedPos;
-					auto v = dx::XMVector3Transform(
+					XMFLOAT3 calculatedPos;
+					auto v = XMVector3Transform(
 						latBase,
-						dx::XMMatrixRotationZ(longitudeAngle * iLong)
+						XMMatrixRotationZ(longitudeAngle * iLong)
 					);
-					dx::XMStoreFloat3(&calculatedPos, v);
+					XMStoreFloat3(&calculatedPos, v);
 					vb.EmplaceBack(calculatedPos);
 				}
 			}
@@ -43,14 +42,14 @@ namespace Renderer
 			// add the cap vertices
 			const auto iNorthPole = (unsigned short)vb.Size();
 			{
-				dx::XMFLOAT3 northPos;
-				dx::XMStoreFloat3(&northPos, base);
+				XMFLOAT3 northPos;
+				XMStoreFloat3(&northPos, base);
 				vb.EmplaceBack(northPos);
 			}
 			const auto iSouthPole = (unsigned short)vb.Size();
 			{
-				dx::XMFLOAT3 southPos;
-				dx::XMStoreFloat3(&southPos, dx::XMVectorNegate(base));
+				XMFLOAT3 southPos;
+				XMStoreFloat3(&southPos, XMVectorNegate(base));
 				vb.EmplaceBack(southPos);
 			}
 

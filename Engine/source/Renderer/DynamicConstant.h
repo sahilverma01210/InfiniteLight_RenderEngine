@@ -1,10 +1,6 @@
 #pragma once
-#include <cassert>
-#include <DirectXMath.h>
-#include <vector>
-#include <memory>
-#include <optional>
-#include <string>
+#include "../_External/dx12/directX12.h"
+#include "../_External/common.h"
 
 // master list of leaf types that generates enum elements and various switches etc.
 #define LEAF_ELEMENT_TYPES \
@@ -18,8 +14,6 @@
 
 namespace Renderer
 {
-	namespace dx = DirectX;
-
 	enum Type
 	{
 #define X(el) el,
@@ -45,28 +39,28 @@ namespace Renderer
 	};
 	template<> struct Map<Float2>
 	{
-		using SysType = dx::XMFLOAT2;
+		using SysType = XMFLOAT2;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "F2";
 		static constexpr bool valid = true;
 	};
 	template<> struct Map<Float3>
 	{
-		using SysType = dx::XMFLOAT3;
+		using SysType = XMFLOAT3;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "F3";
 		static constexpr bool valid = true;
 	};
 	template<> struct Map<Float4>
 	{
-		using SysType = dx::XMFLOAT4;
+		using SysType = XMFLOAT4;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "F4";
 		static constexpr bool valid = true;
 	};
 	template<> struct Map<Matrix>
 	{
-		using SysType = dx::XMFLOAT4X4;
+		using SysType = XMFLOAT4X4;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "M4";
 		static constexpr bool valid = true;
@@ -90,9 +84,8 @@ namespace Renderer
 #define X(el) static_assert(Map<el>::valid,"Missing map implementation for " #el);
 	LEAF_ELEMENT_TYPES
 #undef X
-
-		// enables reverse lookup from SysType to leaf type
-		template<typename T>
+	// enables reverse lookup from SysType to leaf type
+	template<typename T>
 	struct ReverseMap
 	{
 		static constexpr bool valid = false;
@@ -106,25 +99,26 @@ namespace Renderer
 	LEAF_ELEMENT_TYPES
 #undef X
 
-
-		// LayoutElements instances form a tree that describes the layout of the data buffer
+	// LayoutElements instances form a tree that describes the layout of the data buffer
 		// supporting nested aggregates of structs and arrays
-		class LayoutElement
+	class LayoutElement
 	{
+		friend class RawLayout;
+		friend struct ExtraData;
+
 	private:
 		// this forms the polymorpic base for extra data that Struct and Array have
 		struct ExtraDataBase
 		{
 			virtual ~ExtraDataBase() = default;
 		};
+
 		// friend relationships are used liberally throught the DynamicConstant system
 		// instead of seeing the various classes in this system as encapsulated decoupled
 		// units, they must be viewed as aspect of one large monolithic system
 		// the reason for the friend relationships is generally so that intermediate
 		// classes that the client should not create can have their constructors made
 		// private, so that Finalize() cannot be called on arbitrary LayoutElements, etc.
-		friend class RawLayout;
-		friend struct ExtraData;
 	public:
 		// get a string signature for this element (recursive); when called on the root
 		// element of a layout tree, generates a uniquely-identifying string for the layout
@@ -200,6 +194,7 @@ namespace Renderer
 		static size_t AdvanceIfCrossesBoundary(size_t offset, size_t size) noexcept;
 		// check string for validity as a struct key
 		static bool ValidateSymbolName(const std::string& name) noexcept;
+
 	private:
 		// each element stores its own offset. this makes lookup to find its position in the byte buffer
 		// fast. Special handling is required for situations where arrays are involved
@@ -207,7 +202,6 @@ namespace Renderer
 		Type type = Empty;
 		std::unique_ptr<ExtraDataBase> pExtraData;
 	};
-
 
 	// the layout class serves as a shell to hold the root of the LayoutElement tree
 	// client does not create LayoutElements directly, create a raw layout and then
@@ -221,11 +215,14 @@ namespace Renderer
 	{
 		friend class LayoutCodex;
 		friend class Buffer;
+
 	public:
 		size_t GetSizeInBytes() const noexcept;
 		std::string GetSignature() const ;
 	protected:
 		Layout(std::shared_ptr<LayoutElement> pRoot) noexcept;
+
+	protected:
 		std::shared_ptr<LayoutElement> pRoot;
 	};
 
@@ -234,6 +231,7 @@ namespace Renderer
 	class RawLayout : public Layout
 	{
 		friend class LayoutCodex;
+
 	public:
 		RawLayout() noexcept;
 		// key into the root Struct
@@ -257,6 +255,7 @@ namespace Renderer
 	{
 		friend class LayoutCodex;
 		friend class Buffer;
+
 	public:
 		// key into the root Struct (const to disable mutation of the layout)
 		const LayoutElement& operator[](const std::string& key) const ;
@@ -269,9 +268,6 @@ namespace Renderer
 		std::shared_ptr<LayoutElement> RelinquishRoot() const noexcept;
 	};
 
-
-
-
 	// proxy type that is emitted when keying/indexing into a Buffer
 	// implement conversions/assignment that allows manipulation of the
 	// raw bytes of the Buffer. This version is const, only supports reading
@@ -280,6 +276,7 @@ namespace Renderer
 	{
 		friend class Buffer;
 		friend class ElementRef;
+
 	public:
 		// this is a proxy type emitted when you use addressof& on the Ref
 		// it allows conversion to pointer type, useful for using Buffer
@@ -287,6 +284,7 @@ namespace Renderer
 		class Ptr
 		{
 			friend ConstElementRef;
+
 		public:
 			// conversion for getting read-only pointer to supported SysType
 			template<typename T>
@@ -297,8 +295,11 @@ namespace Renderer
 			}
 		private:
 			Ptr(const ConstElementRef* ref) noexcept;
+
+		private:
 			const ConstElementRef* ref;
 		};
+
 	public:
 		// check if the indexed element actually exists
 		// this is possible because if you key into a Struct with a nonexistent key
@@ -321,6 +322,8 @@ namespace Renderer
 	private:
 		// refs should only be constructable by other refs or by the buffer
 		ConstElementRef(const LayoutElement* pLayout, const char* pBytes, size_t offset) noexcept;
+
+	private:
 		// this offset is the offset that is built up by indexing into arrays
 		// accumulated for every array index in the path of access into the structure
 		size_t offset;
@@ -328,16 +331,17 @@ namespace Renderer
 		const char* pBytes;
 	};
 
-
 	// version of ConstElementRef that also allows writing to the bytes of Buffer
 	// see above in ConstElementRef for detailed description
 	class ElementRef
 	{
 		friend class Buffer;
+
 	public:
 		class Ptr
 		{
 			friend ElementRef;
+
 		public:
 			// conversion to read/write pointer to supported SysType
 			template<typename T>
@@ -348,8 +352,11 @@ namespace Renderer
 			}
 		private:
 			Ptr(ElementRef* ref) noexcept;
+
+		private:
 			ElementRef* ref;
 		};
+
 	public:
 		operator ConstElementRef() const noexcept;
 		bool Exists() const noexcept;
@@ -384,13 +391,12 @@ namespace Renderer
 	private:
 		// refs should only be constructable by other refs or by the buffer
 		ElementRef(const LayoutElement* pLayout, char* pBytes, size_t offset) noexcept;
+
+	private:
 		size_t offset;
 		const LayoutElement* pLayout;
 		char* pBytes;
 	};
-
-
-
 
 	// The buffer object is a combination of a raw byte buffer with a LayoutElement
 	// tree structure which acts as an view/interpretation/overlay for those bytes
@@ -421,6 +427,7 @@ namespace Renderer
 		void CopyFrom(const Buffer&) ;
 		// return another sptr to the layout root
 		std::shared_ptr<LayoutElement> ShareLayoutRoot() const noexcept;
+
 	private:
 		std::shared_ptr<LayoutElement> pLayoutRoot;
 		std::vector<char> bytes;

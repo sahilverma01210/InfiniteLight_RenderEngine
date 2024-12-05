@@ -1,15 +1,15 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
 #include "../Common/ILUtility.h"
+
+#include "RenderTarget.h"
+#include "DepthStencil.h"
+#include "Sink.h"
+#include "Source.h"
+#include "RenderGraphCompileException.h"
 
 namespace Renderer
 {
-	class D3D12RHI;
-	class RenderTarget;
-	class DepthStencil;
-	class Sink;
-	class Source;
-
 	class Pass
 	{
 	public:
@@ -26,6 +26,7 @@ namespace Renderer
 	protected:
 		void RegisterSink(std::unique_ptr<Sink> sink);
 		void RegisterSource(std::unique_ptr<Source> source);
+
 	private:
 		std::vector<std::unique_ptr<Sink>> sinks;
 		std::vector<std::unique_ptr<Source>> sources;

@@ -1,11 +1,12 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
 
 namespace Runtime
 {
 	class Keyboard
 	{
 		friend class Window;
+
 	public:
 		class Event
 		{
@@ -16,9 +17,7 @@ namespace Runtime
 				Release,
 				Invalid
 			};
-		private:
-			Type type;
-			unsigned char code;
+
 		public:
 			Event() noexcept
 				:
@@ -46,7 +45,12 @@ namespace Runtime
 			{
 				return code;
 			}
+
+		private:
+			Type type;
+			unsigned char code;
 		};
+
 	public:
 		Keyboard() = default;
 		Keyboard(const Keyboard&) = delete;
@@ -72,6 +76,7 @@ namespace Runtime
 		void ClearState() noexcept;
 		template<typename T>
 		static void TrimBuffer(std::queue<T>& buffer) noexcept;
+
 	private:
 		static constexpr unsigned int nKeys = 256u;
 		static constexpr unsigned int bufferSize = 16u;

@@ -1,5 +1,4 @@
 #include "VertexBuffer.h"
-#include "BindableCodex.h"
 
 namespace Renderer
 {

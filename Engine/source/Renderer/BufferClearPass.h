@@ -1,15 +1,18 @@
 #pragma once
 #include "Pass.h"
+#include "RenderTarget.h"
+#include "DepthStencil.h"
+#include "Sink.h"
+#include "Source.h"
 
 namespace Renderer
 {
-	class BufferResource;
-
 	class BufferClearPass : public Pass
 	{
 	public:
 		BufferClearPass(std::string name);
 		void Execute(D3D12RHI& gfx) const noexcept override;
+
 	private:
 		std::shared_ptr<BufferResource> buffer;
 	};
@@ -19,6 +22,7 @@ namespace Renderer
 	public:
 		BufferBucketClearPass(std::string name);
 		void Execute(D3D12RHI& gfx) const noexcept override;
+
 	private:
 		std::vector<std::shared_ptr<BufferResource>> bufferVector;
 	};

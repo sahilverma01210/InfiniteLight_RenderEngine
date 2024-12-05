@@ -1,21 +1,4 @@
 #include "BlurOutlineRenderGraph.h"
-#include "BufferClearPass.h"
-#include "LambertianPass.h"
-#include "OutlineDrawingPass.h"
-#include "OutlineMaskGenerationPass.h"
-#include "Source.h"
-#include "HorizontalBlurPass.h"
-#include "VerticalBlurPass.h"
-#include "BlurOutlineDrawingPass.h"
-#include "WireframePass.h"
-#include "ShadowMappingPass.h"
-#include "SkyboxPass.h"
-#include "RenderTarget.h"
-#include "DynamicConstant.h"
-#include "UIManager.h"
-#include "../Common/ILMath.h"
-
-using namespace Common;
 
 namespace Renderer
 {
@@ -166,11 +149,6 @@ namespace Renderer
 			}
 		}
 		ImGui::End();
-	}
-
-	void BlurOutlineRenderGraph::DumpShadowMap(D3D12RHI& gfx, const std::string& path)
-	{
-		dynamic_cast<ShadowMappingPass&>(FindPassByName("shadowMap")).DumpShadowMap(gfx, path);
 	}
 
 	void BlurOutlineRenderGraph::BindMainCamera(Camera& cam)

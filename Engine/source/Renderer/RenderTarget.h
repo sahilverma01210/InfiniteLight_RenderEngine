@@ -2,15 +2,14 @@
 #include "Bindable.h"
 #include "BufferResource.h"
 #include "CommonBindables.h"
+#include "DepthStencil.h"
 
 namespace Renderer
 {
-	class D3D12RHI;
-	class DepthStencil;
-
 	class RenderTarget : public Bindable, public BufferResource
 	{
 		friend D3D12RHI;
+
 	public:
 		RenderTarget(D3D12RHI& gfx, UINT width, UINT height);
 		RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture, std::optional<UINT> face = std::nullopt);
@@ -25,6 +24,7 @@ namespace Renderer
 		ID3D12Resource* GetBuffer() const noexcept;
 	private:
 		void BindAsBuffer(D3D12RHI& gfx, D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilView) noexcept;
+
 	protected:
 		UINT m_width;
 		UINT m_height;

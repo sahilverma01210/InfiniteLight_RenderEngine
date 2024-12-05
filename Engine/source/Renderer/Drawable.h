@@ -4,18 +4,18 @@
 #include "BindableCodex.h"
 #include "CommonBindables.h"
 #include "Technique.h"
+#include "Material.h"
 
 struct aiMesh;
 
 namespace Renderer
 {
-	class TechniqueProbe;
 	class Material;
-	class RenderGraph;
 
 	class Drawable
 	{
 		friend class PointLight;
+
 	public:
 		Drawable() = default;
 		Drawable(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale = 1.0f) noexcept;
@@ -29,6 +29,7 @@ namespace Renderer
 		void LinkTechniques(RenderGraph&);
 		UINT GetIndexCount() const noexcept;
 		virtual ~Drawable();
+
 	protected:
 		bool enableLighting;
 		UINT m_numIndices;

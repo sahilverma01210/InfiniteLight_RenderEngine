@@ -1,8 +1,4 @@
 #include "BufferClearPass.h"
-#include "RenderTarget.h"
-#include "DepthStencil.h"
-#include "Sink.h"
-#include "Source.h"
 
 namespace Renderer
 {

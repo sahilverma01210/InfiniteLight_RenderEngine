@@ -1,11 +1,7 @@
 #include "ModelException.h"
 
-using namespace Common;
-
 namespace Renderer
 {
-	// ModelException Definitions.
-
 	ModelException::ModelException(int line, const char* file, std::string note) noexcept
 		:
 		ILException(line, file),

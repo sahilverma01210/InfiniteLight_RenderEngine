@@ -1,6 +1,4 @@
 #include "Projection.h"
-#include "UIManager.h"
-#include "D3D12RHI.h"
 
 namespace Renderer
 {
@@ -13,9 +11,9 @@ namespace Renderer
 		frust(gfx, width, height, nearZ, farZ),
 		homeWidth(width), homeHeight(height), homeNearZ(nearZ), homeFarZ(farZ)
 	{}
-	DirectX::XMMATRIX Projection::GetMatrix() const
+	XMMATRIX Projection::GetMatrix() const
 	{
-		return DirectX::XMMatrixPerspectiveLH(width, height, nearZ, farZ);
+		return XMMatrixPerspectiveLH(width, height, nearZ, farZ);
 	}
 	void Projection::RenderWidgets(D3D12RHI& gfx)
 	{
@@ -31,11 +29,11 @@ namespace Renderer
 			frust.SetVertices(gfx, width, height, nearZ, farZ);
 		}
 	}
-	void Projection::SetPos(DirectX::XMFLOAT3 pos)
+	void Projection::SetPos(XMFLOAT3 pos)
 	{
 		frust.SetPos(pos);
 	}
-	void Projection::SetRotation(DirectX::XMFLOAT3 rot)
+	void Projection::SetRotation(XMFLOAT3 rot)
 	{
 		frust.SetRotation(rot);
 	}

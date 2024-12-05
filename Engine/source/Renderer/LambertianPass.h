@@ -40,6 +40,7 @@ namespace Renderer
 			RenderQueuePass::Execute(gfx);
 			gfx.TransitionResource(pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}
+
 	private:
 		std::shared_ptr<DepthCubeMapTextureBuffer> pShadowMap;
 		const Camera* pMainCamera = nullptr;

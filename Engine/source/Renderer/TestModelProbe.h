@@ -25,7 +25,6 @@ namespace Renderer
 		}
 		bool OnVisitBuffer(Buffer& buf) override
 		{
-			namespace dx = DirectX;
 			float dirty = false;
 			const auto dcheck = [&dirty](bool changed) {dirty = dirty || changed; };
 			auto tag = [tagScratch = std::string{}, tagString = "##" + std::to_string(bufIdx)]
@@ -44,11 +43,11 @@ namespace Renderer
 			}
 			if (auto v = buf["materialColor"]; v.Exists())
 			{
-				dcheck(ImGui::ColorPicker3(tag("Color"), reinterpret_cast<float*>(&static_cast<dx::XMFLOAT3&>(v))));
+				dcheck(ImGui::ColorPicker3(tag("Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
 			}
 			if (auto v = buf["specularColor"]; v.Exists())
 			{
-				dcheck(ImGui::ColorPicker3(tag("Spec. Color"), reinterpret_cast<float*>(&static_cast<dx::XMFLOAT3&>(v))));
+				dcheck(ImGui::ColorPicker3(tag("Spec. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
 			}
 			if (auto v = buf["specularGloss"]; v.Exists())
 			{
@@ -76,6 +75,17 @@ namespace Renderer
 
 	class MP : ModelProbe
 	{
+	private:
+		struct TransformParameters
+		{
+			float xRot = 0.0f;
+			float yRot = 0.0f;
+			float zRot = 0.0f;
+			float x = 0.0f;
+			float y = 0.0f;
+			float z = 0.0f;
+		};
+
 	public:
 		MP(std::string name) : name(std::move(name))
 		{}
@@ -101,10 +111,10 @@ namespace Renderer
 				if (dirty)
 				{
 					pSelectedNode->SetAppliedTransform(
-						dx::XMMatrixRotationX(tf.xRot) *
-						dx::XMMatrixRotationY(tf.yRot) *
-						dx::XMMatrixRotationZ(tf.zRot) *
-						dx::XMMatrixTranslation(tf.x, tf.y, tf.z)
+						XMMatrixRotationX(tf.xRot) *
+						XMMatrixRotationY(tf.yRot) *
+						XMMatrixRotationZ(tf.zRot) *
+						XMMatrixTranslation(tf.x, tf.y, tf.z)
 					);
 				}
 			}
@@ -162,19 +172,6 @@ namespace Renderer
 			ImGui::TreePop();
 		}
 	private:
-		Node* pSelectedNode = nullptr;
-		struct TransformParameters
-		{
-			float xRot = 0.0f;
-			float yRot = 0.0f;
-			float zRot = 0.0f;
-			float x = 0.0f;
-			float y = 0.0f;
-			float z = 0.0f;
-		};
-		std::unordered_map<int, TransformParameters> transformParams;
-	private:
-		std::string name;
 		TransformParameters& ResolveTransform() noexcept
 		{
 			const auto id = pSelectedNode->GetId();
@@ -199,5 +196,10 @@ namespace Renderer
 			tp.z = translation.z;
 			return transformParams.insert({ id,{ tp } }).first->second;
 		}
+
+	private:
+		std::string name;
+		Node* pSelectedNode = nullptr;
+		std::unordered_map<int, TransformParameters> transformParams;
 	};
 }

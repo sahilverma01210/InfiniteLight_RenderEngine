@@ -1,6 +1,4 @@
 #include "DepthStencil.h"
-#include "RenderTarget.h"
-#include "D3D12RHI.h"
 
 namespace Renderer
 {

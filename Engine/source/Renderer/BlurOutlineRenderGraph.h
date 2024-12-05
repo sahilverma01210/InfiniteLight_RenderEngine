@@ -1,6 +1,25 @@
 #pragma once
+#include "../Common/ILMath.h"
+
 #include "RenderGraph.h"
 #include "ConstantBuffer.h"
+#include "Source.h"
+#include "RenderTarget.h"
+#include "DynamicConstant.h"
+#include "UIManager.h"
+
+// Passes Used in this Render Graph.
+#include "BufferClearPass.h"
+#include "ShadowMappingPass.h"
+#include "LambertianPass.h"
+#include "SkyboxPass.h"
+#include "OutlineMaskGenerationPass.h"
+#include "BlurOutlineDrawingPass.h"
+#include "HorizontalBlurPass.h"
+#include "VerticalBlurPass.h"
+#include "WireframePass.h"
+
+using namespace Common;
 
 namespace Renderer
 {
@@ -11,6 +30,13 @@ namespace Renderer
 
 	class BlurOutlineRenderGraph : public RenderGraph
 	{
+	private:
+		enum class KernelType
+		{
+			Gauss,
+			Box,
+		};
+
 	public:
 		BlurOutlineRenderGraph(D3D12RHI& gfx);
 		void RenderWidgets(D3D12RHI& gfx);
@@ -21,12 +47,9 @@ namespace Renderer
 	private:
 		// private functions
 		void SetKernelGauss(int radius, float sigma) noexcept;
-		// private data
-		enum class KernelType
-		{
-			Gauss,
-			Box,
-		} kernelType = KernelType::Gauss;
+		
+	private:
+		KernelType kernelType = KernelType::Gauss;
 		static constexpr int maxRadius = 7;
 		int radius = 4;
 		float sigma = 2.0f;

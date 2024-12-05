@@ -1,8 +1,5 @@
 #pragma once
-#include <fstream>
-#include <vector>
-#include <string>
-#include <iomanip>
+#include "../_External/common.h"
 #include "../Common/ILTimer.h"
 
 using namespace Common;
@@ -19,8 +16,6 @@ namespace Renderer
 				label(std::move(s)),
 				time(t)
 			{}
-			std::string label;
-			float time;
 			void WriteTo(std::ostream& out) const noexcept
 			{
 				using namespace std::string_literals;
@@ -33,12 +28,11 @@ namespace Renderer
 					out << std::setw(16) << std::left << "["s + label + "] "s << std::setw(6) << std::right << time * 1000.0f << "ms\n";
 				}
 			}
+			std::string label;
+			float time;
 		};
-		static PerfLog& Get_() noexcept
-		{
-			static PerfLog log;
-			return log;
-		}
+
+	private:
 		PerfLog() noexcept
 		{
 			entries.reserve(3000);
@@ -46,6 +40,11 @@ namespace Renderer
 		~PerfLog()
 		{
 			Flush_();
+		}
+		static PerfLog& Get_() noexcept
+		{
+			static PerfLog log;
+			return log;
 		}
 		void Start_(const std::string& label = "") noexcept
 		{
@@ -75,6 +74,7 @@ namespace Renderer
 		{
 			Get_().Mark_(label);
 		}
+
 	private:
 		ILTimer timer;
 		std::vector<Entry> entries;

@@ -1,11 +1,12 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
 
 namespace Runtime
 {
 	class Mouse
 	{
 		friend class Window;
+
 	public:
 		struct RawDelta
 		{
@@ -27,12 +28,7 @@ namespace Runtime
 				Leave,
 				Invalid
 			};
-		private:
-			Type type;
-			bool leftIsPressed;
-			bool rightIsPressed;
-			int x;
-			int y;
+
 		public:
 			Event() noexcept
 				:
@@ -78,7 +74,15 @@ namespace Runtime
 			{
 				return rightIsPressed;
 			}
+
+		private:
+			Type type;
+			bool leftIsPressed;
+			bool rightIsPressed;
+			int x;
+			int y;
 		};
+
 	public:
 		Mouse() = default;
 		Mouse(const Mouse&) = delete;
@@ -113,6 +117,7 @@ namespace Runtime
 		void TrimBuffer() noexcept;
 		void TrimRawInputBuffer() noexcept;
 		void OnWheelDelta(int x, int y, int delta) noexcept;
+
 	private:
 		static constexpr unsigned int bufferSize = 16u;
 		int x = 0;

@@ -1,5 +1,5 @@
 #pragma once
-#include "../_External/framework.h"
+#include "../_External/common.h"
 
 #include "Vertex.h"
 
@@ -9,7 +9,6 @@ namespace Renderer
 	{
 	public:
 		IndexedTriangleList() = default;
-
 		IndexedTriangleList(VertexRawBuffer verts_in, std::vector<USHORT> indices_in)
 			:
 			vertices(std::move(verts_in)),
@@ -18,20 +17,18 @@ namespace Renderer
 			assert(vertices.Size() > 2);
 			assert(indices.size() % 3 == 0);
 		}
-
-		void Transform(DirectX::FXMMATRIX matrix)
+		void Transform(FXMMATRIX matrix)
 		{
 			using Elements = VertexLayout::ElementType;
 			for (int i = 0; i < vertices.Size(); i++)
 			{
 				auto& pos = vertices[i].Attr<Elements::Position3D>();
-				DirectX::XMStoreFloat3(
+				XMStoreFloat3(
 					&pos,
-					DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&pos), matrix)
+					XMVector3Transform(XMLoadFloat3(&pos), matrix)
 				);
 			}
 		}
-
 		// asserts face-independent vertices w/ normals cleared to zero
 		void SetNormalsIndependentFlat() noexcept
 		{

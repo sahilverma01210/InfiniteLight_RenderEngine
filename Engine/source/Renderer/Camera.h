@@ -1,18 +1,15 @@
 #pragma once
 #include "../Common/ILMath.h"
 
-#include <DirectXMath.h>
-#include <string>
 #include "Projection.h"
 #include "CameraIndicator.h"
+#include "D3D12RHI.h"
+#include "UIManager.h"
 
 using namespace Common;
 
 namespace Renderer
 {
-	class D3D12RHI;
-	class RenderGraph;
-
 	class Camera
 	{
 	public:
@@ -29,6 +26,7 @@ namespace Renderer
 		const std::string& GetName() const noexcept;
 		void LinkTechniques(RenderGraph& rg);
 		void Submit(size_t channels) const;
+
 	private:
 		bool tethered;
 		std::string name;
