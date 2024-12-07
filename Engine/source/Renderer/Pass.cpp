@@ -47,7 +47,7 @@ namespace Renderer
 
 		std::ostringstream oss;
 		oss << "Output named [" << name << "] not found in pass: " << GetName();
-		throw RGC_EXCEPTION(oss.str());
+		throw RG_EXCEPTION(oss.str());
 	}
 
 	Sink& Pass::GetSink(const std::string& registeredName) const
@@ -62,7 +62,7 @@ namespace Renderer
 
 		std::ostringstream oss;
 		oss << "Input named [" << registeredName << "] not found in pass: " << GetName();
-		throw RGC_EXCEPTION(oss.str());
+		throw RG_EXCEPTION(oss.str());
 	}
 
 	void Pass::RegisterSink(std::unique_ptr<Sink> sink)
@@ -72,7 +72,7 @@ namespace Renderer
 		{
 			if (si->GetRegisteredName() == sink->GetRegisteredName())
 			{
-				throw RGC_EXCEPTION("Registered input overlaps with existing: " + sink->GetRegisteredName());
+				throw RG_EXCEPTION("Registered input overlaps with existing: " + sink->GetRegisteredName());
 			}
 		}
 
@@ -86,7 +86,7 @@ namespace Renderer
 		{
 			if (src->GetName() == source->GetName())
 			{
-				throw RGC_EXCEPTION("Registered output overlaps with existing: " + source->GetName());
+				throw RG_EXCEPTION("Registered output overlaps with existing: " + source->GetName());
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace Renderer
 		auto targetSplit = SplitString(target, ".");
 		if (targetSplit.size() != 2u)
 		{
-			throw RGC_EXCEPTION("Input target has incorrect format");
+			throw RG_EXCEPTION("Input target has incorrect format");
 		}
 		sink.SetTarget(std::move(targetSplit[0]), std::move(targetSplit[1]));
 	}

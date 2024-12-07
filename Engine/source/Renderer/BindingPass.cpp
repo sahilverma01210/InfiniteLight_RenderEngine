@@ -27,7 +27,7 @@ namespace Renderer
 		Pass::Finalize();
 		if (!renderTargetVector.size() && !depthStencil)
 		{
-			throw RGC_EXCEPTION("BindingPass [" + GetName() + "] needs at least one of a renderTarget or depthStencil");
+			throw RG_EXCEPTION("BindingPass [" + GetName() + "] needs at least one of a renderTarget or depthStencil");
 		}
 	}
 

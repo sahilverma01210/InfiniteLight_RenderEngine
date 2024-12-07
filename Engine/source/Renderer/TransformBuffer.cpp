@@ -43,7 +43,7 @@ namespace Renderer
 		};
 
 		// Using Root Parameter Index to bind this buffer to Root Parameter having correct Shader Register which is used in HLSL.
-		GetCommandList(gfx)->SetGraphicsRoot32BitConstants(m_rootParameterIndex, sizeof(m_transform) / 4, &m_transform, 0);
+		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRoot32BitConstants(m_rootParameterIndex, sizeof(m_transform) / 4, &m_transform, 0));
 	}
 
 	void TransformBuffer::InitializeParentReference(const Drawable& parent) noexcept(!IS_DEBUG)

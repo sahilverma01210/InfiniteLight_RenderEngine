@@ -6,11 +6,13 @@ namespace Renderer
 		:
 		m_rootParameterIndex(rootParameterIndex)
 	{
+		INFOMAN(gfx);
+
 		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		srvHeapDesc.NumDescriptors = numSRVDescriptors;
 		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		GetDevice(gfx)->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
+		D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
 	}
 
 	ID3D12DescriptorHeap* ShaderResourceView::GetSRVHeap()
@@ -52,9 +54,9 @@ namespace Renderer
 			srvDesc.Texture2D.MipLevels = texureBuffer->GetDesc().MipLevels;
 		}
 
-		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = m_srvHeap->GetCPUDescriptorHandleForHeapStart();
-		CPUHandle.ptr += GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * offset;
-		GetDevice(gfx)->CreateShaderResourceView(texureBuffer, &srvDesc, CPUHandle);
+		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = D3D12RHI_THROW_INFO_ONLY(m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+		CPUHandle.ptr += D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)) * offset;
+		D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateShaderResourceView(texureBuffer, &srvDesc, CPUHandle));
 	}
 
 	void ShaderResourceView::AddBackBufferAsResource(D3D12RHI& gfx)
@@ -65,7 +67,7 @@ namespace Renderer
 	void ShaderResourceView::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		// bind the descriptor table containing the texture descriptor 
-		GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
-		GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf()));
+		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_srvHeap->GetGPUDescriptorHandleForHeapStart()));
 	}
 }

@@ -4,6 +4,8 @@ namespace Renderer
 {   
 	PipelineState::PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
+        INFOMAN(gfx);
+
         // Can be used for Alpha Blending & Transparency.
         D3D12_BLEND_DESC blenderDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 
@@ -76,11 +78,11 @@ namespace Renderer
         m_psoDescription.DSVFormat = gfx.MapUsageTyped(pipelineDesc.depthUsage);
         m_psoDescription.DepthStencilState = depthStencilDesc;
         m_psoDescription.SampleDesc.Count = 1;
-        HRESULT hr = GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));
+        D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState)));
 	}
 
 	void PipelineState::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-        GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get());
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get()));
 	}
 }

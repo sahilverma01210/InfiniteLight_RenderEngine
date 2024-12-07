@@ -1,5 +1,6 @@
 #pragma once
 #include "../_External/dx12/directX12.h"
+#include "../Common/ILUtility.h"
 
 #include "RHI.h"
 #include "D3D12RHIException.h"
@@ -18,13 +19,11 @@ namespace Renderer
         DepthReversed,
         DepthFirst // for skybox render
     };
-
     enum class DepthUsage
     {
         DepthStencil,
         ShadowDepth,
     };
-
     struct PipelineDescription
     {
         // Root Signature
@@ -62,7 +61,8 @@ namespace Renderer
         UINT GetCurrentBackBufferIndex();
         void ResetCommandList();
         void ExecuteCommandList();
-        void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept(!IS_DEBUG);
+        void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
+        void InsertFence();
         std::wstring GetAssetFullPath(LPCWSTR assetName);
         void OnDestroy();
         void Info(HRESULT hresult);
@@ -119,8 +119,6 @@ namespace Renderer
             throw std::runtime_error{ "Base usage for Colored format map in DepthStencil." };
         }
     private:
-        // Insert fence to command queue.
-        void InsertFence();
         // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
         // If no such adapter can be found, *ppAdapter will be set to nullptr.
         void GetHardwareAdapter(
@@ -129,6 +127,7 @@ namespace Renderer
             bool requestHighPerformanceAdapter = false);
 
     private:
+        HRESULT hr; // for checking results of d3d functions
         HWND m_hWnd;
         // Adapter info.
         bool m_useWarpDevice = false;
@@ -164,25 +163,4 @@ namespace Renderer
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
         std::vector<std::shared_ptr<RenderTarget>> pTarget;
     };
-
-    inline void GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, UINT pathSize)
-    {
-        if (path == nullptr)
-        {
-            throw std::exception();
-        }
-
-        DWORD size = GetModuleFileName(nullptr, path, pathSize);
-        if (size == 0 || size == pathSize)
-        {
-            // Method failed or path was truncated.
-            throw std::exception();
-        }
-
-        WCHAR* lastSlash = wcsrchr(path, L'\\');
-        if (lastSlash)
-        {
-            *(lastSlash + 1) = L'\0';
-        }
-    }
 }

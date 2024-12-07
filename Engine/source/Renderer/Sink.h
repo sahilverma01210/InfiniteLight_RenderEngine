@@ -52,7 +52,7 @@ namespace Renderer
 		{
 			if (!linked)
 			{
-				throw RGC_EXCEPTION("Unlinked input: " + GetRegisteredName());
+				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
 		}
 		void Bind(Source& source) override
@@ -63,7 +63,7 @@ namespace Renderer
 				std::ostringstream oss;
 				oss << "Binding input [" << GetRegisteredName() << "] to output [" << GetPassName() << "." << GetOutputName() << "] "
 					<< " { " << typeid(T).name() << " } not compatible with { " << typeid(*source.YieldBuffer().get()).name() << " }";
-				throw RGC_EXCEPTION(oss.str());
+				throw RG_EXCEPTION(oss.str());
 			}
 			target = std::move(p);
 			linked = true;
@@ -94,7 +94,7 @@ namespace Renderer
 		{
 			if (!linked)
 			{
-				throw RGC_EXCEPTION("Unlinked input: " + GetRegisteredName());
+				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
 		}
 		void Bind(Source& source) override
@@ -131,7 +131,7 @@ namespace Renderer
 		{
 			if (!linked)
 			{
-				throw RGC_EXCEPTION("Unlinked input: " + GetRegisteredName());
+				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
 		}
 		void Bind(Source& source) override
@@ -142,7 +142,7 @@ namespace Renderer
 				std::ostringstream oss;
 				oss << "Binding input [" << GetRegisteredName() << "] to output [" << GetPassName() << "." << GetOutputName() << "] "
 					<< " { " << typeid(T).name() << " } does not match { " << typeid(*source.YieldBindable().get()).name() << " }";
-				throw RGC_EXCEPTION(oss.str());
+				throw RG_EXCEPTION(oss.str());
 			}
 			container[index] = std::move(p);
 			linked = true;
@@ -173,7 +173,7 @@ namespace Renderer
 		{
 			if (!linked)
 			{
-				throw RGC_EXCEPTION("Unlinked input: " + GetRegisteredName());
+				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
 		}
 		void Bind(Source& source) override
@@ -184,7 +184,7 @@ namespace Renderer
 				std::ostringstream oss;
 				oss << "Binding input [" << GetRegisteredName() << "] to output [" << GetPassName() << "." << GetOutputName() << "] "
 					<< " { " << typeid(T).name() << " } does not match { " << typeid(*source.YieldBindable().get()).name() << " }";
-				throw RGC_EXCEPTION(oss.str());
+				throw RG_EXCEPTION(oss.str());
 			}
 			target = std::move(p);
 			linked = true;

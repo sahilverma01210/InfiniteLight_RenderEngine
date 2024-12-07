@@ -27,4 +27,25 @@ namespace Common
 	}
 	std::vector<std::string> SplitString(const std::string& s, const std::string& delim);
 	bool StringContains(std::string_view haystack, std::string_view needle);
+
+	inline void GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, UINT pathSize)
+	{
+		if (path == nullptr)
+		{
+			throw std::exception();
+		}
+
+		DWORD size = GetModuleFileName(nullptr, path, pathSize);
+		if (size == 0 || size == pathSize)
+		{
+			// Method failed or path was truncated.
+			throw std::exception();
+		}
+
+		WCHAR* lastSlash = wcsrchr(path, L'\\');
+		if (lastSlash)
+		{
+			*(lastSlash + 1) = L'\0';
+		}
+	}
 }

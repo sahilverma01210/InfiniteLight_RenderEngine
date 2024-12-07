@@ -1,5 +1,5 @@
 #include "../Runtime/Window.h"
-#include "../Runtime/WindowsException.h"
+#include "../Common/ILException.h"
 
 #include "DxgiInfoManager.h"
 #include "D3D12RHI.h"
@@ -16,7 +16,7 @@ namespace Renderer
 		const auto hModDxgiDebug = LoadLibraryEx(L"dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 		if (hModDxgiDebug == nullptr)
 		{
-			throw ILWND_LAST_EXCEPT();
+			throw IL_LAST_EXCEPT();
 		}
 
 		// get address of DXGIGetDebugInterface in dll
@@ -25,7 +25,7 @@ namespace Renderer
 			);
 		if (DxgiGetDebugInterface == nullptr)
 		{
-			throw ILWND_LAST_EXCEPT();
+			throw IL_LAST_EXCEPT();
 		}
 
 		HRESULT hr;

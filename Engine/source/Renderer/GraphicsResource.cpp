@@ -42,11 +42,6 @@ namespace Renderer
 		return gfx.m_backBuffers;
 	}
 
-	void GraphicsResource::InsertFence(D3D12RHI& gfx) noexcept(!IS_DEBUG)
-	{
-		gfx.InsertFence();
-	}
-
 	DxgiInfoManager& GraphicsResource::GetInfoManager(D3D12RHI& gfx)
 	{
 #ifndef NDEBUG

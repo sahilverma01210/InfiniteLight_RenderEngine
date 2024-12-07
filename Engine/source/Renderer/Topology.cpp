@@ -8,7 +8,7 @@ namespace Renderer
 
 	void Topology::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-		GetCommandList(gfx)->IASetPrimitiveTopology(type);
+		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetPrimitiveTopology(type));
 	}
 
 	std::shared_ptr<Topology> Topology::Resolve(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type)

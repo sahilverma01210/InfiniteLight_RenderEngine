@@ -13,17 +13,19 @@ namespace Renderer
         tag(tag),
         m_vertexBufferSize(size)
     {
+        INFOMAN(gfx);
+
         // create committed resource (Vertex Buffer) for GPU access of vertex data.
         {
             const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
             const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize);
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProps,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_COPY_DEST,
                 nullptr, IID_PPV_ARGS(&m_vertexBuffer)
-            );
+            ));
         }
 
         // create committed resource (Upload Buffer) for CPU upload of vertex data.
@@ -31,13 +33,14 @@ namespace Renderer
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_vertexBufferSize) };
 
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(&m_vertexUploadBuffer));
+                IID_PPV_ARGS(&m_vertexUploadBuffer)
+            ));
         }
 
         D3D12_SUBRESOURCE_DATA vertexData = {};
@@ -52,26 +55,28 @@ namespace Renderer
         gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         gfx.ExecuteCommandList();
 
-        InsertFence(gfx);
+        gfx.InsertFence();
 
         CreateView(gfx, layoutSize);
     }
 
     void VertexBuffer::CreateView(D3D12RHI& gfx, UINT strides)
     {
-        m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+        m_vertexBufferView.BufferLocation = D3D12RHI_THROW_INFO_ONLY(m_vertexBuffer->GetGPUVirtualAddress());
         m_vertexBufferView.StrideInBytes = strides;
         m_vertexBufferView.SizeInBytes = m_vertexBufferSize;
     }
 
     void VertexBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG)
     {
+        INFOMAN(gfx);
+
         // Copy the data to the buffer.
         UINT8* pConstantDataBegin;
         CD3DX12_RANGE readRangeC(0, 0);        // We do not intend to read from this resource on the CPU.
-        m_vertexUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin));
-        memcpy(pConstantDataBegin, pData, m_vertexBufferSize);
-        m_vertexUploadBuffer->Unmap(0, nullptr);
+        D3D12RHI_THROW_INFO(m_vertexUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin)));
+        D3D12RHI_THROW_INFO_ONLY(memcpy(pConstantDataBegin, pData, m_vertexBufferSize));
+        D3D12RHI_THROW_INFO_ONLY(m_vertexUploadBuffer->Unmap(0, nullptr));
 
         gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
 
@@ -79,12 +84,12 @@ namespace Renderer
 
         gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
-        InsertFence(gfx);
+        gfx.InsertFence();
     }
 
     void VertexBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
-        GetCommandList(gfx)->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetVertexBuffers(0, 1, &m_vertexBufferView));
     }
 
     std::shared_ptr<VertexBuffer> VertexBuffer::Resolve(D3D12RHI& gfx, const std::string& tag, const char* data, UINT size, UINT layoutSize)

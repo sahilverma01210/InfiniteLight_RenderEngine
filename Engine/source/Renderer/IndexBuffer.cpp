@@ -14,17 +14,19 @@ namespace Renderer
         m_numOfIndices(pData.size()),
         m_indexBufferSize(dataSize)
     {
+        INFOMAN(gfx);
+
         // create committed resource (Index Buffer) for GPU access of Index data.
         {
             const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
             const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize);
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProps,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_COPY_DEST,
                 nullptr, IID_PPV_ARGS(&m_indexBuffer)
-            );
+            ));
         }
 
         // create committed resource (Upload Buffer) for CPU upload of Index data.
@@ -33,13 +35,14 @@ namespace Renderer
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize) };
 
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(&indexUploadBuffer));
+                IID_PPV_ARGS(&indexUploadBuffer)
+            ));
         }
 
         D3D12_SUBRESOURCE_DATA indexData = {};
@@ -54,21 +57,21 @@ namespace Renderer
         gfx.TransitionResource(m_indexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);
         gfx.ExecuteCommandList();
 
-        InsertFence(gfx);
+        gfx.InsertFence();
 
         CreateView(gfx);
     }
 
     void IndexBuffer::CreateView(D3D12RHI& gfx)
     {
-        m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
+        m_indexBufferView.BufferLocation = D3D12RHI_THROW_INFO_ONLY(m_indexBuffer->GetGPUVirtualAddress());
         m_indexBufferView.SizeInBytes = m_indexBufferSize;
         m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
     }
 
     void IndexBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
-        GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView);
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView));
     }
 
     std::shared_ptr<IndexBuffer> IndexBuffer::Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)

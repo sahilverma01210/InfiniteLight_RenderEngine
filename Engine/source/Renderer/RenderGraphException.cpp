@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	RenderGraphException::RenderGraphException(std::string message, int line, const char* file) noexcept(!IS_DEBUG)
+	RenderGraphException::RenderGraphException(int line, const char* file, std::string message) noexcept(!IS_DEBUG)
 		:
 		ILException(line, file),
 		message(std::move(message))

@@ -9,13 +9,15 @@ namespace Renderer
         :
         m_filename(filename)
     {
+        INFOMAN(gfx);
+
         // load image data from disk 
         ScratchImage image;
-        HRESULT hr = LoadFromWICFile(filename, WIC_FLAGS_IGNORE_SRGB, nullptr, image);
+        D3D12RHI_THROW_INFO(LoadFromWICFile(filename, WIC_FLAGS_IGNORE_SRGB, nullptr, image));
 
         // generate mip chain 
         ScratchImage mipChain;
-        GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain);
+        D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain));
         hasAlpha = !mipChain.IsAlphaAllOpaque();
 
         // collect subresource data
@@ -48,14 +50,14 @@ namespace Renderer
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_COPY_DEST,
                 nullptr,
                 IID_PPV_ARGS(&m_texureBuffer)
-            );
+            ));
         }
 
         // create committed resource (Upload Buffer) for CPU upload of Index data.
@@ -65,14 +67,14 @@ namespace Renderer
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(texureUploadBufferSize) };
 
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&texureUploadBuffer)
-            );
+            ));
         }
 
         gfx.ResetCommandList();
@@ -90,7 +92,7 @@ namespace Renderer
         gfx.TransitionResource(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         gfx.ExecuteCommandList();
 
-        InsertFence(gfx);
+        gfx.InsertFence();
     }
 
     ID3D12Resource* TextureBuffer::GetBuffer()
@@ -155,12 +157,14 @@ namespace Renderer
         :
         m_foldername(foldername)
     {
+        INFOMAN(gfx);
+
         // load image data from disk 
         ScratchImage images[6];
         for (int i = 0; i < 6; i++)
         {
             std::wstring path = std::wstring(foldername) + L"\\" + std::to_wstring(i) + L".png";
-            LoadFromWICFile(path.c_str(), WIC_FLAGS_IGNORE_SRGB, nullptr, images[i]);
+            D3D12RHI_THROW_INFO(LoadFromWICFile(path.c_str(), WIC_FLAGS_IGNORE_SRGB, nullptr, images[i]));
         }        
 
         // collect subresource data
@@ -191,14 +195,14 @@ namespace Renderer
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_COPY_DEST,
                 nullptr,
                 IID_PPV_ARGS(&m_texureBuffer)
-            );
+            ));
         }
 
         // create committed resource (Upload Buffer) for CPU upload of Index data.
@@ -208,14 +212,14 @@ namespace Renderer
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(texureUploadBufferSize) };
 
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&texureUploadBuffer)
-            );
+            ));
         }
 
         gfx.ResetCommandList();
@@ -233,7 +237,7 @@ namespace Renderer
         gfx.TransitionResource(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         gfx.ExecuteCommandList();
 
-        InsertFence(gfx);
+        gfx.InsertFence();
     }
 
     ID3D12Resource* CubeMapTextureBuffer::GetBuffer()
@@ -262,25 +266,30 @@ namespace Renderer
 
     DepthCubeMapTextureBuffer::DepthCubeMapTextureBuffer(D3D12RHI& gfx, UINT size)
     {
-        auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
-        auto resourceDesc = CD3DX12_RESOURCE_DESC{};
-        resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        resourceDesc.Width = (UINT)size;
-        resourceDesc.Height = (UINT)size;
-        resourceDesc.DepthOrArraySize = 6;
-        resourceDesc.MipLevels = 1;
-        resourceDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-        resourceDesc.SampleDesc = { .Count = 1 };
-        resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-        resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+        INFOMAN(gfx);
 
-        GetDevice(gfx)->CreateCommittedResource(
-            &heapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &resourceDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            nullptr,
-            IID_PPV_ARGS(&m_texureBuffer));
+        {
+            auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
+            auto resourceDesc = CD3DX12_RESOURCE_DESC{};
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+            resourceDesc.Width = (UINT)size;
+            resourceDesc.Height = (UINT)size;
+            resourceDesc.DepthOrArraySize = 6;
+            resourceDesc.MipLevels = 1;
+            resourceDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+            resourceDesc.SampleDesc = { .Count = 1 };
+            resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+            resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
+                &heapProperties,
+                D3D12_HEAP_FLAG_NONE,
+                &resourceDesc,
+                D3D12_RESOURCE_STATE_DEPTH_WRITE,
+                nullptr,
+                IID_PPV_ARGS(&m_texureBuffer)
+            ));
+        }
 
         // make depth buffer resources for capturing shadow map
         for (UINT face = 0; face < 6; face++)
@@ -300,25 +309,30 @@ namespace Renderer
     }
     TargetCubeMapTextureBuffer::TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size)
     {
-        auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
-        auto resourceDesc = CD3DX12_RESOURCE_DESC{};
-        resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        resourceDesc.Width = (UINT)size;
-        resourceDesc.Height = (UINT)size;
-        resourceDesc.DepthOrArraySize = 6;
-        resourceDesc.MipLevels = 1;
-        resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        resourceDesc.SampleDesc = { .Count = 1 };
-        resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-        resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+        INFOMAN(gfx);
 
-        GetDevice(gfx)->CreateCommittedResource(
-            &heapProperties,
-            D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
-            &resourceDesc,
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            nullptr,
-            IID_PPV_ARGS(&m_texureBuffer));
+        {
+            auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
+            auto resourceDesc = CD3DX12_RESOURCE_DESC{};
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+            resourceDesc.Width = (UINT)size;
+            resourceDesc.Height = (UINT)size;
+            resourceDesc.DepthOrArraySize = 6;
+            resourceDesc.MipLevels = 1;
+            resourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            resourceDesc.SampleDesc = { .Count = 1 };
+            resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+            resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
+                &heapProperties,
+                D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
+                &resourceDesc,
+                D3D12_RESOURCE_STATE_RENDER_TARGET,
+                nullptr,
+                IID_PPV_ARGS(&m_texureBuffer)
+            ));
+        }
 
         // make depth buffer resources for capturing shadow map
         for (UINT face = 0; face < 6; face++)

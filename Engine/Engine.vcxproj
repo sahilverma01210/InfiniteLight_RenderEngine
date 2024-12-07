@@ -100,7 +100,6 @@
     <ClInclude Include="source\Runtime\Keyboard.h" />
     <ClInclude Include="source\Runtime\Mouse.h" />
     <ClInclude Include="source\Runtime\Window.h" />
-    <ClInclude Include="source\Runtime\WindowsException.h" />
     <ClInclude Include="source\_External\assimp\assimp.h" />
     <ClInclude Include="source\_External\dx12\d3dx12.h" />
     <ClInclude Include="source\_External\dx12\directX12.h" />
@@ -167,6 +166,7 @@
     <ClCompile Include="source\Renderer\Vertex.cpp" />
     <ClCompile Include="source\Renderer\VertexBuffer.cpp" />
     <ClCompile Include="source\Renderer\VerticalBlurPass.cpp" />
+    <ClCompile Include="source\Renderer\Viewport.cpp" />
     <ClCompile Include="source\Runtime\Application.cpp" />
     <ClCompile Include="source\Runtime\Keyboard.cpp" />
     <ClCompile Include="source\Runtime\Mouse.cpp" />

@@ -6,17 +6,19 @@ namespace Renderer
         m_rootParameterIndex(rootParameterIndex),
         m_constantBufferSize(dataSize)
 	{
+        INFOMAN(gfx);
+
         // create committed resource for GPU access of buffer data.
         {
             const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
             const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_constantBufferSize);
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProps,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_COPY_DEST,
                 nullptr, IID_PPV_ARGS(&m_constantBuffer)
-            );
+            ));
         }
 
         // create committed resource (Upload Buffer) for CPU upload of buffer data.
@@ -24,31 +26,31 @@ namespace Renderer
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_constantBufferSize) };
 
-            GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(&m_constantUploadBuffer));
+                IID_PPV_ARGS(&m_constantUploadBuffer)));
         }
 
         // Copy the index data to the index buffer.
         UINT8* pConstantDataBegin;
         CD3DX12_RANGE readRangeC(0, 0);        // We do not intend to read from this resource on the CPU.
-        m_constantUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin));
-        memcpy(pConstantDataBegin, pData, m_constantBufferSize);
-        m_constantUploadBuffer->Unmap(0, nullptr);
+        D3D12RHI_THROW_INFO(m_constantUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin)));
+        D3D12RHI_THROW_INFO_ONLY(memcpy(pConstantDataBegin, pData, m_constantBufferSize));
+        D3D12RHI_THROW_INFO_ONLY(m_constantUploadBuffer->Unmap(0, nullptr));
 
         gfx.ResetCommandList();
 
         // copy Upload Buffer to Index Buffer 
-        GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get());
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get()));
 
         gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         gfx.ExecuteCommandList();
 
-        InsertFence(gfx);
+        gfx.InsertFence();
 	}
 
     ConstantBuffer::ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, Buffer dataBuffer)
@@ -60,20 +62,22 @@ namespace Renderer
 
     void ConstantBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG)
     {
-        // Copy the data to the buffer.
+        INFOMAN(gfx);
+
+        // Copy the index data to the index buffer.
         UINT8* pConstantDataBegin;
         CD3DX12_RANGE readRangeC(0, 0);        // We do not intend to read from this resource on the CPU.
-        m_constantUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin));
-        memcpy(pConstantDataBegin, pData, m_constantBufferSize);
-        m_constantUploadBuffer->Unmap(0, nullptr);
+        D3D12RHI_THROW_INFO(m_constantUploadBuffer->Map(0, &readRangeC, reinterpret_cast<void**>(&pConstantDataBegin)));
+        D3D12RHI_THROW_INFO_ONLY(memcpy(pConstantDataBegin, pData, m_constantBufferSize));
+        D3D12RHI_THROW_INFO_ONLY(m_constantUploadBuffer->Unmap(0, nullptr));
 
         gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
 
-        GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get());
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get()));
 
         gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
-        InsertFence(gfx);
+        gfx.InsertFence();
     }
 
     void ConstantBuffer::Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept(!IS_DEBUG)
@@ -90,7 +94,7 @@ namespace Renderer
         }
 
         // Using Root Parameter Index to bind this buffer to Root Parameter having correct Shader Register which is used in HLSL.
-        GetCommandList(gfx)->SetGraphicsRootConstantBufferView(m_rootParameterIndex, m_constantBuffer->GetGPUVirtualAddress());
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootConstantBufferView(m_rootParameterIndex, m_constantBuffer->GetGPUVirtualAddress()));
 	}
 
     Buffer ConstantBuffer::GetBuffer() const noexcept(!IS_DEBUG)

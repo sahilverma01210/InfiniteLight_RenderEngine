@@ -24,17 +24,12 @@ namespace Renderer
 
     void D3D12RHI::OnInit()
     {
-        // for checking results of d3d functions
-        HRESULT hr;
-
-        UINT dxgiFactoryFlags = 0;
-
         // DirectX Graphics Infrastructure (DXGI) - Core component of DirectX API.
         // Serves as an intermediary layer between Graphics APIs and the Graphics Hardware.
 
         // IDXGIFactory is an interface in the DirectX Graphics Infrastructure (DXGI) API, which is used for creating DXGI objects, such as swap chains, surfaces, and adapters.
         ComPtr<IDXGIFactory4> factory;
-        D3D12RHI_THROW_INFO(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+        D3D12RHI_THROW_INFO(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
 
         // Enable D3D12 CPU & GPU Debug Layers.
         {
@@ -83,17 +78,17 @@ namespace Renderer
             queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
             queueDesc.NodeMask = 0;
 
-            m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue));
+            D3D12RHI_THROW_INFO(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
         }
 
         // Create Command Allocator & Command List.
         {
-            m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator));
-            m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList));
+            D3D12RHI_THROW_INFO(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+            D3D12RHI_THROW_INFO(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList)));
 
             // Command lists are created in the recording state, but there is nothing
             // to record yet. The main loop expects it to be closed, so close it now.
-            m_commandList->Close();
+            D3D12RHI_THROW_INFO(m_commandList->Close());
         }
 
         /*
@@ -103,7 +98,7 @@ namespace Renderer
         // Create synchronization objects (Fence & Fence Event).
         {
             m_fenceValue = 0;
-            m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
+            D3D12RHI_THROW_INFO(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 
             // Fence signalling event - Create an event handle to use for frame synchronization.
             m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -119,7 +114,7 @@ namespace Renderer
             srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
             srvHeapDesc.NumDescriptors = 1;
             srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
+            D3D12RHI_THROW_INFO(m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
         }
 
         // Describe and create the swap chain.
@@ -151,15 +146,14 @@ namespace Renderer
                 &swapChain
             ));
 
-            swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain));
-
-            swapChain.As(&m_swapChain);
+            D3D12RHI_THROW_INFO(swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain)));
+            D3D12RHI_THROW_INFO(swapChain.As(&m_swapChain));
 
             m_backBuffers.resize(m_backBufferCount);
 
             for (UINT n = 0; n < m_backBufferCount; n++)
             {
-                m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_backBuffers[n]));
+                D3D12RHI_THROW_INFO(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_backBuffers[n])));
             }
 
             m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
@@ -191,21 +185,34 @@ namespace Renderer
     {
         InsertFence();
 
-        m_commandAllocator->Reset();
-        m_commandList->Reset(m_commandAllocator.Get(), nullptr);
+        // Command list allocators can only be reset when the associated 
+        // command lists have finished execution on the GPU; apps should use 
+        // fences to determine GPU execution progress.
+        D3D12RHI_THROW_INFO(m_commandAllocator->Reset());
+        // However, when ExecuteCommandList() is called on a particular command 
+        // list, that command list can then be reset at any time and must be before 
+        // re-recording.
+        D3D12RHI_THROW_INFO(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
     }
 
     void D3D12RHI::ExecuteCommandList()
     {
-        m_commandList->Close();
+        D3D12RHI_THROW_INFO(m_commandList->Close());
         ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
-        m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
+        D3D12RHI_THROW_INFO_ONLY(m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists));
     }
 
-    void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept(!IS_DEBUG)
+    void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
     {
         auto resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState);
-        m_commandList->ResourceBarrier(1, &resourceBarrier);
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->ResourceBarrier(1, &resourceBarrier));
+    }
+
+    void D3D12RHI::InsertFence()
+    {
+        D3D12RHI_THROW_INFO(m_commandQueue->Signal(m_fence.Get(), ++m_fenceValue));
+        D3D12RHI_THROW_INFO(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+        D3D12RHI_THROW_INFO_ONLY(WaitForSingleObject(m_fenceEvent, INFINITE));
     }
 
     std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
@@ -215,7 +222,7 @@ namespace Renderer
 
     void D3D12RHI::OnDestroy()
     {
-        CloseHandle(m_fenceEvent);
+        D3D12RHI_THROW_INFO_ONLY(CloseHandle(m_fenceEvent));
     }
 
     void D3D12RHI::Info(HRESULT hr)
@@ -283,57 +290,40 @@ namespace Renderer
         //m_swapChain->ResizeBuffers(m_backBufferCount, m_width, m_height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
 
         // configure Rasterizer Stage (RS).
-        m_commandList->RSSetViewports(1, &m_viewport);
-        m_commandList->RSSetScissorRects(1, &m_scissorRect);
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetViewports(1, &m_viewport));
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetScissorRects(1, &m_scissorRect));
     }
 
     void D3D12RHI::StartFrame(UINT width, UINT height)
     {
-        // Wait for Previous Frame to complete.
-        InsertFence();
+        // Wait for Previous Frame to complete then proceed.
+        ResetCommandList();
+
+        // bind the heap containing the texture descriptor 
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf()));
+
+        ResizeFrame(width, height);
 
         // advance back buffer
         m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-        // Command list allocators can only be reset when the associated 
-        // command lists have finished execution on the GPU; apps should use 
-        // fences to determine GPU execution progress.
-        m_commandAllocator->Reset();
-
-        // However, when ExecuteCommandList() is called on a particular command 
-        // list, that command list can then be reset at any time and must be before 
-        // re-recording.
-        m_commandList->Reset(m_commandAllocator.Get(), nullptr);
-
-        // bind the heap containing the texture descriptor 
-        m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
-
-        ResizeFrame(width, height);
-
         // Indicate that the back buffer will be used as a render target.
-        auto resourceBarrier1 = CD3DX12_RESOURCE_BARRIER::Transition(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        m_commandList->ResourceBarrier(1, &resourceBarrier1);
+        TransitionResource(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)
     {
-        m_commandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0);
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0));
     }
 
     void D3D12RHI::EndFrame()
     {
         // Indicate that the back buffer will now be used to present.
-        auto resourceBarrier2 = CD3DX12_RESOURCE_BARRIER::Transition(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-        m_commandList->ResourceBarrier(1, &resourceBarrier2);
-
-        m_commandList->Close();
-
-        // Execute the command list.
-        ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-        m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+        TransitionResource(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+        ExecuteCommandList();
 
         // Present the frame.
-        m_swapChain->Present(1, 0);
+        D3D12RHI_THROW_INFO(m_swapChain->Present(1, 0));
     }
 
     // RENDER TARGET METHODS
@@ -361,15 +351,6 @@ namespace Renderer
     // PRIVATE - HELPER D3D12RHI METHODS
 
     // Insert fence to command queue.
-    void D3D12RHI::InsertFence()
-    {
-        m_commandQueue->Signal(m_fence.Get(), ++m_fenceValue);
-        m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent);
-        if (WaitForSingleObject(m_fenceEvent, INFINITE) == WAIT_FAILED) {
-            GetLastError();
-        }
-    }
-
     // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
     // If no such adapter can be found, *ppAdapter will be set to nullptr.
     _Use_decl_annotations_

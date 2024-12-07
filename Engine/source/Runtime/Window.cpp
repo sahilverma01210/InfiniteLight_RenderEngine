@@ -58,7 +58,7 @@ namespace Runtime
 		wr.bottom = height + wr.top;
 		if (FAILED(AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, FALSE)))
 		{
-			throw ILWND_LAST_EXCEPT();
+			throw IL_LAST_EXCEPT();
 		};
 
 		// create window & get hWnd
@@ -72,7 +72,7 @@ namespace Runtime
 		// check for error
 		if (hWnd == nullptr)
 		{
-			throw ILWND_LAST_EXCEPT();
+			throw IL_LAST_EXCEPT();
 		}
 
 		// init COM.
@@ -89,7 +89,7 @@ namespace Runtime
 		rid.hwndTarget = nullptr;
 		if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
 		{
-			throw ILWND_LAST_EXCEPT();
+			throw IL_LAST_EXCEPT();
 		}
 
 		// show window

@@ -328,9 +328,6 @@
     <ClInclude Include="source\Runtime\Window.h">
       <Filter>Source\Runtime\Public</Filter>
     </ClInclude>
-    <ClInclude Include="source\Runtime\WindowsException.h">
-      <Filter>Source\Runtime\Public</Filter>
-    </ClInclude>
     <ClInclude Include="source\_External\imgui\backends\imgui_impl_dx12.h">
       <Filter>Source\_External\Public\ImGUI</Filter>
     </ClInclude>
@@ -634,6 +631,9 @@
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderTarget.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Viewport.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
   </ItemGroup>

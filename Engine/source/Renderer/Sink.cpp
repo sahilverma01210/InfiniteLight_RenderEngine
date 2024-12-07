@@ -8,14 +8,14 @@ namespace Renderer
 	{
 		if (registeredName.empty())
 		{
-			throw RGC_EXCEPTION("Empty output name");
+			throw RG_EXCEPTION("Empty output name");
 		}
 		const bool nameCharsValid = std::all_of(registeredName.begin(), registeredName.end(), [](char c) {
 			return std::isalnum(c) || c == '_';
 			});
 		if (!nameCharsValid || std::isdigit(registeredName.front()))
 		{
-			throw RGC_EXCEPTION("Invalid output name: " + registeredName);
+			throw RG_EXCEPTION("Invalid output name: " + registeredName);
 		}
 	}
 
@@ -39,28 +39,28 @@ namespace Renderer
 		{
 			if (passName.empty())
 			{
-				throw RGC_EXCEPTION("Empty output name");
+				throw RG_EXCEPTION("Empty output name");
 			}
 			const bool nameCharsValid = std::all_of(passName.begin(), passName.end(), [](char c) {
 				return std::isalnum(c) || c == '_';
 				});
 			if (passName != "$" && (!nameCharsValid || std::isdigit(passName.front())))
 			{
-				throw RGC_EXCEPTION("Invalid output name: " + registeredName);
+				throw RG_EXCEPTION("Invalid output name: " + registeredName);
 			}
 			this->passName = passName;
 		}
 		{
 			if (outputName.empty())
 			{
-				throw RGC_EXCEPTION("Empty output name");
+				throw RG_EXCEPTION("Empty output name");
 			}
 			const bool nameCharsValid = std::all_of(outputName.begin(), outputName.end(), [](char c) {
 				return std::isalnum(c) || c == '_';
 				});
 			if (!nameCharsValid || std::isdigit(outputName.front()))
 			{
-				throw RGC_EXCEPTION("Invalid output name: " + registeredName);
+				throw RG_EXCEPTION("Invalid output name: " + registeredName);
 			}
 			this->outputName = outputName;
 		}

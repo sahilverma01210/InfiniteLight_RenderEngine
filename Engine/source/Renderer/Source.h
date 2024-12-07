@@ -46,7 +46,7 @@ namespace Renderer
 		{
 			if (linked)
 			{
-				throw RGC_EXCEPTION("Mutable output bound twice: " + GetName());
+				throw RG_EXCEPTION("Mutable output bound twice: " + GetName());
 			}
 			linked = true;
 			return buffer;
@@ -78,7 +78,7 @@ namespace Renderer
 		{
 			if (linked)
 			{
-				throw RGC_EXCEPTION("Mutable output bound twice: " + GetName());
+				throw RG_EXCEPTION("Mutable output bound twice: " + GetName());
 			}
 			linked = true;
 			std::vector<std::shared_ptr<BufferResource>> bufferResources;

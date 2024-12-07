@@ -4,6 +4,8 @@ namespace Renderer
 {
 	RootSignature::RootSignature(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
 	{
+        INFOMAN(gfx);
+
         m_numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews;
 
         if (pipelineDesc.useTexture) m_numRootParameters++;
@@ -37,15 +39,9 @@ namespace Renderer
 
         ComPtr<ID3DBlob> signatureBlob;
         ComPtr<ID3DBlob> errorBlob;
-        HRESULT hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
-        if (FAILED(hr)) {
-            if (errorBlob) {
-                OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-                OutputDebugStringA("\n");
-            }
-        }
+        D3D12RHI_THROW_INFO(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob));
 
-        GetDevice(gfx)->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
+        D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
 
         pipelineDesc.rootSignature = m_rootSignature.Get();
 	}
@@ -57,6 +53,6 @@ namespace Renderer
 
 	void RootSignature::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-        GetCommandList(gfx)->SetGraphicsRootSignature(m_rootSignature.Get());
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootSignature(m_rootSignature.Get()));
 	}
 }

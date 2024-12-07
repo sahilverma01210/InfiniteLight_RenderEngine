@@ -24,12 +24,12 @@ namespace Renderer
 		const auto i = std::find_if(globalSinks.begin(), globalSinks.end(), finder);
 		if (i == globalSinks.end())
 		{
-			throw RGC_EXCEPTION("Global sink does not exist: " + sinkName);
+			throw RG_EXCEPTION("Global sink does not exist: " + sinkName);
 		}
 		auto targetSplit = SplitString(target, ".");
 		if (targetSplit.size() != 2u)
 		{
-			throw RGC_EXCEPTION("Input target has incorrect format");
+			throw RG_EXCEPTION("Input target has incorrect format");
 		}
 		(*i)->SetTarget(targetSplit[0], targetSplit[1]);
 	}
@@ -70,7 +70,7 @@ namespace Renderer
 		{
 			if (pass->GetName() == p->GetName())
 			{
-				throw RGC_EXCEPTION("Pass name already exists: " + pass->GetName());
+				throw RG_EXCEPTION("Pass name already exists: " + pass->GetName());
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace Renderer
 			{
 				std::ostringstream oss;
 				oss << "In pass named [" << pass.GetName() << "] sink named [" << si->GetRegisteredName() << "] has no target source set.";
-				throw RGC_EXCEPTION(oss.str());
+				throw RG_EXCEPTION(oss.str());
 			}
 
 			// check check whether target source is global
@@ -123,7 +123,7 @@ namespace Renderer
 				{
 					std::ostringstream oss;
 					oss << "Output named [" << si->GetOutputName() << "] not found in globals";
-					throw RGC_EXCEPTION(oss.str());
+					throw RG_EXCEPTION(oss.str());
 				}
 			}
 			else // find source from within existing passes
@@ -143,7 +143,7 @@ namespace Renderer
 				{
 					std::ostringstream oss;
 					oss << "Pass named [" << inputSourcePassName << "] not found";
-					throw RGC_EXCEPTION(oss.str());
+					throw RG_EXCEPTION(oss.str());
 				}
 			}
 		}
@@ -191,8 +191,8 @@ namespace Renderer
 		}
 		catch (std::bad_cast&)
 		{
-			throw RGC_EXCEPTION("In RenderGraph::GetRenderQueue, pass was not RenderQueuePass: " + passName);
+			throw RG_EXCEPTION("In RenderGraph::GetRenderQueue, pass was not RenderQueuePass: " + passName);
 		}
-		throw RGC_EXCEPTION("In RenderGraph::GetRenderQueue, pass not found: " + passName);
+		throw RG_EXCEPTION("In RenderGraph::GetRenderQueue, pass not found: " + passName);
 	}
 }
