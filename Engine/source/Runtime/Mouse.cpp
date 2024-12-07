@@ -2,12 +2,12 @@
 
 namespace Runtime
 {
-	std::pair<int, int> Mouse::GetPos() const noexcept
+	std::pair<int, int> Mouse::GetPos() const noexcept(!IS_DEBUG)
 	{
 		return { x,y };
 	}
 
-	std::optional<Mouse::RawDelta> Mouse::ReadRawDelta() noexcept
+	std::optional<Mouse::RawDelta> Mouse::ReadRawDelta() noexcept(!IS_DEBUG)
 	{
 		if (rawDeltaBuffer.empty())
 		{
@@ -18,32 +18,32 @@ namespace Runtime
 		return d;
 	}
 
-	int Mouse::GetPosX() const noexcept
+	int Mouse::GetPosX() const noexcept(!IS_DEBUG)
 	{
 		return x;
 	}
 
-	int Mouse::GetPosY() const noexcept
+	int Mouse::GetPosY() const noexcept(!IS_DEBUG)
 	{
 		return y;
 	}
 
-	bool Mouse::IsInWindow() const noexcept
+	bool Mouse::IsInWindow() const noexcept(!IS_DEBUG)
 	{
 		return isInWindow;
 	}
 
-	bool Mouse::LeftIsPressed() const noexcept
+	bool Mouse::LeftIsPressed() const noexcept(!IS_DEBUG)
 	{
 		return leftIsPressed;
 	}
 
-	bool Mouse::RightIsPressed() const noexcept
+	bool Mouse::RightIsPressed() const noexcept(!IS_DEBUG)
 	{
 		return rightIsPressed;
 	}
 
-	Mouse::Event Mouse::Read() noexcept
+	Mouse::Event Mouse::Read() noexcept(!IS_DEBUG)
 	{
 		if (buffer.size() > 0u)
 		{
@@ -57,27 +57,27 @@ namespace Runtime
 		}
 	}
 
-	void Mouse::Flush() noexcept
+	void Mouse::Flush() noexcept(!IS_DEBUG)
 	{
 		buffer = std::queue<Event>();
 	}
 
-	void Mouse::EnableRaw() noexcept
+	void Mouse::EnableRaw() noexcept(!IS_DEBUG)
 	{
 		rawEnabled = true;
 	}
 
-	void Mouse::DisableRaw() noexcept
+	void Mouse::DisableRaw() noexcept(!IS_DEBUG)
 	{
 		rawEnabled = false;
 	}
 
-	bool Mouse::RawEnabled() const noexcept
+	bool Mouse::RawEnabled() const noexcept(!IS_DEBUG)
 	{
 		return rawEnabled;
 	}
 
-	void Mouse::OnMouseMove(int newx, int newy) noexcept
+	void Mouse::OnMouseMove(int newx, int newy) noexcept(!IS_DEBUG)
 	{
 		x = newx;
 		y = newy;
@@ -86,27 +86,27 @@ namespace Runtime
 		TrimBuffer();
 	}
 
-	void Mouse::OnMouseLeave() noexcept
+	void Mouse::OnMouseLeave() noexcept(!IS_DEBUG)
 	{
 		isInWindow = false;
 		buffer.push(Mouse::Event(Mouse::Event::Type::Leave, *this));
 		TrimBuffer();
 	}
 
-	void Mouse::OnMouseEnter() noexcept
+	void Mouse::OnMouseEnter() noexcept(!IS_DEBUG)
 	{
 		isInWindow = true;
 		buffer.push(Mouse::Event(Mouse::Event::Type::Enter, *this));
 		TrimBuffer();
 	}
 
-	void Mouse::OnRawDelta(int dx, int dy) noexcept
+	void Mouse::OnRawDelta(int dx, int dy) noexcept(!IS_DEBUG)
 	{
 		rawDeltaBuffer.push({ dx,dy });
 		TrimBuffer();
 	}
 
-	void Mouse::OnLeftPressed(int x, int y) noexcept
+	void Mouse::OnLeftPressed(int x, int y) noexcept(!IS_DEBUG)
 	{
 		leftIsPressed = true;
 
@@ -114,7 +114,7 @@ namespace Runtime
 		TrimBuffer();
 	}
 
-	void Mouse::OnLeftReleased(int x, int y) noexcept
+	void Mouse::OnLeftReleased(int x, int y) noexcept(!IS_DEBUG)
 	{
 		leftIsPressed = false;
 
@@ -122,7 +122,7 @@ namespace Runtime
 		TrimBuffer();
 	}
 
-	void Mouse::OnRightPressed(int x, int y) noexcept
+	void Mouse::OnRightPressed(int x, int y) noexcept(!IS_DEBUG)
 	{
 		rightIsPressed = true;
 
@@ -130,7 +130,7 @@ namespace Runtime
 		TrimBuffer();
 	}
 
-	void Mouse::OnRightReleased(int x, int y) noexcept
+	void Mouse::OnRightReleased(int x, int y) noexcept(!IS_DEBUG)
 	{
 		rightIsPressed = false;
 
@@ -138,19 +138,19 @@ namespace Runtime
 		TrimBuffer();
 	}
 
-	void Mouse::OnWheelUp(int x, int y) noexcept
+	void Mouse::OnWheelUp(int x, int y) noexcept(!IS_DEBUG)
 	{
 		buffer.push(Mouse::Event(Mouse::Event::Type::WheelUp, *this));
 		TrimBuffer();
 	}
 
-	void Mouse::OnWheelDown(int x, int y) noexcept
+	void Mouse::OnWheelDown(int x, int y) noexcept(!IS_DEBUG)
 	{
 		buffer.push(Mouse::Event(Mouse::Event::Type::WheelDown, *this));
 		TrimBuffer();
 	}
 
-	void Mouse::TrimBuffer() noexcept
+	void Mouse::TrimBuffer() noexcept(!IS_DEBUG)
 	{
 		while (buffer.size() > bufferSize)
 		{
@@ -158,7 +158,7 @@ namespace Runtime
 		}
 	}
 
-	void Mouse::TrimRawInputBuffer() noexcept
+	void Mouse::TrimRawInputBuffer() noexcept(!IS_DEBUG)
 	{
 		while (rawDeltaBuffer.size() > bufferSize)
 		{
@@ -166,7 +166,7 @@ namespace Runtime
 		}
 	}
 
-	void Mouse::OnWheelDelta(int x, int y, int delta) noexcept
+	void Mouse::OnWheelDelta(int x, int y, int delta) noexcept(!IS_DEBUG)
 	{
 		wheelDeltaCarry += delta;
 		// generate events for every 120 

@@ -5,12 +5,12 @@ namespace Renderer
 {
 	// VertexLayout Definitions.
 
-	const VertexLayout::Element& VertexLayout::ResolveByIndex(size_t i) const noexcept
+	const VertexLayout::Element& VertexLayout::ResolveByIndex(size_t i) const noexcept(!IS_DEBUG)
 	{
 		return elements[i];
 	}
 
-	VertexLayout& VertexLayout::Append(ElementType type) noexcept
+	VertexLayout& VertexLayout::Append(ElementType type) noexcept(!IS_DEBUG)
 	{
 		if (!Has(type))
 		{
@@ -19,17 +19,17 @@ namespace Renderer
 		return *this;
 	}
 
-	size_t VertexLayout::Size() const noexcept
+	size_t VertexLayout::Size() const noexcept(!IS_DEBUG)
 	{
 		return elements.empty() ? 0u : elements.back().GetOffsetAfter();
 	}
 
-	size_t VertexLayout::GetElementCount() const noexcept
+	size_t VertexLayout::GetElementCount() const noexcept(!IS_DEBUG)
 	{
 		return elements.size();
 	}
 
-	std::vector<D3D12_INPUT_ELEMENT_DESC> VertexLayout::GetD3DLayout() const noexcept
+	std::vector<D3D12_INPUT_ELEMENT_DESC> VertexLayout::GetD3DLayout() const noexcept(!IS_DEBUG)
 	{
 		std::vector<D3D12_INPUT_ELEMENT_DESC> desc;
 		desc.reserve(GetElementCount());
@@ -40,7 +40,7 @@ namespace Renderer
 		return desc;
 	}
 
-	std::string VertexLayout::GetCode() const noexcept
+	std::string VertexLayout::GetCode() const noexcept(!IS_DEBUG)
 	{
 		std::string code;
 		for (const auto& e : elements)
@@ -50,7 +50,7 @@ namespace Renderer
 		return code;
 	}
 
-	bool VertexLayout::Has(ElementType type) const noexcept
+	bool VertexLayout::Has(ElementType type) const noexcept(!IS_DEBUG)
 	{
 		for (auto& e : elements)
 		{
@@ -70,7 +70,7 @@ namespace Renderer
 		offset(offset)
 	{}
 
-	size_t VertexLayout::Element::GetOffsetAfter() const noexcept
+	size_t VertexLayout::Element::GetOffsetAfter() const noexcept(!IS_DEBUG)
 	{
 		return offset + Size();
 	}
@@ -80,12 +80,12 @@ namespace Renderer
 		return offset;
 	}
 
-	size_t VertexLayout::Element::Size() const noexcept
+	size_t VertexLayout::Element::Size() const noexcept(!IS_DEBUG)
 	{
 		return SizeOf(type);
 	}
 
-	VertexLayout::ElementType VertexLayout::Element::GetType() const noexcept
+	VertexLayout::ElementType VertexLayout::Element::GetType() const noexcept(!IS_DEBUG)
 	{
 		return type;
 	}
@@ -93,29 +93,29 @@ namespace Renderer
 	template<VertexLayout::ElementType type>
 	struct SysSizeLookup
 	{
-		static constexpr auto Exec() noexcept
+		static constexpr auto Exec() noexcept(!IS_DEBUG)
 		{
 			return sizeof(VertexLayout::Map<type>::SysType);
 		}
 	};
-	constexpr size_t VertexLayout::Element::SizeOf(ElementType type) noexcept
+	constexpr size_t VertexLayout::Element::SizeOf(ElementType type) noexcept(!IS_DEBUG)
 	{
 		return Bridge<SysSizeLookup>(type);
 	}
 	template<VertexLayout::ElementType type>
 	struct CodeLookup
 	{
-		static constexpr auto Exec() noexcept
+		static constexpr auto Exec() noexcept(!IS_DEBUG)
 		{
 			return VertexLayout::Map<type>::code;
 		}
 	};
-	const char* VertexLayout::Element::GetCode() const noexcept
+	const char* VertexLayout::Element::GetCode() const noexcept(!IS_DEBUG)
 	{
 		return Bridge<CodeLookup>(type);
 	}
 	template<VertexLayout::ElementType type> struct DescGenerate {
-		static constexpr D3D12_INPUT_ELEMENT_DESC Exec(size_t offset) noexcept {
+		static constexpr D3D12_INPUT_ELEMENT_DESC Exec(size_t offset) noexcept(!IS_DEBUG) {
 			return {
 				VertexLayout::Map<type>::semantic,0,
 				VertexLayout::Map<type>::dxgiFormat,
@@ -123,14 +123,14 @@ namespace Renderer
 			};
 		}
 	};
-	D3D12_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc() const noexcept
+	D3D12_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc() const noexcept(!IS_DEBUG)
 	{
 		return Bridge<DescGenerate>(type, GetOffset());
 	}
 
 	// Vertex Definitions.
 
-	Vertex::Vertex(char* pData, const VertexLayout& layout) noexcept
+	Vertex::Vertex(char* pData, const VertexLayout& layout) noexcept(!IS_DEBUG)
 		:
 		pData(pData),
 		layout(layout)
@@ -138,18 +138,18 @@ namespace Renderer
 		assert(pData != nullptr);
 	}
 
-	ConstVertex::ConstVertex(const Vertex& v) noexcept
+	ConstVertex::ConstVertex(const Vertex& v) noexcept(!IS_DEBUG)
 		:
 		vertex(v)
 	{}
 
 	// VertexBuffer Definitions.
 
-	VertexRawBuffer::VertexRawBuffer() noexcept
+	VertexRawBuffer::VertexRawBuffer() noexcept(!IS_DEBUG)
 	{
 	}
 
-	VertexRawBuffer::VertexRawBuffer(VertexLayout layout) noexcept
+	VertexRawBuffer::VertexRawBuffer(VertexLayout layout) noexcept(!IS_DEBUG)
 		:
 		layout(std::move(layout))
 	{}
@@ -157,7 +157,7 @@ namespace Renderer
 	template<VertexLayout::ElementType type>
 	struct AttributeAiMeshFill
 	{
-		static constexpr void Exec(VertexRawBuffer* pBuf, const aiMesh& mesh) noexcept
+		static constexpr void Exec(VertexRawBuffer* pBuf, const aiMesh& mesh) noexcept(!IS_DEBUG)
 		{
 			for (auto end = mesh.mNumVertices, i = 0u; i < end; i++)
 			{
@@ -177,27 +177,27 @@ namespace Renderer
 		}
 	}
 
-	const char* VertexRawBuffer::GetData() const noexcept
+	const char* VertexRawBuffer::GetData() const noexcept(!IS_DEBUG)
 	{
 		return buffer.data();
 	}
 
-	void VertexRawBuffer::SetLayout(VertexLayout pLayout) noexcept
+	void VertexRawBuffer::SetLayout(VertexLayout pLayout) noexcept(!IS_DEBUG)
 	{
 		layout = std::move(pLayout);
 	}
 
-	const VertexLayout& VertexRawBuffer::GetLayout() const noexcept
+	const VertexLayout& VertexRawBuffer::GetLayout() const noexcept(!IS_DEBUG)
 	{
 		return layout;
 	}
 
-	size_t VertexRawBuffer::Size() const noexcept
+	size_t VertexRawBuffer::Size() const noexcept(!IS_DEBUG)
 	{
 		return buffer.size() / layout.Size();
 	}
 
-	size_t VertexRawBuffer::SizeBytes() const noexcept
+	size_t VertexRawBuffer::SizeBytes() const noexcept(!IS_DEBUG)
 	{
 		return buffer.size();
 	}
@@ -211,35 +211,35 @@ namespace Renderer
 		}
 	}
 
-	Vertex VertexRawBuffer::Back() noexcept
+	Vertex VertexRawBuffer::Back() noexcept(!IS_DEBUG)
 	{
 		assert(buffer.size() != 0u);
 		return Vertex{ buffer.data() + buffer.size() - layout.Size(),layout };
 	}
 
-	Vertex VertexRawBuffer::Front() noexcept
+	Vertex VertexRawBuffer::Front() noexcept(!IS_DEBUG)
 	{
 		assert(buffer.size() != 0u);
 		return Vertex{ buffer.data(),layout };
 	}
 
-	Vertex VertexRawBuffer::operator[](size_t i) noexcept
+	Vertex VertexRawBuffer::operator[](size_t i) noexcept(!IS_DEBUG)
 	{
 		assert(i < Size());
 		return Vertex{ buffer.data() + layout.Size() * i,layout };
 	}
 
-	ConstVertex VertexRawBuffer::Back() const noexcept
+	ConstVertex VertexRawBuffer::Back() const noexcept(!IS_DEBUG)
 	{
 		return const_cast<VertexRawBuffer*>(this)->Back();
 	}
 
-	ConstVertex VertexRawBuffer::Front() const noexcept
+	ConstVertex VertexRawBuffer::Front() const noexcept(!IS_DEBUG)
 	{
 		return const_cast<VertexRawBuffer*>(this)->Front();
 	}
 
-	ConstVertex VertexRawBuffer::operator[](size_t i) const noexcept
+	ConstVertex VertexRawBuffer::operator[](size_t i) const noexcept(!IS_DEBUG)
 	{
 		return const_cast<VertexRawBuffer&>(*this)[i];
 	}

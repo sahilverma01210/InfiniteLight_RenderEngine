@@ -8,7 +8,7 @@ namespace Renderer
 	{
 	}
 
-	void ShadowCameraBuffer::Bind(D3D12RHI& gfx) noexcept
+	void ShadowCameraBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		pVcbuf->Bind(gfx);
 	}
@@ -21,7 +21,7 @@ namespace Renderer
 		pVcbuf->Update(gfx, &t);
 	}
 
-	void ShadowCameraBuffer::SetCamera(const Camera* p) noexcept
+	void ShadowCameraBuffer::SetCamera(const Camera* p) noexcept(!IS_DEBUG)
 	{
 		pCamera = p;
 	}

@@ -31,44 +31,42 @@ namespace Renderer
 
         D3D12_DEPTH_STENCIL_DESC depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
-        if (pipelineDesc.depthStencilMode == Mode::Write)
+        switch (pipelineDesc.depthStencilMode)
         {
+        case Mode::Write:
             depthStencilDesc.DepthEnable = FALSE;
             depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
             depthStencilDesc.StencilEnable = TRUE;
             depthStencilDesc.StencilWriteMask = 0xFF;
             depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS; // Stencil Buffer is compared with Stencil Reference Value to determine if corresponding rasterized pixel (from Pixel Shader Output) will be drawn.
             depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-        }
-        else if (pipelineDesc.depthStencilMode == Mode::Mask)
-        {
+            break;
+        case Mode::Mask:
             depthStencilDesc.DepthEnable = FALSE;
             depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
             depthStencilDesc.StencilEnable = TRUE;
             depthStencilDesc.StencilReadMask = 0xFF;
             depthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL; // Stencil Buffer is compared with Stencil Reference Value to determine if corresponding rasterized pixel (from Pixel Shader Output) will be drawn.
             depthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-        }
-        else if (pipelineDesc.depthStencilMode == Mode::DepthOff)
-        {
+            break;
+        case Mode::DepthOff:
             depthStencilDesc.DepthEnable = FALSE;
             depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-        }
-        else if (pipelineDesc.depthStencilMode == Mode::DepthReversed)
-        {
+            break;
+        case Mode::DepthReversed:
             depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
-        }
-        else if (pipelineDesc.depthStencilMode == Mode::DepthFirst)
-        {
+            break;
+        case Mode::DepthFirst:
             depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
             depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+            break;
         }
 
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { pipelineDesc.inputElementDescs , pipelineDesc.numElements };
         m_psoDescription.pRootSignature = pipelineDesc.rootSignature;
-        m_psoDescription.VS = CD3DX12_SHADER_BYTECODE(pipelineDesc.vertexShader);
-        if(pipelineDesc.pixelShader != nullptr) m_psoDescription.PS = CD3DX12_SHADER_BYTECODE(pipelineDesc.pixelShader);
+        m_psoDescription.VS = pipelineDesc.vertexShader ? CD3DX12_SHADER_BYTECODE(pipelineDesc.vertexShader) : CD3DX12_SHADER_BYTECODE();
+        m_psoDescription.PS = pipelineDesc.pixelShader ? CD3DX12_SHADER_BYTECODE(pipelineDesc.pixelShader) : CD3DX12_SHADER_BYTECODE();
         m_psoDescription.RasterizerState = rasterizerDesc;
         m_psoDescription.BlendState = blenderDesc;
         m_psoDescription.SampleMask = UINT_MAX;
@@ -81,7 +79,7 @@ namespace Renderer
         HRESULT hr = GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState));
 	}
 
-	void PipelineState::Bind(D3D12RHI& gfx) noexcept
+	void PipelineState::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
         GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get());
 	}

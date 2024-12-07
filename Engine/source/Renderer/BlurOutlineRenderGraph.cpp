@@ -163,7 +163,7 @@ namespace Renderer
 		dynamic_cast<LambertianPass&>(FindPassByName("lambertian")).BindShadowCamera(cam);
 	}
 
-	void BlurOutlineRenderGraph::SetKernelBox(int radius) noexcept
+	void BlurOutlineRenderGraph::SetKernelBox(int radius) noexcept(!IS_DEBUG)
 	{
 		assert(radius <= maxRadius);
 		auto k = blurKernel->GetBuffer();
@@ -177,7 +177,7 @@ namespace Renderer
 		blurKernel->SetBuffer(k);
 	}
 
-	void BlurOutlineRenderGraph::SetKernelGauss(int radius, float sigma) noexcept
+	void BlurOutlineRenderGraph::SetKernelGauss(int radius, float sigma) noexcept(!IS_DEBUG)
 	{
 		assert(radius <= maxRadius);
 		auto k = blurKernel->GetBuffer();

@@ -2,12 +2,12 @@
 
 namespace Runtime
 {
-	bool Keyboard::KeyIsPressed(unsigned char keycode) const noexcept
+	bool Keyboard::KeyIsPressed(unsigned char keycode) const noexcept(!IS_DEBUG)
 	{
 		return keystates[keycode];
 	}
 
-	Keyboard::Event Keyboard::ReadKey() noexcept
+	Keyboard::Event Keyboard::ReadKey() noexcept(!IS_DEBUG)
 	{
 		if (keybuffer.size() > 0u)
 		{
@@ -21,12 +21,12 @@ namespace Runtime
 		}
 	}
 
-	bool Keyboard::KeyIsEmpty() const noexcept
+	bool Keyboard::KeyIsEmpty() const noexcept(!IS_DEBUG)
 	{
 		return keybuffer.empty();
 	}
 
-	char Keyboard::ReadChar() noexcept
+	char Keyboard::ReadChar() noexcept(!IS_DEBUG)
 	{
 		if (charbuffer.size() > 0u)
 		{
@@ -40,69 +40,69 @@ namespace Runtime
 		}
 	}
 
-	bool Keyboard::CharIsEmpty() const noexcept
+	bool Keyboard::CharIsEmpty() const noexcept(!IS_DEBUG)
 	{
 		return charbuffer.empty();
 	}
 
-	void Keyboard::FlushKey() noexcept
+	void Keyboard::FlushKey() noexcept(!IS_DEBUG)
 	{
 		keybuffer = std::queue<Event>();
 	}
 
-	void Keyboard::FlushChar() noexcept
+	void Keyboard::FlushChar() noexcept(!IS_DEBUG)
 	{
 		charbuffer = std::queue<char>();
 	}
 
-	void Keyboard::Flush() noexcept
+	void Keyboard::Flush() noexcept(!IS_DEBUG)
 	{
 		FlushKey();
 		FlushChar();
 	}
 
-	void Keyboard::EnableAutorepeat() noexcept
+	void Keyboard::EnableAutorepeat() noexcept(!IS_DEBUG)
 	{
 		autorepeatEnabled = true;
 	}
 
-	void Keyboard::DisableAutorepeat() noexcept
+	void Keyboard::DisableAutorepeat() noexcept(!IS_DEBUG)
 	{
 		autorepeatEnabled = false;
 	}
 
-	bool Keyboard::AutorepeatIsEnabled() const noexcept
+	bool Keyboard::AutorepeatIsEnabled() const noexcept(!IS_DEBUG)
 	{
 		return autorepeatEnabled;
 	}
 
-	void Keyboard::OnKeyPressed(unsigned char keycode) noexcept
+	void Keyboard::OnKeyPressed(unsigned char keycode) noexcept(!IS_DEBUG)
 	{
 		keystates[keycode] = true;
 		keybuffer.push(Keyboard::Event(Keyboard::Event::Type::Press, keycode));
 		TrimBuffer(keybuffer);
 	}
 
-	void Keyboard::OnKeyReleased(unsigned char keycode) noexcept
+	void Keyboard::OnKeyReleased(unsigned char keycode) noexcept(!IS_DEBUG)
 	{
 		keystates[keycode] = false;
 		keybuffer.push(Keyboard::Event(Keyboard::Event::Type::Release, keycode));
 		TrimBuffer(keybuffer);
 	}
 
-	void Keyboard::OnChar(char character) noexcept
+	void Keyboard::OnChar(char character) noexcept(!IS_DEBUG)
 	{
 		charbuffer.push(character);
 		TrimBuffer(charbuffer);
 	}
 
-	void Keyboard::ClearState() noexcept
+	void Keyboard::ClearState() noexcept(!IS_DEBUG)
 	{
 		keystates.reset();
 	}
 
 	template<typename T>
-	void Keyboard::TrimBuffer(std::queue<T>& buffer) noexcept
+	void Keyboard::TrimBuffer(std::queue<T>& buffer) noexcept(!IS_DEBUG)
 	{
 		while (buffer.size() > bufferSize)
 		{

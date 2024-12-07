@@ -1,9 +1,9 @@
 #include "../Runtime/Window.h"
-#include "../Runtime/WindowsThrowMacros.h"
+#include "../Runtime/WindowsException.h"
 
 #include "DxgiInfoManager.h"
 #include "D3D12RHI.h"
-#include "D3D12RHIThrowMacros.h"
+#include "D3D12RHIException.h"
 
 namespace Renderer
 {
@@ -32,7 +32,7 @@ namespace Renderer
 		D3D12RHI_THROW_NOINFO(DxgiGetDebugInterface(__uuidof(IDXGIInfoQueue), &pDxgiInfoQueue));
 	}
 
-	void DxgiInfoManager::Set() noexcept
+	void DxgiInfoManager::Set() noexcept(!IS_DEBUG)
 	{
 		// set the index (next) so that the next all to GetMessages()
 		// will only get errors generated after this call

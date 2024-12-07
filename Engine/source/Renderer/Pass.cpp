@@ -2,15 +2,15 @@
 
 namespace Renderer
 {
-	Pass::Pass(std::string name) noexcept
+	Pass::Pass(std::string name) noexcept(!IS_DEBUG)
 		:
 		name(std::move(name))
 	{}
 
-	void Pass::Reset() noexcept
+	void Pass::Reset() noexcept(!IS_DEBUG)
 	{}
 
-	const std::string& Pass::GetName() const noexcept
+	const std::string& Pass::GetName() const noexcept(!IS_DEBUG)
 	{
 		return name;
 	}

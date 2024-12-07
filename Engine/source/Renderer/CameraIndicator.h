@@ -11,9 +11,9 @@ namespace Renderer
 	{
 	public:
 		CameraIndicator(D3D12RHI& gfx);
-		void SetPos(XMFLOAT3 pos) noexcept;
-		void SetRotation(XMFLOAT3 pos) noexcept;
-		XMMATRIX GetTransformXM() const noexcept override;
+		void SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG);
+		void SetRotation(XMFLOAT3 pos) noexcept(!IS_DEBUG);
+		XMMATRIX GetTransformXM() const noexcept(!IS_DEBUG) override;
 
 	private:
 		XMFLOAT3 pos = { 0.0f,0.0f,0.0f };

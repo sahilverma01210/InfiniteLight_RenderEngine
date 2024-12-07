@@ -8,7 +8,7 @@ namespace Renderer
 	{
 	public:
 		Job(const Step* pStep, const Drawable* pDrawable);
-		void Execute(D3D12RHI& gfx) const noexcept;
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG);
 
 	private:
 		const class Drawable* pDrawable;

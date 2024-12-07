@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	Camera::Camera(D3D12RHI& gfx, std::string name, XMFLOAT3 homePos, float homePitch, float homeYaw, bool tethered) noexcept
+	Camera::Camera(D3D12RHI& gfx, std::string name, XMFLOAT3 homePos, float homePitch, float homeYaw, bool tethered) noexcept(!IS_DEBUG)
 		:
 		name(std::move(name)),
 		homePos(homePos),
@@ -23,7 +23,7 @@ namespace Renderer
 		gfx.ExecuteCommandList();
 	}
 
-	XMMATRIX Camera::GetMatrix() const noexcept
+	XMMATRIX Camera::GetMatrix() const noexcept(!IS_DEBUG)
 	{
 		const XMVECTOR forwardBaseVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 		// apply the camera rotations to a base vector
@@ -38,12 +38,12 @@ namespace Renderer
 		return XMMatrixLookAtLH(camPosition, camTarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	}
 
-	XMMATRIX Camera::GetProjection() const noexcept
+	XMMATRIX Camera::GetProjection() const noexcept(!IS_DEBUG)
 	{
 		return proj.GetMatrix();
 	}
 
-	void Camera::SpawnControlWidgets(D3D12RHI& gfx) noexcept
+	void Camera::SpawnControlWidgets(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		bool rotDirty = false;
 		bool posDirty = false;
@@ -84,7 +84,7 @@ namespace Renderer
 		gfx.SetProjection(proj.GetMatrix());
 	}
 
-	void Camera::Reset(D3D12RHI& gfx) noexcept
+	void Camera::Reset(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		if (!tethered)
 		{
@@ -105,7 +105,7 @@ namespace Renderer
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));
 	}
 
-	void Camera::Rotate(float dx, float dy) noexcept
+	void Camera::Rotate(float dx, float dy) noexcept(!IS_DEBUG)
 	{
 		yaw = wrap_angle(yaw + dx * rotationSpeed);
 		pitch = std::clamp(pitch + dy * rotationSpeed, 0.995f * -PI / 2.0f, 0.995f * PI / 2.0f);
@@ -114,7 +114,7 @@ namespace Renderer
 		proj.SetRotation(angles);
 	}
 
-	void Camera::Translate(XMFLOAT3 translation) noexcept
+	void Camera::Translate(XMFLOAT3 translation) noexcept(!IS_DEBUG)
 	{
 		if (!tethered)
 		{
@@ -133,19 +133,19 @@ namespace Renderer
 		}
 	}
 
-	XMFLOAT3 Camera::GetPos() const noexcept
+	XMFLOAT3 Camera::GetPos() const noexcept(!IS_DEBUG)
 	{
 		return pos;
 	}
 
-	void Camera::SetPos(const XMFLOAT3& pos) noexcept
+	void Camera::SetPos(const XMFLOAT3& pos) noexcept(!IS_DEBUG)
 	{
 		this->pos = pos;
 		indicator.SetPos(pos);
 		proj.SetPos(pos);
 	}
 
-	const std::string& Camera::GetName() const noexcept
+	const std::string& Camera::GetName() const noexcept(!IS_DEBUG)
 	{
 		return name;
 	}

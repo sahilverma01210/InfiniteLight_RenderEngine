@@ -1,5 +1,5 @@
 #pragma once
-#include "../Common/ILMath.h"
+#include "RenderMath.h"
 
 #include "D3D12RHI.h"
 #include "CameraContainer.h"
@@ -12,7 +12,7 @@
 #include "Camera.h"
 #include "Channels.h"
 
-using namespace Common;
+
 
 namespace Renderer
 {

@@ -4,12 +4,12 @@ using namespace std::chrono;
 
 namespace Common
 {
-	ILTimer::ILTimer() noexcept
+	ILTimer::ILTimer() noexcept(!IS_DEBUG)
 	{
 		last = steady_clock::now();
 	}
 
-	float ILTimer::Mark() noexcept
+	float ILTimer::Mark() noexcept(!IS_DEBUG)
 	{
 		const auto old = last;
 		last = steady_clock::now();
@@ -17,7 +17,7 @@ namespace Common
 		return frameTime.count();
 	}
 
-	float ILTimer::Peek() const noexcept
+	float ILTimer::Peek() const noexcept(!IS_DEBUG)
 	{
 		return duration<float>(steady_clock::now() - last).count();
 	}

@@ -8,7 +8,7 @@
 #include "Node.h"
 #include "RenderMath.h"
 
-using namespace Common;
+
 
 namespace Renderer
 {
@@ -172,7 +172,7 @@ namespace Renderer
 			ImGui::TreePop();
 		}
 	private:
-		TransformParameters& ResolveTransform() noexcept
+		TransformParameters& ResolveTransform() noexcept(!IS_DEBUG)
 		{
 			const auto id = pSelectedNode->GetId();
 			auto i = transformParams.find(id);
@@ -182,7 +182,7 @@ namespace Renderer
 			}
 			return i->second;
 		}
-		TransformParameters& LoadTransform(int id) noexcept
+		TransformParameters& LoadTransform(int id) noexcept(!IS_DEBUG)
 		{
 			const auto& applied = pSelectedNode->GetAppliedTransform();
 			const auto angles = ExtractEulerAngles(applied);

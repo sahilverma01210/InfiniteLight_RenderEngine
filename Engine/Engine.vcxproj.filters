@@ -146,6 +146,21 @@
     <Filter Include="Source\Renderer\Public\Common\Primitives">
       <UniqueIdentifier>{73024be1-12b6-4696-aba9-9bc426d31b36}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\HLSL\Phong Shading">
+      <UniqueIdentifier>{726d7eea-fe1b-4274-b12b-77efd66004c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Skybox">
+      <UniqueIdentifier>{a18352d6-aaf6-44b0-b563-013fd0bd8410}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Shadow">
+      <UniqueIdentifier>{f31df685-9b38-421f-9a11-24c068f1bd95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Post Processing">
+      <UniqueIdentifier>{eba3db18-d745-4689-8a8b-acc8ba90dd53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Flat Shading">
+      <UniqueIdentifier>{3956dce2-8a61-4103-8d5b-4dbb19ae204a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Renderer\VertexBuffer.h">
@@ -217,9 +232,6 @@
     <ClInclude Include="source\Renderer\Vertex.h">
       <Filter>Source\Renderer\Public\Common\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\CommonShapes.h">
-      <Filter>Source\Renderer\Public\Drawables\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Sphere.h">
       <Filter>Source\Renderer\Public\Drawables\Shapes</Filter>
     </ClInclude>
@@ -229,7 +241,7 @@
     <ClInclude Include="source\Renderer\DxgiInfoManager.h">
       <Filter>Source\Renderer\Public\RHI</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h">
+    <ClInclude Include="source\Renderer\D3D12RHIException.h">
       <Filter>Source\Renderer\Public\RHI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BindableCodex.h">
@@ -271,13 +283,7 @@
     <ClInclude Include="source\Renderer\GraphicsResource.h">
       <Filter>Source\Renderer\Public\RHI</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\DepthStencil.h">
-      <Filter>Source\Renderer\Public\RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RenderTarget.h">
-      <Filter>Source\Renderer\Public\RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RenderGraphCompileException.h">
+    <ClInclude Include="source\Renderer\RenderGraphException.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Sink.h">
@@ -322,7 +328,7 @@
     <ClInclude Include="source\Runtime\Window.h">
       <Filter>Source\Runtime\Public</Filter>
     </ClInclude>
-    <ClInclude Include="source\Runtime\WindowsThrowMacros.h">
+    <ClInclude Include="source\Runtime\WindowsException.h">
       <Filter>Source\Runtime\Public</Filter>
     </ClInclude>
     <ClInclude Include="source\_External\imgui\backends\imgui_impl_dx12.h">
@@ -424,6 +430,12 @@
     <ClInclude Include="source\_External\dx12\directX12.h">
       <Filter>Source\_External\Public\DX12</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\DepthStencil.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderTarget.h">
+      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
@@ -516,13 +528,7 @@
     <ClCompile Include="source\Renderer\GraphicsResource.cpp">
       <Filter>Source\Renderer\Private\RHI</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\DepthStencil.cpp">
-      <Filter>Source\Renderer\Private\RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\RenderTarget.cpp">
-      <Filter>Source\Renderer\Private\RHI</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\RenderGraphCompileException.cpp">
+    <ClCompile Include="source\Renderer\RenderGraphException.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Source.cpp">
@@ -624,6 +630,12 @@
     <ClCompile Include="source\Renderer\Vertex.cpp">
       <Filter>Source\Renderer\Private\Common</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\DepthStencil.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderTarget.cpp">
+      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\HLSL\LightVectorData.hlsl">
@@ -638,68 +650,11 @@
     <CustomBuild Include="shaders\HLSL\Transform.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\BlurOutline_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Fullscreen_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Phong_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDif_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDif_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifNrm_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifNrm_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpc_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpc_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Solid_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Solid_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\ShadowTest_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\ShadowTest_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
     <CustomBuild Include="shaders\HLSL\PShadow.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\VShadow.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Phong_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\_PShadow_Dynamic.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
@@ -707,17 +662,74 @@
     <CustomBuild Include="shaders\HLSL\_PShadow_Static.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Skybox_PS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
-      <Filter>Shaders\HLSL</Filter>
-    </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Shadow_VS.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Shadow_PS.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Phong_PS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Phong_VS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDif_PS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDif_VS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_PS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_VS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifNrm_PS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifNrm_VS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpc_PS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpc_VS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_PS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_VS.hlsl">
+      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Skybox_PS.hlsl">
+      <Filter>Shaders\HLSL\Skybox</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
+      <Filter>Shaders\HLSL\Skybox</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\ShadowTest_PS.hlsl">
+      <Filter>Shaders\HLSL\Shadow</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\ShadowTest_VS.hlsl">
+      <Filter>Shaders\HLSL\Shadow</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
+      <Filter>Shaders\HLSL\Post Processing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\BlurOutline_PS.hlsl">
+      <Filter>Shaders\HLSL\Post Processing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Fullscreen_VS.hlsl">
+      <Filter>Shaders\HLSL\Post Processing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Solid_PS.hlsl">
+      <Filter>Shaders\HLSL\Flat Shading</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Solid_VS.hlsl">
+      <Filter>Shaders\HLSL\Flat Shading</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

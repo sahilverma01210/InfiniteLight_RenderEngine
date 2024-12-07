@@ -81,23 +81,23 @@ namespace Renderer
         }
 	}
 
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx) noexcept
+    void DepthStencil::BindAsBuffer(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
         GetCommandList(gfx)->OMSetRenderTargets(0, nullptr, FALSE, &m_depthStensilViewHandle);
     }
 
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, BufferResource* renderTarget) noexcept
+    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, BufferResource* renderTarget) noexcept(!IS_DEBUG)
     {
         assert(dynamic_cast<RenderTarget*>(renderTarget) != nullptr);
         BindAsBuffer(gfx, static_cast<RenderTarget*>(renderTarget));
     }
 
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, RenderTarget* rt) noexcept
+    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, RenderTarget* rt) noexcept(!IS_DEBUG)
     {
         rt->BindAsBuffer(gfx, this);
     }
 
-    void DepthStencil::Clear(D3D12RHI& gfx) noexcept
+    void DepthStencil::Clear(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
         GetCommandList(gfx)->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr);
     }
@@ -110,7 +110,7 @@ namespace Renderer
     {
         return m_height;
     }
-    ID3D12Resource* DepthStencil::GetBuffer() const noexcept
+    ID3D12Resource* DepthStencil::GetBuffer() const noexcept(!IS_DEBUG)
     {
         return m_depthBuffer.Get();
     }

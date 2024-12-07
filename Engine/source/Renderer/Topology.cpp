@@ -6,7 +6,7 @@ namespace Renderer
 	{
 	}
 
-	void Topology::Bind(D3D12RHI& gfx) noexcept
+	void Topology::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		GetCommandList(gfx)->IASetPrimitiveTopology(type);
 	}
@@ -22,7 +22,7 @@ namespace Renderer
 		return typeid(Topology).name() + "#"s + std::to_string(type);
 	}
 
-	std::string Topology::GetUID() const noexcept
+	std::string Topology::GetUID() const noexcept(!IS_DEBUG)
 	{
 		return GenerateUID(type);
 	}

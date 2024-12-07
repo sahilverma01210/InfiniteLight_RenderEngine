@@ -27,11 +27,9 @@ namespace Renderer
 
 		samplers[0] = staticSampler;
 
-		pipelineDesc.pixelShader = pixelShader;
-		pipelineDesc.blending = false;
-		pipelineDesc.depthStencilMode = Mode::Off;
 		pipelineDesc.numSamplers = 1;
 		pipelineDesc.samplers = samplers;
+		pipelineDesc.pixelShader = pixelShader;
 
 		rootSignBindable = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 		psoBindable = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -48,7 +46,7 @@ namespace Renderer
 
 	// this override is necessary because we cannot (yet) link input bindables directly into
 	// the container of bindables (mainly because vector growth buggers references)
-	void HorizontalBlurPass::Execute(D3D12RHI& gfx) const noexcept
+	void HorizontalBlurPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		auto buf = direction->GetBuffer();
 		buf["isHorizontal"] = true;
@@ -58,7 +56,7 @@ namespace Renderer
 		psoBindable->Bind(gfx);
 
 		gfx.TransitionResource(blurTarget->GetBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		srvBindable->AddResource(gfx, 0, blurTarget->GetBuffer());
+		srvBindable->AddTextureResource(gfx, 0, blurTarget->GetBuffer());
 		srvBindable->Bind(gfx);
 
 		direction->Bind(gfx);

@@ -66,7 +66,7 @@ namespace Renderer
         m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
     }
 
-    void IndexBuffer::Bind(D3D12RHI& gfx) noexcept
+    void IndexBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
         GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView);
     }
@@ -76,7 +76,7 @@ namespace Renderer
         return Codex::Resolve<IndexBuffer>(gfx, tag, dataSize, pData);
     }
 
-    std::string IndexBuffer::GetUID() const noexcept
+    std::string IndexBuffer::GetUID() const noexcept(!IS_DEBUG)
     {
         return GenerateUID_(tag);
     }

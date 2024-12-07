@@ -21,7 +21,7 @@ namespace Renderer
 		return { result.first->second };
 	}
 
-	LayoutCodex& LayoutCodex::Get_() noexcept
+	LayoutCodex& LayoutCodex::Get_() noexcept(!IS_DEBUG)
 	{
 		static LayoutCodex codex;
 		return codex;

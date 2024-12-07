@@ -1,5 +1,5 @@
 #pragma once
-#include "../Common/ILMath.h"
+#include "RenderMath.h"
 
 #include "RenderQueuePass.h"
 #include "Job.h"
@@ -48,11 +48,11 @@ namespace Renderer
 			XMStoreFloat3(&cameraUps[5], XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 			SetDepthBuffer(pDepthCube->GetDepthBuffer(0));
 		}
-		void BindShadowCamera(const Camera& cam) noexcept
+		void BindShadowCamera(const Camera& cam) noexcept(!IS_DEBUG)
 		{
 			pShadowCamera = &cam;
 		}
-		void Execute(D3D12RHI& gfx) const noexcept override
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
 			const auto shadowPos = pShadowCamera->GetPos();
 			const auto pos = XMLoadFloat3(&shadowPos);

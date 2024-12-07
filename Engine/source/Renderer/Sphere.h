@@ -1,9 +1,7 @@
 #pragma once
-#include "../Common/ILMath.h"
+#include "RenderMath.h"
 
 #include "IndexedTriangleList.h"
-
-using namespace Common;
 
 namespace Renderer
 {

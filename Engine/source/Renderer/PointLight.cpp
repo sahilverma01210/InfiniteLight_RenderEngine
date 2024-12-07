@@ -22,7 +22,7 @@ namespace Renderer
 		Drawable::lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(cbData), &cbData));
 	}
 
-	bool PointLight::SpawnControlWindow() noexcept
+	bool PointLight::SpawnControlWindow() noexcept(!IS_DEBUG)
 	{
 		if (ImGui::Begin("Light", &m_imGUIwndOpen))
 		{
@@ -57,18 +57,18 @@ namespace Renderer
 		return m_imGUIwndOpen;
 	}
 
-	void PointLight::Reset() noexcept
+	void PointLight::Reset() noexcept(!IS_DEBUG)
 	{
 		cbData = home;
 	}
 
-	void PointLight::Submit(size_t channels) const noexcept
+	void PointLight::Submit(size_t channels) const noexcept(!IS_DEBUG)
 	{
 		mesh.SetPos(cbData.pos);
 		mesh.Submit(channels);
 	}
 
-	void PointLight::Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept
+	void PointLight::Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept(!IS_DEBUG)
 	{
 		auto dataCopy = cbData;
 		const auto pos = XMLoadFloat3(&cbData.pos);
@@ -90,7 +90,7 @@ namespace Renderer
 		mesh.LinkTechniques(rg);
 	}
 
-	std::shared_ptr<Camera> PointLight::ShareCamera() const noexcept
+	std::shared_ptr<Camera> PointLight::ShareCamera() const noexcept(!IS_DEBUG)
 	{
 		return pCamera;
 	}

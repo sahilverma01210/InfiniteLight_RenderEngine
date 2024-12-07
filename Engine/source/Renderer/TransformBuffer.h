@@ -3,7 +3,7 @@
 
 namespace Renderer
 {
-	class TransformBuffer : public CloningBindable
+	class TransformBuffer : public Bindable
 	{
 	public:
 		struct Transforms
@@ -15,10 +15,10 @@ namespace Renderer
 
 	public:
 		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex);
+		TransformBuffer(const TransformBuffer& transformBuffer);
 		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex, float scale);
-		void Bind(D3D12RHI& gfx) noexcept;
-		void InitializeParentReference(const Drawable& parent) noexcept override;
-		std::unique_ptr<CloningBindable> Clone() const noexcept override;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		void InitializeParentReference(const Drawable& parent) noexcept(!IS_DEBUG) override;
 
 	private:
 		float m_scale = 1.0f;

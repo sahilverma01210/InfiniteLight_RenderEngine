@@ -7,7 +7,7 @@ namespace Renderer
 		pDrawable{ pDrawable },
 		pStep{ pStep }
 	{}
-	void Job::Execute(D3D12RHI& gfx) const noexcept
+	void Job::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		gfx.SetTransform(pDrawable->GetTransformXM());
 		pDrawable->Bind(gfx, pStep->GetTargetPass());

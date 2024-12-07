@@ -15,15 +15,15 @@ namespace Renderer
 	class Material
 	{
 	public:
-		Material(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path) noexcept;
-		VertexRawBuffer ExtractVertices(const aiMesh& mesh) const noexcept;
-		std::vector<unsigned short> ExtractIndices(const aiMesh& mesh) const noexcept;
-		std::shared_ptr<VertexBuffer> MakeVertexBindable(D3D12RHI& gfx, const aiMesh& mesh, float scale = 1.0f) const noexcept;
-		std::shared_ptr<IndexBuffer> MakeIndexBindable(D3D12RHI& gfx, const aiMesh& mesh) const noexcept;
-		std::unordered_map<std::string, PipelineDescription> GetPipelineDesc() noexcept;
-		std::vector<Technique> GetTechniques() noexcept;
+		Material(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path) noexcept(!IS_DEBUG);
+		VertexRawBuffer ExtractVertices(const aiMesh& mesh) const noexcept(!IS_DEBUG);
+		std::vector<unsigned short> ExtractIndices(const aiMesh& mesh) const noexcept(!IS_DEBUG);
+		std::shared_ptr<VertexBuffer> MakeVertexBindable(D3D12RHI& gfx, const aiMesh& mesh, float scale = 1.0f) const noexcept(!IS_DEBUG);
+		std::shared_ptr<IndexBuffer> MakeIndexBindable(D3D12RHI& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG);
+		std::unordered_map<std::string, PipelineDescription> GetPipelineDesc() noexcept(!IS_DEBUG);
+		std::vector<Technique> GetTechniques() noexcept(!IS_DEBUG);
 	private:
-		std::string MakeMeshTag(const aiMesh& mesh) const noexcept;
+		std::string MakeMeshTag(const aiMesh& mesh) const noexcept(!IS_DEBUG);
 
 	private:
 		VertexLayout vtxLayout;

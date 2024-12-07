@@ -8,7 +8,7 @@ namespace Renderer
 	{
 	public:
 		PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc);
-		void Bind(D3D12RHI& gfx) noexcept override;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 
 	private:
 		ComPtr<ID3D12PipelineState> m_pipelineState;

@@ -11,7 +11,7 @@ namespace Renderer
 	{
 	public:
 		HorizontalBlurPass(std::string name, D3D12RHI& gfx, unsigned int fullWidth, unsigned int fullHeight);
-		void Execute(D3D12RHI& gfx) const noexcept override;
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
 		std::shared_ptr<RenderTarget> blurTarget;

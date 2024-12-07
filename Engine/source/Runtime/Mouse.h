@@ -30,7 +30,7 @@ namespace Runtime
 			};
 
 		public:
-			Event() noexcept
+			Event() noexcept(!IS_DEBUG)
 				:
 				type(Type::Invalid),
 				leftIsPressed(false),
@@ -38,7 +38,7 @@ namespace Runtime
 				x(0),
 				y(0)
 			{}
-			Event(Type type, const Mouse& parent) noexcept
+			Event(Type type, const Mouse& parent) noexcept(!IS_DEBUG)
 				:
 				type(type),
 				leftIsPressed(parent.leftIsPressed),
@@ -46,31 +46,31 @@ namespace Runtime
 				x(parent.x),
 				y(parent.y)
 			{}
-			bool IsValid() const noexcept
+			bool IsValid() const noexcept(!IS_DEBUG)
 			{
 				return type != Type::Invalid;
 			}
-			Type GetType() const noexcept
+			Type GetType() const noexcept(!IS_DEBUG)
 			{
 				return type;
 			}
-			std::pair<int, int> GetPos() const noexcept
+			std::pair<int, int> GetPos() const noexcept(!IS_DEBUG)
 			{
 				return{ x,y };
 			}
-			int GetPosX() const noexcept
+			int GetPosX() const noexcept(!IS_DEBUG)
 			{
 				return x;
 			}
-			int GetPosY() const noexcept
+			int GetPosY() const noexcept(!IS_DEBUG)
 			{
 				return y;
 			}
-			bool LeftIsPressed() const noexcept
+			bool LeftIsPressed() const noexcept(!IS_DEBUG)
 			{
 				return leftIsPressed;
 			}
-			bool RightIsPressed() const noexcept
+			bool RightIsPressed() const noexcept(!IS_DEBUG)
 			{
 				return rightIsPressed;
 			}
@@ -87,36 +87,36 @@ namespace Runtime
 		Mouse() = default;
 		Mouse(const Mouse&) = delete;
 		Mouse& operator=(const Mouse&) = delete;
-		std::pair<int, int> GetPos() const noexcept;
-		std::optional<RawDelta> ReadRawDelta() noexcept;
-		int GetPosX() const noexcept;
-		int GetPosY() const noexcept;
-		bool IsInWindow() const noexcept;
-		bool LeftIsPressed() const noexcept;
-		bool RightIsPressed() const noexcept;
-		Mouse::Event Read() noexcept;
-		bool IsEmpty() const noexcept
+		std::pair<int, int> GetPos() const noexcept(!IS_DEBUG);
+		std::optional<RawDelta> ReadRawDelta() noexcept(!IS_DEBUG);
+		int GetPosX() const noexcept(!IS_DEBUG);
+		int GetPosY() const noexcept(!IS_DEBUG);
+		bool IsInWindow() const noexcept(!IS_DEBUG);
+		bool LeftIsPressed() const noexcept(!IS_DEBUG);
+		bool RightIsPressed() const noexcept(!IS_DEBUG);
+		Mouse::Event Read() noexcept(!IS_DEBUG);
+		bool IsEmpty() const noexcept(!IS_DEBUG)
 		{
 			return buffer.empty();
 		}
-		void Flush() noexcept;
-		void EnableRaw() noexcept;
-		void DisableRaw() noexcept;
-		bool RawEnabled() const noexcept;
+		void Flush() noexcept(!IS_DEBUG);
+		void EnableRaw() noexcept(!IS_DEBUG);
+		void DisableRaw() noexcept(!IS_DEBUG);
+		bool RawEnabled() const noexcept(!IS_DEBUG);
 	private:
-		void OnMouseMove(int x, int y) noexcept;
-		void OnMouseLeave() noexcept;
-		void OnMouseEnter() noexcept;
-		void OnRawDelta(int dx, int dy) noexcept;
-		void OnLeftPressed(int x, int y) noexcept;
-		void OnLeftReleased(int x, int y) noexcept;
-		void OnRightPressed(int x, int y) noexcept;
-		void OnRightReleased(int x, int y) noexcept;
-		void OnWheelUp(int x, int y) noexcept;
-		void OnWheelDown(int x, int y) noexcept;
-		void TrimBuffer() noexcept;
-		void TrimRawInputBuffer() noexcept;
-		void OnWheelDelta(int x, int y, int delta) noexcept;
+		void OnMouseMove(int x, int y) noexcept(!IS_DEBUG);
+		void OnMouseLeave() noexcept(!IS_DEBUG);
+		void OnMouseEnter() noexcept(!IS_DEBUG);
+		void OnRawDelta(int dx, int dy) noexcept(!IS_DEBUG);
+		void OnLeftPressed(int x, int y) noexcept(!IS_DEBUG);
+		void OnLeftReleased(int x, int y) noexcept(!IS_DEBUG);
+		void OnRightPressed(int x, int y) noexcept(!IS_DEBUG);
+		void OnRightReleased(int x, int y) noexcept(!IS_DEBUG);
+		void OnWheelUp(int x, int y) noexcept(!IS_DEBUG);
+		void OnWheelDown(int x, int y) noexcept(!IS_DEBUG);
+		void TrimBuffer() noexcept(!IS_DEBUG);
+		void TrimRawInputBuffer() noexcept(!IS_DEBUG);
+		void OnWheelDelta(int x, int y, int delta) noexcept(!IS_DEBUG);
 
 	private:
 		static constexpr unsigned int bufferSize = 16u;

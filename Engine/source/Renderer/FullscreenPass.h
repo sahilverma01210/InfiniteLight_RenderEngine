@@ -8,8 +8,8 @@ namespace Renderer
 	class FullscreenPass : public BindingPass
 	{
 	public:
-		FullscreenPass(const std::string name, D3D12RHI& gfx) noexcept;
-		void Execute(D3D12RHI& gfx) const noexcept override;
+		FullscreenPass(const std::string name, D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	protected:
 		PipelineDescription pipelineDesc{};

@@ -66,18 +66,15 @@ namespace Renderer
 
 			PipelineDescription pipelineDesc{};
 
-			pipelineDesc.pixelShader = pixelShader;
-			pipelineDesc.vertexShader = vertexShader;
-			pipelineDesc.inputElementDescs = inputElementDescs;
-			pipelineDesc.numElements = vec.size();
-			pipelineDesc.numConstants = 0;
+			pipelineDesc.useTexture = true;
 			pipelineDesc.numConstantBufferViews = 1;
-			pipelineDesc.numSRVDescriptors = 1;
-			pipelineDesc.backFaceCulling = false;
-			pipelineDesc.blending = false;
-			pipelineDesc.depthStencilMode = Mode::DepthFirst;
 			pipelineDesc.numSamplers = 1;
 			pipelineDesc.samplers = samplers;
+			pipelineDesc.depthStencilMode = Mode::DepthFirst;
+			pipelineDesc.numElements = vec.size();
+			pipelineDesc.inputElementDescs = inputElementDescs;
+			pipelineDesc.pixelShader = pixelShader;
+			pipelineDesc.vertexShader = vertexShader;
 
 			AddBind(std::move(std::make_unique<RootSignature>(gfx, pipelineDesc)));
 			AddBind(std::move(std::make_unique<PipelineState>(gfx, pipelineDesc)));
@@ -87,7 +84,7 @@ namespace Renderer
 
 			auto texture = std::make_unique<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox");
 			auto srvBindable = std::make_unique<ShaderResourceView>(gfx, 1, 1);
-			srvBindable->AddResource(gfx, 0, texture->GetBuffer(), true);
+			srvBindable->AddTextureResource(gfx, 0, texture->GetBuffer(), true);
 			AddBind(std::move(texture));
 			AddBind(std::move(srvBindable));
 
@@ -96,11 +93,11 @@ namespace Renderer
 			RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTarget", renderTargetVector));
 			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", depthStencil));
 		}
-		void BindMainCamera(const Camera& cam) noexcept
+		void BindMainCamera(const Camera& cam) noexcept(!IS_DEBUG)
 		{
 			pMainCamera = &cam;
 		}
-		void Execute(D3D12RHI& gfx) const noexcept override
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
 			assert(pMainCamera);
 			auto skyboxDataCopy = skyboxData;

@@ -6,20 +6,20 @@ namespace Renderer
 	{
         m_numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews;
 
-        if (pipelineDesc.numSRVDescriptors > 0) m_numRootParameters++;
+        if (pipelineDesc.useTexture) m_numRootParameters++;
 
         m_rootParameters = new CD3DX12_ROOT_PARAMETER[m_numRootParameters];
 
         for (int i = 0; i < pipelineDesc.numConstants; i++)
-            Init32BitConstant(pipelineDesc.num32BitConstants, i, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+            m_rootParameters[i].InitAsConstants(pipelineDesc.num32BitConstants, i, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Here Shader Register can be different from Root Paramerer Index.
 
         for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++)
-            InitConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_ALL);
+            m_rootParameters[j].InitAsConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_ALL); // Here Shader Register can be different from Root Paramerer Index.
 
-        if (pipelineDesc.numSRVDescriptors > 0)
+        if (pipelineDesc.useTexture)
         {
-            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, pipelineDesc.numSRVDescriptors, 0 };
-            InitDescriptorTable(pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews, 1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
+            const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, UINT_MAX , 0 };
+            m_rootParameters[pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews].InitAsDescriptorTable(1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
         }
 
         // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
@@ -50,29 +50,12 @@ namespace Renderer
         pipelineDesc.rootSignature = m_rootSignature.Get();
 	}
 
-    void RootSignature::Init32BitConstant(UINT num32BitValues, UINT rootParameterIndex, UINT registerSpace, D3D12_SHADER_VISIBILITY visibilityFlag)
-    {
-        // Here Register Index is same as Root Parameter Index.
-        m_rootParameters[rootParameterIndex].InitAsConstants(num32BitValues, rootParameterIndex, registerSpace, visibilityFlag);
-    }
-
-    void RootSignature::InitConstantBufferView(UINT rootParameterIndex, UINT registerSpace, D3D12_SHADER_VISIBILITY visibilityFlag)
-    {
-        // Here Register Index is same as Root Parameter Index.
-        m_rootParameters[rootParameterIndex].InitAsConstantBufferView(rootParameterIndex, registerSpace, visibilityFlag);
-    }
-
-    void RootSignature::InitDescriptorTable(UINT rootParameterIndex, UINT numDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY visibilityFlag)
-    {
-        m_rootParameters[rootParameterIndex].InitAsDescriptorTable(numDescriptorRanges, pDescriptorRanges, visibilityFlag);
-    }
-
     ID3D12RootSignature* RootSignature::GetRootSignature()
     {
         return m_rootSignature.Get();
     }
 
-	void RootSignature::Bind(D3D12RHI& gfx) noexcept
+	void RootSignature::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
         GetCommandList(gfx)->SetGraphicsRootSignature(m_rootSignature.Get());
 	}

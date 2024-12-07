@@ -1,5 +1,4 @@
 #include "D3D12RHI.h"
-#include "D3D12RHIThrowMacros.h"
 #include "DepthStencil.h"
 #include "RenderTarget.h"
 
@@ -203,7 +202,7 @@ namespace Renderer
         m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists);
     }
 
-    void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept
+    void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept(!IS_DEBUG)
     {
         auto resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState);
         m_commandList->ResourceBarrier(1, &resourceBarrier);
@@ -357,127 +356,6 @@ namespace Renderer
     ID3D12Resource* D3D12RHI::GetDepthBuffer()
     {
         return m_currentDepthBuffer;
-    }
-
-    // PUBLIC - D3D12 EXCEPTION CLASS METHODS
-
-    std::string D3D12RHI::Exception::TranslateErrorCode(HRESULT hr) noexcept
-    {
-        char* pMsgBuf = nullptr;
-
-        // windows will allocate memory for err string and make our pointer point to it
-        DWORD nMsgLen = FormatMessageA(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr
-        );
-        // 0 string length returned indicates a failure
-        if (nMsgLen == 0)
-        {
-            return "Unidentified error code";
-        }
-        // copy error string from windows-allocated buffer to std::string
-        std::string errorString = pMsgBuf;
-        // free windows buffer
-        LocalFree(pMsgBuf);
-        return errorString;
-    }
-
-    D3D12RHI::HrException::HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs) noexcept
-        :
-        Exception(line, file),
-        hr(hr)
-    {
-        // join all info messages with newlines into single string
-        for (const auto& m : infoMsgs)
-        {
-            info += m;
-            info.push_back('\n');
-        }
-        // remove final newline if exists
-        if (!info.empty())
-        {
-            info.pop_back();
-        }
-    }
-
-    const char* D3D12RHI::HrException::what() const noexcept
-    {
-        std::ostringstream oss;
-        oss << GetType() << std::endl
-            << "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode()
-            << std::dec << " (" << (unsigned long)GetErrorCode() << ")" << std::endl
-            << "[Description] " << GetErrorDescription() << std::endl;
-        if (!info.empty())
-        {
-            oss << "\n[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
-        }
-        oss << GetOriginString();
-        whatBuffer = oss.str();
-        return whatBuffer.c_str();
-    }
-
-    const char* D3D12RHI::HrException::GetType() const noexcept
-    {
-        return "IL D3D12 Exception";
-    }
-
-    HRESULT D3D12RHI::HrException::GetErrorCode() const noexcept
-    {
-        return hr;
-    }
-
-    std::string D3D12RHI::HrException::GetErrorDescription() const noexcept
-    {
-        return TranslateErrorCode(hr);
-    }
-
-    std::string D3D12RHI::HrException::GetErrorInfo() const noexcept
-    {
-        return info;
-    }
-
-    D3D12RHI::InfoException::InfoException(int line, const char* file, std::vector<std::string> infoMsgs) noexcept
-        :
-        Exception(line, file)
-    {
-        // join all info messages with newlines into single string
-        for (const auto& m : infoMsgs)
-        {
-            info += m;
-            info.push_back('\n');
-        }
-        // remove final newline if exists
-        if (!info.empty())
-        {
-            info.pop_back();
-        }
-    }
-
-    const char* D3D12RHI::InfoException::what() const noexcept
-    {
-        std::ostringstream oss;
-        oss << GetType() << std::endl
-            << "\n[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
-        oss << GetOriginString();
-        whatBuffer = oss.str();
-        return whatBuffer.c_str();
-    }
-
-    const char* D3D12RHI::InfoException::GetType() const noexcept
-    {
-        return "Chili Graphics Info Exception";
-    }
-
-    std::string D3D12RHI::InfoException::GetErrorInfo() const noexcept
-    {
-        return info;
-    }
-
-    const char* D3D12RHI::DeviceRemovedException::GetType() const noexcept
-    {
-        return "IL D3D12 Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
     }
 
     // PRIVATE - HELPER D3D12RHI METHODS

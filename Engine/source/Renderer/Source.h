@@ -1,7 +1,7 @@
 #pragma once
 #include "../_External/common.h"
 
-#include "RenderGraphCompileException.h"
+#include "RenderGraphException.h"
 
 namespace Renderer
 {
@@ -12,7 +12,7 @@ namespace Renderer
 	{
 	public:
 		virtual ~Source() = default;
-		const std::string& GetName() const noexcept;
+		const std::string& GetName() const noexcept(!IS_DEBUG);
 		virtual void PostLinkValidate() const = 0;
 		virtual std::shared_ptr<Bindable> YieldBindable();
 		virtual std::shared_ptr<BufferResource> YieldBuffer();

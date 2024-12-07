@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	FullscreenPass::FullscreenPass(const std::string name, D3D12RHI& gfx) noexcept
+	FullscreenPass::FullscreenPass(const std::string name, D3D12RHI& gfx) noexcept(!IS_DEBUG)
 		:
 	BindingPass(std::move(name))
 	{
@@ -32,18 +32,17 @@ namespace Renderer
 		
 			// Compile Shaders.
 			D3DCompileFromFile(gfx.GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-		
-			pipelineDesc.vertexShader = vertexShader;
-			pipelineDesc.inputElementDescs = inputElementDescs;
-			pipelineDesc.numElements = vec.size();
-			pipelineDesc.numConstants = 0;
+
+			pipelineDesc.useTexture = true;
 			pipelineDesc.numConstantBufferViews = 2;
-			pipelineDesc.numSRVDescriptors = 1;
 			pipelineDesc.backFaceCulling = true;
+			pipelineDesc.numElements = vec.size();
+			pipelineDesc.inputElementDescs = inputElementDescs;
+			pipelineDesc.vertexShader = vertexShader;
 		}
 	}
 
-	void FullscreenPass::Execute(D3D12RHI& gfx) const noexcept
+	void FullscreenPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		BindAll(gfx);
 		gfx.DrawIndexed(6u);

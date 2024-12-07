@@ -1,11 +1,8 @@
 #pragma once
 #include "../_External/dx12/directX12.h"
-#include "../Common/ILException.h"
 
 #include "RHI.h"
-#include "DxgiInfoManager.h"
-
-using namespace Common;
+#include "D3D12RHIException.h"
 
 namespace Renderer
 {
@@ -30,70 +27,31 @@ namespace Renderer
 
     struct PipelineDescription
     {
-        UINT numElements = 0;
+        // Root Signature
+        bool useTexture = false;
         UINT numConstants = 0;
         UINT num32BitConstants = 0;
         UINT numConstantBufferViews = 0;
-        UINT numSRVDescriptors = 0;
         UINT numSamplers = 0;
-        bool backFaceCulling = false;
+        CD3DX12_STATIC_SAMPLER_DESC* samplers = nullptr;
+
+        // Pipeline State
         bool blending = false;
+        bool backFaceCulling = false;
         bool shadowMapping = false;
         Mode depthStencilMode = {};
-        DepthUsage depthUsage = {};
-        ID3DBlob* vertexShader = nullptr;
-        ID3DBlob* pixelShader = nullptr;
+        UINT numElements = 0;
         D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
         ID3D12RootSignature* rootSignature = nullptr;
-        CD3DX12_STATIC_SAMPLER_DESC* samplers = nullptr;
+        ID3DBlob* vertexShader = nullptr;
+        ID3DBlob* pixelShader = nullptr;
+        DepthUsage depthUsage = {};
     };
 
     class D3D12RHI : public RHI
     {
         friend class GraphicsResource;
         friend class UIManager;
-
-    public:
-        class Exception : public ILException
-        {
-            using ILException::ILException;
-        public:
-            static std::string TranslateErrorCode(HRESULT hr) noexcept;
-        };
-        class HrException : public Exception
-        {
-        public:
-            HrException(int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs = {}) noexcept;
-            const char* what() const noexcept override;
-            const char* GetType() const noexcept override;
-            HRESULT GetErrorCode() const noexcept;
-            std::string GetErrorDescription() const noexcept;
-            std::string GetErrorInfo() const noexcept;
-
-        private:
-            HRESULT hr;
-            std::string info;
-        };
-        class InfoException : public Exception
-        {
-        public:
-            InfoException(int line, const char* file, std::vector<std::string> infoMsgs) noexcept;
-            const char* what() const noexcept override;
-            const char* GetType() const noexcept override;
-            std::string GetErrorInfo() const noexcept;
-
-        private:
-            std::string info;
-        };
-        class DeviceRemovedException : public HrException
-        {
-            using HrException::HrException;
-        public:
-            const char* GetType() const noexcept override;
-
-        private:
-            std::string reason;
-        };
 
     public:
         // D3D12RHI METHODS
@@ -104,7 +62,7 @@ namespace Renderer
         UINT GetCurrentBackBufferIndex();
         void ResetCommandList();
         void ExecuteCommandList();
-        void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept;
+        void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState) const noexcept(!IS_DEBUG);
         std::wstring GetAssetFullPath(LPCWSTR assetName);
         void OnDestroy();
         void Info(HRESULT hresult);

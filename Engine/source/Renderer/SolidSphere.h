@@ -3,7 +3,7 @@
 
 #include "Drawable.h"
 #include "CommonBindables.h"
-#include "CommonShapes.h"
+#include "Sphere.h"
 #include "DynamicConstant.h"
 #include "Channels.h"
 
@@ -13,9 +13,9 @@ namespace Renderer
 	{
 	public:
 		SolidSphere(D3D12RHI& gfx, float radius);
-		void SetPos(XMFLOAT3 pos) noexcept;
-		XMMATRIX GetTransformXM() const noexcept override;
-		PipelineDescription GetPipelineDesc() noexcept;
+		void SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG);
+		XMMATRIX GetTransformXM() const noexcept(!IS_DEBUG) override;
+		PipelineDescription GetPipelineDesc() noexcept(!IS_DEBUG);
 
 	private:
 		XMFLOAT3 pos = { 1.0f,1.0f,1.0f };

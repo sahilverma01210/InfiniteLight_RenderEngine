@@ -5,7 +5,7 @@ namespace Renderer
 	std::shared_ptr<Bindable> Drawable::lightBindable;
 	std::shared_ptr<Bindable> Drawable::lightShadowBindable;
 
-	void Drawable::Submit(size_t channels) const noexcept
+	void Drawable::Submit(size_t channels) const noexcept(!IS_DEBUG)
 	{
 		for (const auto& tech : techniques)
 		{
@@ -13,7 +13,7 @@ namespace Renderer
 		}
 	}
 
-	Drawable::Drawable(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale) noexcept
+	Drawable::Drawable(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
 	{
 		topologyBindable = Topology::Resolve(gfx);
 		vertexBufferBindable = mat.MakeVertexBindable(gfx, mesh, scale);
@@ -33,13 +33,13 @@ namespace Renderer
 		}
 	}
 
-	void Drawable::AddTechnique(Technique tech_in) noexcept
+	void Drawable::AddTechnique(Technique tech_in) noexcept(!IS_DEBUG)
 	{
 		tech_in.InitializeParentReferences(*this);
 		techniques.push_back(std::move(tech_in));
 	}
 
-	void Drawable::Bind(D3D12RHI& gfx, std::string targetPass) const noexcept
+	void Drawable::Bind(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
 		topologyBindable->Bind(gfx);
 		vertexBufferBindable->Bind(gfx);
@@ -48,7 +48,7 @@ namespace Renderer
 		psoBindables.at(targetPass)->Bind(gfx);
 	}
 
-	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept
+	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		if (enableLighting)
 		{
@@ -73,7 +73,7 @@ namespace Renderer
 		}
 	}
 
-	UINT Drawable::GetIndexCount() const noexcept
+	UINT Drawable::GetIndexCount() const noexcept(!IS_DEBUG)
 	{
 		return m_numIndices;
 	}

@@ -10,10 +10,10 @@ namespace Renderer
 	public:
 		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData);
 		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, Buffer dataBuffer);
-		void Update(D3D12RHI& gfx, const void* pData) noexcept override;
-		void Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept override;
-		void Bind(D3D12RHI& gfx) noexcept override;
-		Buffer GetBuffer() const noexcept;
+		void Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG) override;
+		void Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept(!IS_DEBUG) override;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
+		Buffer GetBuffer() const noexcept(!IS_DEBUG);
 		void SetBuffer(const Buffer& buf_in);
 		void Accept(TechniqueProbe& probe) override;
 		std::shared_ptr<ConstantBuffer> Resolve(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData)
@@ -26,7 +26,7 @@ namespace Renderer
 			using namespace std::string_literals;
 			return typeid(ConstantBuffer).name() + "#"s + std::to_string(rootParameterIndex);
 		}
-		std::string GetUID() const noexcept override
+		std::string GetUID() const noexcept(!IS_DEBUG) override
 		{
 			return GenerateUID(m_rootParameterIndex);
 		}

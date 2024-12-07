@@ -58,7 +58,7 @@ namespace Renderer
         m_dataBuffer.emplace(dataBuffer);
     }
 
-    void ConstantBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
+    void ConstantBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG)
     {
         // Copy the data to the buffer.
         UINT8* pConstantDataBegin;
@@ -76,12 +76,12 @@ namespace Renderer
         InsertFence(gfx);
     }
 
-    void ConstantBuffer::Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept
+    void ConstantBuffer::Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept(!IS_DEBUG)
     {
         Update(gfx, dataBuffer.GetData());
     }
 
-	void ConstantBuffer::Bind(D3D12RHI& gfx) noexcept
+	void ConstantBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
         if (dirty)
         {
@@ -89,10 +89,11 @@ namespace Renderer
             dirty = false;
         }
 
+        // Using Root Parameter Index to bind this buffer to Root Parameter having correct Shader Register which is used in HLSL.
         GetCommandList(gfx)->SetGraphicsRootConstantBufferView(m_rootParameterIndex, m_constantBuffer->GetGPUVirtualAddress());
 	}
 
-    Buffer ConstantBuffer::GetBuffer() const noexcept
+    Buffer ConstantBuffer::GetBuffer() const noexcept(!IS_DEBUG)
     {
         return m_dataBuffer.value();
     }

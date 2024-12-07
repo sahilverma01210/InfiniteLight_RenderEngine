@@ -44,7 +44,7 @@ namespace Renderer
 		globalSinks.push_back(std::move(in));
 	}
 
-	void RenderGraph::Execute(D3D12RHI& gfx) noexcept
+	void RenderGraph::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		assert(finalized);
 		for (auto& p : passes)
@@ -53,7 +53,7 @@ namespace Renderer
 		}
 	}
 
-	void RenderGraph::Reset() noexcept
+	void RenderGraph::Reset() noexcept(!IS_DEBUG)
 	{
 		assert(finalized);
 		for (auto& p : passes)

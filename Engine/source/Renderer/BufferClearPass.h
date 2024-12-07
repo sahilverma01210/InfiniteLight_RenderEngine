@@ -11,7 +11,7 @@ namespace Renderer
 	{
 	public:
 		BufferClearPass(std::string name);
-		void Execute(D3D12RHI& gfx) const noexcept override;
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
 		std::shared_ptr<BufferResource> buffer;
@@ -21,7 +21,7 @@ namespace Renderer
 	{
 	public:
 		BufferBucketClearPass(std::string name);
-		void Execute(D3D12RHI& gfx) const noexcept override;
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
 		std::vector<std::shared_ptr<BufferResource>> bufferVector;

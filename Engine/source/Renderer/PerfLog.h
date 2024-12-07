@@ -2,7 +2,7 @@
 #include "../_External/common.h"
 #include "../Common/ILTimer.h"
 
-using namespace Common;
+
 
 namespace Renderer
 {
@@ -16,7 +16,7 @@ namespace Renderer
 				label(std::move(s)),
 				time(t)
 			{}
-			void WriteTo(std::ostream& out) const noexcept
+			void WriteTo(std::ostream& out) const noexcept(!IS_DEBUG)
 			{
 				using namespace std::string_literals;
 				if (label.empty())
@@ -33,7 +33,7 @@ namespace Renderer
 		};
 
 	private:
-		PerfLog() noexcept
+		PerfLog() noexcept(!IS_DEBUG)
 		{
 			entries.reserve(3000);
 		}
@@ -41,17 +41,17 @@ namespace Renderer
 		{
 			Flush_();
 		}
-		static PerfLog& Get_() noexcept
+		static PerfLog& Get_() noexcept(!IS_DEBUG)
 		{
 			static PerfLog log;
 			return log;
 		}
-		void Start_(const std::string& label = "") noexcept
+		void Start_(const std::string& label = "") noexcept(!IS_DEBUG)
 		{
 			entries.emplace_back(label, 0.0f);
 			timer.Mark();
 		}
-		void Mark_(const std::string& label = "") noexcept
+		void Mark_(const std::string& label = "") noexcept(!IS_DEBUG)
 		{
 			float t = timer.Peek();
 			entries.emplace_back(label, t);
@@ -66,11 +66,11 @@ namespace Renderer
 			}
 		}
 	public:
-		static void Start(const std::string& label = "") noexcept
+		static void Start(const std::string& label = "") noexcept(!IS_DEBUG)
 		{
 			Get_().Start_(label);
 		}
-		static void Mark(const std::string& label = "") noexcept
+		static void Mark(const std::string& label = "") noexcept(!IS_DEBUG)
 		{
 			Get_().Mark_(label);
 		}

@@ -4,12 +4,12 @@ using namespace std::chrono;
 
 namespace Runtime
 {
-	Timer::Timer() noexcept
+	Timer::Timer() noexcept(!IS_DEBUG)
 	{
 		last = steady_clock::now();
 	}
 
-	float Timer::Mark() noexcept
+	float Timer::Mark() noexcept(!IS_DEBUG)
 	{
 		const auto old = last;
 		last = steady_clock::now();
@@ -17,7 +17,7 @@ namespace Runtime
 		return frameTime.count();
 	}
 
-	float Timer::Peek() const noexcept
+	float Timer::Peek() const noexcept(!IS_DEBUG)
 	{
 		return duration<float>(steady_clock::now() - last).count();
 	}

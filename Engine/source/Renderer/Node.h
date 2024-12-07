@@ -29,12 +29,12 @@ namespace Renderer
 		};
 
 	public:
-		Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const XMMATRIX& transform) noexcept;
-		void Submit(size_t channels, FXMMATRIX accumulatedTransform) const noexcept;
-		void SetAppliedTransform(FXMMATRIX transform) noexcept;
-		const XMFLOAT4X4& GetAppliedTransform() const noexcept;
-		int GetId() const noexcept;
-		bool HasChildren() const noexcept
+		Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const XMMATRIX& transform) noexcept(!IS_DEBUG);
+		void Submit(size_t channels, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
+		void SetAppliedTransform(FXMMATRIX transform) noexcept(!IS_DEBUG);
+		const XMFLOAT4X4& GetAppliedTransform() const noexcept(!IS_DEBUG);
+		int GetId() const noexcept(!IS_DEBUG);
+		bool HasChildren() const noexcept(!IS_DEBUG)
 		{
 			return childPtrs.size() > 0;
 		}
@@ -45,7 +45,7 @@ namespace Renderer
 			return name;
 		}
 	private:
-		void AddChild(std::unique_ptr<Node> pChild) noexcept;
+		void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);
 
 	private:
 		std::string name;

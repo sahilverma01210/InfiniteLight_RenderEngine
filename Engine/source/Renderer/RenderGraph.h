@@ -3,7 +3,7 @@
 #include "DepthStencil.h"
 #include "RenderTarget.h"
 #include "CommonBindables.h"
-#include "RenderGraphCompileException.h"
+#include "RenderGraphException.h"
 #include "RenderQueuePass.h"
 #include "Sink.h"
 #include "Source.h"
@@ -15,8 +15,8 @@ namespace Renderer
 	public:
 		RenderGraph(D3D12RHI& gfx);
 		~RenderGraph();
-		void Execute(D3D12RHI& gfx) noexcept;
-		void Reset() noexcept;
+		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		void Reset() noexcept(!IS_DEBUG);
 		RenderQueuePass& GetRenderQueue(const std::string& passName);
 		void StoreDepth(D3D12RHI& gfx, const std::string& path);
 	protected:

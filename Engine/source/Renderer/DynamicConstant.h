@@ -124,7 +124,7 @@ namespace Renderer
 		// element of a layout tree, generates a uniquely-identifying string for the layout
 		std::string GetSignature() const ;
 		// Check if element is "real"
-		bool Exists() const noexcept;
+		bool Exists() const noexcept(!IS_DEBUG);
 		// calculate array indexing offset
 		std::pair<size_t, const LayoutElement*> CalculateIndexingOffset(size_t offset, size_t index) const ;
 		// [] only works for Structs; access member (child node in tree) by name
@@ -169,7 +169,7 @@ namespace Renderer
 		}
 	private:
 		// construct an empty layout element
-		LayoutElement() noexcept = default;
+		LayoutElement() noexcept(!IS_DEBUG) = default;
 		LayoutElement(Type typeIn) ;
 		// sets all offsets for element and subelements, prepending padding when necessary
 		// returns offset directly after this element
@@ -181,19 +181,19 @@ namespace Renderer
 		size_t FinalizeForStruct(size_t offsetIn);
 		size_t FinalizeForArray(size_t offsetIn);
 		// returns singleton instance of empty layout element
-		static LayoutElement& GetEmptyElement() noexcept
+		static LayoutElement& GetEmptyElement() noexcept(!IS_DEBUG)
 		{
 			static LayoutElement empty{};
 			return empty;
 		}
 		// returns the value of offset bumped up to the next 16-byte boundary (if not already on one)
-		static size_t AdvanceToBoundary(size_t offset) noexcept;
+		static size_t AdvanceToBoundary(size_t offset) noexcept(!IS_DEBUG);
 		// return true if a memory block crosses a boundary
-		static bool CrossesBoundary(size_t offset, size_t size) noexcept;
+		static bool CrossesBoundary(size_t offset, size_t size) noexcept(!IS_DEBUG);
 		// advance an offset to next boundary if block crosses a boundary
-		static size_t AdvanceIfCrossesBoundary(size_t offset, size_t size) noexcept;
+		static size_t AdvanceIfCrossesBoundary(size_t offset, size_t size) noexcept(!IS_DEBUG);
 		// check string for validity as a struct key
-		static bool ValidateSymbolName(const std::string& name) noexcept;
+		static bool ValidateSymbolName(const std::string& name) noexcept(!IS_DEBUG);
 
 	private:
 		// each element stores its own offset. this makes lookup to find its position in the byte buffer
@@ -217,10 +217,10 @@ namespace Renderer
 		friend class Buffer;
 
 	public:
-		size_t GetSizeInBytes() const noexcept;
+		size_t GetSizeInBytes() const noexcept(!IS_DEBUG);
 		std::string GetSignature() const ;
 	protected:
-		Layout(std::shared_ptr<LayoutElement> pRoot) noexcept;
+		Layout(std::shared_ptr<LayoutElement> pRoot) noexcept(!IS_DEBUG);
 
 	protected:
 		std::shared_ptr<LayoutElement> pRoot;
@@ -233,7 +233,7 @@ namespace Renderer
 		friend class LayoutCodex;
 
 	public:
-		RawLayout() noexcept;
+		RawLayout() noexcept(!IS_DEBUG);
 		// key into the root Struct
 		LayoutElement& operator[](const std::string& key) ;
 		// add an element to the root Struct
@@ -244,9 +244,9 @@ namespace Renderer
 		}
 	private:
 		// reset this object with an empty struct at its root
-		void ClearRoot() noexcept;
+		void ClearRoot() noexcept(!IS_DEBUG);
 		// finalize the layout and then relinquish (by yielding the root layout element)
-		std::shared_ptr<LayoutElement> DeliverRoot() noexcept;
+		std::shared_ptr<LayoutElement> DeliverRoot() noexcept(!IS_DEBUG);
 	};
 
 	// CookedLayout represend a completed and registered Layout shell object
@@ -260,12 +260,12 @@ namespace Renderer
 		// key into the root Struct (const to disable mutation of the layout)
 		const LayoutElement& operator[](const std::string& key) const ;
 		// get a share on layout tree root
-		std::shared_ptr<LayoutElement> ShareRoot() const noexcept;
+		std::shared_ptr<LayoutElement> ShareRoot() const noexcept(!IS_DEBUG);
 	private:
 		// this ctor used by Codex to return cooked layouts
-		CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept;
+		CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept(!IS_DEBUG);
 		// use to pilfer the layout tree
-		std::shared_ptr<LayoutElement> RelinquishRoot() const noexcept;
+		std::shared_ptr<LayoutElement> RelinquishRoot() const noexcept(!IS_DEBUG);
 	};
 
 	// proxy type that is emitted when keying/indexing into a Buffer
@@ -294,7 +294,7 @@ namespace Renderer
 				return &static_cast<const T&>(*ref);
 			}
 		private:
-			Ptr(const ConstElementRef* ref) noexcept;
+			Ptr(const ConstElementRef* ref) noexcept(!IS_DEBUG);
 
 		private:
 			const ConstElementRef* ref;
@@ -305,7 +305,7 @@ namespace Renderer
 		// this is possible because if you key into a Struct with a nonexistent key
 		// it will still return an Empty LayoutElement that will enable this test
 		// but will not enable any other kind of access
-		bool Exists() const noexcept;
+		bool Exists() const noexcept(!IS_DEBUG);
 		// key into the current element as a struct
 		ConstElementRef operator[](const std::string& key) const ;
 		// index into the current element as an array
@@ -321,7 +321,7 @@ namespace Renderer
 		}
 	private:
 		// refs should only be constructable by other refs or by the buffer
-		ConstElementRef(const LayoutElement* pLayout, const char* pBytes, size_t offset) noexcept;
+		ConstElementRef(const LayoutElement* pLayout, const char* pBytes, size_t offset) noexcept(!IS_DEBUG);
 
 	private:
 		// this offset is the offset that is built up by indexing into arrays
@@ -351,15 +351,15 @@ namespace Renderer
 				return &static_cast<T&>(*ref);
 			}
 		private:
-			Ptr(ElementRef* ref) noexcept;
+			Ptr(ElementRef* ref) noexcept(!IS_DEBUG);
 
 		private:
 			ElementRef* ref;
 		};
 
 	public:
-		operator ConstElementRef() const noexcept;
-		bool Exists() const noexcept;
+		operator ConstElementRef() const noexcept(!IS_DEBUG);
+		bool Exists() const noexcept(!IS_DEBUG);
 		ElementRef operator[](const std::string& key) const ;
 		ElementRef operator[](size_t index) const ;
 		// optionally set value if not an empty Ref
@@ -390,7 +390,7 @@ namespace Renderer
 		}
 	private:
 		// refs should only be constructable by other refs or by the buffer
-		ElementRef(const LayoutElement* pLayout, char* pBytes, size_t offset) noexcept;
+		ElementRef(const LayoutElement* pLayout, char* pBytes, size_t offset) noexcept(!IS_DEBUG);
 
 	private:
 		size_t offset;
@@ -410,23 +410,23 @@ namespace Renderer
 		Buffer(RawLayout&& lay) ;
 		Buffer(const CookedLayout& lay) ;
 		Buffer(CookedLayout&& lay) ;
-		Buffer(const Buffer&) noexcept;
+		Buffer(const Buffer&) noexcept(!IS_DEBUG);
 		// have to be careful with this one...
 		// the buffer that has once been pilfered must not be used :x
-		Buffer(Buffer&&) noexcept;
+		Buffer(Buffer&&) noexcept(!IS_DEBUG);
 		// how you begin indexing into buffer (root is always Struct)
 		ElementRef operator[](const std::string& key) ;
 		// if Buffer is const, you only get to index into the buffer with a read-only proxy
 		ConstElementRef operator[](const std::string& key) const ;
 		// get the raw bytes
-		const char* GetData() const noexcept;
+		const char* GetData() const noexcept(!IS_DEBUG);
 		// size of the raw byte buffer
-		size_t GetSizeInBytes() const noexcept;
-		const LayoutElement& GetRootLayoutElement() const noexcept;
+		size_t GetSizeInBytes() const noexcept(!IS_DEBUG);
+		const LayoutElement& GetRootLayoutElement() const noexcept(!IS_DEBUG);
 		// copy bytes from another buffer (layouts must match)
 		void CopyFrom(const Buffer&) ;
 		// return another sptr to the layout root
-		std::shared_ptr<LayoutElement> ShareLayoutRoot() const noexcept;
+		std::shared_ptr<LayoutElement> ShareLayoutRoot() const noexcept(!IS_DEBUG);
 
 	private:
 		std::shared_ptr<LayoutElement> pLayoutRoot;

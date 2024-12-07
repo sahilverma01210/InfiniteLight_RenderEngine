@@ -98,7 +98,7 @@ namespace Renderer
         return m_texureBuffer.Get();
     }
 
-    bool TextureBuffer::HasAlpha() const noexcept
+    bool TextureBuffer::HasAlpha() const noexcept(!IS_DEBUG)
     {
         return hasAlpha;
     }
@@ -146,7 +146,7 @@ namespace Renderer
         return typeid(TextureBuffer).name() + "#"s + stringFileName;
     }
 
-    std::string TextureBuffer::GetUID() const noexcept
+    std::string TextureBuffer::GetUID() const noexcept(!IS_DEBUG)
     {
         return GenerateUID(m_filename);
     }
@@ -255,7 +255,7 @@ namespace Renderer
         return typeid(CubeMapTextureBuffer).name() + "#"s + stringFileName;
     }
 
-    std::string CubeMapTextureBuffer::GetUID() const noexcept
+    std::string CubeMapTextureBuffer::GetUID() const noexcept(!IS_DEBUG)
     {
         return GenerateUID(m_foldername);
     }

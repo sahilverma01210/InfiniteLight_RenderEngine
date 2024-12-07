@@ -13,9 +13,9 @@ namespace Runtime
 	class Timer
 	{
 	public:
-		Timer() noexcept;
-		float Mark() noexcept;
-		float Peek() const noexcept;
+		Timer() noexcept(!IS_DEBUG);
+		float Mark() noexcept(!IS_DEBUG);
+		float Peek() const noexcept(!IS_DEBUG);
 
 	private:
 		std::chrono::steady_clock::time_point last;

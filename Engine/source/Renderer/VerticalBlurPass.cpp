@@ -25,11 +25,11 @@ namespace Renderer
 
 		samplers[0] = staticSampler;
 
-		pipelineDesc.pixelShader = pixelShader;
-		pipelineDesc.blending = true;
-		pipelineDesc.depthStencilMode = Mode::Mask;
 		pipelineDesc.numSamplers = 1;
 		pipelineDesc.samplers = samplers;
+		pipelineDesc.blending = true;
+		pipelineDesc.depthStencilMode = Mode::Mask;
+		pipelineDesc.pixelShader = pixelShader;
 
 		rootSignBindable = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 		psoBindable = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -48,7 +48,7 @@ namespace Renderer
 	}
 
 	// see the note on HorizontalBlurPass::Execute
-	void VerticalBlurPass::Execute(D3D12RHI& gfx) const noexcept
+	void VerticalBlurPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		auto buf = direction->GetBuffer();
 		buf["isHorizontal"] = false;
@@ -58,7 +58,7 @@ namespace Renderer
 		psoBindable->Bind(gfx);
 
 		gfx.TransitionResource(blurTarget->GetBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		srvBindable->AddResource(gfx, 0, blurTarget->GetBuffer());
+		srvBindable->AddTextureResource(gfx, 0, blurTarget->GetBuffer());
 		srvBindable->Bind(gfx);
 
 		direction->Bind(gfx);

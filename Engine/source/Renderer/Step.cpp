@@ -11,7 +11,7 @@ namespace Renderer
 		pTargetPass->Accept(Job{ this,&drawable });
 	}
 
-	void Step::InitializeParentReferences(const Drawable& parent) noexcept
+	void Step::InitializeParentReferences(const Drawable& parent) noexcept(!IS_DEBUG)
 	{
 		for (auto& b : bindables)
 		{
@@ -23,16 +23,16 @@ namespace Renderer
 		:
 		targetPassName{ std::move(targetPassName) }
 	{}
-	Step::Step(const Step& src) noexcept
+	Step::Step(const Step& src) noexcept(!IS_DEBUG)
 		:
 		targetPassName(src.targetPassName)
 	{
 		bindables.reserve(src.bindables.size());
 		for (auto& pb : src.bindables)
 		{
-			if (auto* pCloning = dynamic_cast<const CloningBindable*>(pb.get()))
+			if (auto* pCloning = dynamic_cast<const TransformBuffer*>(pb.get()))
 			{
-				bindables.push_back(pCloning->Clone());
+				bindables.push_back(std::make_unique<TransformBuffer>(*pCloning));
 			}
 			else
 			{
@@ -40,11 +40,11 @@ namespace Renderer
 			}
 		}
 	}
-	void Step::AddBindable(std::shared_ptr<Bindable> bind_in) noexcept
+	void Step::AddBindable(std::shared_ptr<Bindable> bind_in) noexcept(!IS_DEBUG)
 	{
 		bindables.push_back(std::move(bind_in));
 	}
-	void Step::Bind(D3D12RHI& gfx) const noexcept
+	void Step::Bind(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		for (const auto& b : bindables)
 		{
@@ -59,7 +59,7 @@ namespace Renderer
 			pb->Accept(probe);
 		}
 	}
-	std::vector<std::shared_ptr<Bindable>> Step::GetBindables() noexcept
+	std::vector<std::shared_ptr<Bindable>> Step::GetBindables() noexcept(!IS_DEBUG)
 	{
 		return bindables;
 	}

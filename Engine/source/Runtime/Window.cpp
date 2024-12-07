@@ -7,7 +7,7 @@ namespace Runtime
 {
 	Window::WindowClass Window::WindowClass::wndClass;
 
-	Window::WindowClass::WindowClass() noexcept
+	Window::WindowClass::WindowClass() noexcept(!IS_DEBUG)
 		:
 		hInst(GetModuleHandle(nullptr))
 	{
@@ -34,12 +34,12 @@ namespace Runtime
 		UnregisterClass(wndClassName, GetInstance());
 	}
 
-	const WCHAR* Window::WindowClass::GetName() noexcept
+	const WCHAR* Window::WindowClass::GetName() noexcept(!IS_DEBUG)
 	{
 		return wndClassName;
 	}
 
-	HINSTANCE Window::WindowClass::GetInstance() noexcept
+	HINSTANCE Window::WindowClass::GetInstance() noexcept(!IS_DEBUG)
 	{
 		return wndClass.hInst;
 	}
@@ -210,7 +210,7 @@ namespace Runtime
 		graphics->EndFrame();
 	}
 
-	void Window::EnableCursor() noexcept
+	void Window::EnableCursor() noexcept(!IS_DEBUG)
 	{
 		cursorEnabled = true;
 		ShowCursor();
@@ -218,7 +218,7 @@ namespace Runtime
 		FreeCursor();
 	}
 
-	void Window::DisableCursor() noexcept
+	void Window::DisableCursor() noexcept(!IS_DEBUG)
 	{
 		cursorEnabled = false;
 		HideCursor();
@@ -226,12 +226,12 @@ namespace Runtime
 		ConfineCursor();
 	}
 
-	bool Window::CursorEnabled() const noexcept
+	bool Window::CursorEnabled() const noexcept(!IS_DEBUG)
 	{
 		return cursorEnabled;
 	}
 
-	void Window::ConfineCursor() noexcept
+	void Window::ConfineCursor() noexcept(!IS_DEBUG)
 	{
 		RECT rect;
 		GetClientRect(hWnd, &rect);
@@ -239,32 +239,32 @@ namespace Runtime
 		ClipCursor(&rect);
 	}
 
-	void Window::FreeCursor() noexcept
+	void Window::FreeCursor() noexcept(!IS_DEBUG)
 	{
 		ClipCursor(nullptr);
 	}
 
-	void Window::HideCursor() noexcept
+	void Window::HideCursor() noexcept(!IS_DEBUG)
 	{
 		while (::ShowCursor(FALSE) >= 0);
 	}
 
-	void Window::ShowCursor() noexcept
+	void Window::ShowCursor() noexcept(!IS_DEBUG)
 	{
 		while (::ShowCursor(TRUE) < 0);
 	}
 
-	void Window::EnableImGUIMouse() noexcept
+	void Window::EnableImGUIMouse() noexcept(!IS_DEBUG)
 	{
 		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
 	}
 
-	void Window::DisableImGUIMouse() noexcept
+	void Window::DisableImGUIMouse() noexcept(!IS_DEBUG)
 	{
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
 	}
 
-	LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+	LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept(!IS_DEBUG)
 	{
 		// use create parameter passed in from CreateWindow() to store window class pointer at WinAPI side
 		if (msg == WM_NCCREATE)
@@ -283,7 +283,7 @@ namespace Runtime
 		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
-	LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+	LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept(!IS_DEBUG)
 	{
 		// retrieve ptr to window class
 		Window* const pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
@@ -291,7 +291,7 @@ namespace Runtime
 		return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 	}
 
-	LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+	LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept(!IS_DEBUG)
 	{
 		//static WindowsMessageMap mm; // Add and Include "WindowsMessageMap.h and WindowsMessageMap.cpp" files.
 		//OutputDebugString(mm(message, lParam, wParam).c_str());
@@ -491,7 +491,7 @@ namespace Runtime
 		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 
-	bool Window::ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept
+	bool Window::ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept(!IS_DEBUG)
 	{
 		for (int i = 1; i < argc; ++i)
 		{
@@ -502,66 +502,5 @@ namespace Runtime
 			}
 		}
 		return false;
-	}
-
-	// Window Exception Stuff
-	std::string Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
-	{
-		char* pMsgBuf = nullptr;
-		// windows will allocate memory for err string and make our pointer point to it
-		const DWORD nMsgLen = FormatMessageA(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER |
-			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr
-		);
-		// 0 string length returned indicates a failure
-		if (nMsgLen == 0)
-		{
-			return "Unidentified error code";
-		}
-		// copy error string from windows-allocated buffer to std::string
-		std::string errorString = pMsgBuf;
-		// free windows buffer
-		LocalFree(pMsgBuf);
-		return errorString;
-	}
-
-	Window::HrException::HrException(int line, const char* file, HRESULT hr) noexcept
-		:
-		Exception(line, file),
-		hr(hr)
-	{}
-
-	const char* Window::HrException::what() const noexcept
-	{
-		std::ostringstream oss;
-		oss << GetType() << std::endl
-			<< "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode()
-			<< std::dec << " (" << (unsigned long)GetErrorCode() << ")" << std::endl
-			<< "[Description] " << GetErrorDescription() << std::endl
-			<< GetOriginString();
-		whatBuffer = oss.str();
-		return whatBuffer.c_str();
-	}
-
-	const char* Window::HrException::GetType() const noexcept
-	{
-		return "Chili Window Exception";
-	}
-
-	HRESULT Window::HrException::GetErrorCode() const noexcept
-	{
-		return hr;
-	}
-
-	std::string Window::HrException::GetErrorDescription() const noexcept
-	{
-		return Exception::TranslateErrorCode(hr);
-	}
-
-	const char* Window::NoGfxException::GetType() const noexcept
-	{
-		return "Chili Window Exception [No Graphics]";
 	}
 }

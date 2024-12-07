@@ -35,11 +35,10 @@
     <ClInclude Include="source\Renderer\Channels.h" />
     <ClInclude Include="source\Renderer\CommonBindables.h" />
     <ClInclude Include="source\Renderer\Camera.h" />
-    <ClInclude Include="source\Renderer\CommonShapes.h" />
     <ClInclude Include="source\Renderer\ConstantBuffer.h" />
     <ClInclude Include="source\Renderer\Cube.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
-    <ClInclude Include="source\Renderer\D3D12RHIThrowMacros.h" />
+    <ClInclude Include="source\Renderer\D3D12RHIException.h" />
     <ClInclude Include="source\Renderer\DepthStencil.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\DxgiInfoManager.h" />
@@ -71,7 +70,7 @@
     <ClInclude Include="source\Renderer\PointLight.h" />
     <ClInclude Include="source\Renderer\Renderer.h" />
     <ClInclude Include="source\Renderer\RenderGraph.h" />
-    <ClInclude Include="source\Renderer\RenderGraphCompileException.h" />
+    <ClInclude Include="source\Renderer\RenderGraphException.h" />
     <ClInclude Include="source\Renderer\RenderMath.h" />
     <ClInclude Include="source\Renderer\RenderQueuePass.h" />
     <ClInclude Include="source\Renderer\RenderTarget.h" />
@@ -101,7 +100,7 @@
     <ClInclude Include="source\Runtime\Keyboard.h" />
     <ClInclude Include="source\Runtime\Mouse.h" />
     <ClInclude Include="source\Runtime\Window.h" />
-    <ClInclude Include="source\Runtime\WindowsThrowMacros.h" />
+    <ClInclude Include="source\Runtime\WindowsException.h" />
     <ClInclude Include="source\_External\assimp\assimp.h" />
     <ClInclude Include="source\_External\dx12\d3dx12.h" />
     <ClInclude Include="source\_External\dx12\directX12.h" />
@@ -150,7 +149,7 @@
     <ClCompile Include="source\Renderer\PointLight.cpp" />
     <ClCompile Include="source\Renderer\Renderer.cpp" />
     <ClCompile Include="source\Renderer\RenderGraph.cpp" />
-    <ClCompile Include="source\Renderer\RenderGraphCompileException.cpp" />
+    <ClCompile Include="source\Renderer\RenderGraphException.cpp" />
     <ClCompile Include="source\Renderer\RenderMath.cpp" />
     <ClCompile Include="source\Renderer\RenderQueuePass.cpp" />
     <ClCompile Include="source\Renderer\RenderTarget.cpp" />
@@ -607,7 +606,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions);_DEBUG;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions);_DEBUG;IS_DEBUG=true</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -641,7 +640,7 @@ xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mtd.dll $(Ou
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions);NDEBUG;IS_DEBUG=false</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\external\Libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

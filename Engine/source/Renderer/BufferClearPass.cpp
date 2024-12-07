@@ -10,7 +10,7 @@ namespace Renderer
 		RegisterSource(DirectBufferSource<BufferResource>::Make("buffer", buffer));
 	}
 
-	void BufferClearPass::Execute(D3D12RHI& gfx) const noexcept
+	void BufferClearPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		buffer->Clear(gfx);
 	}
@@ -23,7 +23,7 @@ namespace Renderer
 		RegisterSource(DirectBufferBucketSource<BufferResource>::Make("buffer", bufferVector));
 	}
 
-	void BufferBucketClearPass::Execute(D3D12RHI& gfx) const noexcept
+	void BufferBucketClearPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		bufferVector[gfx.GetCurrentBackBufferIndex()]->Clear(gfx);
 	}

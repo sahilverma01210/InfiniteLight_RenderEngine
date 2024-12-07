@@ -8,12 +8,12 @@ namespace Renderer
 		binds(std::move(binds))
 	{}
 
-	void BindingPass::AddBind(std::shared_ptr<Bindable> bind) noexcept
+	void BindingPass::AddBind(std::shared_ptr<Bindable> bind) noexcept(!IS_DEBUG)
 	{
 		binds.push_back(std::move(bind));
 	}
 
-	void BindingPass::BindAll(D3D12RHI& gfx) const noexcept
+	void BindingPass::BindAll(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		BindBufferResources(gfx);
 		for (auto& bind : binds)
@@ -31,7 +31,7 @@ namespace Renderer
 		}
 	}
 
-	void BindingPass::BindBufferResources(D3D12RHI& gfx) const noexcept
+	void BindingPass::BindBufferResources(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		UINT renderSize = renderTargetVector.size();
 

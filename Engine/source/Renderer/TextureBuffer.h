@@ -12,11 +12,11 @@ namespace Renderer
 	public:
 		TextureBuffer(D3D12RHI& gfx, const WCHAR* filename);
 		ID3D12Resource* GetBuffer();
-		bool HasAlpha() const noexcept;
+		bool HasAlpha() const noexcept(!IS_DEBUG);
 		bool HasAlphaChannel(const Image& image);
 		static std::shared_ptr<TextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
 		static std::string GenerateUID(const WCHAR* filename);
-		std::string GetUID() const noexcept override;
+		std::string GetUID() const noexcept(!IS_DEBUG) override;
 
 	private:
 		bool hasAlpha = false;
@@ -31,7 +31,7 @@ namespace Renderer
 		ID3D12Resource* GetBuffer();
 		static std::shared_ptr<CubeMapTextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
 		static std::string GenerateUID(const WCHAR* filename);
-		std::string GetUID() const noexcept override;
+		std::string GetUID() const noexcept(!IS_DEBUG) override;
 
 	private:
 		const WCHAR* m_foldername;

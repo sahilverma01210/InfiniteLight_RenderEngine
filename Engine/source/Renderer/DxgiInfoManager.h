@@ -10,7 +10,7 @@ namespace Renderer
 		DxgiInfoManager(const DxgiInfoManager&) = delete;
 		~DxgiInfoManager() = default;
 		DxgiInfoManager& operator=(const DxgiInfoManager&) = delete;
-		void Set() noexcept;
+		void Set() noexcept(!IS_DEBUG);
 		std::vector<std::string> GetMessages() const;
 
 	private:

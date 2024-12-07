@@ -7,11 +7,8 @@ namespace Renderer
 	{
 	public:
 		RootSignature(D3D12RHI& gfx, PipelineDescription& pipelineDesc);
-		void Init32BitConstant(UINT num32BitValues, UINT rootParameterIndex, UINT registerSpace, D3D12_SHADER_VISIBILITY visibilityFlag);
-		void InitConstantBufferView(UINT rootParameterIndex, UINT registerSpace, D3D12_SHADER_VISIBILITY visibilityFlag);
-		void InitDescriptorTable(UINT rootParameterIndex, UINT numDescriptorRanges, const D3D12_DESCRIPTOR_RANGE* pDescriptorRanges, D3D12_SHADER_VISIBILITY visibilityFlag);
 		ID3D12RootSignature* GetRootSignature();
-		void Bind(D3D12RHI& gfx) noexcept override;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 
 	private:
 		UINT m_numRootParameters;

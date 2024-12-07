@@ -94,18 +94,15 @@ namespace Renderer
 						inputElementDescs[i] = vec[i];
 					}
 
-					pipelineDesc.vertexShader = vertexShader;
-					pipelineDesc.pixelShader = pixelShader;
-					pipelineDesc.inputElementDescs = inputElementDescs;
-					pipelineDesc.numElements = vec.size();
 					pipelineDesc.numConstants = 1;
 					pipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 					pipelineDesc.numConstantBufferViews = 1;
-					pipelineDesc.numSRVDescriptors = 0;
-					pipelineDesc.backFaceCulling = false;
-					pipelineDesc.depthStencilMode = Mode::Off;
 					pipelineDesc.numSamplers = 1;
 					pipelineDesc.samplers = samplers;
+					pipelineDesc.numElements = vec.size();
+					pipelineDesc.inputElementDescs = inputElementDescs;
+					pipelineDesc.vertexShader = vertexShader;
+					pipelineDesc.pixelShader = pixelShader;
 
 					rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 					psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -167,15 +164,15 @@ namespace Renderer
 		}
 		vertexBufferBindable->Update(gfx, vertices.GetData());
 	}
-	void Frustum::SetPos(XMFLOAT3 pos) noexcept
+	void Frustum::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)
 	{
 		this->pos = pos;
 	}
-	void Frustum::SetRotation(XMFLOAT3 rot) noexcept
+	void Frustum::SetRotation(XMFLOAT3 rot) noexcept(!IS_DEBUG)
 	{
 		this->rot = rot;
 	}
-	XMMATRIX Frustum::GetTransformXM() const noexcept
+	XMMATRIX Frustum::GetTransformXM() const noexcept(!IS_DEBUG)
 	{
 		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rot)) *
 			XMMatrixTranslationFromVector(XMLoadFloat3(&pos));

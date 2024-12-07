@@ -6,12 +6,12 @@ namespace Common
 	class ILException : public std::exception
 	{
 	public:
-		ILException(int line, const char* file) noexcept;
-		const char* what() const noexcept override;
-		virtual const char* GetType() const noexcept;
-		int GetLine() const noexcept;
-		const std::string& GetFile() const noexcept;
-		std::string GetOriginString() const noexcept;
+		ILException(int line, const char* file) noexcept(!IS_DEBUG);
+		const char* what() const noexcept(!IS_DEBUG) override;
+		virtual const char* GetType() const noexcept(!IS_DEBUG);
+		int GetLine() const noexcept(!IS_DEBUG);
+		const std::string& GetFile() const noexcept(!IS_DEBUG);
+		std::string GetOriginString() const noexcept(!IS_DEBUG);
 
 	private:
 		int line;

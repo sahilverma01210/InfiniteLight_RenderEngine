@@ -19,17 +19,17 @@ namespace Renderer
 		}
 	}
 
-	const std::string& Sink::GetRegisteredName() const noexcept
+	const std::string& Sink::GetRegisteredName() const noexcept(!IS_DEBUG)
 	{
 		return registeredName;
 	}
 
-	const std::string& Sink::GetPassName() const noexcept
+	const std::string& Sink::GetPassName() const noexcept(!IS_DEBUG)
 	{
 		return passName;
 	}
 
-	const std::string& Sink::GetOutputName() const noexcept
+	const std::string& Sink::GetOutputName() const noexcept(!IS_DEBUG)
 	{
 		return outputName;
 	}

@@ -30,7 +30,7 @@ namespace Renderer
 			}
 		}
 		// asserts face-independent vertices w/ normals cleared to zero
-		void SetNormalsIndependentFlat() noexcept
+		void SetNormalsIndependentFlat() noexcept(!IS_DEBUG)
 		{
 			using namespace DirectX;
 			using Type = VertexLayout::ElementType;

@@ -8,7 +8,7 @@ namespace Renderer
 	public:
 		static CookedLayout Resolve(RawLayout&& layout);
 	private:
-		static LayoutCodex& Get_() noexcept;
+		static LayoutCodex& Get_() noexcept(!IS_DEBUG);
 
 	private:
 		std::unordered_map<std::string, std::shared_ptr<LayoutElement>> map;

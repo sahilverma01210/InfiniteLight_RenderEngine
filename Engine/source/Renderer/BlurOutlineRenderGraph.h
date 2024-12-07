@@ -1,5 +1,5 @@
 #pragma once
-#include "../Common/ILMath.h"
+#include "RenderMath.h"
 
 #include "RenderGraph.h"
 #include "ConstantBuffer.h"
@@ -18,8 +18,6 @@
 #include "HorizontalBlurPass.h"
 #include "VerticalBlurPass.h"
 #include "WireframePass.h"
-
-using namespace Common;
 
 namespace Renderer
 {
@@ -43,10 +41,10 @@ namespace Renderer
 		void DumpShadowMap(D3D12RHI& gfx, const std::string& path);
 		void BindMainCamera(Camera& cam);
 		void BindShadowCamera(Camera& cam);
-		void SetKernelBox(int radius) noexcept;
+		void SetKernelBox(int radius) noexcept(!IS_DEBUG);
 	private:
 		// private functions
-		void SetKernelGauss(int radius, float sigma) noexcept;
+		void SetKernelGauss(int radius, float sigma) noexcept(!IS_DEBUG);
 		
 	private:
 		KernelType kernelType = KernelType::Gauss;

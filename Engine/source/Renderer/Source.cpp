@@ -34,7 +34,7 @@ namespace Renderer
 		throw RGC_EXCEPTION("Output cannot be accessed as bindable");
 	}
 
-	const std::string& Source::GetName() const noexcept
+	const std::string& Source::GetName() const noexcept(!IS_DEBUG)
 	{
 		return name;
 	}

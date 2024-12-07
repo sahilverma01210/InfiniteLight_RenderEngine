@@ -64,7 +64,7 @@ namespace Renderer
         m_vertexBufferView.SizeInBytes = m_vertexBufferSize;
     }
 
-    void VertexBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept
+    void VertexBuffer::Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG)
     {
         // Copy the data to the buffer.
         UINT8* pConstantDataBegin;
@@ -82,7 +82,7 @@ namespace Renderer
         InsertFence(gfx);
     }
 
-    void VertexBuffer::Bind(D3D12RHI& gfx) noexcept
+    void VertexBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
         GetCommandList(gfx)->IASetVertexBuffers(0, 1, &m_vertexBufferView);
     }
@@ -98,7 +98,7 @@ namespace Renderer
         return typeid(VertexBuffer).name() + "#"s + tag;
     }
 
-    std::string VertexBuffer::GetUID() const noexcept
+    std::string VertexBuffer::GetUID() const noexcept(!IS_DEBUG)
     {
         return GenerateUID(tag);
     }

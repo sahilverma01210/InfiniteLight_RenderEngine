@@ -11,14 +11,6 @@ namespace Renderer
 		srvHeapDesc.NumDescriptors = numSRVDescriptors;
 		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		GetDevice(gfx)->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
-
-		gfx.ResetCommandList();
-
-		GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
-
-		gfx.ExecuteCommandList();
-
-		InsertFence(gfx);
 	}
 
 	ID3D12DescriptorHeap* ShaderResourceView::GetSRVHeap()
@@ -26,7 +18,7 @@ namespace Renderer
 		return m_srvHeap.Get();
 	}
 
-	void ShaderResourceView::AddResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer, bool isCubeMap)
+	void ShaderResourceView::AddTextureResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer, bool isCubeMap)
 	{
 		DXGI_FORMAT targetTextureFormat;
 
@@ -67,12 +59,13 @@ namespace Renderer
 
 	void ShaderResourceView::AddBackBufferAsResource(D3D12RHI& gfx)
 	{
-		AddResource(gfx, 0, GetBackBuffers(gfx)[GetSwapChain(gfx)->GetCurrentBackBufferIndex()].Get());
+		AddTextureResource(gfx, 0, GetBackBuffers(gfx)[GetSwapChain(gfx)->GetCurrentBackBufferIndex()].Get());
 	}
 
-	void ShaderResourceView::Bind(D3D12RHI& gfx) noexcept
+	void ShaderResourceView::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		// bind the descriptor table containing the texture descriptor 
+		GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
 		GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
 	}
 }

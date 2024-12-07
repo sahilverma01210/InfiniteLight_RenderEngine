@@ -1,6 +1,9 @@
 #pragma once
 #include "../_External/dx12/directX12.h"
 #include "../_External/common.h"
+#include "../Common/ILMath.h"
+
+using namespace Common;
 
 namespace Renderer
 {

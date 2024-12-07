@@ -35,21 +35,21 @@ namespace Renderer
 		pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
 	}
 
-	Model::~Model() noexcept
+	Model::~Model() noexcept(!IS_DEBUG)
 	{
 	}
 
-	void Model::Submit(size_t channels) const noexcept
+	void Model::Submit(size_t channels) const noexcept(!IS_DEBUG)
 	{
 		pRoot->Submit(channels, XMMatrixIdentity());
 	}
 
-	void Model::SetRootTransform(FXMMATRIX tf) noexcept
+	void Model::SetRootTransform(FXMMATRIX tf) noexcept(!IS_DEBUG)
 	{
 		pRoot->SetAppliedTransform(tf);
 	}
 
-	std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept
+	std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept(!IS_DEBUG)
 	{
 		const auto transform = ScaleTranslation(XMMatrixTranspose(XMLoadFloat4x4(
 			reinterpret_cast<const XMFLOAT4X4*>(&node.mTransformation)

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Common/ILMath.h"
+#include "RenderMath.h"
 
 #include "D3D12RHI.h"
 #include "UIManager.h"
@@ -29,12 +29,12 @@ namespace Renderer
 
 	public:
 		PointLight(D3D12RHI& gfx, XMFLOAT3 pos = { 10.0f,9.0f,2.5f }, float radius = 0.5f);
-		bool SpawnControlWindow() noexcept;
-		void Reset() noexcept;
-		void Submit(size_t channels) const noexcept;
-		void Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept;
+		bool SpawnControlWindow() noexcept(!IS_DEBUG);
+		void Reset() noexcept(!IS_DEBUG);
+		void Submit(size_t channels) const noexcept(!IS_DEBUG);
+		void Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept(!IS_DEBUG);
 		void LinkTechniques(RenderGraph&);
-		std::shared_ptr<Camera> ShareCamera() const noexcept;
+		std::shared_ptr<Camera> ShareCamera() const noexcept(!IS_DEBUG);
 
 	public:
 		bool m_imGUIwndOpen = true;

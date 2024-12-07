@@ -10,7 +10,7 @@ namespace Renderer
 	{
 	public:
 		VerticalBlurPass(std::string name, D3D12RHI& gfx);
-		void Execute(D3D12RHI& gfx) const noexcept override;
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
 		std::shared_ptr<RenderTarget> blurTarget;

@@ -53,18 +53,15 @@ namespace Renderer
 
 						samplers[0] = staticSampler;
 
-						pipelineDesc.vertexShader = vertexShader;
-						pipelineDesc.pixelShader = pixelShader;
-						pipelineDesc.inputElementDescs = inputElementDescs;
-						pipelineDesc.numElements = vec.size();
 						pipelineDesc.numConstants = 1;
 						pipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 						pipelineDesc.numConstantBufferViews = 1;
-						pipelineDesc.numSRVDescriptors = 0;
-						pipelineDesc.backFaceCulling = false;
-						pipelineDesc.depthStencilMode = Mode::Off;
 						pipelineDesc.numSamplers = 1;
 						pipelineDesc.samplers = samplers;
+						pipelineDesc.numElements = vec.size();
+						pipelineDesc.inputElementDescs = inputElementDescs;
+						pipelineDesc.vertexShader = vertexShader;
+						pipelineDesc.pixelShader = pixelShader;
 
 						rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 						psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -84,16 +81,16 @@ namespace Renderer
 		}
 	}
 
-	void SolidSphere::SetPos(XMFLOAT3 pos) noexcept
+	void SolidSphere::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)
 	{
 		this->pos = pos;
 	}
 
-	XMMATRIX SolidSphere::GetTransformXM() const noexcept
+	XMMATRIX SolidSphere::GetTransformXM() const noexcept(!IS_DEBUG)
 	{
 		return XMMatrixTranslation(pos.x, pos.y, pos.z);
 	}
-	PipelineDescription SolidSphere::GetPipelineDesc() noexcept
+	PipelineDescription SolidSphere::GetPipelineDesc() noexcept(!IS_DEBUG)
 	{
 		return pipelineDesc;
 	}

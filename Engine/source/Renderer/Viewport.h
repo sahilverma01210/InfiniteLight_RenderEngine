@@ -21,7 +21,7 @@ namespace Renderer
 			vp.TopLeftX = 0.0f;
 			vp.TopLeftY = 0.0f;
 		}
-		void Bind(D3D12RHI& gfx) noexcept override
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			GetCommandList(gfx)->RSSetViewports(1u, &vp);
 		}

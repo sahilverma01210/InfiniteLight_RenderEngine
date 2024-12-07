@@ -8,9 +8,9 @@ namespace Renderer
 	public:
 		ShaderResourceView(D3D12RHI& gfx, UINT rootParameterIndex, UINT numSRVDescriptors);
 		ID3D12DescriptorHeap* GetSRVHeap();
-		void AddResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer, bool isCubeMap = false);
+		void AddTextureResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer, bool isCubeMap = false);
 		void AddBackBufferAsResource(D3D12RHI& gfx);
-		void Bind(D3D12RHI& gfx) noexcept override;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 
 	protected:
 		UINT m_rootParameterIndex;

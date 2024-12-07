@@ -6,7 +6,7 @@
 #include "BufferResource.h"
 #include "RenderTarget.h"
 #include "DepthStencil.h"
-#include "RenderGraphCompileException.h"
+#include "RenderGraphException.h"
 
 namespace Renderer
 {
@@ -17,9 +17,9 @@ namespace Renderer
 	{
 	public:
 		virtual ~Sink() = default;
-		const std::string& GetRegisteredName() const noexcept;
-		const std::string& GetPassName() const noexcept;
-		const std::string& GetOutputName() const noexcept;
+		const std::string& GetRegisteredName() const noexcept(!IS_DEBUG);
+		const std::string& GetPassName() const noexcept(!IS_DEBUG);
+		const std::string& GetOutputName() const noexcept(!IS_DEBUG);
 		void SetTarget(std::string passName, std::string outputName);
 		virtual void Bind(Source& source) = 0;
 		virtual void PostLinkValidate() const = 0;

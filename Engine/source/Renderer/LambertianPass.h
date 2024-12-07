@@ -25,14 +25,14 @@ namespace Renderer
 			RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTarget", renderTargetVector));
 			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", depthStencil));
 		}
-		void BindMainCamera(const Camera& cam) noexcept
+		void BindMainCamera(const Camera& cam) noexcept(!IS_DEBUG)
 		{
 			pMainCamera = &cam;
 		}
-		void BindShadowCamera(const Camera& cam) noexcept
+		void BindShadowCamera(const Camera& cam) noexcept(!IS_DEBUG)
 		{
 		}
-		void Execute(D3D12RHI& gfx) const noexcept override
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
 			assert(pMainCamera);
 			pMainCamera->Update(gfx);
