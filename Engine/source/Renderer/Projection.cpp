@@ -11,10 +11,12 @@ namespace Renderer
 		frust(gfx, width, height, nearZ, farZ),
 		homeWidth(width), homeHeight(height), homeNearZ(nearZ), homeFarZ(farZ)
 	{}
+
 	XMMATRIX Projection::GetMatrix() const
 	{
 		return XMMatrixPerspectiveLH(width, height, nearZ, farZ);
 	}
+
 	void Projection::RenderWidgets(D3D12RHI& gfx)
 	{
 		bool dirty = false;
@@ -29,22 +31,27 @@ namespace Renderer
 			frust.SetVertices(gfx, width, height, nearZ, farZ);
 		}
 	}
+
 	void Projection::SetPos(XMFLOAT3 pos)
 	{
 		frust.SetPos(pos);
 	}
+
 	void Projection::SetRotation(XMFLOAT3 rot)
 	{
 		frust.SetRotation(rot);
 	}
+
 	void Projection::Submit(size_t channel) const
 	{
 		frust.Submit(channel);
 	}
+
 	void Projection::LinkTechniques(RenderGraph& rg)
 	{
 		frust.LinkTechniques(rg);
 	}
+
 	void Projection::Reset(D3D12RHI& gfx)
 	{
 		width = homeWidth;

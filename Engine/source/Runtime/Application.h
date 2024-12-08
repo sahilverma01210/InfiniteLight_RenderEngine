@@ -1,4 +1,6 @@
 #pragma once
+#include "../Common/ILTimer.h"
+
 #include "Window.h"
 
 // Viewport dimensions.
@@ -10,17 +12,6 @@
 
 namespace Runtime
 {
-	class Timer
-	{
-	public:
-		Timer() noexcept(!IS_DEBUG);
-		float Mark() noexcept(!IS_DEBUG);
-		float Peek() const noexcept(!IS_DEBUG);
-
-	private:
-		std::chrono::steady_clock::time_point last;
-	};
-
 	class Application
 	{
 	public:
@@ -31,6 +22,6 @@ namespace Runtime
 
 	private:
 		Window window;
-		Timer timer;
+		ILTimer timer;
 	};
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include "../_External/common.h"
 
+using namespace std::chrono;
+
 namespace Common
 {
 	class ILTimer

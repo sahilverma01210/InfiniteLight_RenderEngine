@@ -1,7 +1,5 @@
 #include "ILTimer.h"
 
-using namespace std::chrono;
-
 namespace Common
 {
 	ILTimer::ILTimer() noexcept(!IS_DEBUG)

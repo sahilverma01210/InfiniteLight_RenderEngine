@@ -90,6 +90,7 @@ namespace Renderer
 	{
 		return XMMatrixTranslation(pos.x, pos.y, pos.z);
 	}
+
 	PipelineDescription SolidSphere::GetPipelineDesc() noexcept(!IS_DEBUG)
 	{
 		return pipelineDesc;

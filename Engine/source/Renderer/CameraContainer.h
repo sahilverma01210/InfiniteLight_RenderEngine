@@ -15,7 +15,6 @@ namespace Renderer
 		void SpawnWindow(D3D12RHI& gfx);
 		void Bind(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
-		Camera* operator->();
 		void LinkTechniques(RenderGraph& rg);
 		void Submit(size_t channels) const;
 		Camera& GetActiveCamera();

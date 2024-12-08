@@ -32,9 +32,9 @@ namespace Renderer
 	private:
 		bool showDemoWindow = false;
 		std::unique_ptr<D3D12RHI> pRHI;
-		CameraContainer cameras;
-		PointLight* light;
-		UIManager uiManager;
+		std::unique_ptr<CameraContainer> cameras;
+		std::unique_ptr<PointLight> light;
+		std::unique_ptr<UIManager> uiManager;
 		std::unique_ptr<BlurOutlineRenderGraph> rg;
 		std::unique_ptr<Model> sponza;
 	};

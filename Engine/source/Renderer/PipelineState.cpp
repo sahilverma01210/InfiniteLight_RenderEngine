@@ -83,6 +83,7 @@ namespace Renderer
 
 	void PipelineState::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
+        INFOMAN_NOHR(gfx);
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get()));
 	}
 }

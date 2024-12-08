@@ -117,14 +117,17 @@ namespace Renderer
 			AddTechnique(std::move(line));
 		}
 	}
+
 	void CameraIndicator::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)
 	{
 		this->pos = pos;
 	}
+
 	void CameraIndicator::SetRotation(XMFLOAT3 rot) noexcept(!IS_DEBUG)
 	{
 		this->rot = rot;
 	}
+
 	XMMATRIX CameraIndicator::GetTransformXM() const noexcept(!IS_DEBUG)
 	{
 		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rot)) *

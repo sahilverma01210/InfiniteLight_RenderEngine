@@ -1,6 +1,5 @@
 #define DCB_IMPL_SOURCE
 #include "DynamicConstant.h"
-#include "LayoutCodex.h"
 
 namespace Renderer
 {
@@ -217,9 +216,6 @@ namespace Renderer
 			);
 	}
 
-
-
-
 	Layout::Layout(std::shared_ptr<LayoutElement> pRoot) noexcept(!IS_DEBUG)
 		:
 		pRoot{ std::move(pRoot) }
@@ -232,7 +228,6 @@ namespace Renderer
 	{
 		return pRoot->GetSignature();
 	}
-
 
 	RawLayout::RawLayout() noexcept(!IS_DEBUG)
 		:
@@ -254,7 +249,6 @@ namespace Renderer
 		*this = RawLayout();
 	}
 
-
 	CookedLayout::CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept(!IS_DEBUG)
 		:
 		Layout(std::move(pRoot))
@@ -272,9 +266,29 @@ namespace Renderer
 		return (*pRoot)[key];
 	}
 
-
-
-
+	CookedLayout LayoutCodex::Resolve(RawLayout&& layout)
+	{
+		auto sig = layout.GetSignature();
+		auto& map = Get_().map;
+		const auto i = map.find(sig);
+		// idential layout already exists
+		if (i != map.end())
+		{
+			// input layout is expected to be cleared after Resolve
+			// so just throw away the layout tree
+			layout.ClearRoot();
+			return { i->second };
+		}
+		// otherwise add layout root element to map
+		auto result = map.insert({ std::move(sig),layout.DeliverRoot() });
+		// return layout with additional reference to root
+		return { result.first->second };
+	}
+	LayoutCodex& LayoutCodex::Get_() noexcept(!IS_DEBUG)
+	{
+		static LayoutCodex codex;
+		return codex;
+	}
 
 	bool ConstElementRef::Exists() const noexcept(!IS_DEBUG)
 	{
@@ -301,7 +315,6 @@ namespace Renderer
 	{}
 	ConstElementRef::Ptr::Ptr(const ConstElementRef* ref) noexcept(!IS_DEBUG) : ref(ref)
 	{}
-
 
 	ElementRef::operator ConstElementRef() const noexcept(!IS_DEBUG)
 	{
@@ -332,9 +345,6 @@ namespace Renderer
 	{}
 	ElementRef::Ptr::Ptr(ElementRef* ref) noexcept(!IS_DEBUG) : ref(ref)
 	{}
-
-
-
 
 	Buffer::Buffer(RawLayout&& lay) 
 		:

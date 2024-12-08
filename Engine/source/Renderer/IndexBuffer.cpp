@@ -64,13 +64,14 @@ namespace Renderer
 
     void IndexBuffer::CreateView(D3D12RHI& gfx)
     {
-        m_indexBufferView.BufferLocation = D3D12RHI_THROW_INFO_ONLY(m_indexBuffer->GetGPUVirtualAddress());
+        m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
         m_indexBufferView.SizeInBytes = m_indexBufferSize;
         m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
     }
 
     void IndexBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
+        INFOMAN_NOHR(gfx);
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView));
     }
 

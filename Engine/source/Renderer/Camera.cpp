@@ -155,6 +155,7 @@ namespace Renderer
 		indicator.LinkTechniques(rg);
 		proj.LinkTechniques(rg);
 	}
+
 	void Camera::Submit(size_t channels) const
 	{
 		if (enableCameraIndicator)

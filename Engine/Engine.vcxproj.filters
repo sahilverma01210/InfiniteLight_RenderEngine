@@ -250,9 +250,6 @@
     <ClInclude Include="source\Renderer\DynamicConstant.h">
       <Filter>Source\Renderer\Public\Common</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\LayoutCodex.h">
-      <Filter>Source\Renderer\Public\Common</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Cube.h">
       <Filter>Source\Renderer\Public\Drawables\Shapes</Filter>
     </ClInclude>
@@ -496,9 +493,6 @@
       <Filter>Source\Renderer\Private\RHI</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DynamicConstant.cpp">
-      <Filter>Source\Renderer\Private\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\LayoutCodex.cpp">
       <Filter>Source\Renderer\Private\Common</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Job.cpp">

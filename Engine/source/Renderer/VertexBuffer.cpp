@@ -62,7 +62,7 @@ namespace Renderer
 
     void VertexBuffer::CreateView(D3D12RHI& gfx, UINT strides)
     {
-        m_vertexBufferView.BufferLocation = D3D12RHI_THROW_INFO_ONLY(m_vertexBuffer->GetGPUVirtualAddress());
+        m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
         m_vertexBufferView.StrideInBytes = strides;
         m_vertexBufferView.SizeInBytes = m_vertexBufferSize;
     }
@@ -89,6 +89,7 @@ namespace Renderer
 
     void VertexBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
+        INFOMAN_NOHR(gfx);
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetVertexBuffers(0, 1, &m_vertexBufferView));
     }
 

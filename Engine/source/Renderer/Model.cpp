@@ -15,7 +15,7 @@ namespace Renderer
 
 		if (pScene == nullptr)
 		{
-			throw ModelException(__LINE__, __FILE__, imp.GetErrorString());
+			throw MDL_EXCEPTION(imp.GetErrorString());
 		}
 
 		// parse materials

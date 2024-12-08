@@ -307,6 +307,7 @@ namespace Renderer
     {
         return depthBuffers[index];
     }
+
     TargetCubeMapTextureBuffer::TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size)
     {
         INFOMAN(gfx);
@@ -340,10 +341,12 @@ namespace Renderer
             renderTargets.push_back(std::make_shared<RenderTarget>(gfx, m_texureBuffer.Get(), face));
         }
     }
+
     ID3D12Resource* TargetCubeMapTextureBuffer::GetBuffer()
     {
         return m_texureBuffer.Get();
     }
+
     std::shared_ptr<RenderTarget> TargetCubeMapTextureBuffer::GetRenderTarget(size_t index) const
     {
         return renderTargets[index];

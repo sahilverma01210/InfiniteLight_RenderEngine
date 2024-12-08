@@ -1,6 +1,8 @@
 #pragma once
 #include "../Common/ILException.h"
 
+#define MDL_EXCEPTION( note ) ModelException(__LINE__, __FILE__, (note))
+
 using namespace Common;
 
 namespace Renderer

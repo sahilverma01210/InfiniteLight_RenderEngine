@@ -142,6 +142,7 @@ namespace Renderer
 			AddTechnique(std::move(line));
 		}
 	}
+
 	void Frustum::SetVertices(D3D12RHI& gfx, float width, float height, float nearZ, float farZ)
 	{
 		VertexLayout layout;
@@ -164,14 +165,17 @@ namespace Renderer
 		}
 		vertexBufferBindable->Update(gfx, vertices.GetData());
 	}
+
 	void Frustum::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)
 	{
 		this->pos = pos;
 	}
+
 	void Frustum::SetRotation(XMFLOAT3 rot) noexcept(!IS_DEBUG)
 	{
 		this->rot = rot;
 	}
+
 	XMMATRIX Frustum::GetTransformXM() const noexcept(!IS_DEBUG)
 	{
 		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rot)) *

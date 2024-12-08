@@ -54,8 +54,10 @@ namespace Renderer
 			srvDesc.Texture2D.MipLevels = texureBuffer->GetDesc().MipLevels;
 		}
 
-		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = D3D12RHI_THROW_INFO_ONLY(m_srvHeap->GetCPUDescriptorHandleForHeapStart());
-		CPUHandle.ptr += D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)) * offset;
+		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+		CPUHandle.ptr += GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * offset;
+
+		INFOMAN_NOHR(gfx);
 		D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateShaderResourceView(texureBuffer, &srvDesc, CPUHandle));
 	}
 
@@ -66,6 +68,8 @@ namespace Renderer
 
 	void ShaderResourceView::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
+		INFOMAN_NOHR(gfx);
+
 		// bind the descriptor table containing the texture descriptor 
 		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf()));
 		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_rootParameterIndex, m_srvHeap->GetGPUDescriptorHandleForHeapStart()));

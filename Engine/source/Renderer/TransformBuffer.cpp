@@ -43,6 +43,7 @@ namespace Renderer
 		};
 
 		// Using Root Parameter Index to bind this buffer to Root Parameter having correct Shader Register which is used in HLSL.
+		INFOMAN_NOHR(gfx);
 		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRoot32BitConstants(m_rootParameterIndex, sizeof(m_transform) / 4, &m_transform, 0));
 	}
 

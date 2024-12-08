@@ -74,7 +74,7 @@ namespace Renderer
                 &clearValue,
                 IID_PPV_ARGS(&m_depthBuffer)));
 
-            m_depthStensilViewHandle = D3D12RHI_THROW_INFO_ONLY(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+            m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
             D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
             descView.Format = gfx.MapUsageTyped(usage);
@@ -87,6 +87,7 @@ namespace Renderer
 
     void DepthStencil::BindAsBuffer(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
+        INFOMAN_NOHR(gfx);
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(0, nullptr, FALSE, &m_depthStensilViewHandle));
     }
 
@@ -103,6 +104,7 @@ namespace Renderer
 
     void DepthStencil::Clear(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
+        INFOMAN_NOHR(gfx);
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
     }
 
@@ -110,10 +112,12 @@ namespace Renderer
     {
         return m_width;
     }
+
     unsigned int DepthStencil::GetHeight() const
     {
         return m_height;
     }
+
     ID3D12Resource* DepthStencil::GetBuffer() const noexcept(!IS_DEBUG)
     {
         return m_depthBuffer.Get();

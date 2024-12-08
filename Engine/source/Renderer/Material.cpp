@@ -365,6 +365,7 @@ namespace Renderer
 	{
 		return { vtxLayout,mesh };
 	}
+
 	std::vector<unsigned short> Material::ExtractIndices(const aiMesh& mesh) const noexcept(!IS_DEBUG)
 	{
 		std::vector<unsigned short> indices;
@@ -379,6 +380,7 @@ namespace Renderer
 		}
 		return indices;
 	}
+
 	std::shared_ptr<VertexBuffer> Material::MakeVertexBindable(D3D12RHI& gfx, const aiMesh& mesh, float scale) const noexcept(!IS_DEBUG)
 	{
 		auto vtc = ExtractVertices(mesh);
@@ -394,19 +396,23 @@ namespace Renderer
 		}
 		return VertexBuffer::Resolve(gfx, MakeMeshTag(mesh), vtc.GetData(), UINT(vtc.SizeBytes()), (UINT)vtc.GetLayout().Size());
 	}
+
 	std::shared_ptr<IndexBuffer> Material::MakeIndexBindable(D3D12RHI& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG)
 	{
 		auto indices = ExtractIndices(mesh);
 		return IndexBuffer::Resolve(gfx, MakeMeshTag(mesh), indices.size() * sizeof(indices[0]), indices);
 	}
+
 	std::unordered_map<std::string, PipelineDescription> Material::GetPipelineDesc() noexcept(!IS_DEBUG)
 	{
 		return pipelineDesc;
 	}
+
 	std::string Material::MakeMeshTag(const aiMesh& mesh) const noexcept(!IS_DEBUG)
 	{
 		return modelPath + "%" + mesh.mName.C_Str();
 	}
+
 	std::vector<Technique> Material::GetTechniques() noexcept(!IS_DEBUG)
 	{
 		return techniques;

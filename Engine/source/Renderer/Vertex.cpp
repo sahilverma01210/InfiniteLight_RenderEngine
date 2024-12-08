@@ -98,10 +98,12 @@ namespace Renderer
 			return sizeof(VertexLayout::Map<type>::SysType);
 		}
 	};
+
 	constexpr size_t VertexLayout::Element::SizeOf(ElementType type) noexcept(!IS_DEBUG)
 	{
 		return Bridge<SysSizeLookup>(type);
 	}
+
 	template<VertexLayout::ElementType type>
 	struct CodeLookup
 	{
@@ -110,10 +112,12 @@ namespace Renderer
 			return VertexLayout::Map<type>::code;
 		}
 	};
+
 	const char* VertexLayout::Element::GetCode() const noexcept(!IS_DEBUG)
 	{
 		return Bridge<CodeLookup>(type);
 	}
+
 	template<VertexLayout::ElementType type> struct DescGenerate {
 		static constexpr D3D12_INPUT_ELEMENT_DESC Exec(size_t offset) noexcept(!IS_DEBUG) {
 			return {

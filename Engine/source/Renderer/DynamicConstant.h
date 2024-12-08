@@ -268,6 +268,17 @@ namespace Renderer
 		std::shared_ptr<LayoutElement> RelinquishRoot() const noexcept(!IS_DEBUG);
 	};
 
+	class LayoutCodex
+	{
+	public:
+		static CookedLayout Resolve(RawLayout&& layout);
+	private:
+		static LayoutCodex& Get_() noexcept(!IS_DEBUG);
+
+	private:
+		std::unordered_map<std::string, std::shared_ptr<LayoutElement>> map;
+	};
+
 	// proxy type that is emitted when keying/indexing into a Buffer
 	// implement conversions/assignment that allows manipulation of the
 	// raw bytes of the Buffer. This version is const, only supports reading
