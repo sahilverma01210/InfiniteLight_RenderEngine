@@ -1,7 +1,4 @@
 #include "TextureBuffer.h"
-#include "BindableCodex.h"
-#include "DepthStencil.h"
-#include "RenderTarget.h"
 
 namespace Renderer
 {

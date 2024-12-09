@@ -8,3 +8,5 @@
 #include "PipelineState.h"
 #include "ShaderResourceView.h"
 #include "Viewport.h"
+#include "RenderTarget.h"
+#include "DepthStencil.h"

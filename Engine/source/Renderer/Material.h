@@ -1,10 +1,8 @@
 #pragma once
-#include "D3D12RHI.h"
 #include "CommonBindables.h"
 #include "Technique.h"
 #include "Vertex.h"
 #include "DynamicConstant.h"
-#include "TransformBuffer.h"
 #include "Channels.h"
 
 struct aiMaterial;

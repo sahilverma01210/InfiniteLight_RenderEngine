@@ -8,8 +8,6 @@
 #include "Node.h"
 #include "RenderMath.h"
 
-
-
 namespace Renderer
 {
 	class TP : public TechniqueProbe

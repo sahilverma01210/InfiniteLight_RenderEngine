@@ -1,6 +1,5 @@
 #pragma once
 #include "RenderMath.h"
-
 #include "Projection.h"
 #include "CameraIndicator.h"
 #include "D3D12RHI.h"

@@ -1,5 +1,7 @@
 #pragma once
-#include "Bindable.h"
+#include "BindableCodex.h"
+#include "DepthStencil.h"
+#include "RenderTarget.h"
 #include "ShaderResourceView.h"
 
 namespace Renderer

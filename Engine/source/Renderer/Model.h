@@ -1,12 +1,9 @@
 #pragma once
 #include "../_External/assimp/assimp.h"
 
-#include "D3D12RHI.h"
-#include "ModelException.h"
 #include "Node.h"
-#include "Mesh.h"
-#include "Material.h"
 #include "RenderMath.h"
+#include "ModelException.h"
 
 namespace Renderer
 {
@@ -20,7 +17,6 @@ namespace Renderer
 		void Accept(class ModelProbe& probe);
 		void LinkTechniques(RenderGraph&);
 	private:
-		static std::unique_ptr<Mesh> ParseMesh(D3D12RHI& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path, float fscale);
 		std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node, float scale) noexcept(!IS_DEBUG);
 
 	private:

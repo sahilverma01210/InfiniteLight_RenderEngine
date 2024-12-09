@@ -35,7 +35,6 @@ namespace Renderer
 
 	void Drawable::AddTechnique(Technique tech_in) noexcept(!IS_DEBUG)
 	{
-		tech_in.InitializeParentReferences(*this);
 		techniques.push_back(std::move(tech_in));
 	}
 

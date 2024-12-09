@@ -4,9 +4,14 @@ namespace Renderer
 {
 	RenderGraph::RenderGraph(D3D12RHI& gfx)
 		:
-		backBufferTargets(gfx.GetTarget()),
 		masterDepth(std::make_shared<DepthStencil>(gfx))
 	{
+		for (UINT n = 0; n < gfx.GetTargetBuffers().size(); n++)
+		{
+			RenderTarget* rt = new RenderTarget(gfx, gfx.GetTargetBuffers()[n].Get());
+			backBufferTargets.push_back(std::shared_ptr<RenderTarget>(rt));
+		}
+
 		// setup global sinks and sources
 		AddGlobalSource(DirectBufferBucketSource<RenderTarget>::Make("backbuffer", backBufferTargets));
 		AddGlobalSource(DirectBufferSource<DepthStencil>::Make("masterDepth", masterDepth));

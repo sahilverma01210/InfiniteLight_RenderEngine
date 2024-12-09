@@ -1,12 +1,5 @@
 #pragma once
-#include "RenderMath.h"
-
 #include "RenderGraph.h"
-#include "ConstantBuffer.h"
-#include "Source.h"
-#include "RenderTarget.h"
-#include "DynamicConstant.h"
-#include "UIManager.h"
 
 // Passes Used in this Render Graph.
 #include "BufferClearPass.h"
@@ -38,7 +31,6 @@ namespace Renderer
 	public:
 		BlurOutlineRenderGraph(D3D12RHI& gfx);
 		void RenderWidgets(D3D12RHI& gfx);
-		void DumpShadowMap(D3D12RHI& gfx, const std::string& path);
 		void BindMainCamera(Camera& cam);
 		void BindShadowCamera(Camera& cam);
 		void SetKernelBox(int radius) noexcept(!IS_DEBUG);

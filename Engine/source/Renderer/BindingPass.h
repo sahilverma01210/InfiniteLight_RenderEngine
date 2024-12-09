@@ -1,10 +1,5 @@
 #pragma once
 #include "Pass.h"
-#include "Sink.h"
-#include "Bindable.h"
-#include "RenderTarget.h"
-#include "DepthStencil.h"
-#include "RenderGraphException.h"
 
 namespace Renderer
 {

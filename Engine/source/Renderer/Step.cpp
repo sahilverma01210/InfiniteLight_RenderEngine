@@ -1,22 +1,16 @@
 #include "Step.h"
-#include "Drawable.h"
+/*
+* Every Step is linked to its corresponding Render Pass. Bind method of Bindables of this Step will be called while executing Render Pass linked to this Step.
+* 
+* PS: Step objects are linked before RenderGraph object. Hence we cannot include RenderGraph.h in Step.h
+*/
 #include "RenderGraph.h"
-#include "TechniqueProbe.h"
-#include "RenderQueuePass.h"
 
 namespace Renderer
 {
 	void Step::Submit(const Drawable& drawable) const
 	{
 		pTargetPass->Accept(Job{ this,&drawable });
-	}
-
-	void Step::InitializeParentReferences(const Drawable& parent) noexcept(!IS_DEBUG)
-	{
-		for (auto& b : bindables)
-		{
-			b->InitializeParentReference(parent);
-		}
 	}
 
 	Step::Step(std::string targetPassName)

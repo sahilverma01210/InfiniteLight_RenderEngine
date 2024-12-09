@@ -1,11 +1,6 @@
 #pragma once
 #include "RenderQueuePass.h"
-#include "Job.h"
-#include "Sink.h"
-#include "Source.h"
 #include "Camera.h"
-#include "DepthStencil.h"
-#include "ShadowCameraBuffer.h"
 
 namespace Renderer
 {

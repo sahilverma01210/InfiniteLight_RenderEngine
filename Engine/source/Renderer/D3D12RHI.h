@@ -7,9 +7,6 @@
 
 namespace Renderer
 {
-    class Bindable;
-    class RenderTarget;
-
     enum class Mode
     {
         Off,
@@ -66,7 +63,7 @@ namespace Renderer
         std::wstring GetAssetFullPath(LPCWSTR assetName);
         void OnDestroy();
         void Info(HRESULT hresult);
-        std::vector<std::shared_ptr<RenderTarget>> GetTarget();
+        std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
         // TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
         void SetTransform(FXMMATRIX transformMatrix);
         void SetCamera(FXMMATRIX cameraMatrix);
@@ -161,6 +158,5 @@ namespace Renderer
         ID3D12Resource* m_currentDepthBuffer = nullptr;
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
-        std::vector<std::shared_ptr<RenderTarget>> pTarget;
     };
 }

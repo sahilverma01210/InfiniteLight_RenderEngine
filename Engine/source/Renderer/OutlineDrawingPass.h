@@ -1,6 +1,5 @@
 #pragma once
 #include "RenderQueuePass.h"
-#include "Job.h"
 
 /*
 * Todo (Optional): Configure this Pass and use it in Render Graph. Modify Material outlineDraw Step PipelineDesc for the same.

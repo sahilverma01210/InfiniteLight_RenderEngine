@@ -6,20 +6,14 @@ namespace Renderer
 		:
 	BindingPass(std::move(name))
 	{
-		// setup fullscreen geometry
-		VertexLayout lay;
-		lay.Append(VertexLayout::Position2D);
-		VertexRawBuffer bufFull{ lay };
-		bufFull.EmplaceBack(XMFLOAT2{ -1,1 });
-		bufFull.EmplaceBack(XMFLOAT2{ 1,1 });
-		bufFull.EmplaceBack(XMFLOAT2{ -1,-1 });
-		bufFull.EmplaceBack(XMFLOAT2{ 1,-1 });
-		AddBind(VertexBuffer::Resolve(gfx, "$Full", bufFull.GetData(), UINT(bufFull.SizeBytes()), (UINT)bufFull.GetLayout().Size()));
-		std::vector<unsigned short> indices = { 0,1,2,1,3,2 };
-		AddBind(IndexBuffer::Resolve(gfx, "$Full", indices.size() * sizeof(indices[0]), indices));
+		auto model = Plane::Make();
+
+		AddBind(std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)));
+		AddBind(VertexBuffer::Resolve(gfx, "$Full", model.vertices.GetData(), UINT(model.vertices.SizeBytes()), (UINT)model.vertices.GetLayout().Size()));
+		AddBind(IndexBuffer::Resolve(gfx, "$Full", model.indices.size() * sizeof(model.indices[0]), model.indices));
 		
 		// Define the vertex input layout.
-		std::vector<D3D12_INPUT_ELEMENT_DESC> vec = lay.GetD3DLayout();
+		std::vector<D3D12_INPUT_ELEMENT_DESC> vec = model.vertices.GetLayout().GetD3DLayout();
 		D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 		
 		for (size_t i = 0; i < vec.size(); ++i) {

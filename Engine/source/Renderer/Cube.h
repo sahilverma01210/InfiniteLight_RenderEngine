@@ -8,7 +8,7 @@ namespace Renderer
 	class Cube
 	{
 	public:
-		static IndexedTriangleList Make(std::optional<VertexLayout> layout = {})
+		static IndexedTriangleList Make(std::optional<VertexLayout> layout = std::nullopt)
 		{
 			using Type = VertexLayout::ElementType;
 			if (!layout)

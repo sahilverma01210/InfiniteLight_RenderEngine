@@ -1,8 +1,5 @@
 #pragma once
 #include "FullscreenPass.h"
-#include "ConstantBuffer.h"
-#include "Sink.h"
-#include "Source.h"
 
 namespace Renderer
 {

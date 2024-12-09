@@ -1,13 +1,7 @@
 #pragma once
-#include "RenderMath.h"
-
 #include "RenderQueuePass.h"
-#include "Job.h"
-#include "Source.h"
-#include "RenderTarget.h"
+#include "RenderMath.h"
 #include "Camera.h"
-#include "TextureBuffer.h"
-#include "Viewport.h"
 
 namespace Renderer
 {

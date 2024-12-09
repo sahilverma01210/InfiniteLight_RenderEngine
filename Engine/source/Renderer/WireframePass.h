@@ -1,8 +1,6 @@
 #pragma once
 #include "RenderQueuePass.h"
-#include "Job.h"
-#include "Sink.h"
-#include "Source.h"
+
 namespace Renderer
 {
 	class D3D12RHI;

@@ -1,4 +1,6 @@
 #include "DepthStencil.h"
+// DepthStencil objects are linked before RenderTarget object. Hence we cannot include RenderTarget.h in DepthStencil.h
+#include "RenderTarget.h"
 
 namespace Renderer
 {

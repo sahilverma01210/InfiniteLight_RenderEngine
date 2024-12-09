@@ -1,6 +1,4 @@
 #include "D3D12RHI.h"
-#include "DepthStencil.h"
-#include "RenderTarget.h"
 
 namespace Renderer
 {
@@ -158,12 +156,6 @@ namespace Renderer
 
             m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
         }
-
-        for (UINT n = 0; n < m_backBufferCount; n++)
-        {
-            RenderTarget* rt = new RenderTarget(*this, m_backBuffers[n].Get());
-            pTarget.push_back(std::shared_ptr<RenderTarget>(rt));
-        }
     }
 
     UINT D3D12RHI::GetWidth()
@@ -230,9 +222,9 @@ namespace Renderer
         D3D12RHI_THROW_INFO(hr);
     }
 
-    std::vector<std::shared_ptr<RenderTarget>> D3D12RHI::GetTarget()
+    std::vector<ComPtr<ID3D12Resource>> D3D12RHI::GetTargetBuffers()
     {
-        return pTarget;
+        return m_backBuffers;
     }
 
     // PUBLIC - TRASFORMATION & PROJECTION METHODS FOR THE CAMERA

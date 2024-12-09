@@ -1,12 +1,8 @@
 #pragma once
-#include "Pass.h"
-#include "DepthStencil.h"
-#include "RenderTarget.h"
-#include "CommonBindables.h"
-#include "RenderGraphException.h"
 #include "RenderQueuePass.h"
-#include "Sink.h"
-#include "Source.h"
+#include "RenderMath.h"
+#include "DynamicConstant.h"
+#include "UIManager.h"
 
 namespace Renderer
 {
@@ -18,7 +14,6 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		void Reset() noexcept(!IS_DEBUG);
 		RenderQueuePass& GetRenderQueue(const std::string& passName);
-		void StoreDepth(D3D12RHI& gfx, const std::string& path);
 	protected:
 		void SetSinkTarget(const std::string& sinkName, const std::string& target);
 		void AddGlobalSource(std::unique_ptr<Source>);

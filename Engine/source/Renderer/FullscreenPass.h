@@ -1,7 +1,6 @@
 #pragma once
 #include "BindingPass.h"
-#include "CommonBindables.h"
-#include "Vertex.h"
+#include "Plane.h"
 
 namespace Renderer
 {

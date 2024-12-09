@@ -1,12 +1,5 @@
 #pragma once
-#include "../_External/common.h"
-#include "../Common/ILUtility.h"
-
-#include "RenderTarget.h"
-#include "DepthStencil.h"
 #include "Sink.h"
-#include "Source.h"
-#include "RenderGraphException.h"
 
 namespace Renderer
 {

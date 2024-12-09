@@ -11,10 +11,9 @@ namespace Renderer
 		model.Transform(XMMatrixScaling(radius, radius, radius));
 
 		m_numIndices = model.indices.size() * sizeof(model.indices[0]);
-		VertexRawBuffer vbuf = model.vertices;
 
 		topologyBindable = std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-		vertexBufferBindable = std::move(std::make_shared<VertexBuffer>(gfx, vbuf.GetData(), UINT(vbuf.SizeBytes()), (UINT)vbuf.GetLayout().Size()));
+		vertexBufferBindable = std::move(std::make_shared<VertexBuffer>(gfx, model.vertices.GetData(), UINT(model.vertices.SizeBytes()), (UINT)model.vertices.GetLayout().Size()));
 		indexBufferBindable = std::move(std::make_shared<IndexBuffer>(gfx, model.indices.size() * sizeof(model.indices[0]), model.indices));
 
 		{

@@ -1,5 +1,4 @@
 #pragma once
-#include "D3D12RHI.h"
 #include "Mesh.h"
 #include "ModelProbe.h"
 #include "UIManager.h"

@@ -1,14 +1,7 @@
 #pragma once
 #include "RenderQueuePass.h"
-#include "Job.h"
-#include "Sink.h"
-#include "Source.h"
 #include "Camera.h"
-#include "DepthStencil.h"
 #include "Cube.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "Topology.h"
 
 namespace Renderer
 {
@@ -30,10 +23,9 @@ namespace Renderer
 			auto model = Cube::Make();
 			model.Transform(XMMatrixScaling(3.0f, 3.0f, 3.0f));
 			m_numIndices = model.indices.size() * sizeof(model.indices[0]);
-			VertexRawBuffer vbuf = model.vertices;
 
 			AddBind(std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)));
-			AddBind(std::move(std::make_shared<VertexBuffer>(gfx, vbuf.GetData(), UINT(vbuf.SizeBytes()), (UINT)vbuf.GetLayout().Size())));
+			AddBind(std::move(std::make_shared<VertexBuffer>(gfx, model.vertices.GetData(), UINT(model.vertices.SizeBytes()), (UINT)model.vertices.GetLayout().Size())));
 			AddBind(std::move(std::make_shared<IndexBuffer>(gfx, model.indices.size() * sizeof(model.indices[0]), model.indices)));
 
 			// Define the vertex input layout.

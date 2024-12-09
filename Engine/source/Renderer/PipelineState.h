@@ -1,5 +1,5 @@
 #pragma once
-#include "Bindable.h"
+#include "BindableCodex.h"
 #include "RootSignature.h"
 
 namespace Renderer

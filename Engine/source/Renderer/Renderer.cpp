@@ -28,7 +28,7 @@ namespace Renderer
 
 	void Graphics::StartFrame(UINT width, UINT height)
 	{
-		PerfLog::Start("Begin");
+		ILPerfLog::Start("Begin");
 		pRHI->StartFrame(width, height);
 		uiManager->StartUIFrame(*pRHI);
 	}
@@ -63,7 +63,7 @@ namespace Renderer
 		uiManager->EndUIFrame(*pRHI);
 		pRHI->EndFrame();
 		rg->Reset();
-		PerfLog::Mark("Resolve 2x");
+		ILPerfLog::Mark("Resolve 2x");
 	}
 
 	void Graphics::Destroy()

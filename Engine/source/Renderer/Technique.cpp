@@ -12,13 +12,6 @@ namespace Renderer
 			}
 		}
 	}
-	void Technique::InitializeParentReferences(const Drawable& parent) noexcept(!IS_DEBUG)
-	{
-		for (auto& s : steps)
-		{
-			s.InitializeParentReferences(parent);
-		}
-	}
 
 	Technique::Technique(size_t channels)
 		:

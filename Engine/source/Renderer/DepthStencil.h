@@ -1,9 +1,6 @@
 #pragma once
-#include "Bindable.h"
+#include "BindableCodex.h"
 #include "BufferResource.h"
-#include "CommonBindables.h"
-#include "RenderTarget.h"
-#include "D3D12RHI.h"
 
 namespace Renderer
 {

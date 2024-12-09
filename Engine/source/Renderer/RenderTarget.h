@@ -1,7 +1,6 @@
 #pragma once
-#include "Bindable.h"
+#include "BindableCodex.h"
 #include "BufferResource.h"
-#include "CommonBindables.h"
 #include "DepthStencil.h"
 
 namespace Renderer

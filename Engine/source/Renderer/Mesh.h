@@ -1,7 +1,6 @@
 #pragma once
 #include "../_External/common.h"
 
-#include "D3D12RHI.h"
 #include "Drawable.h"
 
 struct aiMesh;

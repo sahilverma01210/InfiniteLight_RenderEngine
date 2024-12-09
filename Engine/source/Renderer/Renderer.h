@@ -1,18 +1,18 @@
 #pragma once
-#include "RenderMath.h"
+#include "../Common/ILPerfLog.h"
 
+#include "RenderMath.h"
 #include "D3D12RHI.h"
 #include "CameraContainer.h"
 #include "UIManager.h"
 #include "PointLight.h"
 #include "Model.h"
 #include "BlurOutlineRenderGraph.h"
-#include "PerfLog.h"
 #include "TestModelProbe.h"
 #include "Camera.h"
 #include "Channels.h"
 
-
+using namespace Common;
 
 namespace Renderer
 {

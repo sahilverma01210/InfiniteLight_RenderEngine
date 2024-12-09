@@ -1,9 +1,4 @@
 #pragma once
-#include "D3D12RHI.h"
-#include "Bindable.h"
-#include "BindableCodex.h"
-#include "CommonBindables.h"
-#include "Technique.h"
 #include "Material.h"
 
 struct aiMesh;

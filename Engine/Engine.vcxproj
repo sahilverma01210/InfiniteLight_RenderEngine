@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="source\Common\ILException.h" />
     <ClInclude Include="source\Common\ILMath.h" />
+    <ClInclude Include="source\Common\ILPerfLog.h" />
     <ClInclude Include="source\Common\ILTimer.h" />
     <ClInclude Include="source\Common\ILUtility.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
@@ -41,7 +42,6 @@
     <ClInclude Include="source\Renderer\D3D12RHIException.h" />
     <ClInclude Include="source\Renderer\DepthStencil.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
-    <ClInclude Include="source\Renderer\DxgiInfoManager.h" />
     <ClInclude Include="source\Renderer\DynamicConstant.h" />
     <ClInclude Include="source\Renderer\Frustum.h" />
     <ClInclude Include="source\Renderer\FullscreenPass.h" />
@@ -60,11 +60,10 @@
     <ClInclude Include="source\Renderer\OutlineDrawingPass.h" />
     <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h" />
     <ClInclude Include="source\Renderer\Pass.h" />
+    <ClInclude Include="source\Renderer\Plane.h" />
     <ClInclude Include="source\Renderer\Projection.h" />
-    <ClInclude Include="source\Renderer\ShadowCameraBuffer.h" />
     <ClInclude Include="source\Renderer\ShadowMappingPass.h" />
     <ClInclude Include="source\Renderer\Sink.h" />
-    <ClInclude Include="source\Renderer\PerfLog.h" />
     <ClInclude Include="source\Renderer\PipelineState.h" />
     <ClInclude Include="source\Renderer\PointLight.h" />
     <ClInclude Include="source\Renderer\Renderer.h" />
@@ -124,7 +123,6 @@
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
     <ClCompile Include="source\Renderer\DepthStencil.cpp" />
     <ClCompile Include="source\Renderer\Drawable.cpp" />
-    <ClCompile Include="source\Renderer\DxgiInfoManager.cpp" />
     <ClCompile Include="source\Renderer\DynamicConstant.cpp" />
     <ClCompile Include="source\Renderer\Frustum.cpp" />
     <ClCompile Include="source\Renderer\FullscreenPass.cpp" />
@@ -139,7 +137,6 @@
     <ClCompile Include="source\Renderer\Node.cpp" />
     <ClCompile Include="source\Renderer\Pass.cpp" />
     <ClCompile Include="source\Renderer\Projection.cpp" />
-    <ClCompile Include="source\Renderer\ShadowCameraBuffer.cpp" />
     <ClCompile Include="source\Renderer\Sink.cpp" />
     <ClCompile Include="source\Renderer\Source.cpp" />
     <ClCompile Include="source\Renderer\PipelineState.cpp" />

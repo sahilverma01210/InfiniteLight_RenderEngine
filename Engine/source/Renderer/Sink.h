@@ -2,15 +2,11 @@
 #include "../Common/ILUtility.h"
 
 #include "Source.h"
-#include "Bindable.h"
+#include "CommonBindables.h"
 #include "BufferResource.h"
-#include "RenderTarget.h"
-#include "DepthStencil.h"
-#include "RenderGraphException.h"
 
 namespace Renderer
 {
-	class Bindable;
 	class Pass;
 
 	class Sink

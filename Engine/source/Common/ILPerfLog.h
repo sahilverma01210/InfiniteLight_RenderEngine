@@ -1,12 +1,11 @@
 #pragma once
 #include "../_External/common.h"
-#include "../Common/ILTimer.h"
 
+#include "ILTimer.h"
 
-
-namespace Renderer
+namespace Common
 {
-	class PerfLog
+	class ILPerfLog
 	{
 	private:
 		struct Entry
@@ -33,17 +32,17 @@ namespace Renderer
 		};
 
 	private:
-		PerfLog() noexcept(!IS_DEBUG)
+		ILPerfLog() noexcept(!IS_DEBUG)
 		{
 			entries.reserve(3000);
 		}
-		~PerfLog()
+		~ILPerfLog()
 		{
 			Flush_();
 		}
-		static PerfLog& Get_() noexcept(!IS_DEBUG)
+		static ILPerfLog& Get_() noexcept(!IS_DEBUG)
 		{
-			static PerfLog log;
+			static ILPerfLog log;
 			return log;
 		}
 		void Start_(const std::string& label = "") noexcept(!IS_DEBUG)
