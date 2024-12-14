@@ -10,7 +10,7 @@ namespace Renderer
 
 		AddBind(std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)));
 		AddBind(VertexBuffer::Resolve(gfx, "$Full", model.vertices.GetData(), UINT(model.vertices.SizeBytes()), (UINT)model.vertices.GetLayout().Size()));
-		AddBind(IndexBuffer::Resolve(gfx, "$Full", model.indices.size() * sizeof(model.indices[0]), model.indices));
+		AddBind(IndexBuffer::Resolve(gfx, "$Full", model.indices));
 		
 		// Define the vertex input layout.
 		std::vector<D3D12_INPUT_ELEMENT_DESC> vec = model.vertices.GetLayout().GetD3DLayout();
@@ -25,14 +25,14 @@ namespace Renderer
 			ID3DBlob* vertexShader;
 		
 			// Compile Shaders.
-			D3DCompileFromFile(gfx.GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
-			pipelineDesc.useTexture = true;
-			pipelineDesc.numConstantBufferViews = 2;
-			pipelineDesc.backFaceCulling = true;
-			pipelineDesc.numElements = vec.size();
-			pipelineDesc.inputElementDescs = inputElementDescs;
-			pipelineDesc.vertexShader = vertexShader;
+			m_pipelineDesc.useTexture = true;
+			m_pipelineDesc.numConstantBufferViews = 2;
+			m_pipelineDesc.backFaceCulling = true;
+			m_pipelineDesc.numElements = vec.size();
+			m_pipelineDesc.inputElementDescs = inputElementDescs;
+			m_pipelineDesc.vertexShader = vertexShader;
 		}
 	}
 

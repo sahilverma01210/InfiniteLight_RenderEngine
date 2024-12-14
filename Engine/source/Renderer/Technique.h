@@ -1,11 +1,16 @@
 #pragma once
 #include "Step.h"
-#include "Channels.h"
 #include "Drawable.h"
 #include "TechniqueProbe.h"
 
 namespace Renderer
 {
+	struct Channel
+	{
+		static const size_t main = 0b1;
+		static const size_t shadow = 0b10;
+	};
+
 	class Technique
 	{
 	public:
@@ -20,9 +25,9 @@ namespace Renderer
 		void Link(RenderGraph&);
 
 	private:
-		bool active = true;
-		std::vector<Step> steps;
-		std::string name;
-		size_t channels;
+		bool m_active = true;
+		std::vector<Step> m_steps;
+		std::string m_name;
+		size_t m_channels;
 	};
 }

@@ -10,7 +10,7 @@ namespace Renderer
 
     VertexBuffer::VertexBuffer(D3D12RHI& gfx, const std::string& tag, const char* data, UINT size, UINT layoutSize)
         :
-        tag(tag),
+        m_tag(tag),
         m_vertexBufferSize(size)
     {
         INFOMAN(gfx);
@@ -106,6 +106,6 @@ namespace Renderer
 
     std::string VertexBuffer::GetUID() const noexcept(!IS_DEBUG)
     {
-        return GenerateUID(tag);
+        return GenerateUID(m_tag);
     }
 }

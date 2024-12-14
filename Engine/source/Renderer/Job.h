@@ -11,7 +11,7 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG);
 
 	private:
-		const class Drawable* pDrawable;
-		const class Step* pStep;
+		const class Drawable* m_pDrawable;
+		const class Step* m_pStep;
 	};
 }

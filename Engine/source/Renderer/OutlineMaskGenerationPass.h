@@ -3,8 +3,6 @@
 
 namespace Renderer
 {
-	class D3D12RHI;
-
 	class OutlineMaskGenerationPass : public RenderQueuePass
 	{
 	public:
@@ -12,8 +10,8 @@ namespace Renderer
 			:
 			RenderQueuePass(std::move(name))
 		{
-			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", depthStencil));
-			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", depthStencil));
+			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));
+			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", m_depthStencil));
 		}
 	};
 }

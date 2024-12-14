@@ -4,10 +4,10 @@ namespace Renderer
 {
 	Material::Material(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path) noexcept(!IS_DEBUG)
 		:
-	modelPath(path.string())
+		m_modelPath(path.string())
 	{
-		vtxLayout.Append(VertexLayout::Position3D);
-		vtxLayout.Append(VertexLayout::Normal);
+		m_vtxLayout.Append(VertexLayout::Position3D);
+		m_vtxLayout.Append(VertexLayout::Normal);
 
 		// shadow map technique
 		Technique map{ "ShadowMap",Channel::shadow,true };
@@ -16,7 +16,7 @@ namespace Renderer
 			Step draw("shadowMap");
 			{
 				// Define the vertex input layout.
-				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
+				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
 				D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 
 				for (size_t i = 0; i < vec.size(); ++i) {
@@ -28,7 +28,7 @@ namespace Renderer
 					ID3DBlob* vertexShader;
 
 					// Compile Shaders.
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Shadow_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+					D3DCompileFromFile(GetAssetFullPath(L"Shadow_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
 					PipelineDescription shadowMapkPipelineDesc{};
 					shadowMapkPipelineDesc.numConstants = 1;
@@ -39,14 +39,14 @@ namespace Renderer
 					shadowMapkPipelineDesc.vertexShader = vertexShader;
 					shadowMapkPipelineDesc.depthUsage = DepthUsage::ShadowDepth;
 
-					pipelineDesc["shadowMap"] = shadowMapkPipelineDesc;
+					m_pipelineDesc["shadowMap"] = shadowMapkPipelineDesc;
 				}
 
 				draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 			}
 			map.AddStep(std::move(draw));
 		}
-		techniques.push_back(std::move(map));
+		m_techniques.push_back(std::move(map));
 
 		// phong technique
 		Technique phong{ "Phong",Channel::main };
@@ -88,7 +88,7 @@ namespace Renderer
 							hasAlpha = true;
 							shaderCode += L"Msk";
 						}
-						vtxLayout.Append(VertexLayout::Texture2D);
+						m_vtxLayout.Append(VertexLayout::Texture2D);
 						numSRVDescriptors++;
 					}
 					else
@@ -106,7 +106,7 @@ namespace Renderer
 						specPath = rootPath + specFileName.C_Str();
 						specTex = std::move(TextureBuffer::Resolve(gfx, std::wstring(specPath.begin(), specPath.end()).c_str()));
 						hasGlossAlpha = specTex->HasAlpha();
-						vtxLayout.Append(VertexLayout::Texture2D);
+						m_vtxLayout.Append(VertexLayout::Texture2D);
 						numSRVDescriptors++;
 						pscLayout.Add<Bool>("useGlossAlpha");
 						pscLayout.Add<Bool>("useSpecularMap");
@@ -124,9 +124,9 @@ namespace Renderer
 						shaderCode += L"Nrm";
 						normPath = rootPath + normFileName.C_Str();
 						normTex = std::move(TextureBuffer::Resolve(gfx, std::wstring(normPath.begin(), normPath.end()).c_str()));
-						vtxLayout.Append(VertexLayout::Texture2D);
-						vtxLayout.Append(VertexLayout::Tangent);
-						vtxLayout.Append(VertexLayout::Bitangent);
+						m_vtxLayout.Append(VertexLayout::Texture2D);
+						m_vtxLayout.Append(VertexLayout::Tangent);
+						m_vtxLayout.Append(VertexLayout::Bitangent);
 						numSRVDescriptors++;
 						pscLayout.Add<Bool>("useNormalMap");
 						pscLayout.Add<Float>("normalMapWeight");
@@ -134,7 +134,7 @@ namespace Renderer
 				}
 
 				// Define the vertex input layout.
-				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
+				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
 				D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 
 				for (size_t i = 0; i < vec.size(); ++i) {
@@ -147,8 +147,8 @@ namespace Renderer
 					ID3DBlob* pixelShader;
 
 					// Compile Shaders.
-					D3DCompileFromFile(gfx.GetAssetFullPath((shaderCode + L"_VS.hlsl").c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-					D3DCompileFromFile(gfx.GetAssetFullPath((shaderCode + L"_PS.hlsl").c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+					D3DCompileFromFile(GetAssetFullPath((shaderCode + L"_VS.hlsl").c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+					D3DCompileFromFile(GetAssetFullPath((shaderCode + L"_PS.hlsl").c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 
 					numSRVDescriptors++; // One extra for Shadow Texture.
 
@@ -185,7 +185,7 @@ namespace Renderer
 					phongPipelineDesc.vertexShader = vertexShader;
 					phongPipelineDesc.pixelShader = pixelShader;
 
-					pipelineDesc["lambertian"] = phongPipelineDesc;
+					m_pipelineDesc["lambertian"] = phongPipelineDesc;
 				}
 
 				// Add Textures
@@ -249,7 +249,7 @@ namespace Renderer
 			}
 			phong.AddStep(std::move(step));
 		}
-		techniques.push_back(std::move(phong));
+		m_techniques.push_back(std::move(phong));
 
 		// outline technique
 		Technique outline{ "Outline",Channel::main,false };
@@ -258,7 +258,7 @@ namespace Renderer
 			Step mask("outlineMask");
 			{
 				// Define the vertex input layout.
-				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
+				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
 				D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 
 				for (size_t i = 0; i < vec.size(); ++i) {
@@ -270,7 +270,7 @@ namespace Renderer
 					ID3DBlob* vertexShader;
 
 					// Compile Shaders.
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+					D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
 					CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
 
@@ -294,7 +294,7 @@ namespace Renderer
 					maskPipelineDesc.inputElementDescs = inputElementDescs;
 					maskPipelineDesc.vertexShader = vertexShader;
 
-					pipelineDesc["outlineMask"] = maskPipelineDesc;
+					m_pipelineDesc["outlineMask"] = maskPipelineDesc;
 				}
 
 				mask.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
@@ -305,7 +305,7 @@ namespace Renderer
 			Step draw("outlineDraw");
 			{
 				// Define the vertex input layout.
-				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vtxLayout.GetD3DLayout();
+				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
 				D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 
 				for (size_t i = 0; i < vec.size(); ++i) {
@@ -318,8 +318,8 @@ namespace Renderer
 					ID3DBlob* pixelShader;
 
 					// Compile Shaders.
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-					D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+					D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+					D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 
 					CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
 
@@ -345,7 +345,7 @@ namespace Renderer
 					drawPipelineDesc.numSamplers = 1;
 					drawPipelineDesc.samplers = samplers;
 
-					pipelineDesc["outlineDraw"] = drawPipelineDesc;
+					m_pipelineDesc["outlineDraw"] = drawPipelineDesc;
 				}
 
 				draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
@@ -358,12 +358,12 @@ namespace Renderer
 			}			
 			outline.AddStep(std::move(draw));
 		}
-		techniques.push_back(std::move(outline));
+		m_techniques.push_back(std::move(outline));
 	}
 
 	VertexRawBuffer Material::ExtractVertices(const aiMesh& mesh) const noexcept(!IS_DEBUG)
 	{
-		return { vtxLayout,mesh };
+		return { m_vtxLayout,mesh };
 	}
 
 	std::vector<unsigned short> Material::ExtractIndices(const aiMesh& mesh) const noexcept(!IS_DEBUG)
@@ -400,21 +400,21 @@ namespace Renderer
 	std::shared_ptr<IndexBuffer> Material::MakeIndexBindable(D3D12RHI& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG)
 	{
 		auto indices = ExtractIndices(mesh);
-		return IndexBuffer::Resolve(gfx, MakeMeshTag(mesh), indices.size() * sizeof(indices[0]), indices);
+		return IndexBuffer::Resolve(gfx, MakeMeshTag(mesh), indices);
 	}
 
 	std::unordered_map<std::string, PipelineDescription> Material::GetPipelineDesc() noexcept(!IS_DEBUG)
 	{
-		return pipelineDesc;
+		return m_pipelineDesc;
 	}
 
 	std::string Material::MakeMeshTag(const aiMesh& mesh) const noexcept(!IS_DEBUG)
 	{
-		return modelPath + "%" + mesh.mName.C_Str();
+		return m_modelPath + "%" + mesh.mName.C_Str();
 	}
 
 	std::vector<Technique> Material::GetTechniques() noexcept(!IS_DEBUG)
 	{
-		return techniques;
+		return m_techniques;
 	}
 }

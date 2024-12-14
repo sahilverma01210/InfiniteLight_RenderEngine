@@ -18,14 +18,14 @@ namespace Renderer
 		void Reset(D3D12RHI& gfx);
 
 	private:
-		float width;
-		float height;
-		float nearZ;
-		float farZ;
-		float homeWidth;
-		float homeHeight;
-		float homeNearZ;
-		float homeFarZ;
-		Frustum frust;
+		float m_width;
+		float m_height;
+		float m_nearZ;
+		float m_farZ;
+		float m_homeWidth;
+		float m_homeHeight;
+		float m_homeNearZ;
+		float m_homeFarZ;
+		Frustum m_frust;
 	};
 }

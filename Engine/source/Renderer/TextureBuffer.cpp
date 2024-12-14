@@ -15,7 +15,7 @@ namespace Renderer
         // generate mip chain 
         ScratchImage mipChain;
         D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain));
-        hasAlpha = !mipChain.IsAlphaAllOpaque();
+        m_hasAlpha = !mipChain.IsAlphaAllOpaque();
 
         // collect subresource data
         std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
@@ -99,7 +99,7 @@ namespace Renderer
 
     bool TextureBuffer::HasAlpha() const noexcept(!IS_DEBUG)
     {
-        return hasAlpha;
+        return m_hasAlpha;
     }
 
     bool TextureBuffer::HasAlphaChannel(const Image& image) {
@@ -291,7 +291,7 @@ namespace Renderer
         // make depth buffer resources for capturing shadow map
         for (UINT face = 0; face < 6; face++)
         {
-            depthBuffers.push_back(std::make_shared<DepthStencil>(gfx, m_texureBuffer.Get(), face));
+            m_depthBuffers.push_back(std::make_shared<DepthStencil>(gfx, m_texureBuffer.Get(), face));
         }
     }
 
@@ -302,7 +302,7 @@ namespace Renderer
 
     std::shared_ptr<DepthStencil> DepthCubeMapTextureBuffer::GetDepthBuffer(size_t index) const
     {
-        return depthBuffers[index];
+        return m_depthBuffers[index];
     }
 
     TargetCubeMapTextureBuffer::TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size)
@@ -335,7 +335,7 @@ namespace Renderer
         // make depth buffer resources for capturing shadow map
         for (UINT face = 0; face < 6; face++)
         {
-            renderTargets.push_back(std::make_shared<RenderTarget>(gfx, m_texureBuffer.Get(), face));
+            m_renderTargets.push_back(std::make_shared<RenderTarget>(gfx, m_texureBuffer.Get(), face));
         }
     }
 
@@ -346,6 +346,6 @@ namespace Renderer
 
     std::shared_ptr<RenderTarget> TargetCubeMapTextureBuffer::GetRenderTarget(size_t index) const
     {
-        return renderTargets[index];
+        return m_renderTargets[index];
     }
 }

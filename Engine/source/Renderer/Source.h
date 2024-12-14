@@ -1,13 +1,12 @@
 #pragma once
 #include "../_External/common.h"
 
+#include "Bindable.h"
+#include "BufferResource.h"
 #include "RenderGraphException.h"
 
 namespace Renderer
 {
-	class Bindable;
-	class BufferResource;
-
 	class Source
 	{
 	public:
@@ -21,9 +20,9 @@ namespace Renderer
 		Source(std::string name);
 
 	public:
-		bool isVector = false;
+		bool m_isVector = false;
 	private:
-		std::string name;
+		std::string m_name;
 	};
 
 	template<class T>
@@ -33,7 +32,7 @@ namespace Renderer
 		DirectBufferSource(std::string name, std::shared_ptr<T>& buffer)
 			:
 			Source(std::move(name)),
-			buffer(buffer)
+			m_buffer(buffer)
 		{
 		}
 		static std::unique_ptr<DirectBufferSource> Make(std::string name, std::shared_ptr<T>& ebuffer)
@@ -44,17 +43,17 @@ namespace Renderer
 		{}
 		std::shared_ptr<BufferResource> YieldBuffer() override
 		{
-			if (linked)
+			if (m_linked)
 			{
 				throw RG_EXCEPTION("Mutable output bound twice: " + GetName());
 			}
-			linked = true;
-			return buffer;
+			m_linked = true;
+			return m_buffer;
 		}
 
 	private:
-		std::shared_ptr<T>& buffer;
-		bool linked = false;
+		std::shared_ptr<T>& m_buffer;
+		bool m_linked = false;
 	};
 
 	template<class T>
@@ -64,9 +63,9 @@ namespace Renderer
 		DirectBufferBucketSource(std::string name, std::vector<std::shared_ptr<T>>& bufferVector)
 			:
 			Source(std::move(name)),
-			bufferVector(bufferVector)
+			m_bufferVector(bufferVector)
 		{
-			isVector = true;
+			m_isVector = true;
 		}
 		static std::unique_ptr<DirectBufferBucketSource> Make(std::string name, std::vector<std::shared_ptr<T>>& ebufferVector)
 		{
@@ -76,14 +75,14 @@ namespace Renderer
 		{}
 		std::vector<std::shared_ptr<BufferResource>> YieldBufferBucket() override
 		{
-			if (linked)
+			if (m_linked)
 			{
 				throw RG_EXCEPTION("Mutable output bound twice: " + GetName());
 			}
-			linked = true;
+			m_linked = true;
 			std::vector<std::shared_ptr<BufferResource>> bufferResources;
-			bufferResources.reserve(bufferVector.size());
-			std::transform(bufferVector.begin(), bufferVector.end(),
+			bufferResources.reserve(m_bufferVector.size());
+			std::transform(m_bufferVector.begin(), m_bufferVector.end(),
 				std::back_inserter(bufferResources),
 				[](const std::shared_ptr<T>& buffer) {
 					return std::static_pointer_cast<BufferResource>(buffer);
@@ -92,8 +91,8 @@ namespace Renderer
 		}
 
 	private:
-		std::vector<std::shared_ptr<T>>& bufferVector;
-		bool linked = false;
+		std::vector<std::shared_ptr<T>>& m_bufferVector;
+		bool m_linked = false;
 	};
 
 	template<class T>
@@ -103,7 +102,7 @@ namespace Renderer
 		DirectBindableSource(std::string name, std::shared_ptr<T>& bind)
 			:
 			Source(std::move(name)),
-			bind(bind)
+			m_bind(bind)
 		{
 		}
 		static std::unique_ptr<DirectBindableSource> Make(std::string name, std::shared_ptr<T>& buffer)
@@ -114,10 +113,10 @@ namespace Renderer
 		{}
 		std::shared_ptr<Bindable> YieldBindable() override
 		{
-			return bind;
+			return m_bind;
 		}
 
 	private:
-		std::shared_ptr<T>& bind;
+		std::shared_ptr<T>& m_bind;
 	};
 }

@@ -2,27 +2,27 @@
 
 namespace Renderer
 {
-	Node::Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const XMMATRIX& transform_in) noexcept(!IS_DEBUG)
+	Node::Node(int id, const std::string& name, std::vector<std::shared_ptr<Mesh>> meshPtrs, const XMMATRIX& transform_in) noexcept(!IS_DEBUG)
 		:
-		id(id),
-		meshPtrs(std::move(meshPtrs)),
-		name(name)
+		m_id(id),
+		m_meshPtrs(std::move(meshPtrs)),
+		m_name(name)
 	{
-		XMStoreFloat4x4(&transform, transform_in);
-		XMStoreFloat4x4(&appliedTransform, XMMatrixIdentity());
+		XMStoreFloat4x4(&m_transform, transform_in);
+		XMStoreFloat4x4(&m_appliedTransform, XMMatrixIdentity());
 	}
 
 	void Node::Submit(size_t channels, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
 	{
 		const auto built =
-			XMLoadFloat4x4(&appliedTransform) *
-			XMLoadFloat4x4(&transform) *
+			XMLoadFloat4x4(&m_appliedTransform) *
+			XMLoadFloat4x4(&m_transform) *
 			accumulatedTransform;
-		for (const auto pm : meshPtrs)
+		for (const auto& pm : m_meshPtrs)
 		{
 			pm->Submit(channels, built);
 		}
-		for (const auto& pc : childPtrs)
+		for (const auto& pc : m_childPtrs)
 		{
 			pc->Submit(channels, built);
 		}
@@ -31,29 +31,29 @@ namespace Renderer
 	void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
 	{
 		assert(pChild);
-		childPtrs.push_back(std::move(pChild));
+		m_childPtrs.push_back(std::move(pChild));
 	}
 
 	void Node::SetAppliedTransform(FXMMATRIX transform) noexcept(!IS_DEBUG)
 	{
-		XMStoreFloat4x4(&appliedTransform, transform);
+		XMStoreFloat4x4(&m_appliedTransform, transform);
 	}
 
 	const XMFLOAT4X4& Node::GetAppliedTransform() const noexcept(!IS_DEBUG)
 	{
-		return appliedTransform;
+		return m_appliedTransform;
 	}
 
 	int Node::GetId() const noexcept(!IS_DEBUG)
 	{
-		return id;
+		return m_id;
 	}
 
 	void Node::Accept(ModelProbe& probe)
 	{
 		if (probe.PushNode(*this))
 		{
-			for (auto& cp : childPtrs)
+			for (auto& cp : m_childPtrs)
 			{
 				cp->Accept(probe);
 			}
@@ -63,7 +63,7 @@ namespace Renderer
 
 	void Node::Accept(TechniqueProbe& probe)
 	{
-		for (auto& mp : meshPtrs)
+		for (auto& mp : m_meshPtrs)
 		{
 			mp->Accept(probe);
 		}

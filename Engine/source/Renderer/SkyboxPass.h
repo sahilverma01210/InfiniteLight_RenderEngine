@@ -5,8 +5,6 @@
 
 namespace Renderer
 {
-	class D3D12RHI;
-
 	class SkyboxPass : public BindingPass
 	{
 	private:
@@ -26,7 +24,7 @@ namespace Renderer
 
 			AddBind(std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)));
 			AddBind(std::move(std::make_shared<VertexBuffer>(gfx, model.vertices.GetData(), UINT(model.vertices.SizeBytes()), (UINT)model.vertices.GetLayout().Size())));
-			AddBind(std::move(std::make_shared<IndexBuffer>(gfx, model.indices.size() * sizeof(model.indices[0]), model.indices)));
+			AddBind(std::move(std::make_shared<IndexBuffer>(gfx, model.indices)));
 
 			// Define the vertex input layout.
 			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = model.vertices.GetLayout().GetD3DLayout();
@@ -39,8 +37,8 @@ namespace Renderer
 			ID3DBlob* pixelShader;
 			ID3DBlob* vertexShader;
 
-			D3DCompileFromFile(gfx.GetAssetFullPath(L"Skybox_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
-			D3DCompileFromFile(gfx.GetAssetFullPath(L"Skybox_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(GetAssetFullPath(L"Skybox_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+			D3DCompileFromFile(GetAssetFullPath(L"Skybox_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
 			CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
 
@@ -71,8 +69,8 @@ namespace Renderer
 			AddBind(std::move(std::make_unique<RootSignature>(gfx, pipelineDesc)));
 			AddBind(std::move(std::make_unique<PipelineState>(gfx, pipelineDesc)));
 
-			skyboxTransform = std::move(std::make_unique<ConstantBuffer>(gfx, 0, sizeof(skyboxData), &skyboxData));
-			AddBind(skyboxTransform);
+			m_skyboxTransform = std::move(std::make_unique<ConstantBuffer>(gfx, 0, sizeof(m_skyboxData), &m_skyboxData));
+			AddBind(m_skyboxTransform);
 
 			auto texture = std::make_unique<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox");
 			auto srvBindable = std::make_unique<ShaderResourceView>(gfx, 1, 1);
@@ -80,32 +78,32 @@ namespace Renderer
 			AddBind(std::move(texture));
 			AddBind(std::move(srvBindable));
 
-			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", renderTargetVector));
-			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", depthStencil));
-			RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTarget", renderTargetVector));
-			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", depthStencil));
+			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", m_renderTargetVector));
+			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));
+			RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTarget", m_renderTargetVector));
+			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", m_depthStencil));
 		}
 		void BindMainCamera(const Camera& cam) noexcept(!IS_DEBUG)
 		{
-			pMainCamera = &cam;
+			m_pMainCamera = &cam;
 		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
-			assert(pMainCamera);
-			auto skyboxDataCopy = skyboxData;
+			assert(m_pMainCamera);
+			auto skyboxDataCopy = m_skyboxData;
 			skyboxDataCopy.viewProj = {
 				XMMatrixTranspose(gfx.GetCamera() * gfx.GetProjection())
 			};
-			pMainCamera->Update(gfx);
+			m_pMainCamera->Update(gfx);
 			BindAll(gfx);
-			skyboxTransform->Update(gfx, &skyboxDataCopy);
+			m_skyboxTransform->Update(gfx, &skyboxDataCopy);
 			gfx.DrawIndexed(m_numIndices);
 		}
 
 	private:
-		Transforms skyboxData;
+		Transforms m_skyboxData;
 		UINT m_numIndices;
-		const Camera* pMainCamera = nullptr;
-		std::shared_ptr<ConstantBuffer> skyboxTransform;
+		const Camera* m_pMainCamera = nullptr;
+		std::shared_ptr<ConstantBuffer> m_skyboxTransform;
 	};
 }

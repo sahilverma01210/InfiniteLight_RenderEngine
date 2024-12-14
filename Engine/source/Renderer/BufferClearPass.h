@@ -10,7 +10,7 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
-		std::shared_ptr<BufferResource> buffer;
+		std::shared_ptr<BufferResource> m_buffer;
 	};
 
 	class BufferBucketClearPass : public Pass
@@ -20,6 +20,6 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
-		std::vector<std::shared_ptr<BufferResource>> bufferVector;
+		std::vector<std::shared_ptr<BufferResource>> m_bufferVector;
 	};
 }

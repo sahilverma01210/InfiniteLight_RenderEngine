@@ -6,7 +6,6 @@ namespace Renderer
 {
 	class Drawable;
 	class TechniqueProbe;
-	class D3D12RHI;
 
 	class Bindable : public GraphicsResource
 	{

@@ -25,19 +25,19 @@ namespace Renderer
 		void Submit(size_t channels) const;
 
 	private:
-		bool tethered;
-		std::string name;
-		XMFLOAT3 homePos;
-		float homePitch;
-		float homeYaw;
-		XMFLOAT3 pos;
-		float pitch;
-		float yaw;
-		static constexpr float travelSpeed = 12.0f;
-		static constexpr float rotationSpeed = 0.004f;
-		bool enableCameraIndicator = false;
-		bool enableFrustumIndicator = false;
-		Projection proj;
-		CameraIndicator indicator;
+		bool m_tethered;
+		std::string m_name;
+		XMFLOAT3 m_pos;
+		XMFLOAT3 m_homePos;
+		float m_pitch;
+		float m_homePitch;
+		float m_yaw;
+		float m_homeYaw;
+		Projection m_projection;
+		CameraIndicator m_indicator;
+		bool m_enableCameraIndicator = false;
+		bool m_enableFrustumIndicator = false;
+		static constexpr float m_travelSpeed = 12.0f;
+		static constexpr float m_rotationSpeed = 0.004f;
 	};
 }

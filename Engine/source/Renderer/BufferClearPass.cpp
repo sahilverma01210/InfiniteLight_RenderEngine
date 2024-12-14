@@ -6,25 +6,25 @@ namespace Renderer
 		:
 		Pass(std::move(name))
 	{
-		RegisterSink(DirectBufferSink<BufferResource>::Make("buffer", buffer));
-		RegisterSource(DirectBufferSource<BufferResource>::Make("buffer", buffer));
+		RegisterSink(DirectBufferSink<BufferResource>::Make("buffer", m_buffer));
+		RegisterSource(DirectBufferSource<BufferResource>::Make("buffer", m_buffer));
 	}
 
 	void BufferClearPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		buffer->Clear(gfx);
+		m_buffer->Clear(gfx);
 	}
 
 	BufferBucketClearPass::BufferBucketClearPass(std::string name)
 		:
 		Pass(std::move(name))
 	{
-		RegisterSink(DirectBufferBucketSink<BufferResource>::Make("buffer", bufferVector));
-		RegisterSource(DirectBufferBucketSource<BufferResource>::Make("buffer", bufferVector));
+		RegisterSink(DirectBufferBucketSink<BufferResource>::Make("buffer", m_bufferVector));
+		RegisterSource(DirectBufferBucketSource<BufferResource>::Make("buffer", m_bufferVector));
 	}
 
 	void BufferBucketClearPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		bufferVector[gfx.GetCurrentBackBufferIndex()]->Clear(gfx);
+		m_bufferVector[gfx.GetCurrentBackBufferIndex()]->Clear(gfx);
 	}
 }

@@ -6,13 +6,11 @@
 
 namespace Renderer
 {
-	class DepthStencil;
-	class RenderTarget;
-
 	class TextureBuffer : public Bindable
 	{
 	public:
 		TextureBuffer(D3D12RHI& gfx, const WCHAR* filename);
+		~TextureBuffer() = default;
 		ID3D12Resource* GetBuffer();
 		bool HasAlpha() const noexcept(!IS_DEBUG);
 		bool HasAlphaChannel(const Image& image);
@@ -21,7 +19,7 @@ namespace Renderer
 		std::string GetUID() const noexcept(!IS_DEBUG) override;
 
 	private:
-		bool hasAlpha = false;
+		bool m_hasAlpha = false;
 		const WCHAR* m_filename;
 		ComPtr<ID3D12Resource> m_texureBuffer;
 	};
@@ -30,6 +28,7 @@ namespace Renderer
 	{
 	public:
 		CubeMapTextureBuffer(D3D12RHI& gfx, const WCHAR* foldername);
+		~CubeMapTextureBuffer() = default;
 		ID3D12Resource* GetBuffer();
 		static std::shared_ptr<CubeMapTextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
 		static std::string GenerateUID(const WCHAR* filename);
@@ -44,23 +43,25 @@ namespace Renderer
 	{
 	public:
 		DepthCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);
+		~DepthCubeMapTextureBuffer() = default;
 		ID3D12Resource* GetBuffer();
 		std::shared_ptr<DepthStencil> GetDepthBuffer(size_t index) const;
 
 	private:
 		ComPtr<ID3D12Resource> m_texureBuffer;
-		std::vector<std::shared_ptr<DepthStencil>> depthBuffers;
+		std::vector<std::shared_ptr<DepthStencil>> m_depthBuffers;
 	};
 
 	class TargetCubeMapTextureBuffer : public Bindable
 	{
 	public:
 		TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);
+		~TargetCubeMapTextureBuffer() = default;
 		ID3D12Resource* GetBuffer();
 		std::shared_ptr<RenderTarget> GetRenderTarget(size_t index) const;
 
 	private:
 		ComPtr<ID3D12Resource> m_texureBuffer;
-		std::vector<std::shared_ptr<RenderTarget>> renderTargets;
+		std::vector<std::shared_ptr<RenderTarget>> m_renderTargets;
 	};
 }

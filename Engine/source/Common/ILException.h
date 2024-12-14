@@ -19,10 +19,10 @@ namespace Common
         static std::string TranslateErrorCode(HRESULT hr) noexcept(!IS_DEBUG);
 
     private:
-        int line;
-        std::string file;
+        int m_line;
+        std::string m_file;
     protected:
-        mutable std::string whatBuffer;
+        mutable std::string m_whatBuffer;
     };
 
     class HrException : public ILException
@@ -31,19 +31,19 @@ namespace Common
         HrException(int line, const char* file, HRESULT hr, std::vector<std::string> msgs = {}) noexcept(!IS_DEBUG)
             :
             ILException(line, file),
-            hr(hr),
-            msgs(msgs)
+            m_hResult(hr),
+            m_msgs(msgs)
         {
             // join all info messages with newlines into single string
             for (const auto& m : msgs)
             {
-                info += m;
-                info.push_back('\n');
+                m_info += m;
+                m_info.push_back('\n');
             }
             // remove final newline if exists
-            if (!info.empty())
+            if (!m_info.empty())
             {
-                info.pop_back();
+                m_info.pop_back();
             }
         }
         const char* what() const noexcept(!IS_DEBUG) override
@@ -53,13 +53,13 @@ namespace Common
                 << "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode()
                 << std::dec << " (" << (unsigned long)GetErrorCode() << ")" << std::endl
                 << "[Description] " << GetErrorDescription() << std::endl;
-            if (!info.empty())
+            if (!m_info.empty())
             {
                 oss << "\n[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
             }
             oss << GetOriginString();
-            whatBuffer = oss.str();
-            return whatBuffer.c_str();
+            m_whatBuffer = oss.str();
+            return m_whatBuffer.c_str();
         }
         const char* GetType() const noexcept(!IS_DEBUG) override
         {
@@ -67,20 +67,20 @@ namespace Common
         }
         HRESULT GetErrorCode() const noexcept(!IS_DEBUG)
         {
-            return hr;
+            return m_hResult;
         }
         std::string GetErrorDescription() const noexcept(!IS_DEBUG)
         {
-            return TranslateErrorCode(hr);
+            return TranslateErrorCode(m_hResult);
         }
         std::string GetErrorInfo() const noexcept(!IS_DEBUG)
         {
-            return info;
+            return m_info;
         }
 
     private:
-        HRESULT hr;
-        std::vector<std::string> msgs;
-        std::string info;
+        HRESULT m_hResult;
+        std::vector<std::string> m_msgs;
+        std::string m_info;
     };
 }

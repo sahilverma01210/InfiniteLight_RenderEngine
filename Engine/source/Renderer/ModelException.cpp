@@ -2,10 +2,10 @@
 
 namespace Renderer
 {
-	ModelException::ModelException(int line, const char* file, std::string note) noexcept(!IS_DEBUG)
+	ModelException::ModelException(int line, const char* file, std::string message) noexcept(!IS_DEBUG)
 		:
 		ILException(line, file),
-		note(std::move(note))
+		m_message(std::move(message))
 	{}
 
 	const char* ModelException::what() const noexcept(!IS_DEBUG)
@@ -13,8 +13,8 @@ namespace Renderer
 		std::ostringstream oss;
 		oss << ILException::what() << std::endl
 			<< "[Note] " << GetNote();
-		whatBuffer = oss.str();
-		return whatBuffer.c_str();
+		m_whatBuffer = oss.str();
+		return m_whatBuffer.c_str();
 	}
 
 	const char* ModelException::GetType() const noexcept(!IS_DEBUG)
@@ -24,6 +24,6 @@ namespace Renderer
 
 	const std::string& ModelException::GetNote() const noexcept(!IS_DEBUG)
 	{
-		return note;
+		return m_message;
 	}
 }

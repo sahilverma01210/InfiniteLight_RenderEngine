@@ -6,12 +6,12 @@ namespace Renderer
 		:
 	Drawable(gfx, mat, mesh, scale)
 	{
-		enableLighting = true;
+		m_enableLighting = true;
 	}
 
 	void Mesh::Submit(size_t channels, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG)
 	{
-		XMStoreFloat4x4(&transform, accumulatedTranform);
+		XMStoreFloat4x4(&m_transform, accumulatedTranform);
 		Drawable::Submit(channels);
 	}
 
@@ -22,6 +22,6 @@ namespace Renderer
 
 	XMMATRIX Mesh::GetTransformXM() const noexcept(!IS_DEBUG)
 	{
-		return XMLoadFloat4x4(&transform);
+		return XMLoadFloat4x4(&m_transform);
 	}
 }

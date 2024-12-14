@@ -13,19 +13,19 @@ namespace Renderer
 		virtual ~TechniqueProbe() {}
 		void SetTechnique(Technique* pTech_in)
 		{
-			pTech = pTech_in;
-			techIdx++;
+			m_pTech = pTech_in;
+			m_techIdx++;
 			OnSetTechnique();
 		}
 		void SetStep(Step* pStep_in)
 		{
-			pStep = pStep_in;
-			stepIdx++;
+			m_pStep = pStep_in;
+			m_stepIdx++;
 			OnSetStep();
 		}
 		bool VisitBuffer(Buffer& buf)
 		{
-			bufIdx++;
+			m_bufIdx++;
 			return OnVisitBuffer(buf);
 		}
 	protected:
@@ -37,10 +37,10 @@ namespace Renderer
 		}
 
 	protected:
-		Technique* pTech = nullptr;
-		Step* pStep = nullptr;
-		size_t techIdx;
-		size_t stepIdx;
-		size_t bufIdx;
+		Technique* m_pTech = nullptr;
+		Step* m_pStep = nullptr;
+		size_t m_techIdx;
+		size_t m_stepIdx;
+		size_t m_bufIdx;
 	};
 }

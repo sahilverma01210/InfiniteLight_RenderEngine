@@ -4,7 +4,7 @@ namespace Renderer
 {
 	SolidSphere::SolidSphere(D3D12RHI& gfx, float radius)
 	{
-		enableLighting = false;
+		m_enableLighting = false;
 
 		auto model = Sphere::Make();
 		// deform vertices of model by linear transformation
@@ -12,9 +12,9 @@ namespace Renderer
 
 		m_numIndices = model.indices.size() * sizeof(model.indices[0]);
 
-		topologyBindable = std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-		vertexBufferBindable = std::move(std::make_shared<VertexBuffer>(gfx, model.vertices.GetData(), UINT(model.vertices.SizeBytes()), (UINT)model.vertices.GetLayout().Size()));
-		indexBufferBindable = std::move(std::make_shared<IndexBuffer>(gfx, model.indices.size() * sizeof(model.indices[0]), model.indices));
+		m_topologyBindable = std::move(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+		m_vertexBufferBindable = std::move(std::make_shared<VertexBuffer>(gfx, model.vertices.GetData(), UINT(model.vertices.SizeBytes()), (UINT)model.vertices.GetLayout().Size()));
+		m_indexBufferBindable = std::move(std::make_shared<IndexBuffer>(gfx, model.indices));
 
 		{
 			Technique solid{ Channel::main };
@@ -27,8 +27,8 @@ namespace Renderer
 						ID3DBlob* pixelShader;
 
 						// Compile Shaders.
-						D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-						D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 
 						// Define the vertex input layout.
 						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = model.vertices.GetLayout().GetD3DLayout();
@@ -52,18 +52,18 @@ namespace Renderer
 
 						samplers[0] = staticSampler;
 
-						pipelineDesc.numConstants = 1;
-						pipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						pipelineDesc.numConstantBufferViews = 1;
-						pipelineDesc.numSamplers = 1;
-						pipelineDesc.samplers = samplers;
-						pipelineDesc.numElements = vec.size();
-						pipelineDesc.inputElementDescs = inputElementDescs;
-						pipelineDesc.vertexShader = vertexShader;
-						pipelineDesc.pixelShader = pixelShader;
+						m_pipelineDesc.numConstants = 1;
+						m_pipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+						m_pipelineDesc.numConstantBufferViews = 1;
+						m_pipelineDesc.numSamplers = 1;
+						m_pipelineDesc.samplers = samplers;
+						m_pipelineDesc.numElements = vec.size();
+						m_pipelineDesc.inputElementDescs = inputElementDescs;
+						m_pipelineDesc.vertexShader = vertexShader;
+						m_pipelineDesc.pixelShader = pixelShader;
 
-						rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
-						psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
+						m_rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, m_pipelineDesc));
+						m_psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, m_pipelineDesc));
 					}
 
 					only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
@@ -82,16 +82,16 @@ namespace Renderer
 
 	void SolidSphere::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)
 	{
-		this->pos = pos;
+		this->m_pos = pos;
 	}
 
 	XMMATRIX SolidSphere::GetTransformXM() const noexcept(!IS_DEBUG)
 	{
-		return XMMatrixTranslation(pos.x, pos.y, pos.z);
+		return XMMatrixTranslation(m_pos.x, m_pos.y, m_pos.z);
 	}
 
 	PipelineDescription SolidSphere::GetPipelineDesc() noexcept(!IS_DEBUG)
 	{
-		return pipelineDesc;
+		return m_pipelineDesc;
 	}
 }

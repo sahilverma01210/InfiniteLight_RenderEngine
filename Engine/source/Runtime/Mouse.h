@@ -32,27 +32,27 @@ namespace Runtime
 		public:
 			Event() noexcept(!IS_DEBUG)
 				:
-				type(Type::Invalid),
-				leftIsPressed(false),
-				rightIsPressed(false),
+				m_type(Type::Invalid),
+				m_leftIsPressed(false),
+				m_rightIsPressed(false),
 				x(0),
 				y(0)
 			{}
 			Event(Type type, const Mouse& parent) noexcept(!IS_DEBUG)
 				:
-				type(type),
-				leftIsPressed(parent.leftIsPressed),
-				rightIsPressed(parent.rightIsPressed),
+				m_type(type),
+				m_leftIsPressed(parent.m_leftIsPressed),
+				m_rightIsPressed(parent.m_rightIsPressed),
 				x(parent.x),
 				y(parent.y)
 			{}
 			bool IsValid() const noexcept(!IS_DEBUG)
 			{
-				return type != Type::Invalid;
+				return m_type != Type::Invalid;
 			}
 			Type GetType() const noexcept(!IS_DEBUG)
 			{
-				return type;
+				return m_type;
 			}
 			std::pair<int, int> GetPos() const noexcept(!IS_DEBUG)
 			{
@@ -68,17 +68,17 @@ namespace Runtime
 			}
 			bool LeftIsPressed() const noexcept(!IS_DEBUG)
 			{
-				return leftIsPressed;
+				return m_leftIsPressed;
 			}
 			bool RightIsPressed() const noexcept(!IS_DEBUG)
 			{
-				return rightIsPressed;
+				return m_rightIsPressed;
 			}
 
 		private:
-			Type type;
-			bool leftIsPressed;
-			bool rightIsPressed;
+			Type m_type;
+			bool m_leftIsPressed;
+			bool m_rightIsPressed;
 			int x;
 			int y;
 		};
@@ -97,7 +97,7 @@ namespace Runtime
 		Mouse::Event Read() noexcept(!IS_DEBUG);
 		bool IsEmpty() const noexcept(!IS_DEBUG)
 		{
-			return buffer.empty();
+			return m_buffer.empty();
 		}
 		void Flush() noexcept(!IS_DEBUG);
 		void EnableRaw() noexcept(!IS_DEBUG);
@@ -119,15 +119,15 @@ namespace Runtime
 		void OnWheelDelta(int x, int y, int delta) noexcept(!IS_DEBUG);
 
 	private:
-		static constexpr unsigned int bufferSize = 16u;
+		static constexpr unsigned int m_bufferSize = 16u;
 		int x = 0;
 		int y = 0;
-		bool leftIsPressed = false;
-		bool rightIsPressed = false;
-		bool isInWindow = false;
-		int wheelDeltaCarry = 0;
-		bool rawEnabled = false;
-		std::queue<Event> buffer;
-		std::queue<RawDelta> rawDeltaBuffer;
+		bool m_leftIsPressed = false;
+		bool m_rightIsPressed = false;
+		bool m_isInWindow = false;
+		int m_wheelDeltaCarry = 0;
+		bool m_rawEnabled = false;
+		std::queue<Event> m_buffer;
+		std::queue<RawDelta> m_rawDeltaBuffer;
 	};
 }

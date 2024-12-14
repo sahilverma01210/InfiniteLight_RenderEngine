@@ -2,16 +2,6 @@
 
 namespace Renderer
 {
-	UINT GraphicsResource::GetWidth(D3D12RHI& gfx) noexcept(!IS_DEBUG)
-	{
-		return gfx.m_width;
-	}
-
-	UINT GraphicsResource::GetHeight(D3D12RHI& gfx) noexcept(!IS_DEBUG)
-	{
-		return gfx.m_height;
-	}
-
 	ID3D12Device* GraphicsResource::GetDevice(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		return gfx.m_device.Get();
@@ -45,7 +35,7 @@ namespace Renderer
 	DxgiInfoManager& GraphicsResource::GetInfoManager(D3D12RHI& gfx)
 	{
 #ifndef NDEBUG
-		return gfx.infoManager;
+		return gfx.m_infoManager;
 #else
 		throw std::logic_error("Tried to access gfx.infoManager in Release config");
 #endif

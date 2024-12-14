@@ -2,7 +2,7 @@
 
 namespace Runtime
 {
-	Application::Application() : window((LONG)WIDTH, (LONG)HEIGHT, TITLE)
+	Application::Application() : m_window()
 	{}
 
 	int Application::Run()
@@ -21,7 +21,6 @@ namespace Runtime
 
 	void Application::UpdateFrame()
 	{
-		// Rotating Cube following Mouse Left Click.
-		window.UpdateWindow(timer.Mark());
+		m_window.UpdateWindow();
 	}
 }

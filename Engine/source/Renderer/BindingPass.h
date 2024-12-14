@@ -12,22 +12,22 @@ namespace Renderer
 		void Finalize() override;
 		UINT GetBindsSize()
 		{
-			return binds.size();
+			return m_binds.size();
 		}
 		template<class T>
 		void AddBindSink(std::string name)
 		{
-			const auto index = binds.size();
-			binds.emplace_back();
-			RegisterSink(std::make_unique<ContainerBindableSink<T>>(std::move(name), binds, index));
+			const auto index = m_binds.size();
+			m_binds.emplace_back();
+			RegisterSink(std::make_unique<ContainerBindableSink<T>>(std::move(name), m_binds, index));
 		}
 	private:
 		void BindBufferResources(D3D12RHI& gfx) const noexcept(!IS_DEBUG);
 
 	protected:
-		std::vector<std::shared_ptr<RenderTarget>> renderTargetVector;
-		std::shared_ptr<DepthStencil> depthStencil;
+		std::vector<std::shared_ptr<RenderTarget>> m_renderTargetVector;
+		std::shared_ptr<DepthStencil> m_depthStencil;
 	private:
-		std::vector<std::shared_ptr<Bindable>> binds;
+		std::vector<std::shared_ptr<Bindable>> m_binds;
 	};
 }

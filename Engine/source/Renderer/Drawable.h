@@ -26,16 +26,16 @@ namespace Renderer
 		virtual ~Drawable();
 
 	protected:
-		bool enableLighting;
+		bool m_enableLighting;
 		UINT m_numIndices;
-		std::shared_ptr<Topology> topologyBindable;
-		std::shared_ptr<VertexBuffer> vertexBufferBindable;
-		std::shared_ptr<IndexBuffer> indexBufferBindable;
-		std::unordered_map<std::string, std::unique_ptr<RootSignature>> rootSignBindables;
-		std::unordered_map<std::string, std::unique_ptr<PipelineState>> psoBindables;
-		std::vector<Technique> techniques;
+		std::shared_ptr<Topology> m_topologyBindable;
+		std::shared_ptr<VertexBuffer> m_vertexBufferBindable;
+		std::shared_ptr<IndexBuffer> m_indexBufferBindable;
+		std::unordered_map<std::string, std::unique_ptr<RootSignature>> m_rootSignBindables;
+		std::unordered_map<std::string, std::unique_ptr<PipelineState>> m_psoBindables;
+		std::vector<Technique> m_techniques;
 	private:
-		static std::shared_ptr<Bindable> lightBindable;
-		static std::shared_ptr<Bindable> lightShadowBindable;
+		static std::shared_ptr<Bindable> m_lightBindable;
+		static std::shared_ptr<Bindable> m_lightShadowBindable;
 	};
 }

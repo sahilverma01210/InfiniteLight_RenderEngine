@@ -51,18 +51,18 @@ namespace Renderer
 				RawLayout l;
 				l.Add<Integer>("nTaps");
 				l.Add<Array>("coefficients");
-				l["coefficients"].Set<Float>(maxRadius * 2 + 1);
+				l["coefficients"].Set<Float>(m_maxRadius * 2 + 1);
 				Buffer buf{ std::move(l) };
-				blurKernel = std::make_shared<ConstantBuffer>(gfx, 0, buf);
-				SetKernelGauss(radius, sigma);
-				AddGlobalSource(DirectBindableSource<ConstantBuffer>::Make("blurKernel", blurKernel));
+				m_blurKernel = std::make_shared<ConstantBuffer>(gfx, 0, buf);
+				SetKernelGauss(m_radius, m_sigma);
+				AddGlobalSource(DirectBindableSource<ConstantBuffer>::Make("blurKernel", m_blurKernel));
 			}
 			{
 				RawLayout l;
 				l.Add<Bool>("isHorizontal");
 				Buffer buf{ std::move(l) };
-				blurHorizontal = std::make_shared<ConstantBuffer>(gfx, 1, buf);
-				AddGlobalSource(DirectBindableSource<ConstantBuffer>::Make("blurHorizontal", blurHorizontal));
+				m_blurHorizontal = std::make_shared<ConstantBuffer>(gfx, 1, buf);
+				AddGlobalSource(DirectBindableSource<ConstantBuffer>::Make("blurHorizontal", m_blurHorizontal));
 			}
 		
 			pass->SetSinkLinkage("scratchIn", "outlineDraw.scratchOut");
@@ -78,8 +78,8 @@ namespace Renderer
 				RawLayout l;
 				l.Add<Bool>("isHorizontal");
 				Buffer buf{ std::move(l) };
-				blurVertical = std::make_shared<ConstantBuffer>(gfx, 1, buf);
-				AddGlobalSource(DirectBindableSource<ConstantBuffer>::Make("blurVertical", blurVertical));
+				m_blurVertical = std::make_shared<ConstantBuffer>(gfx, 1, buf);
+				AddGlobalSource(DirectBindableSource<ConstantBuffer>::Make("blurVertical", m_blurVertical));
 			}
 
 			pass->SetSinkLinkage("renderTarget", "skybox.renderTarget");
@@ -119,11 +119,11 @@ namespace Renderer
 							curItem = items[n];
 							if (curItem == items[0])
 							{
-								kernelType = KernelType::Gauss;
+								m_kernelType = KernelType::Gauss;
 							}
 							else if (curItem == items[1])
 							{
-								kernelType = KernelType::Box;
+								m_kernelType = KernelType::Box;
 							}
 						}
 						if (isSelected)
@@ -134,17 +134,17 @@ namespace Renderer
 					ImGui::EndCombo();
 				}
 			}
-			bool radChange = ImGui::SliderInt("Radius", &radius, 0, maxRadius);
-			bool sigChange = ImGui::SliderFloat("Sigma", &sigma, 0.1f, 10.0f);
+			bool radChange = ImGui::SliderInt("Radius", &m_radius, 0, m_maxRadius);
+			bool sigChange = ImGui::SliderFloat("Sigma", &m_sigma, 0.1f, 10.0f);
 			if (radChange || sigChange || filterChanged)
 			{
-				if (kernelType == KernelType::Gauss)
+				if (m_kernelType == KernelType::Gauss)
 				{
-					SetKernelGauss(radius, sigma);
+					SetKernelGauss(m_radius, m_sigma);
 				}
-				else if (kernelType == KernelType::Box)
+				else if (m_kernelType == KernelType::Box)
 				{
-					SetKernelBox(radius);
+					SetKernelBox(m_radius);
 				}
 			}
 		}
@@ -160,13 +160,12 @@ namespace Renderer
 	void BlurOutlineRenderGraph::BindShadowCamera(Camera& cam)
 	{
 		dynamic_cast<ShadowMappingPass&>(FindPassByName("shadowMap")).BindShadowCamera(cam);
-		dynamic_cast<LambertianPass&>(FindPassByName("lambertian")).BindShadowCamera(cam);
 	}
 
 	void BlurOutlineRenderGraph::SetKernelBox(int radius) noexcept(!IS_DEBUG)
 	{
-		assert(radius <= maxRadius);
-		auto k = blurKernel->GetBuffer();
+		assert(radius <= m_maxRadius);
+		auto k = m_blurKernel->GetBuffer();
 		const int nTaps = radius * 2 + 1;
 		k["nTaps"] = nTaps;
 		const float c = 1.0f / nTaps;
@@ -174,13 +173,13 @@ namespace Renderer
 		{
 			k["coefficients"][i] = c;
 		}
-		blurKernel->SetBuffer(k);
+		m_blurKernel->SetBuffer(k);
 	}
 
 	void BlurOutlineRenderGraph::SetKernelGauss(int radius, float sigma) noexcept(!IS_DEBUG)
 	{
-		assert(radius <= maxRadius);
-		auto k = blurKernel->GetBuffer();
+		assert(radius <= m_maxRadius);
+		auto k = m_blurKernel->GetBuffer();
 		const int nTaps = radius * 2 + 1;
 		k["nTaps"] = nTaps;
 		float sum = 0.0f;
@@ -195,6 +194,6 @@ namespace Renderer
 		{
 			k["coefficients"][i] = (float)k["coefficients"][i] / sum;
 		}
-		blurKernel->SetBuffer(k);
+		m_blurKernel->SetBuffer(k);
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-    void UIManager::InitUI(D3D12RHI& gfx)
+    UIManager::UIManager(D3D12RHI& gfx)
     {
         // Initialize Win32 ImGUI.
         {
@@ -37,6 +37,22 @@ namespace Renderer
         }
     }
 
+    UIManager::~UIManager()
+    {
+        // Destroy Win32 ImGUI.
+        {
+            // Ensure that the GPU is no longer referencing resources that are about to be
+            // cleaned up by the destructor.            
+            ImGui_ImplDX12_Shutdown();
+        }
+
+        // Destroy D3D12 ImGUI.
+        {
+            ImGui_ImplWin32_Shutdown();
+            ImGui::DestroyContext();
+        }
+    }
+
     void UIManager::StartUIFrame(D3D12RHI& gfx)
     {
         // Wait for Previous Frame to complete.
@@ -59,42 +75,28 @@ namespace Renderer
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), gfx.m_commandList.Get());
     }
 
-    void UIManager::DestroyUI(D3D12RHI& gfx)
-    {
-        // Destroy Win32 ImGUI.
-        {
-            // Ensure that the GPU is no longer referencing resources that are about to be
-            // cleaned up by the destructor.
-            gfx.InsertFence();
-            ImGui_ImplDX12_Shutdown();
-        }
-
-        // Destroy D3D12 ImGUI.
-        {
-            ImGui_ImplWin32_Shutdown();
-            ImGui::DestroyContext();
-        }
-    }
     bool UIManager::HandleWindowResize(D3D12RHI& gfx)
     {
-        //ImVec2 view = ImGui::GetContentRegionAvail();
+        ImVec2 view = ImGui::GetContentRegionAvail();
+        
+        if (view.x != gfx.GetWidth() || view.y != gfx.GetHeight())
+        {
+            if (view.x == 0 || view.y == 0)
+            {
+                // The window is too small or collapsed.
+                return false;
+            }
 
-        //if (view.x != gfx.GetWidth() || view.y != gfx.GetHeight())
-        //{
-        //    if (view.x == 0 || view.y == 0)
-        //    {
-        //        // The window is too small or collapsed.
-        //        return false;
-        //    }
-
-        //    m_Window.width = view.x;
-        //    m_Window.height = view.y;
-
-        //    RecreateFramebuffer();
-
-        //    // The window state has been successfully changed.
-        //    return true;
-        //}
+            ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
+        
+            //m_Window.width = view.x;
+            //m_Window.height = view.y;
+        
+            //RecreateFramebuffer();
+        
+            // The window state has been successfully changed.
+            return true;
+        }
 
         //// The window state has not changed.
         return true;

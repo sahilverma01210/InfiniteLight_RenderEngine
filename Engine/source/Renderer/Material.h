@@ -3,7 +3,6 @@
 #include "Technique.h"
 #include "Vertex.h"
 #include "DynamicConstant.h"
-#include "Channels.h"
 
 struct aiMaterial;
 struct aiMesh;
@@ -24,10 +23,10 @@ namespace Renderer
 		std::string MakeMeshTag(const aiMesh& mesh) const noexcept(!IS_DEBUG);
 
 	private:
-		VertexLayout vtxLayout;
-		std::unordered_map<std::string, PipelineDescription> pipelineDesc;
-		std::vector<Technique> techniques;
-		std::string modelPath;
-		std::string name;
+		VertexLayout m_vtxLayout;
+		std::unordered_map<std::string, PipelineDescription> m_pipelineDesc;
+		std::vector<Technique> m_techniques;
+		std::string m_modelPath;
+		std::string m_name;
 	};
 }

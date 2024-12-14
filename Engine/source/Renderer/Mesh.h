@@ -16,6 +16,6 @@ namespace Renderer
 		void Submit(size_t channels, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG);
 
 	private:
-		mutable XMFLOAT4X4 transform;
+		mutable XMFLOAT4X4 m_transform;
 	};
 }

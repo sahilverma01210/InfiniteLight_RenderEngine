@@ -8,6 +8,7 @@ namespace Renderer
 	{
 	public:
 		PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc);
+		~PipelineState() = default;
 		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 
 	private:

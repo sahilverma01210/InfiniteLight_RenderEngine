@@ -4,7 +4,7 @@ namespace Renderer
 {
 	Pass::Pass(std::string name) noexcept(!IS_DEBUG)
 		:
-		name(std::move(name))
+		m_name(std::move(name))
 	{}
 
 	void Pass::Reset() noexcept(!IS_DEBUG)
@@ -12,16 +12,16 @@ namespace Renderer
 
 	const std::string& Pass::GetName() const noexcept(!IS_DEBUG)
 	{
-		return name;
+		return m_name;
 	}
 
 	void Pass::Finalize()
 	{
-		for (auto& in : sinks)
+		for (auto& in : m_sinks)
 		{
 			in->PostLinkValidate();
 		}
-		for (auto& out : sources)
+		for (auto& out : m_sources)
 		{
 			out->PostLinkValidate();
 		}
@@ -32,12 +32,12 @@ namespace Renderer
 
 	const std::vector<std::unique_ptr<Sink>>& Pass::GetSinks() const
 	{
-		return sinks;
+		return m_sinks;
 	}
 
 	Source& Pass::GetSource(const std::string& name) const
 	{
-		for (auto& src : sources)
+		for (auto& src : m_sources)
 		{
 			if (src->GetName() == name)
 			{
@@ -52,7 +52,7 @@ namespace Renderer
 
 	Sink& Pass::GetSink(const std::string& registeredName) const
 	{
-		for (auto& si : sinks)
+		for (auto& si : m_sinks)
 		{
 			if (si->GetRegisteredName() == registeredName)
 			{
@@ -68,7 +68,7 @@ namespace Renderer
 	void Pass::RegisterSink(std::unique_ptr<Sink> sink)
 	{
 		// check for overlap of input names
-		for (auto& si : sinks)
+		for (auto& si : m_sinks)
 		{
 			if (si->GetRegisteredName() == sink->GetRegisteredName())
 			{
@@ -76,13 +76,13 @@ namespace Renderer
 			}
 		}
 
-		sinks.push_back(std::move(sink));
+		m_sinks.push_back(std::move(sink));
 	}
 
 	void Pass::RegisterSource(std::unique_ptr<Source> source)
 	{
 		// check for overlap of output names
-		for (auto& src : sources)
+		for (auto& src : m_sources)
 		{
 			if (src->GetName() == source->GetName())
 			{
@@ -90,7 +90,7 @@ namespace Renderer
 			}
 		}
 
-		sources.push_back(std::move(source));
+		m_sources.push_back(std::move(source));
 	}
 
 	void Pass::SetSinkLinkage(const std::string& registeredName, const std::string& target)

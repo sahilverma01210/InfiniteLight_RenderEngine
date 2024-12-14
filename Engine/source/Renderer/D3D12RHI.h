@@ -21,6 +21,7 @@ namespace Renderer
         DepthStencil,
         ShadowDepth,
     };
+
     struct PipelineDescription
     {
         // Root Signature
@@ -44,24 +45,23 @@ namespace Renderer
         DepthUsage depthUsage = {};
     };
 
-    class D3D12RHI : public RHI
+    class D3D12RHI
     {
         friend class GraphicsResource;
         friend class UIManager;
 
     public:
         // D3D12RHI METHODS
-        D3D12RHI(UINT width, UINT height, HWND hWnd);
-        void OnInit();
+        D3D12RHI(HWND hWnd);
+        ~D3D12RHI();
         UINT GetWidth();
         UINT GetHeight();
         UINT GetCurrentBackBufferIndex();
+        RECT GetScreenRect();
         void ResetCommandList();
         void ExecuteCommandList();
         void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
         void InsertFence();
-        std::wstring GetAssetFullPath(LPCWSTR assetName);
-        void OnDestroy();
         void Info(HRESULT hresult);
         std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
         // TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
@@ -73,7 +73,7 @@ namespace Renderer
         XMMATRIX GetProjection();
         // RENDER FRAME METHODS
         void ResizeFrame(UINT width, UINT height);
-        void StartFrame(UINT width, UINT height);
+        void StartFrame();
         void DrawIndexed(UINT indexCountPerInstance);
         void EndFrame();
         // RENDER TARGET & DEPTH BUFFER METHODS
@@ -124,7 +124,7 @@ namespace Renderer
             bool requestHighPerformanceAdapter = false);
 
     private:
-        HRESULT hr; // for checking results of d3d functions
+        HRESULT hResult;
         HWND m_hWnd;
         // Adapter info.
         bool m_useWarpDevice = false;
@@ -139,8 +139,6 @@ namespace Renderer
         UINT64 m_fenceValue;
         HANDLE m_fenceEvent;
         ComPtr<ID3D12Fence> m_fence;
-        // Root assets path.
-        std::wstring m_assetsPath;
         // Pipeline objects.
         CD3DX12_VIEWPORT m_viewport;
         CD3DX12_RECT m_scissorRect;
@@ -148,14 +146,14 @@ namespace Renderer
         ComPtr<ID3D12CommandQueue> m_commandQueue;
         ComPtr<ID3D12CommandAllocator> m_commandAllocator;
         ComPtr<ID3D12GraphicsCommandList> m_commandList;
-        ComPtr<IDXGISwapChain3> m_swapChain;
+        ComPtr<IDXGISwapChain4> m_swapChain;
 #ifndef NDEBUG
-        DxgiInfoManager infoManager;
+        DxgiInfoManager m_infoManager;
 #endif
         UINT m_backBufferIndex;
         static const UINT m_backBufferCount = 2;
-        ID3D12Resource* m_currentTargetBuffer = nullptr;
-        ID3D12Resource* m_currentDepthBuffer = nullptr;
+        ComPtr<ID3D12Resource> m_currentTargetBuffer = nullptr;
+        ComPtr<ID3D12Resource> m_currentDepthBuffer = nullptr;
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;
     };

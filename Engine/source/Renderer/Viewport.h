@@ -8,9 +8,10 @@ namespace Renderer
 	public:
 		Viewport(D3D12RHI& gfx);
 		Viewport(D3D12RHI& gfx, float width, float height);
+		~Viewport() = default;
 		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 
 	private:
-		D3D12_VIEWPORT vp{};
+		D3D12_VIEWPORT m_viewPort{};
 	};
 }

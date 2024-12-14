@@ -12,6 +12,7 @@ namespace Renderer
 	public:
 		RenderTarget(D3D12RHI& gfx, UINT width, UINT height);
 		RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture, std::optional<UINT> face = std::nullopt);
+		~RenderTarget() = default;
 		void BindAsBuffer(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 		void BindAsBuffer(D3D12RHI& gfx, BufferResource* depthStencil) noexcept(!IS_DEBUG) override;
 		void BindAsBuffer(D3D12RHI& gfx, DepthStencil* depthStencil) noexcept(!IS_DEBUG);

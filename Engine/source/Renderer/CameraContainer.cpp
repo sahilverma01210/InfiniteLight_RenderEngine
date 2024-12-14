@@ -12,12 +12,12 @@ namespace Renderer
 		{
 			if (ImGui::BeginCombo("Active Camera", GetActiveCamera().GetName().c_str()))
 			{
-				for (int i = 0; i < std::size(cameras); i++)
+				for (int i = 0; i < std::size(m_cameras); i++)
 				{
-					const bool isSelected = i == active;
-					if (ImGui::Selectable(cameras[i]->GetName().c_str(), isSelected))
+					const bool isSelected = i == m_active;
+					if (ImGui::Selectable(m_cameras[i]->GetName().c_str(), isSelected))
 					{
-						active = i;
+						m_active = i;
 					}
 				}
 				ImGui::EndCombo();
@@ -25,12 +25,12 @@ namespace Renderer
 
 			if (ImGui::BeginCombo("Controlled Camera", GetControlledCamera().GetName().c_str()))
 			{
-				for (int i = 0; i < std::size(cameras); i++)
+				for (int i = 0; i < std::size(m_cameras); i++)
 				{
-					const bool isSelected = i == controlled;
-					if (ImGui::Selectable(cameras[i]->GetName().c_str(), isSelected))
+					const bool isSelected = i == m_controlled;
+					if (ImGui::Selectable(m_cameras[i]->GetName().c_str(), isSelected))
 					{
-						controlled = i;
+						m_controlled = i;
 					}
 				}
 				ImGui::EndCombo();
@@ -48,12 +48,12 @@ namespace Renderer
 
 	void CameraContainer::AddCamera(std::shared_ptr<Camera> pCam)
 	{
-		cameras.push_back(std::move(pCam));
+		m_cameras.push_back(std::move(pCam));
 	}
 
 	void CameraContainer::LinkTechniques(RenderGraph& rg)
 	{
-		for (auto& pcam : cameras)
+		for (auto& pcam : m_cameras)
 		{
 			pcam->LinkTechniques(rg);
 		}
@@ -61,22 +61,22 @@ namespace Renderer
 
 	void CameraContainer::Submit(size_t channels) const
 	{
-		for (size_t i = 0; i < cameras.size(); i++)
+		for (size_t i = 0; i < m_cameras.size(); i++)
 		{
-			if (i != active)
+			if (i != m_active)
 			{
-				cameras[i]->Submit(channels);
+				m_cameras[i]->Submit(channels);
 			}
 		}
 	}
 
 	Camera& CameraContainer::GetActiveCamera()
 	{
-		return *cameras[active];
+		return *m_cameras[m_active];
 	}
 
 	Camera& CameraContainer::GetControlledCamera()
 	{
-		return *cameras[controlled];
+		return *m_cameras[m_controlled];
 	}
 }

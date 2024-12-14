@@ -10,7 +10,7 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
-		std::shared_ptr<RenderTarget> blurTarget;
-		std::shared_ptr<ConstantBuffer> direction;
+		std::shared_ptr<RenderTarget> m_blurTarget;
+		std::shared_ptr<ConstantBuffer> m_direction;
 	};
 }

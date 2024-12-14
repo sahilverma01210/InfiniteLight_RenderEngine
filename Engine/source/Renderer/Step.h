@@ -24,8 +24,8 @@ namespace Renderer
 		std::string GetTargetPass() const;
 
 	private:
-		std::vector<std::shared_ptr<Bindable>> bindables;
-		RenderQueuePass* pTargetPass = nullptr;
-		std::string targetPassName;
+		std::vector<std::shared_ptr<Bindable>> m_bindables;
+		RenderQueuePass* m_pTargetPass = nullptr;
+		std::string m_targetPassName;
 	};
 }

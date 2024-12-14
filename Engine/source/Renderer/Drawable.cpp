@@ -2,12 +2,12 @@
 
 namespace Renderer
 {
-	std::shared_ptr<Bindable> Drawable::lightBindable;
-	std::shared_ptr<Bindable> Drawable::lightShadowBindable;
+	std::shared_ptr<Bindable> Drawable::m_lightBindable;
+	std::shared_ptr<Bindable> Drawable::m_lightShadowBindable;
 
 	void Drawable::Submit(size_t channels) const noexcept(!IS_DEBUG)
 	{
-		for (const auto& tech : techniques)
+		for (const auto& tech : m_techniques)
 		{
 			tech.Submit(*this, channels);
 		}
@@ -15,17 +15,17 @@ namespace Renderer
 
 	Drawable::Drawable(D3D12RHI& gfx, Material& mat, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
 	{
-		topologyBindable = Topology::Resolve(gfx);
-		vertexBufferBindable = mat.MakeVertexBindable(gfx, mesh, scale);
-		indexBufferBindable = mat.MakeIndexBindable(gfx, mesh);
+		m_topologyBindable = Topology::Resolve(gfx);
+		m_vertexBufferBindable = mat.MakeVertexBindable(gfx, mesh, scale);
+		m_indexBufferBindable = mat.MakeIndexBindable(gfx, mesh);
 
 		for (auto& pipelineDesc : mat.GetPipelineDesc())
 		{
-			rootSignBindables[pipelineDesc.first] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc.second));
-			psoBindables[pipelineDesc.first] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc.second));
+			m_rootSignBindables[pipelineDesc.first] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc.second));
+			m_psoBindables[pipelineDesc.first] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc.second));
 		}
 
-		m_numIndices = indexBufferBindable->GetNumOfIndices();
+		m_numIndices = m_indexBufferBindable->GetNumOfIndices();
 		
 		for (auto& t : mat.GetTechniques())
 		{
@@ -35,30 +35,30 @@ namespace Renderer
 
 	void Drawable::AddTechnique(Technique tech_in) noexcept(!IS_DEBUG)
 	{
-		techniques.push_back(std::move(tech_in));
+		m_techniques.push_back(std::move(tech_in));
 	}
 
 	void Drawable::Bind(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
-		topologyBindable->Bind(gfx);
-		vertexBufferBindable->Bind(gfx);
-		indexBufferBindable->Bind(gfx);
-		rootSignBindables.at(targetPass)->Bind(gfx);
-		psoBindables.at(targetPass)->Bind(gfx);
+		m_topologyBindable->Bind(gfx);
+		m_vertexBufferBindable->Bind(gfx);
+		m_indexBufferBindable->Bind(gfx);
+		m_rootSignBindables.at(targetPass)->Bind(gfx);
+		m_psoBindables.at(targetPass)->Bind(gfx);
 	}
 
 	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		if (enableLighting)
+		if (m_enableLighting)
 		{
-			lightBindable->Bind(gfx);
-			lightShadowBindable->Bind(gfx);
+			m_lightBindable->Bind(gfx);
+			m_lightShadowBindable->Bind(gfx);
 		}
 	}
 
 	void Drawable::Accept(TechniqueProbe& probe)
 	{
-		for (auto& t : techniques)
+		for (auto& t : m_techniques)
 		{
 			t.Accept(probe);
 		}
@@ -66,7 +66,7 @@ namespace Renderer
 
 	void Drawable::LinkTechniques(RenderGraph& rg)
 	{
-		for (auto& tech : techniques)
+		for (auto& tech : m_techniques)
 		{
 			tech.Link(rg);
 		}

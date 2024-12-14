@@ -39,10 +39,10 @@ namespace Renderer
 	public:
 		bool m_imGUIwndOpen = true;
 	private:
-		PointLightCBuf home;
-		PointLightCBuf cbData;
-		ShadowLightTransform shadowData;
-		mutable SolidSphere mesh;
-		std::shared_ptr<Camera> pCamera;
+		PointLightCBuf m_home;
+		PointLightCBuf m_cbData;
+		ShadowLightTransform m_shadowData;
+		mutable SolidSphere m_mesh;
+		std::shared_ptr<Camera> m_pCamera;
 	};
 }

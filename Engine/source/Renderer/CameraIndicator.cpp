@@ -4,7 +4,7 @@ namespace Renderer
 {
 	CameraIndicator::CameraIndicator(D3D12RHI& gfx)
 	{
-		enableLighting = false;
+		m_enableLighting = false;
 
 		const auto geometryTag = "$cam";
 		VertexLayout layout;
@@ -52,9 +52,9 @@ namespace Renderer
 		}
 		m_numIndices = indices.size() * sizeof(indices[0]);
 
-		topologyBindable = Topology::Resolve(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-		vertexBufferBindable = VertexBuffer::Resolve(gfx, geometryTag, vertices.GetData(), UINT(vertices.SizeBytes()), (UINT)vertices.GetLayout().Size());
-		indexBufferBindable = IndexBuffer::Resolve(gfx, geometryTag, indices.size() * sizeof(indices[0]), indices);
+		m_topologyBindable = Topology::Resolve(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+		m_vertexBufferBindable = VertexBuffer::Resolve(gfx, geometryTag, vertices.GetData(), UINT(vertices.SizeBytes()), (UINT)vertices.GetLayout().Size());
+		m_indexBufferBindable = IndexBuffer::Resolve(gfx, geometryTag, indices);
 
 		{
 			Technique line{ Channel::main };
@@ -66,8 +66,8 @@ namespace Renderer
 				ID3DBlob* pixelShader;
 
 				// Compile Shaders.
-				D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-				D3DCompileFromFile(gfx.GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+				D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+				D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 
 				// Define the vertex input layout.
 				std::vector<D3D12_INPUT_ELEMENT_DESC> vec = vertices.GetLayout().GetD3DLayout();
@@ -91,18 +91,18 @@ namespace Renderer
 
 				samplers[0] = staticSampler;
 
-				pipelineDesc.numConstants = 1;
-				pipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-				pipelineDesc.numConstantBufferViews = 1;
-				pipelineDesc.numSamplers = 1;
-				pipelineDesc.samplers = samplers;
-				pipelineDesc.numElements = vec.size();
-				pipelineDesc.inputElementDescs = inputElementDescs;
-				pipelineDesc.vertexShader = vertexShader;
-				pipelineDesc.pixelShader = pixelShader;
+				m_pipelineDesc.numConstants = 1;
+				m_pipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+				m_pipelineDesc.numConstantBufferViews = 1;
+				m_pipelineDesc.numSamplers = 1;
+				m_pipelineDesc.samplers = samplers;
+				m_pipelineDesc.numElements = vec.size();
+				m_pipelineDesc.inputElementDescs = inputElementDescs;
+				m_pipelineDesc.vertexShader = vertexShader;
+				m_pipelineDesc.pixelShader = pixelShader;
 
-				rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
-				psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
+				m_rootSignBindables["lambertian"] = std::move(std::make_unique<RootSignature>(gfx, m_pipelineDesc));
+				m_psoBindables["lambertian"] = std::move(std::make_unique<PipelineState>(gfx, m_pipelineDesc));
 			}
 
 			only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
@@ -120,17 +120,17 @@ namespace Renderer
 
 	void CameraIndicator::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)
 	{
-		this->pos = pos;
+		this->m_pos = pos;
 	}
 
 	void CameraIndicator::SetRotation(XMFLOAT3 rot) noexcept(!IS_DEBUG)
 	{
-		this->rot = rot;
+		this->m_rot = rot;
 	}
 
 	XMMATRIX CameraIndicator::GetTransformXM() const noexcept(!IS_DEBUG)
 	{
-		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rot)) *
-			XMMatrixTranslationFromVector(XMLoadFloat3(&pos));
+		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&m_rot)) *
+			XMMatrixTranslationFromVector(XMLoadFloat3(&m_pos));
 	}
 }

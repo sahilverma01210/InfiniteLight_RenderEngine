@@ -9,6 +9,7 @@ namespace Renderer
 	public:
 		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, UINT dataSize, const void* pData);
 		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, Buffer dataBuffer);
+		~ConstantBuffer() = default;
 		void Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG) override;
 		void Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept(!IS_DEBUG) override;
 		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
@@ -31,7 +32,7 @@ namespace Renderer
 		}
 
 	private:
-		bool dirty = false;
+		bool m_selected = false;
 		UINT m_rootParameterIndex;
 		UINT m_constantBufferSize;
 		std::optional<Buffer> m_dataBuffer = std::nullopt;

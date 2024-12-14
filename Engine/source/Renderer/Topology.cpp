@@ -2,14 +2,14 @@
 
 namespace Renderer
 {
-	Topology::Topology(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type) : type(type)
+	Topology::Topology(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type) : m_type(type)
 	{
 	}
 
 	void Topology::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		INFOMAN_NOHR(gfx);
-		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetPrimitiveTopology(type));
+		D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetPrimitiveTopology(m_type));
 	}
 
 	std::shared_ptr<Topology> Topology::Resolve(D3D12RHI& gfx, D3D12_PRIMITIVE_TOPOLOGY type)
@@ -25,6 +25,6 @@ namespace Renderer
 
 	std::string Topology::GetUID() const noexcept(!IS_DEBUG)
 	{
-		return GenerateUID(type);
+		return GenerateUID(m_type);
 	}
 }

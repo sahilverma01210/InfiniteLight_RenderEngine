@@ -4,6 +4,6 @@ namespace Renderer
 {
 	void StepLinkingProbe::OnSetStep()
 	{
-		pStep->Link(rg);
+		m_pStep->Link(m_renderGraph);
 	}
 }

@@ -5,11 +5,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Runtime
 {
-	Window::WindowClass Window::WindowClass::wndClass;
+	Window::WindowClass Window::WindowClass::m_wndClass;
 
 	Window::WindowClass::WindowClass() noexcept(!IS_DEBUG)
 		:
-		hInst(GetModuleHandle(nullptr))
+		m_hInst(GetModuleHandle(nullptr))
 	{
 		WNDCLASSEX windowClass = { 0 };
 		windowClass.cbSize = sizeof(WNDCLASSEX);
@@ -26,25 +26,28 @@ namespace Runtime
 		windowClass.hIconSm = nullptr;
 		RegisterClassEx(&windowClass);
 
-		hInst = GetModuleHandle(nullptr);
+		m_hInst = GetModuleHandle(nullptr);
 	}
 
 	Window::WindowClass::~WindowClass()
 	{
-		UnregisterClass(wndClassName, GetInstance());
+		UnregisterClass(m_wndClassName, GetInstance());
 	}
 
 	const WCHAR* Window::WindowClass::GetName() noexcept(!IS_DEBUG)
 	{
-		return wndClassName;
+		return m_wndClassName;
 	}
 
 	HINSTANCE Window::WindowClass::GetInstance() noexcept(!IS_DEBUG)
 	{
-		return wndClass.hInst;
+		return m_wndClass.m_hInst;
 	}
 
-	Window::Window(LONG width, LONG height, const WCHAR* name) : width(width), height(height)
+	Window::Window()
+		: 
+		m_width(WIDTH),
+		m_height(HEIGHT)
 	{
 		// Plain Exception Examples:
 		//throw ILWND_EXCEPT(ERROR_ARENA_TRASHED);
@@ -53,33 +56,36 @@ namespace Runtime
 		// calculate window size based on desired client region size
 		RECT wr;
 		wr.left = 100;
-		wr.right = width + wr.left;
+		wr.right = m_width + wr.left;
 		wr.top = 100;
-		wr.bottom = height + wr.top;
-		if (FAILED(AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, FALSE)))
+		wr.bottom = m_height + wr.top;
+		if (FAILED(AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE)))
 		{
 			throw IL_LAST_EXCEPT();
 		};
 
 		// create window & get hWnd
-		hWnd = CreateWindow(
-			WindowClass::GetName(), name,
-			WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU,
+		m_hWnd = CreateWindow(
+			WindowClass::GetName(), TITLE,
+			WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top,
 			nullptr, nullptr, WindowClass::GetInstance(), this
 		);
 		
 		// check for error
-		if (hWnd == nullptr)
+		if (m_hWnd == nullptr)
 		{
 			throw IL_LAST_EXCEPT();
 		}
 
 		// init COM.
-		HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+		if (FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)))
+		{
+			throw IL_LAST_EXCEPT();
+		}
 
 		// create and initialize Renderer
-		graphics = new Graphics((UINT)width, (UINT)height, hWnd, WindowClass::GetInstance(), false);
+		m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, WindowClass::GetInstance(), false));
 
 		// register mouse raw input device
 		RAWINPUTDEVICE rid;
@@ -87,25 +93,25 @@ namespace Runtime
 		rid.usUsage = 0x02; // mouse usage
 		rid.dwFlags = 0;
 		rid.hwndTarget = nullptr;
-		if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+		if (FAILED(RegisterRawInputDevices(&rid, 1, sizeof(rid))))
 		{
 			throw IL_LAST_EXCEPT();
 		}
 
 		// show window
-		ShowWindow(hWnd, SW_SHOWDEFAULT);
+		ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	}
 
 	Window::~Window()
 	{
-		graphics->Destroy();
+		if (m_renderer) m_renderer.reset();
 
-		DestroyWindow(hWnd);
+		DestroyWindow(m_hWnd);
 	}
 
 	void Window::SetTitle(const std::wstring& title)
 	{
-		SetWindowText(hWnd, title.c_str());
+		SetWindowText(m_hWnd, title.c_str());
 	}
 
 	std::optional<int> Window::ProcessMessages()
@@ -130,89 +136,156 @@ namespace Runtime
 		return {};
 	}
 
-	void Window::UpdateWindow(float angle)
+	void Window::UpdateWindow()
 	{
-		//RECT rect;
-		//if (GetClientRect(hWnd, &rect))
-		//{
-		//	width = rect.right - rect.left;
-		//	height = rect.bottom - rect.top;
-		//}
-
-		//OutputDebugStringA(std::to_string(width).c_str());
-		//OutputDebugStringA("\n");
-		//OutputDebugStringA(std::to_string(height).c_str());
-		//OutputDebugStringA("\n");
-
-		graphics->StartFrame(width, height);
-		graphics->Update();
-
-		const auto e = kbd.ReadKey();
-
-		if (e.IsPress())
+		if (m_renderer)
 		{
-			switch (e.GetCode())
+			OutputDebugStringA("UPDATED!!!!!!\n");
+			m_renderer->StartFrame();
+
+			const auto e = m_keyboard.ReadKey();
+
+			if (e.IsPress())
 			{
-			case VK_ESCAPE:
-				if (CursorEnabled())
+				switch (e.GetCode())
 				{
-					DisableCursor();
-					mouse.EnableRaw();
-				}
-				else
-				{
-					EnableCursor();
-					mouse.DisableRaw();
-				}
-				break;
-			case VK_F1:
-				graphics->ToggleImguiDemoWindow();
-				break;
-			}
-		}
+				case VK_ESCAPE:
+					if (CursorEnabled())
+					{
+						DisableCursor();
+						m_mouse.EnableRaw();
+					}
+					else
+					{
+						EnableCursor();
+						m_mouse.DisableRaw();
+					}
+					break;
+				case VK_SPACE:
+					if (m_renderer)
+					{
+						ToggleFullscreenWindow();
 
-		if (!CursorEnabled())
-		{
-			if (kbd.KeyIsPressed('W'))
-			{
-				graphics->Translate({ 0.0f,0.0f,angle });
+						m_renderer->EndFrame();
+						m_renderer.reset();
+						m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, WindowClass::GetInstance(), false));
+						return;
+					}
+					break;
+				}
 			}
-			if (kbd.KeyIsPressed('A'))
-			{
-				graphics->Translate({ -angle,0.0f,0.0f });
-			}
-			if (kbd.KeyIsPressed('S'))
-			{
-				graphics->Translate({ 0.0f,0.0f,-angle });
-			}
-			if (kbd.KeyIsPressed('D'))
-			{
-				graphics->Translate({ angle,0.0f,0.0f });
-			}
-			if (kbd.KeyIsPressed('E'))
-			{
-				graphics->Translate({ 0.0f,angle,0.0f });
-			}
-			if (kbd.KeyIsPressed('Q'))
-			{
-				graphics->Translate({ 0.0f,-angle,0.0f });
-			}
-		}
 
-		while (const auto delta = mouse.ReadRawDelta())
-		{
 			if (!CursorEnabled())
 			{
-				graphics->Rotate((float)delta->x, (float)delta->y);
+				float angle = m_timer.Mark();
+
+				if (m_keyboard.KeyIsPressed('W'))
+				{
+					m_renderer->Translate({ 0.0f,0.0f,angle });
+				}
+				if (m_keyboard.KeyIsPressed('A'))
+				{
+					m_renderer->Translate({ -angle,0.0f,0.0f });
+				}
+				if (m_keyboard.KeyIsPressed('S'))
+				{
+					m_renderer->Translate({ 0.0f,0.0f,-angle });
+				}
+				if (m_keyboard.KeyIsPressed('D'))
+				{
+					m_renderer->Translate({ angle,0.0f,0.0f });
+				}
+				if (m_keyboard.KeyIsPressed('E'))
+				{
+					m_renderer->Translate({ 0.0f,angle,0.0f });
+				}
+				if (m_keyboard.KeyIsPressed('Q'))
+				{
+					m_renderer->Translate({ 0.0f,-angle,0.0f });
+				}
 			}
+
+			while (const auto delta = m_mouse.ReadRawDelta())
+			{
+				if (!CursorEnabled())
+				{
+					m_renderer->Rotate((float)delta->x, (float)delta->y);
+				}
+			}
+
+			m_renderer->Update();
+			m_renderer->EndFrame();
+		}
+	}
+
+	void Window::ToggleFullscreenWindow()
+	{
+		if (m_fullscreenMode)
+		{
+			// Restore the window's attributes and size.
+			SetWindowLong(m_hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+
+			SetWindowPos(
+				m_hWnd,
+				HWND_NOTOPMOST,
+				m_windowRect.left,
+				m_windowRect.top,
+				m_windowRect.right - m_windowRect.left,
+				m_windowRect.bottom - m_windowRect.top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+			ShowWindow(m_hWnd, SW_NORMAL);
+		}
+		else
+		{
+			// Save the old window rect so we can restore it when exiting fullscreen mode.
+			GetWindowRect(m_hWnd, &m_windowRect);
+
+			// Make the window borderless so that the client area can fill the screen.
+			SetWindowLong(m_hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+
+			RECT fullscreenWindowRect;
+			try
+			{
+				// Get the settings of the display on which the app's window is currently displayed
+				fullscreenWindowRect = m_renderer->GetScreenRect();
+			}
+			catch (HrException& e)
+			{
+				UNREFERENCED_PARAMETER(e);
+
+				// Get the settings of the primary display
+				DEVMODE devMode = {};
+				devMode.dmSize = sizeof(DEVMODE);
+				EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode);
+
+				fullscreenWindowRect = {
+					devMode.dmPosition.x,
+					devMode.dmPosition.y,
+					devMode.dmPosition.x + static_cast<LONG>(devMode.dmPelsWidth),
+					devMode.dmPosition.y + static_cast<LONG>(devMode.dmPelsHeight)
+				};
+			}
+
+			SetWindowPos(
+				m_hWnd,
+				HWND_TOPMOST,
+				fullscreenWindowRect.left,
+				fullscreenWindowRect.top,
+				fullscreenWindowRect.right,
+				fullscreenWindowRect.bottom,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+
+			ShowWindow(m_hWnd, SW_MAXIMIZE);
 		}
 
-		graphics->EndFrame();
+		m_fullscreenMode = !m_fullscreenMode;
 	}
 
 	void Window::EnableCursor() noexcept(!IS_DEBUG)
 	{
-		cursorEnabled = true;
+		m_cursorEnabled = true;
 		ShowCursor();
 		EnableImGUIMouse();
 		FreeCursor();
@@ -220,7 +293,7 @@ namespace Runtime
 
 	void Window::DisableCursor() noexcept(!IS_DEBUG)
 	{
-		cursorEnabled = false;
+		m_cursorEnabled = false;
 		HideCursor();
 		DisableImGUIMouse();
 		ConfineCursor();
@@ -228,14 +301,14 @@ namespace Runtime
 
 	bool Window::CursorEnabled() const noexcept(!IS_DEBUG)
 	{
-		return cursorEnabled;
+		return m_cursorEnabled;
 	}
 
 	void Window::ConfineCursor() noexcept(!IS_DEBUG)
 	{
 		RECT rect;
-		GetClientRect(hWnd, &rect);
-		MapWindowPoints(hWnd, nullptr, reinterpret_cast<POINT*>(&rect), 2); // Map Point from Screen Space to Window Space.
+		GetClientRect(m_hWnd, &rect);
+		MapWindowPoints(m_hWnd, nullptr, reinterpret_cast<POINT*>(&rect), 2); // Map Point from Screen Space to Window Space.
 		ClipCursor(&rect);
 	}
 
@@ -310,12 +383,12 @@ namespace Runtime
 			return 0;
 			// clear keystate when window loses focus to prevent input getting "stuck"
 		case WM_KILLFOCUS:
-			kbd.ClearState();
+			m_keyboard.ClearState();
 			break;
 		case WM_ACTIVATE:
 			OutputDebugString(L"activate\n");
 			// confine/free cursor on window to foreground/background if cursor disabled
-			if (!cursorEnabled)
+			if (!m_cursorEnabled)
 			{
 				if (wParam & WA_ACTIVE)
 				{
@@ -332,49 +405,49 @@ namespace Runtime
 			}
 			break;
 
-			/*********** KEYBOARD MESSAGES ***********/
+		/*********** KEYBOARD MESSAGES ***********/
 		case WM_KEYDOWN:
 			// syskey commands need to be handled to track ALT key (VK_MENU) and F10
 		case WM_SYSKEYDOWN:
-			if (!(lParam & 0x40000000) || kbd.AutorepeatIsEnabled()) // filter autorepeat
+			if (!(lParam & 0x40000000) || m_keyboard.AutorepeatIsEnabled()) // filter autorepeat
 			{
-				kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
+				m_keyboard.OnKeyPressed(static_cast<unsigned char>(wParam));
 			}
 			break;
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
-			kbd.OnKeyReleased(static_cast<unsigned char>(wParam));
+			m_keyboard.OnKeyReleased(static_cast<unsigned char>(wParam));
 			break;
 		case WM_CHAR:
-			kbd.OnChar(static_cast<unsigned char>(wParam));
+			m_keyboard.OnChar(static_cast<unsigned char>(wParam));
 			break;
-			/*********** END KEYBOARD MESSAGES ***********/
+		/*********** END KEYBOARD MESSAGES ***********/
 
-			/************* MOUSE MESSAGES ****************/
+		/************* MOUSE MESSAGES ****************/
 		case WM_MOUSEMOVE:
 		{
 			const POINTS pt = MAKEPOINTS(lParam);
 
 			// cursorless exclusive gets first dibs
-			if (!cursorEnabled)
+			if (!m_cursorEnabled)
 			{
-				if (!mouse.IsInWindow())
+				if (!m_mouse.IsInWindow())
 				{
 					SetCapture(hWnd);
-					mouse.OnMouseEnter();
+					m_mouse.OnMouseEnter();
 					HideCursor();
 				}
 				break;
 			}
 
 			// in client region -> log move, and log enter + capture mouse (if not previously in window)
-			if (pt.x >= 0 && pt.x < width && pt.y >= 0 && pt.y < height)
+			if (pt.x >= 0 && pt.x < m_width && pt.y >= 0 && pt.y < m_height)
 			{
-				mouse.OnMouseMove(pt.x, pt.y);
-				if (!mouse.IsInWindow())
+				m_mouse.OnMouseMove(pt.x, pt.y);
+				if (!m_mouse.IsInWindow())
 				{
 					SetCapture(hWnd);
-					mouse.OnMouseEnter();
+					m_mouse.OnMouseEnter();
 				}
 			}
 			// not in client -> log move / maintain capture if button down
@@ -382,13 +455,13 @@ namespace Runtime
 			{
 				if (wParam & (MK_LBUTTON | MK_RBUTTON))
 				{
-					mouse.OnMouseMove(pt.x, pt.y);
+					m_mouse.OnMouseMove(pt.x, pt.y);
 				}
 				// button up -> release capture / log event for leaving
 				else
 				{
 					ReleaseCapture();
-					mouse.OnMouseLeave();
+					m_mouse.OnMouseLeave();
 				}
 			}
 			break;
@@ -396,43 +469,43 @@ namespace Runtime
 		case WM_LBUTTONDOWN:
 		{
 			SetForegroundWindow(hWnd);
-			if (!cursorEnabled)
+			if (!m_cursorEnabled)
 			{
 				OutputDebugString(L"lclick => recapture\n");
 				ConfineCursor();
 				HideCursor();
 			}
 			const POINTS pt = MAKEPOINTS(lParam);
-			mouse.OnLeftPressed(pt.x, pt.y);
+			m_mouse.OnLeftPressed(pt.x, pt.y);
 			break;
 		}
 		case WM_RBUTTONDOWN:
 		{
 			const POINTS pt = MAKEPOINTS(lParam);
-			mouse.OnRightPressed(pt.x, pt.y);
+			m_mouse.OnRightPressed(pt.x, pt.y);
 			break;
 		}
 		case WM_LBUTTONUP:
 		{
 			const POINTS pt = MAKEPOINTS(lParam);
-			mouse.OnLeftReleased(pt.x, pt.y);
+			m_mouse.OnLeftReleased(pt.x, pt.y);
 			// release mouse if outside of window
-			if (pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height)
+			if (pt.x < 0 || pt.x >= m_width || pt.y < 0 || pt.y >= m_height)
 			{
 				ReleaseCapture();
-				mouse.OnMouseLeave();
+				m_mouse.OnMouseLeave();
 			}
 			break;
 		}
 		case WM_RBUTTONUP:
 		{
 			const POINTS pt = MAKEPOINTS(lParam);
-			mouse.OnRightReleased(pt.x, pt.y);
+			m_mouse.OnRightReleased(pt.x, pt.y);
 			// release mouse if outside of window
-			if (pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height)
+			if (pt.x < 0 || pt.x >= m_width || pt.y < 0 || pt.y >= m_height)
 			{
 				ReleaseCapture();
-				mouse.OnMouseLeave();
+				m_mouse.OnMouseLeave();
 			}
 			break;
 		}
@@ -440,7 +513,7 @@ namespace Runtime
 		{
 			const POINTS pt = MAKEPOINTS(lParam);
 			const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-			mouse.OnWheelDelta(pt.x, pt.y, delta);
+			m_mouse.OnWheelDelta(pt.x, pt.y, delta);
 			break;
 		}
 		/************** END MOUSE MESSAGES **************/
@@ -448,7 +521,7 @@ namespace Runtime
 		/************** RAW MOUSE MESSAGES **************/
 		case WM_INPUT:
 		{
-			if (!mouse.RawEnabled())
+			if (!m_mouse.RawEnabled())
 			{
 				break;
 			}
@@ -464,12 +537,12 @@ namespace Runtime
 				// bail msg processing if error
 				break;
 			}
-			rawBuffer.resize(size);
+			m_rawBuffer.resize(size);
 			// read in the input data
 			if (GetRawInputData(
 				reinterpret_cast<HRAWINPUT>(lParam),
 				RID_INPUT,
-				rawBuffer.data(),
+				m_rawBuffer.data(),
 				&size,
 				sizeof(RAWINPUTHEADER)) != size)
 			{
@@ -477,11 +550,11 @@ namespace Runtime
 				break;
 			}
 			// process the raw input data
-			auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
+			auto& ri = reinterpret_cast<const RAWINPUT&>(*m_rawBuffer.data());
 			if (ri.header.dwType == RIM_TYPEMOUSE &&
 				(ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
 			{
-				mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+				m_mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
 			}
 			break;
 		}

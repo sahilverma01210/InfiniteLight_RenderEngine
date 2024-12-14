@@ -4,7 +4,6 @@
 #include "Drawable.h"
 #include "Sphere.h"
 #include "DynamicConstant.h"
-#include "Channels.h"
 
 namespace Renderer
 {
@@ -17,7 +16,7 @@ namespace Renderer
 		PipelineDescription GetPipelineDesc() noexcept(!IS_DEBUG);
 
 	private:
-		XMFLOAT3 pos = { 1.0f,1.0f,1.0f };
-		PipelineDescription pipelineDesc{};
+		XMFLOAT3 m_pos = { 1.0f,1.0f,1.0f };
+		PipelineDescription m_pipelineDesc{};
 	};
 }

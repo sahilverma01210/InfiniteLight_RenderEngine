@@ -3,7 +3,6 @@
 #include "CommonBindables.h"
 #include "Vertex.h"
 #include "Sphere.h"
-#include "Channels.h"
 
 namespace Renderer
 {
@@ -16,8 +15,8 @@ namespace Renderer
 		XMMATRIX GetTransformXM() const noexcept(!IS_DEBUG) override;
 
 	private:
-		XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
-		XMFLOAT3 rot = { 0.0f,0.0f,0.0f };
-		PipelineDescription pipelineDesc{};
+		XMFLOAT3 m_pos = { 0.0f,0.0f,0.0f };
+		XMFLOAT3 m_rot = { 0.0f,0.0f,0.0f };
+		PipelineDescription m_pipelineDesc{};
 	};
 }

@@ -11,11 +11,11 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	protected:
-		PipelineDescription pipelineDesc{};
-		std::shared_ptr<VertexBuffer> vertexBindable;
-		std::shared_ptr<IndexBuffer> indexBindable;
-		std::unique_ptr<RootSignature> rootSignBindable;
-		std::unique_ptr<PipelineState> psoBindable;
-		std::unique_ptr<ShaderResourceView> srvBindable;
+		PipelineDescription m_pipelineDesc{};
+		std::shared_ptr<VertexBuffer> m_vertexBindable;
+		std::shared_ptr<IndexBuffer> m_indexBindable;
+		std::unique_ptr<RootSignature> m_rootSignBindable;
+		std::unique_ptr<PipelineState> m_psoBindable;
+		std::unique_ptr<ShaderResourceView> m_srvBindable;
 	};
 }

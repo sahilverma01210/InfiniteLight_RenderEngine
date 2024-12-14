@@ -13,6 +13,6 @@ namespace Common
 		float Peek() const noexcept(!IS_DEBUG);
 
 	private:
-		std::chrono::steady_clock::time_point last;
+		std::chrono::steady_clock::time_point m_last;
 	};
 }

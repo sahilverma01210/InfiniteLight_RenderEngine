@@ -7,8 +7,6 @@
 
 namespace Renderer
 {
-	class Pass;
-
 	class Sink
 	{
 	public:
@@ -18,15 +16,16 @@ namespace Renderer
 		const std::string& GetOutputName() const noexcept(!IS_DEBUG);
 		void SetTarget(std::string passName, std::string outputName);
 		virtual void Bind(Source& source) = 0;
-		virtual void PostLinkValidate() const = 0;
-		bool isVector = false;
+		virtual void PostLinkValidate() const = 0;		
 	protected:
 		Sink(std::string registeredName);
 
+	public:
+		bool m_isVector = false;
 	private:
-		std::string registeredName;
-		std::string passName;
-		std::string outputName;
+		std::string m_registeredName;
+		std::string m_passName;
+		std::string m_outputName;
 	};
 
 	template<class T>
@@ -37,7 +36,7 @@ namespace Renderer
 		DirectBufferSink(std::string registeredName, std::shared_ptr<T>& bind)
 			:
 			Sink(std::move(registeredName)),
-			target(bind)
+			m_target(bind)
 		{
 		}
 		static std::unique_ptr<Sink> Make(std::string registeredName, std::shared_ptr<T>& target)
@@ -46,7 +45,7 @@ namespace Renderer
 		}
 		void PostLinkValidate() const override
 		{
-			if (!linked)
+			if (!m_linked)
 			{
 				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
@@ -61,13 +60,13 @@ namespace Renderer
 					<< " { " << typeid(T).name() << " } not compatible with { " << typeid(*source.YieldBuffer().get()).name() << " }";
 				throw RG_EXCEPTION(oss.str());
 			}
-			target = std::move(p);
-			linked = true;
+			m_target = std::move(p);
+			m_linked = true;
 		}
 
 	private:
-		std::shared_ptr<T>& target;
-		bool linked = false;
+		std::shared_ptr<T>& m_target;
+		bool m_linked = false;
 	};
 
 	template<class T>
@@ -78,9 +77,9 @@ namespace Renderer
 		DirectBufferBucketSink(std::string registeredName, std::vector<std::shared_ptr<T>>& bindVector)
 			:
 			Sink(std::move(registeredName)),
-			targetVector(bindVector)
+			m_targetVector(bindVector)
 		{
-			isVector = true;
+			m_isVector = true;
 		}
 		static std::unique_ptr<Sink> Make(std::string registeredName, std::vector<std::shared_ptr<T>>& targetVector)
 		{
@@ -88,27 +87,27 @@ namespace Renderer
 		}
 		void PostLinkValidate() const override
 		{
-			if (!linked)
+			if (!m_linked)
 			{
 				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
 		}
 		void Bind(Source& source) override
 		{
-			if (source.isVector)
+			if (source.m_isVector)
 			{
 				for (std::shared_ptr<BufferResource> buffer : source.YieldBufferBucket())
 				{
 					auto p = std::dynamic_pointer_cast<T>(buffer);
-					targetVector.push_back(std::move(p));
+					m_targetVector.push_back(std::move(p));
 				}
-				linked = true;
+				m_linked = true;
 			}
 		}
 
 	private:
-		std::vector<std::shared_ptr<T>>& targetVector;
-		bool linked = false;
+		std::vector<std::shared_ptr<T>>& m_targetVector;
+		bool m_linked = false;
 	};
 
 	template<class T>
@@ -119,13 +118,13 @@ namespace Renderer
 		ContainerBindableSink(std::string registeredName, std::vector<std::shared_ptr<Bindable>>& container, size_t index)
 			:
 			Sink(std::move(registeredName)),
-			container(container),
-			index(index)
+			m_container(container),
+			m_index(index)
 		{
 		}
 		void PostLinkValidate() const override
 		{
-			if (!linked)
+			if (!m_linked)
 			{
 				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
@@ -140,14 +139,14 @@ namespace Renderer
 					<< " { " << typeid(T).name() << " } does not match { " << typeid(*source.YieldBindable().get()).name() << " }";
 				throw RG_EXCEPTION(oss.str());
 			}
-			container[index] = std::move(p);
-			linked = true;
+			m_container[m_index] = std::move(p);
+			m_linked = true;
 		}
 
 	private:
-		std::vector<std::shared_ptr<Bindable>>& container;
-		size_t index;
-		bool linked = false;
+		std::vector<std::shared_ptr<Bindable>>& m_container;
+		size_t m_index;
+		bool m_linked = false;
 	};
 
 	template<class T>
@@ -158,7 +157,7 @@ namespace Renderer
 		DirectBindableSink(std::string registeredName, std::shared_ptr<T>& target)
 			:
 			Sink(std::move(registeredName)),
-			target(target)
+			m_target(target)
 		{
 		}
 		static std::unique_ptr<Sink> Make(std::string registeredName, std::shared_ptr<T>& target)
@@ -167,7 +166,7 @@ namespace Renderer
 		}
 		void PostLinkValidate() const override
 		{
-			if (!linked)
+			if (!m_linked)
 			{
 				throw RG_EXCEPTION("Unlinked input: " + GetRegisteredName());
 			}
@@ -182,12 +181,12 @@ namespace Renderer
 					<< " { " << typeid(T).name() << " } does not match { " << typeid(*source.YieldBindable().get()).name() << " }";
 				throw RG_EXCEPTION(oss.str());
 			}
-			target = std::move(p);
-			linked = true;
+			m_target = std::move(p);
+			m_linked = true;
 		}
 
 	private:
-		std::shared_ptr<T>& target;
-		bool linked = false;
+		std::shared_ptr<T>& m_target;
+		bool m_linked = false;
 	};
 }

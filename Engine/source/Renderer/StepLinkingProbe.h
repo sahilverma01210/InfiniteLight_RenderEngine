@@ -11,6 +11,6 @@ namespace Renderer
 		void OnSetStep() override;
 
 	private:
-		RenderGraph& rg;
+		RenderGraph& m_renderGraph;
 	};
 }

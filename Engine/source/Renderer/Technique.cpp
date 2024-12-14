@@ -4,9 +4,9 @@ namespace Renderer
 {
 	void Technique::Submit(const Drawable& drawable, size_t channelFilter) const noexcept(!IS_DEBUG)
 	{
-		if (active && ((channels & channelFilter) != 0))
+		if (m_active && ((m_channels & channelFilter) != 0))
 		{
-			for (const auto& step : steps)
+			for (const auto& step : m_steps)
 			{
 				step.Submit(drawable);
 			}
@@ -15,42 +15,42 @@ namespace Renderer
 
 	Technique::Technique(size_t channels)
 		:
-		channels{ channels }
+		m_channels{ channels }
 	{}
 
 	Technique::Technique(std::string name, size_t channels, bool startActive) noexcept(!IS_DEBUG)
 		:
-		active(startActive),
-		name(name),
-		channels(channels)
+		m_active(startActive),
+		m_name(name),
+		m_channels(channels)
 	{}
 	void Technique::AddStep(Step step) noexcept(!IS_DEBUG)
 	{
-		steps.push_back(std::move(step));
+		m_steps.push_back(std::move(step));
 	}
 	bool Technique::IsActive() const noexcept(!IS_DEBUG)
 	{
-		return active;
+		return m_active;
 	}
 	void Technique::SetActiveState(bool active_in) noexcept(!IS_DEBUG)
 	{
-		active = active_in;
+		m_active = active_in;
 	}
 	void Technique::Accept(TechniqueProbe& probe)
 	{
 		probe.SetTechnique(this);
-		for (auto& s : steps)
+		for (auto& s : m_steps)
 		{
 			s.Accept(probe);
 		}
 	}
 	const std::string& Technique::GetName() const noexcept(!IS_DEBUG)
 	{
-		return name;
+		return m_name;
 	}
 	void Technique::Link(RenderGraph& rg)
 	{
-		for (auto& step : steps)
+		for (auto& step : m_steps)
 		{
 			step.Link(rg);
 		}

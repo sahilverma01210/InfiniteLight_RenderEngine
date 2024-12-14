@@ -14,11 +14,6 @@
 
 namespace Renderer
 {
-	class D3D12RHI;
-	class Bindable;
-	class RenderTarget;
-	class Camera;
-
 	class BlurOutlineRenderGraph : public RenderGraph
 	{
 	private:
@@ -39,12 +34,12 @@ namespace Renderer
 		void SetKernelGauss(int radius, float sigma) noexcept(!IS_DEBUG);
 		
 	private:
-		KernelType kernelType = KernelType::Gauss;
-		static constexpr int maxRadius = 7;
-		int radius = 4;
-		float sigma = 2.0f;
-		std::shared_ptr<ConstantBuffer> blurKernel;
-		std::shared_ptr<ConstantBuffer> blurHorizontal;
-		std::shared_ptr<ConstantBuffer> blurVertical;
+		KernelType m_kernelType = KernelType::Gauss;
+		static constexpr int m_maxRadius = 7;
+		int m_radius = 4;
+		float m_sigma = 2.0f;
+		std::shared_ptr<ConstantBuffer> m_blurKernel;
+		std::shared_ptr<ConstantBuffer> m_blurHorizontal;
+		std::shared_ptr<ConstantBuffer> m_blurVertical;
 	};
 }

@@ -9,8 +9,6 @@
 
 namespace Renderer
 {
-	class D3D12RHI;
-
 	class ScaleOutlineRenderGraph : public RenderGraph
 	{
 	public:

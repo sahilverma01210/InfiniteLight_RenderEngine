@@ -4,27 +4,13 @@ namespace Renderer
 {
     // PUBLIC - D3D12RHI METHODS
 
-    D3D12RHI::D3D12RHI(UINT width, UINT height, HWND hWnd) :
-        m_width(width),
-        m_height(height),
+    D3D12RHI::D3D12RHI(HWND hWnd) :
         m_hWnd(hWnd),
         m_useWarpDevice(false),
-        m_backBufferIndex(0),
-        m_viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height)),
-        m_scissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height))
-    {
-        WCHAR assetsPath[512];
-        GetAssetsPath(assetsPath, _countof(assetsPath));
-        m_assetsPath = assetsPath;
-
-        OnInit();
-    }
-
-    void D3D12RHI::OnInit()
+        m_backBufferIndex(0)
     {
         // DirectX Graphics Infrastructure (DXGI) - Core component of DirectX API.
         // Serves as an intermediary layer between Graphics APIs and the Graphics Hardware.
-
         // IDXGIFactory is an interface in the DirectX Graphics Infrastructure (DXGI) API, which is used for creating DXGI objects, such as swap chains, surfaces, and adapters.
         ComPtr<IDXGIFactory4> factory;
         D3D12RHI_THROW_INFO(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
@@ -35,7 +21,7 @@ namespace Renderer
             if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
                 debugController->EnableDebugLayer();
             }
-        
+
             ComPtr<ID3D12Debug1> debugController1;
             if (SUCCEEDED(debugController.As(&debugController1))) {
                 debugController1->SetEnableGPUBasedValidation(TRUE);
@@ -156,6 +142,20 @@ namespace Renderer
 
             m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
         }
+
+        // Setup Frame Dimentions
+        {
+            GetClientRect(m_hWnd, &m_scissorRect);
+            m_width = m_scissorRect.right;
+            m_height = m_scissorRect.bottom;
+            m_viewport.Width = m_width;
+            m_viewport.Height = m_height;
+        }
+    }
+
+    D3D12RHI::~D3D12RHI()
+    {
+        D3D12RHI_THROW_INFO_ONLY(CloseHandle(m_fenceEvent));
     }
 
     UINT D3D12RHI::GetWidth()
@@ -171,6 +171,18 @@ namespace Renderer
     UINT D3D12RHI::GetCurrentBackBufferIndex()
     {
         return m_swapChain->GetCurrentBackBufferIndex();
+    }
+
+    RECT D3D12RHI::GetScreenRect()
+    {
+        // Get the settings of the display on which the app's window is currently displayed
+        ComPtr<IDXGIOutput> pOutput;
+        m_swapChain->GetContainingOutput(&pOutput);
+        DXGI_OUTPUT_DESC Desc;
+        pOutput->GetDesc(&Desc);
+        D3D12_RECT screenRect = Desc.DesktopCoordinates;
+        //ResizeFrame(screenRect.right, screenRect.bottom);
+        return screenRect;
     }
 
     void D3D12RHI::ResetCommandList()
@@ -205,16 +217,6 @@ namespace Renderer
         D3D12RHI_THROW_INFO(m_commandQueue->Signal(m_fence.Get(), ++m_fenceValue));
         D3D12RHI_THROW_INFO(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
         D3D12RHI_THROW_INFO_ONLY(WaitForSingleObject(m_fenceEvent, INFINITE));
-    }
-
-    std::wstring D3D12RHI::GetAssetFullPath(LPCWSTR assetName)
-    {
-        return m_assetsPath + assetName;
-    }
-
-    void D3D12RHI::OnDestroy()
-    {
-        D3D12RHI_THROW_INFO_ONLY(CloseHandle(m_fenceEvent));
     }
 
     void D3D12RHI::Info(HRESULT hr)
@@ -279,14 +281,14 @@ namespace Renderer
         m_scissorRect.right = static_cast<LONG>(m_width);
         m_scissorRect.bottom = static_cast<LONG>(m_height);
 
-        //m_swapChain->ResizeBuffers(m_backBufferCount, m_width, m_height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
+        m_swapChain->ResizeBuffers(m_backBufferCount, m_width, m_height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
 
         // configure Rasterizer Stage (RS).
         D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetViewports(1, &m_viewport));
         D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetScissorRects(1, &m_scissorRect));
     }
 
-    void D3D12RHI::StartFrame(UINT width, UINT height)
+    void D3D12RHI::StartFrame()
     {
         // Wait for Previous Frame to complete then proceed.
         ResetCommandList();
@@ -294,7 +296,7 @@ namespace Renderer
         // bind the heap containing the texture descriptor 
         D3D12RHI_THROW_INFO_ONLY(m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf()));
 
-        ResizeFrame(width, height);
+        ResizeFrame(m_width, m_height);
 
         // advance back buffer
         m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
@@ -332,12 +334,12 @@ namespace Renderer
 
     ID3D12Resource* D3D12RHI::GetRenderTargetBuffer()
     {
-        return m_currentTargetBuffer;
+        return m_currentTargetBuffer.Get();
     }
 
     ID3D12Resource* D3D12RHI::GetDepthBuffer()
     {
-        return m_currentDepthBuffer;
+        return m_currentDepthBuffer.Get();
     }
 
     // PRIVATE - HELPER D3D12RHI METHODS

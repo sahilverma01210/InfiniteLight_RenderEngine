@@ -2,17 +2,17 @@
 
 namespace Renderer
 {
-    IndexBuffer::IndexBuffer(D3D12RHI& gfx, UINT dataSize, std::vector<USHORT> pData)
+    IndexBuffer::IndexBuffer(D3D12RHI& gfx, std::vector<USHORT> pData)
         :
-        IndexBuffer(gfx, "?", dataSize, pData)
+        IndexBuffer(gfx, "?", pData)
     {
     }
 
-    IndexBuffer::IndexBuffer(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)
+    IndexBuffer::IndexBuffer(D3D12RHI& gfx, std::string tag, std::vector<USHORT> pData)
         :
-        tag(tag),
+        m_tag(tag),
         m_numOfIndices(pData.size()),
-        m_indexBufferSize(dataSize)
+        m_indexBufferSize(pData.size() * sizeof(pData[0]))
     {
         INFOMAN(gfx);
 
@@ -75,14 +75,14 @@ namespace Renderer
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->IASetIndexBuffer(&m_indexBufferView));
     }
 
-    std::shared_ptr<IndexBuffer> IndexBuffer::Resolve(D3D12RHI& gfx, std::string tag, UINT dataSize, std::vector<USHORT> pData)
+    std::shared_ptr<IndexBuffer> IndexBuffer::Resolve(D3D12RHI& gfx, std::string tag, std::vector<USHORT> pData)
     {
-        return Codex::Resolve<IndexBuffer>(gfx, tag, dataSize, pData);
+        return Codex::Resolve<IndexBuffer>(gfx, tag, pData);
     }
 
     std::string IndexBuffer::GetUID() const noexcept(!IS_DEBUG)
     {
-        return GenerateUID_(tag);
+        return GenerateUID_(m_tag);
     }
 
     std::string IndexBuffer::GenerateUID_(const std::string& tag)

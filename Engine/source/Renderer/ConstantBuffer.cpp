@@ -87,10 +87,10 @@ namespace Renderer
 
 	void ConstantBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-        if (dirty)
+        if (m_selected)
         {
             Update(gfx, m_dataBuffer.value());
-            dirty = false;
+            m_selected = false;
         }
 
         // Using Root Parameter Index to bind this buffer to Root Parameter having correct Shader Register which is used in HLSL.
@@ -106,7 +106,7 @@ namespace Renderer
     void ConstantBuffer::SetBuffer(const Buffer& buf_in)
     {
         m_dataBuffer.value().CopyFrom(buf_in);
-        dirty = true;
+        m_selected = true;
     }
 
     void ConstantBuffer::Accept(TechniqueProbe& probe)
@@ -115,7 +115,7 @@ namespace Renderer
         {
             if (probe.VisitBuffer(m_dataBuffer.value()))
             {
-                dirty = true;
+                m_selected = true;
             }
         }
     }

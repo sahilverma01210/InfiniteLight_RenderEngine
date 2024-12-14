@@ -12,29 +12,29 @@ namespace Common
 		{
 			Entry(std::string s, float t)
 				:
-				label(std::move(s)),
-				time(t)
+				m_label(std::move(s)),
+				m_time(t)
 			{}
 			void WriteTo(std::ostream& out) const noexcept(!IS_DEBUG)
 			{
 				using namespace std::string_literals;
-				if (label.empty())
+				if (m_label.empty())
 				{
-					out << time * 1000.0f << "ms\n";
+					out << m_time * 1000.0f << "ms\n";
 				}
 				else
 				{
-					out << std::setw(16) << std::left << "["s + label + "] "s << std::setw(6) << std::right << time * 1000.0f << "ms\n";
+					out << std::setw(16) << std::left << "["s + m_label + "] "s << std::setw(6) << std::right << m_time * 1000.0f << "ms\n";
 				}
 			}
-			std::string label;
-			float time;
+			std::string m_label;
+			float m_time;
 		};
 
 	private:
 		ILPerfLog() noexcept(!IS_DEBUG)
 		{
-			entries.reserve(3000);
+			m_entries.reserve(3000);
 		}
 		~ILPerfLog()
 		{
@@ -47,19 +47,19 @@ namespace Common
 		}
 		void Start_(const std::string& label = "") noexcept(!IS_DEBUG)
 		{
-			entries.emplace_back(label, 0.0f);
-			timer.Mark();
+			m_entries.emplace_back(label, 0.0f);
+			m_timer.Mark();
 		}
 		void Mark_(const std::string& label = "") noexcept(!IS_DEBUG)
 		{
-			float t = timer.Peek();
-			entries.emplace_back(label, t);
+			float t = m_timer.Peek();
+			m_entries.emplace_back(label, t);
 		}
 		void Flush_()
 		{
 			std::ofstream file("logs\\performance.txt");
 			file << std::setprecision(3) << std::fixed;
-			for (const auto& e : entries)
+			for (const auto& e : m_entries)
 			{
 				e.WriteTo(file);
 			}
@@ -75,7 +75,7 @@ namespace Common
 		}
 
 	private:
-		ILTimer timer;
-		std::vector<Entry> entries;
+		ILTimer m_timer;
+		std::vector<Entry> m_entries;
 	};
 }

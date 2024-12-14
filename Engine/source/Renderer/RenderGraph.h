@@ -26,12 +26,12 @@ namespace Renderer
 		void LinkGlobalSinks();
 
 	protected:
-		std::vector<std::shared_ptr<RenderTarget>> backBufferTargets;
-		std::shared_ptr<DepthStencil> masterDepth;
+		std::vector<std::shared_ptr<RenderTarget>> m_backBufferTargets;
+		std::shared_ptr<DepthStencil> m_masterDepth;
 	private:
-		std::vector<std::unique_ptr<Pass>> passes;
-		std::vector<std::unique_ptr<Source>> globalSources;
-		std::vector<std::unique_ptr<Sink>> globalSinks;
-		bool finalized = false;
+		std::vector<std::unique_ptr<Pass>> m_passes;
+		std::vector<std::unique_ptr<Source>> m_globalSources;
+		std::vector<std::unique_ptr<Sink>> m_globalSinks;
+		bool m_finalized = false;
 	};
 }

@@ -48,4 +48,12 @@ namespace Common
 			*(lastSlash + 1) = L'\0';
 		}
 	}
+	inline std::wstring GetAssetFullPath(LPCWSTR assetName)
+	{
+		WCHAR assetsPath[512];
+		GetAssetsPath(assetsPath, _countof(assetsPath));
+		// Root assets path.
+		std::wstring wideAssetsPath = assetsPath;
+		return wideAssetsPath + assetName;
+	}
 }

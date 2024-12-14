@@ -21,34 +21,34 @@ namespace Runtime
 		public:
 			Event() noexcept(!IS_DEBUG)
 				:
-				type(Type::Invalid),
-				code(0u)
+				m_type(Type::Invalid),
+				m_code(0u)
 			{}
 			Event(Type type, unsigned char code) noexcept(!IS_DEBUG)
 				:
-				type(type),
-				code(code)
+				m_type(type),
+				m_code(code)
 			{}
 			bool IsPress() const noexcept(!IS_DEBUG)
 			{
-				return type == Type::Press;
+				return m_type == Type::Press;
 			}
 			bool IsRelease() const noexcept(!IS_DEBUG)
 			{
-				return type == Type::Release;
+				return m_type == Type::Release;
 			}
 			bool IsValid() const noexcept(!IS_DEBUG)
 			{
-				return type != Type::Invalid;
+				return m_type != Type::Invalid;
 			}
 			unsigned char GetCode() const noexcept(!IS_DEBUG)
 			{
-				return code;
+				return m_code;
 			}
 
 		private:
-			Type type;
-			unsigned char code;
+			Type m_type;
+			unsigned char m_code;
 		};
 
 	public:
@@ -78,11 +78,11 @@ namespace Runtime
 		static void TrimBuffer(std::queue<T>& buffer) noexcept(!IS_DEBUG);
 
 	private:
-		static constexpr unsigned int nKeys = 256u;
-		static constexpr unsigned int bufferSize = 16u;
-		bool autorepeatEnabled = false;
-		std::bitset<nKeys> keystates;
-		std::queue<Event> keybuffer;
-		std::queue<char> charbuffer;
+		static constexpr unsigned int m_nKeys = 256u;
+		static constexpr unsigned int m_bufferSize = 16u;
+		bool m_autorepeatEnabled = false;
+		std::bitset<m_nKeys> m_keystates;
+		std::queue<Event> m_keybuffer;
+		std::queue<char> m_charbuffer;
 	};
 }

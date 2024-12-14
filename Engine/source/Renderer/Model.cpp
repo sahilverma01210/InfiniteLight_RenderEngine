@@ -28,25 +28,21 @@ namespace Renderer
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		{
 			const auto& mesh = *pScene->mMeshes[i];
-			meshPtrs.push_back(std::make_unique<Mesh>(gfx, materials[mesh.mMaterialIndex], mesh, scale));
+			m_meshPtrs.push_back(std::make_shared<Mesh>(gfx, materials[mesh.mMaterialIndex], mesh, scale));
 		}
 
 		int nextId = 0;
-		pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
-	}
-
-	Model::~Model() noexcept(!IS_DEBUG)
-	{
+		m_pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
 	}
 
 	void Model::Submit(size_t channels) const noexcept(!IS_DEBUG)
 	{
-		pRoot->Submit(channels, XMMatrixIdentity());
+		m_pRoot->Submit(channels, XMMatrixIdentity());
 	}
 
 	void Model::SetRootTransform(FXMMATRIX tf) noexcept(!IS_DEBUG)
 	{
-		pRoot->SetAppliedTransform(tf);
+		m_pRoot->SetAppliedTransform(tf);
 	}
 
 	std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept(!IS_DEBUG)
@@ -55,12 +51,12 @@ namespace Renderer
 			reinterpret_cast<const XMFLOAT4X4*>(&node.mTransformation)
 		)), scale);
 
-		std::vector<Mesh*> curMeshPtrs;
+		std::vector<std::shared_ptr<Mesh>> curMeshPtrs;
 		curMeshPtrs.reserve(node.mNumMeshes);
 		for (size_t i = 0; i < node.mNumMeshes; i++)
 		{
 			const auto meshIdx = node.mMeshes[i];
-			curMeshPtrs.push_back(meshPtrs.at(meshIdx).get());
+			curMeshPtrs.push_back(m_meshPtrs.at(meshIdx));
 		}
 
 		auto pNode = std::make_unique<Node>(nextId++, node.mName.C_Str(), std::move(curMeshPtrs), transform);
@@ -74,12 +70,12 @@ namespace Renderer
 
 	void Model::Accept(ModelProbe& probe)
 	{
-		pRoot->Accept(probe);
+		m_pRoot->Accept(probe);
 	}
 
 	void Model::LinkTechniques(RenderGraph& rg)
 	{
-		for (auto& pMesh : meshPtrs)
+		for (auto& pMesh : m_meshPtrs)
 		{
 			pMesh->LinkTechniques(rg);
 		}

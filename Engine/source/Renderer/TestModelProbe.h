@@ -16,16 +16,16 @@ namespace Renderer
 		void OnSetTechnique() override
 		{
 			using namespace std::string_literals;
-			ImGui::TextColored({ 0.4f,1.0f,0.6f,1.0f }, pTech->GetName().c_str());
-			bool active = pTech->IsActive();
-			ImGui::Checkbox(("Tech Active##"s + std::to_string(techIdx)).c_str(), &active);
-			pTech->SetActiveState(active);
+			ImGui::TextColored({ 0.4f,1.0f,0.6f,1.0f }, m_pTech->GetName().c_str());
+			bool active = m_pTech->IsActive();
+			ImGui::Checkbox(("Tech Active##"s + std::to_string(m_techIdx)).c_str(), &active);
+			m_pTech->SetActiveState(active);
 		}
 		bool OnVisitBuffer(Buffer& buf) override
 		{
 			float dirty = false;
 			const auto dcheck = [&dirty](bool changed) {dirty = dirty || changed; };
-			auto tag = [tagScratch = std::string{}, tagString = "##" + std::to_string(bufIdx)]
+			auto tag = [tagScratch = std::string{}, tagString = "##" + std::to_string(m_bufIdx)]
 			(const char* label) mutable
 				{
 					tagScratch = label + tagString;
@@ -85,15 +85,15 @@ namespace Renderer
 		};
 
 	public:
-		MP(std::string name) : name(std::move(name))
+		MP(std::string name) : m_name(std::move(name))
 		{}
 		void SpawnWindow(Model& model)
 		{
-			ImGui::Begin(name.c_str());
+			ImGui::Begin(m_name.c_str());
 			ImGui::Columns(2, nullptr, true);
 			model.Accept(*this);
 			ImGui::NextColumn();
-			if (pSelectedNode != nullptr)
+			if (m_pSelectedNode != nullptr)
 			{
 				bool dirty = false;
 				const auto dcheck = [&dirty](bool changed) {dirty = dirty || changed; };
@@ -108,7 +108,7 @@ namespace Renderer
 				dcheck(ImGui::SliderAngle("Z-rotation", &tf.zRot, -180.0f, 180.0f));
 				if (dirty)
 				{
-					pSelectedNode->SetAppliedTransform(
+					m_pSelectedNode->SetAppliedTransform(
 						XMMatrixRotationX(tf.xRot) *
 						XMMatrixRotationY(tf.yRot) *
 						XMMatrixRotationZ(tf.zRot) *
@@ -116,10 +116,10 @@ namespace Renderer
 					);
 				}
 			}
-			if (pSelectedNode != nullptr)
+			if (m_pSelectedNode != nullptr)
 			{
 				TP probe;
-				pSelectedNode->Accept(probe);
+				m_pSelectedNode->Accept(probe);
 			}
 			ImGui::End();
 		}
@@ -127,7 +127,7 @@ namespace Renderer
 		bool PushNode(Node& node) override
 		{
 			// if there is no selected node, set selectedId to an impossible value
-			const int selectedId = (pSelectedNode == nullptr) ? -1 : pSelectedNode->GetId();
+			const int selectedId = (m_pSelectedNode == nullptr) ? -1 : m_pSelectedNode->GetId();
 			// build up flags for current node
 			const auto node_flags = ImGuiTreeNodeFlags_OpenOnArrow
 				| ((node.GetId() == selectedId) ? ImGuiTreeNodeFlags_Selected : 0)
@@ -145,22 +145,22 @@ namespace Renderer
 				{
 					virtual void OnSetTechnique()
 					{
-						if (pTech->GetName() == "Outline")
+						if (m_pTech->GetName() == "Outline")
 						{
-							pTech->SetActiveState(highlighted);
+							m_pTech->SetActiveState(highlighted);
 						}
 					}
 					bool highlighted = false;
 				} probe;
 				// remove highlight on prev-selected node
-				if (pSelectedNode != nullptr)
+				if (m_pSelectedNode != nullptr)
 				{
-					pSelectedNode->Accept(probe);
+					m_pSelectedNode->Accept(probe);
 				}
 				// add highlight to newly-selected node
 				probe.highlighted = true;
 				node.Accept(probe);
-				pSelectedNode = &node;
+				m_pSelectedNode = &node;
 			}
 			// signal if children should also be recursed
 			return expanded;
@@ -172,9 +172,9 @@ namespace Renderer
 	private:
 		TransformParameters& ResolveTransform() noexcept(!IS_DEBUG)
 		{
-			const auto id = pSelectedNode->GetId();
-			auto i = transformParams.find(id);
-			if (i == transformParams.end())
+			const auto id = m_pSelectedNode->GetId();
+			auto i = m_transformParams.find(id);
+			if (i == m_transformParams.end())
 			{
 				return LoadTransform(id);
 			}
@@ -182,7 +182,7 @@ namespace Renderer
 		}
 		TransformParameters& LoadTransform(int id) noexcept(!IS_DEBUG)
 		{
-			const auto& applied = pSelectedNode->GetAppliedTransform();
+			const auto& applied = m_pSelectedNode->GetAppliedTransform();
 			const auto angles = ExtractEulerAngles(applied);
 			const auto translation = ExtractTranslation(applied);
 			TransformParameters tp;
@@ -192,12 +192,12 @@ namespace Renderer
 			tp.x = translation.x;
 			tp.y = translation.y;
 			tp.z = translation.z;
-			return transformParams.insert({ id,{ tp } }).first->second;
+			return m_transformParams.insert({ id,{ tp } }).first->second;
 		}
 
 	private:
-		std::string name;
-		Node* pSelectedNode = nullptr;
-		std::unordered_map<int, TransformParameters> transformParams;
+		std::string m_name;
+		Node* m_pSelectedNode = nullptr;
+		std::unordered_map<int, TransformParameters> m_transformParams;
 	};
 }

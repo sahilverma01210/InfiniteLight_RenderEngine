@@ -1,9 +1,8 @@
 #pragma once
+#include "D3D12RHI.h"
 
 namespace Renderer
 {
-	class D3D12RHI;
-
 	class BufferResource
 	{
 	public:

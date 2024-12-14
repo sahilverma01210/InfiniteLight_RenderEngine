@@ -3,8 +3,6 @@
 
 namespace Renderer
 {
-	class D3D12RHI;
-
 	class BlurOutlineDrawingPass : public RenderQueuePass
 	{
 	public:
@@ -12,12 +10,12 @@ namespace Renderer
 			:
 			RenderQueuePass(std::move(name))
 		{
-			renderTargetVector.push_back(std::make_unique<RenderTarget>(gfx, fullWidth, fullHeight));
-			RegisterSource(DirectBindableSource<RenderTarget>::Make("scratchOut", renderTargetVector[0]));
+			m_renderTargetVector.push_back(std::make_unique<RenderTarget>(gfx, fullWidth, fullHeight));
+			RegisterSource(DirectBindableSource<RenderTarget>::Make("scratchOut", m_renderTargetVector[0]));
 		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
-			renderTargetVector[0]->Clear(gfx);
+			m_renderTargetVector[0]->Clear(gfx);
 			RenderQueuePass::Execute(gfx);
 		}
 	};

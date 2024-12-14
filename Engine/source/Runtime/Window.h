@@ -1,9 +1,17 @@
 #pragma once
 #include "../Renderer/Renderer.h"
 #include "../Common/ILException.h"
+#include "../Common/ILTimer.h"
 
 #include "Keyboard.h"
 #include "Mouse.h"
+
+// Window title.
+#define TITLE L"Infinite Light Render Engine"
+
+// Viewport dimensions.
+#define WIDTH 1280.0f
+#define HEIGHT 720.0f
 
 using namespace Renderer;
 
@@ -25,19 +33,20 @@ namespace Runtime
 			WindowClass& operator=(const WindowClass&) = delete;
 
 		private:
-			static constexpr const WCHAR* wndClassName = L"InfiniteLight Window";
-			static WindowClass wndClass;
-			HINSTANCE hInst;
+			static constexpr const WCHAR* m_wndClassName = L"InfiniteLight Window";
+			static WindowClass m_wndClass;
+			HINSTANCE m_hInst;
 		};
 
 	public:
-		Window(LONG width, LONG height, const WCHAR* name);
+		Window();
 		~Window();
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
 		void SetTitle(const std::wstring& title);
 		static std::optional<int> ProcessMessages();
-		void UpdateWindow(float angle);
+		void UpdateWindow();
+		void ToggleFullscreenWindow();
 		void EnableCursor() noexcept(!IS_DEBUG);
 		void DisableCursor() noexcept(!IS_DEBUG);
 		bool CursorEnabled() const noexcept(!IS_DEBUG);
@@ -57,14 +66,17 @@ namespace Runtime
 		static bool ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept(!IS_DEBUG);
 
 	public:
-		Keyboard kbd;
-		Mouse mouse;
+		Keyboard m_keyboard;
+		Mouse m_mouse;
 	private:
-		LONG width;
-		LONG height;
-		HWND hWnd;
-		bool cursorEnabled = true;
-		Graphics* graphics;
-		std::vector<BYTE> rawBuffer;
+		LONG m_width;
+		LONG m_height;
+		HWND m_hWnd;
+		bool m_fullscreenMode = false;
+		RECT m_windowRect;
+		bool m_cursorEnabled = true;
+		ILTimer m_timer;
+		std::vector<BYTE> m_rawBuffer;
+		std::unique_ptr<ILRenderer> m_renderer;
 	};
 }

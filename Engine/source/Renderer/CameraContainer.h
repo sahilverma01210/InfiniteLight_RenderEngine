@@ -24,8 +24,8 @@ namespace Renderer
 	public:
 		bool m_imGUIwndOpen = true;
 	private:
-		std::vector<std::shared_ptr<Camera>> cameras;
-		int active = 0;
-		int controlled = 0;
+		std::vector<std::shared_ptr<Camera>> m_cameras;
+		int m_active = 0;
+		int m_controlled = 0;
 	};
 }

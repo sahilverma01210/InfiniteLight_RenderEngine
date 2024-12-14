@@ -17,11 +17,11 @@ namespace Renderer
 		std::shared_ptr<T> Resolve_(D3D12RHI& gfx, Params&&...p) noexcept(!IS_DEBUG)
 		{
 			const auto key = T::GenerateUID(std::forward<Params>(p)...);
-			const auto i = binds.find(key);
-			if (i == binds.end())
+			const auto i = m_binds.find(key);
+			if (i == m_binds.end())
 			{
 				auto bind = std::make_shared<T>(gfx, std::forward<Params>(p)...);
-				binds[key] = bind;
+				m_binds[key] = bind;
 				return bind;
 			}
 			else
@@ -36,6 +36,6 @@ namespace Renderer
 		}
 
 	private:
-		std::unordered_map<std::string, std::shared_ptr<Bindable>> binds;
+		std::unordered_map<std::string, std::shared_ptr<Bindable>> m_binds;
 	};
 }

@@ -17,6 +17,7 @@ namespace Renderer
 		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex);
 		TransformBuffer(const TransformBuffer& transformBuffer);
 		TransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex, float scale);
+		~TransformBuffer() = default;
 		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 
 	private:

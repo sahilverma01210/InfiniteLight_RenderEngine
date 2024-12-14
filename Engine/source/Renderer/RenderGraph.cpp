@@ -4,18 +4,18 @@ namespace Renderer
 {
 	RenderGraph::RenderGraph(D3D12RHI& gfx)
 		:
-		masterDepth(std::make_shared<DepthStencil>(gfx))
+		m_masterDepth(std::make_shared<DepthStencil>(gfx))
 	{
 		for (UINT n = 0; n < gfx.GetTargetBuffers().size(); n++)
 		{
 			RenderTarget* rt = new RenderTarget(gfx, gfx.GetTargetBuffers()[n].Get());
-			backBufferTargets.push_back(std::shared_ptr<RenderTarget>(rt));
+			m_backBufferTargets.push_back(std::shared_ptr<RenderTarget>(rt));
 		}
 
 		// setup global sinks and sources
-		AddGlobalSource(DirectBufferBucketSource<RenderTarget>::Make("backbuffer", backBufferTargets));
-		AddGlobalSource(DirectBufferSource<DepthStencil>::Make("masterDepth", masterDepth));
-		AddGlobalSink(DirectBufferBucketSink<RenderTarget>::Make("backbuffer", backBufferTargets));
+		AddGlobalSource(DirectBufferBucketSource<RenderTarget>::Make("backbuffer", m_backBufferTargets));
+		AddGlobalSource(DirectBufferSource<DepthStencil>::Make("masterDepth", m_masterDepth));
+		AddGlobalSink(DirectBufferBucketSink<RenderTarget>::Make("backbuffer", m_backBufferTargets));
 	}
 
 	RenderGraph::~RenderGraph()
@@ -26,8 +26,8 @@ namespace Renderer
 		const auto finder = [&sinkName](const std::unique_ptr<Sink>& p) {
 			return p->GetRegisteredName() == sinkName;
 			};
-		const auto i = std::find_if(globalSinks.begin(), globalSinks.end(), finder);
-		if (i == globalSinks.end())
+		const auto i = std::find_if(m_globalSinks.begin(), m_globalSinks.end(), finder);
+		if (i == m_globalSinks.end())
 		{
 			throw RG_EXCEPTION("Global sink does not exist: " + sinkName);
 		}
@@ -41,18 +41,18 @@ namespace Renderer
 
 	void RenderGraph::AddGlobalSource(std::unique_ptr<Source> out)
 	{
-		globalSources.push_back(std::move(out));
+		m_globalSources.push_back(std::move(out));
 	}
 
 	void RenderGraph::AddGlobalSink(std::unique_ptr<Sink> in)
 	{
-		globalSinks.push_back(std::move(in));
+		m_globalSinks.push_back(std::move(in));
 	}
 
 	void RenderGraph::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-		assert(finalized);
-		for (auto& p : passes)
+		assert(m_finalized);
+		for (auto& p : m_passes)
 		{
 			p->Execute(gfx);
 		}
@@ -60,8 +60,8 @@ namespace Renderer
 
 	void RenderGraph::Reset() noexcept(!IS_DEBUG)
 	{
-		assert(finalized);
-		for (auto& p : passes)
+		assert(m_finalized);
+		for (auto& p : m_passes)
 		{
 			p->Reset();
 		}
@@ -69,9 +69,9 @@ namespace Renderer
 
 	void RenderGraph::AppendPass(std::unique_ptr<Pass> pass)
 	{
-		assert(!finalized);
+		assert(!m_finalized);
 		// validate name uniqueness
-		for (const auto& p : passes)
+		for (const auto& p : m_passes)
 		{
 			if (pass->GetName() == p->GetName())
 			{
@@ -79,19 +79,19 @@ namespace Renderer
 			}
 		}
 
-		// link outputs from passes (and global outputs) to pass inputs
+		// link outputs from m_passes (and global outputs) to pass inputs
 		LinkSinks(*pass);
 
-		// add to container of passes
-		passes.push_back(std::move(pass));
+		// add to container of m_passes
+		m_passes.push_back(std::move(pass));
 	}
 
 	Pass& RenderGraph::FindPassByName(const std::string& name)
 	{
-		const auto i = std::find_if(passes.begin(), passes.end(), [&name](auto& p) {
+		const auto i = std::find_if(m_passes.begin(), m_passes.end(), [&name](auto& p) {
 			return p->GetName() == name;
 			});
-		if (i == passes.end())
+		if (i == m_passes.end())
 		{
 			throw std::runtime_error{ "Failed to find pass name" };
 		}
@@ -115,7 +115,7 @@ namespace Renderer
 			if (inputSourcePassName == "$")
 			{
 				bool bound = false;
-				for (auto& source : globalSources)
+				for (auto& source : m_globalSources)
 				{
 					if (source->GetName() == si->GetOutputName())
 					{
@@ -131,10 +131,10 @@ namespace Renderer
 					throw RG_EXCEPTION(oss.str());
 				}
 			}
-			else // find source from within existing passes
+			else // find source from within existing m_passes
 			{
 				bool bound = false;
-				for (auto& existingPass : passes)
+				for (auto& existingPass : m_passes)
 				{
 					if (existingPass->GetName() == inputSourcePassName)
 					{
@@ -156,10 +156,10 @@ namespace Renderer
 
 	void RenderGraph::LinkGlobalSinks()
 	{
-		for (auto& sink : globalSinks)
+		for (auto& sink : m_globalSinks)
 		{
 			const auto& inputSourcePassName = sink->GetPassName();
-			for (auto& existingPass : passes)
+			for (auto& existingPass : m_passes)
 			{
 				if (existingPass->GetName() == inputSourcePassName)
 				{
@@ -173,20 +173,20 @@ namespace Renderer
 
 	void RenderGraph::Finalize()
 	{
-		assert(!finalized);
-		for (const auto& p : passes)
+		assert(!m_finalized);
+		for (const auto& p : m_passes)
 		{
 			p->Finalize();
 		}
 		LinkGlobalSinks();
-		finalized = true;
+		m_finalized = true;
 	}
 
 	RenderQueuePass& RenderGraph::GetRenderQueue(const std::string& passName)
 	{
 		try
 		{
-			for (const auto& p : passes)
+			for (const auto& p : m_passes)
 			{
 				if (p->GetName() == passName)
 				{

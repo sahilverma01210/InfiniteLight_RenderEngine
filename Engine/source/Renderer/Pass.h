@@ -21,8 +21,8 @@ namespace Renderer
 		void RegisterSource(std::unique_ptr<Source> source);
 
 	private:
-		std::vector<std::unique_ptr<Sink>> sinks;
-		std::vector<std::unique_ptr<Source>> sources;
-		std::string name;
+		std::vector<std::unique_ptr<Sink>> m_sinks;
+		std::vector<std::unique_ptr<Source>> m_sources;
+		std::string m_name;
 	};
 }

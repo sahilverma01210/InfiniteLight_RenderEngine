@@ -16,6 +16,6 @@ namespace Renderer
 		const std::string& GetMessage() const noexcept(!IS_DEBUG);
 
 	private:
-		std::string message;
+		std::string m_message;
 	};
 }

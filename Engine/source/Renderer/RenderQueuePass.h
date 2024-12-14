@@ -13,6 +13,6 @@ namespace Renderer
 		void Reset() noexcept(!IS_DEBUG) override;
 
 	private:
-		std::vector<Job> jobs;
+		std::vector<Job> m_jobs;
 	};
 }

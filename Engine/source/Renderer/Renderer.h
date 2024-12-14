@@ -10,32 +10,29 @@
 #include "BlurOutlineRenderGraph.h"
 #include "TestModelProbe.h"
 #include "Camera.h"
-#include "Channels.h"
 
 using namespace Common;
 
 namespace Renderer
 {
-	class Graphics
+	class ILRenderer
 	{
 	public:
-		Graphics(UINT width, UINT height, HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);
-		void StartFrame(UINT width, UINT height);
+		ILRenderer(HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);
+		~ILRenderer();
+		void StartFrame();
 		void Update();
 		void EndFrame();
-		void Destroy();
 		void Rotate(float dx, float dy);
 		void Translate(XMFLOAT3 translation);
-		void ToggleImguiDemoWindow();
-		void ShowImguiDemoWindow();
+		RECT GetScreenRect();
 
 	private:
-		bool showDemoWindow = false;
-		std::unique_ptr<D3D12RHI> pRHI;
-		std::unique_ptr<CameraContainer> cameras;
-		std::unique_ptr<PointLight> light;
-		std::unique_ptr<UIManager> uiManager;
-		std::unique_ptr<BlurOutlineRenderGraph> rg;
-		std::unique_ptr<Model> sponza;
+		std::unique_ptr<D3D12RHI> m_pRHI;
+		std::unique_ptr<BlurOutlineRenderGraph> m_blurRenderGraph;
+		std::unique_ptr<Model> m_sponza;
+		std::unique_ptr<PointLight> m_light;
+		std::unique_ptr<CameraContainer> m_cameras;
+		std::unique_ptr<UIManager> m_uiManager;
 	};
 }

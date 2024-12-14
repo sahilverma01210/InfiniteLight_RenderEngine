@@ -137,9 +137,6 @@
     <Filter Include="Shaders\HLSL\Skybox">
       <UniqueIdentifier>{a18352d6-aaf6-44b0-b563-013fd0bd8410}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\HLSL\Shadow">
-      <UniqueIdentifier>{f31df685-9b38-421f-9a11-24c068f1bd95}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\HLSL\Post Processing">
       <UniqueIdentifier>{eba3db18-d745-4689-8a8b-acc8ba90dd53}</UniqueIdentifier>
     </Filter>
@@ -148,9 +145,6 @@
     </Filter>
     <Filter Include="Source\Renderer\Private\Common\Primitives">
       <UniqueIdentifier>{2a6dda3a-6d68-4a77-a813-db6fc6add4be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\Common\Shapes">
-      <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Renderer\Public\RenderGraph\Drawables">
       <UniqueIdentifier>{9076667c-8be2-4ed5-8884-0a9961c9d62e}</UniqueIdentifier>
@@ -163,6 +157,9 @@
     </Filter>
     <Filter Include="Source\Renderer\Private\RenderGraph\Drawables\Model">
       <UniqueIdentifier>{0487562a-0b4f-4c81-8a76-8c4ecbd58302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Common\Primitives\Shapes">
+      <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -236,7 +233,7 @@
       <Filter>Source\Renderer\Public\Common\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Sphere.h">
-      <Filter>Source\Renderer\Public\Common\Shapes</Filter>
+      <Filter>Source\Renderer\Public\Common\Primitives\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderMath.h">
       <Filter>Source\Renderer\Public\Common</Filter>
@@ -251,7 +248,7 @@
       <Filter>Source\Renderer\Public\Common</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Cube.h">
-      <Filter>Source\Renderer\Public\Common\Shapes</Filter>
+      <Filter>Source\Renderer\Public\Common\Primitives\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Job.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
@@ -340,9 +337,6 @@
     <ClInclude Include="source\Renderer\Renderer.h">
       <Filter>Source\Renderer\Public</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Channels.h">
-      <Filter>Source\Renderer\Public</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Viewport.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
@@ -425,7 +419,7 @@
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Plane.h">
-      <Filter>Source\Renderer\Public\Common\Shapes</Filter>
+      <Filter>Source\Renderer\Public\Common\Primitives\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="source\Common\ILPerfLog.h">
       <Filter>Source\Common\Public</Filter>
@@ -697,12 +691,6 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
       <Filter>Shaders\HLSL\Skybox</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\ShadowTest_PS.hlsl">
-      <Filter>Shaders\HLSL\Shadow</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\ShadowTest_VS.hlsl">
-      <Filter>Shaders\HLSL\Shadow</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
