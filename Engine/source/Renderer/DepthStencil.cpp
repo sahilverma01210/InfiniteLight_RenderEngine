@@ -87,21 +87,17 @@ namespace Renderer
         }
 	}
 
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, BufferResource* bufferResource) noexcept(!IS_DEBUG)
     {
-        INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(0, nullptr, FALSE, &m_depthStensilViewHandle));
-    }
-
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, BufferResource* renderTarget) noexcept(!IS_DEBUG)
-    {
-        assert(dynamic_cast<RenderTarget*>(renderTarget) != nullptr);
-        BindAsBuffer(gfx, static_cast<RenderTarget*>(renderTarget));
-    }
-
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, RenderTarget* rt) noexcept(!IS_DEBUG)
-    {
-        rt->BindAsBuffer(gfx, this);
+        if (bufferResource)
+        {
+            static_cast<RenderTarget*>(bufferResource)->BindAsBuffer(gfx, this);
+        }
+        else
+        {
+            INFOMAN_NOHR(gfx);
+            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(0, nullptr, FALSE, &m_depthStensilViewHandle));
+        }
     }
 
     void DepthStencil::Clear(D3D12RHI& gfx) noexcept(!IS_DEBUG)

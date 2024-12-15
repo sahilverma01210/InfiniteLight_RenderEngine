@@ -140,7 +140,9 @@ namespace Renderer
 				auto pMessage = reinterpret_cast<DXGI_INFO_QUEUE_MESSAGE*>(bytes.get());
 				// get the message and push its description into the vector
 				D3D12RHI_THROW_NOINFO(m_pDxgiInfoQueue->GetMessage(DXGI_DEBUG_ALL, i, pMessage, &messageLength));
-				messages.emplace_back(pMessage->pDescription);
+
+				if (pMessage->Severity != DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING) // Ignore DXGI Warings.
+					messages.emplace_back(pMessage->pDescription);
 			}
 			return messages;
 		}

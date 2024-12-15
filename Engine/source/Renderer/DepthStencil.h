@@ -13,9 +13,7 @@ namespace Renderer
 		DepthStencil(D3D12RHI& gfx, ID3D12Resource* depthBuffer, UINT face);
 		DepthStencil(D3D12RHI& gfx, UINT width, UINT height, DepthUsage usage);
 		~DepthStencil() = default;
-		void BindAsBuffer(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
-		void BindAsBuffer(D3D12RHI& gfx, BufferResource* renderTarget) noexcept(!IS_DEBUG) override;
-		void BindAsBuffer(D3D12RHI& gfx, RenderTarget* rt) noexcept(!IS_DEBUG);
+		void BindAsBuffer(D3D12RHI& gfx, BufferResource* bufferResource) noexcept(!IS_DEBUG) override;
 		void Clear(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 		unsigned int GetWidth() const;
 		unsigned int GetHeight() const;

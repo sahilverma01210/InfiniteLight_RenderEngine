@@ -56,8 +56,8 @@ namespace Renderer
 
 			PipelineDescription pipelineDesc{};
 
-			pipelineDesc.useTexture = true;
 			pipelineDesc.numConstantBufferViews = 1;
+			pipelineDesc.numShaderResourceViews = 1;
 			pipelineDesc.numSamplers = 1;
 			pipelineDesc.samplers = samplers;
 			pipelineDesc.depthStencilMode = Mode::DepthFirst;

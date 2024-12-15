@@ -3,21 +3,18 @@
 namespace Renderer
 {
 	RenderTarget::RenderTarget(D3D12RHI& gfx, UINT width, UINT height)
-        :
-        m_width(width),
-        m_height(height)
 	{
         INFOMAN(gfx);
 
         auto const heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
-        const D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R16G16B16A16_FLOAT,
+        const D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM,
             static_cast<UINT64>(width),
             static_cast<UINT>(height),
             1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         {
-            D3D12_CLEAR_VALUE clearValue = { DXGI_FORMAT_R16G16B16A16_FLOAT, {0.0f, 0.0f, 0.0f, 0.0f} };
+            D3D12_CLEAR_VALUE clearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 0.0f} };
             D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
                 &desc,
                 D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
@@ -93,27 +90,10 @@ namespace Renderer
         }
     }
 
-	void RenderTarget::BindAsBuffer(D3D12RHI& gfx) noexcept(!IS_DEBUG)
-	{
-        D3D12_CPU_DESCRIPTOR_HANDLE* null = nullptr;
-        BindAsBuffer(gfx, null);
-	}
-
-    void RenderTarget::BindAsBuffer(D3D12RHI& gfx, BufferResource* depthStencil) noexcept(!IS_DEBUG)
-    {
-        assert(dynamic_cast<DepthStencil*>(depthStencil) != nullptr);
-        BindAsBuffer(gfx, &(static_cast<DepthStencil*>(depthStencil)->m_depthStensilViewHandle));
-    }
-
-	void RenderTarget::BindAsBuffer(D3D12RHI& gfx, DepthStencil* depthStencil) noexcept(!IS_DEBUG)
-	{
-        BindAsBuffer(gfx, depthStencil ? &depthStencil->m_depthStensilViewHandle : nullptr);
-	}
-
-    void RenderTarget::BindAsBuffer(D3D12RHI& gfx, D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilView) noexcept(!IS_DEBUG)
+    void RenderTarget::BindAsBuffer(D3D12RHI& gfx, BufferResource* bufferResource) noexcept(!IS_DEBUG)
     {
         INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, pDepthStencilView));
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, bufferResource ? &(static_cast<DepthStencil*>(bufferResource)->m_depthStensilViewHandle) : nullptr));
         gfx.SetRenderTargetBuffer(m_texureBuffer.Get());
     }
 
@@ -133,21 +113,5 @@ namespace Renderer
     ID3D12Resource* RenderTarget::GetBuffer() const noexcept(!IS_DEBUG)
     {
         return m_texureBuffer.Get();
-    }
-
-    void RenderTarget::ResizeFrame(UINT width, UINT height)
-    {
-        m_width = width;
-        m_height = height;
-    }
-
-    UINT RenderTarget::GetWidth() const noexcept(!IS_DEBUG)
-    {
-        return m_width;
-    }
-
-    UINT RenderTarget::GetHeight() const noexcept(!IS_DEBUG)
-    {
-        return m_height;
     }
 }

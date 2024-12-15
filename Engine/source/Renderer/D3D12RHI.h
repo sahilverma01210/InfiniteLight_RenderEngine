@@ -18,6 +18,7 @@ namespace Renderer
     };
     enum class DepthUsage
     {
+        None,
         DepthStencil,
         ShadowDepth,
     };
@@ -25,10 +26,10 @@ namespace Renderer
     struct PipelineDescription
     {
         // Root Signature
-        bool useTexture = false;
         UINT numConstants = 0;
         UINT num32BitConstants = 0;
         UINT numConstantBufferViews = 0;
+        UINT numShaderResourceViews = 0;
         UINT numSamplers = 0;
         CD3DX12_STATIC_SAMPLER_DESC* samplers = nullptr;
 
@@ -42,7 +43,7 @@ namespace Renderer
         ID3D12RootSignature* rootSignature = nullptr;
         ID3DBlob* vertexShader = nullptr;
         ID3DBlob* pixelShader = nullptr;
-        DepthUsage depthUsage = {};
+        DepthUsage depthUsage = DepthUsage::DepthStencil;
     };
 
     class D3D12RHI
@@ -72,7 +73,7 @@ namespace Renderer
         XMMATRIX GetCamera();
         XMMATRIX GetProjection();
         // RENDER FRAME METHODS
-        void ResizeFrame(UINT width, UINT height);
+        void ResizeScreenSpace(UINT width, UINT height);
         void StartFrame();
         void DrawIndexed(UINT indexCountPerInstance);
         void EndFrame();
@@ -97,6 +98,8 @@ namespace Renderer
         {
             switch (usage)
             {
+            case DepthUsage::None:
+                return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
             case DepthUsage::DepthStencil:
                 return DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
             case DepthUsage::ShadowDepth:
@@ -140,8 +143,8 @@ namespace Renderer
         HANDLE m_fenceEvent;
         ComPtr<ID3D12Fence> m_fence;
         // Pipeline objects.
-        CD3DX12_VIEWPORT m_viewport;
-        CD3DX12_RECT m_scissorRect;
+        CD3DX12_VIEWPORT m_viewport; // Maps NDC to screen space.
+        CD3DX12_RECT m_scissorRect; // Clips fragments to a rectangular region in screen space.
         ComPtr<ID3D12Device> m_device;
         ComPtr<ID3D12CommandQueue> m_commandQueue;
         ComPtr<ID3D12CommandAllocator> m_commandAllocator;

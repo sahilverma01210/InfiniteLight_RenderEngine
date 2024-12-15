@@ -264,7 +264,7 @@ namespace Renderer
 
     // PUBLIC - RENDER FRAME METHODS
 
-    void D3D12RHI::ResizeFrame(UINT width, UINT height)
+    void D3D12RHI::ResizeScreenSpace(UINT width, UINT height)
     {
         m_width = width;
         m_height = height;
@@ -281,8 +281,6 @@ namespace Renderer
         m_scissorRect.right = static_cast<LONG>(m_width);
         m_scissorRect.bottom = static_cast<LONG>(m_height);
 
-        m_swapChain->ResizeBuffers(m_backBufferCount, m_width, m_height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
-
         // configure Rasterizer Stage (RS).
         D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetViewports(1, &m_viewport));
         D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetScissorRects(1, &m_scissorRect));
@@ -296,7 +294,9 @@ namespace Renderer
         // bind the heap containing the texture descriptor 
         D3D12RHI_THROW_INFO_ONLY(m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf()));
 
-        ResizeFrame(m_width, m_height);
+        // configure Rasterizer Stage (RS).
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetViewports(1, &m_viewport));
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetScissorRects(1, &m_scissorRect));
 
         // advance back buffer
         m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();

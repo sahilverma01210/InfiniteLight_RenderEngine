@@ -41,7 +41,7 @@ namespace Renderer
 		}
 		else
 		{
-			m_depthStencil->BindAsBuffer(gfx);
+			m_depthStencil->BindAsBuffer(gfx, nullptr);
 		}
 	}
 }

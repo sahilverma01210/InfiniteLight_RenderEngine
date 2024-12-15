@@ -27,8 +27,8 @@ namespace Renderer
 			// Compile Shaders.
 			D3DCompileFromFile(GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
-			m_pipelineDesc.useTexture = true;
 			m_pipelineDesc.numConstantBufferViews = 2;
+			m_pipelineDesc.numShaderResourceViews = 1;
 			m_pipelineDesc.backFaceCulling = true;
 			m_pipelineDesc.numElements = vec.size();
 			m_pipelineDesc.inputElementDescs = inputElementDescs;

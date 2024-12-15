@@ -49,10 +49,6 @@ namespace Runtime
 		m_width(WIDTH),
 		m_height(HEIGHT)
 	{
-		// Plain Exception Examples:
-		//throw ILWND_EXCEPT(ERROR_ARENA_TRASHED);
-		//throw std::runtime_error("ERORRRRRRRRR!!");
-
 		// calculate window size based on desired client region size
 		RECT wr;
 		wr.left = 100;
@@ -140,7 +136,6 @@ namespace Runtime
 	{
 		if (m_renderer)
 		{
-			OutputDebugStringA("UPDATED!!!!!!\n");
 			m_renderer->StartFrame();
 
 			const auto e = m_keyboard.ReadKey();

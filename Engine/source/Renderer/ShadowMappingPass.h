@@ -52,7 +52,7 @@ namespace Renderer
 			UINT initWidth = gfx.GetWidth();
 			UINT initHeight = gfx.GetHeight();
 
-			gfx.ResizeFrame(m_size, m_size);
+			gfx.ResizeScreenSpace(m_size, m_size);
 			gfx.SetProjection(XMLoadFloat4x4(&m_projection));
 
 			for (size_t i = 0; i < 6; i++)
@@ -64,7 +64,7 @@ namespace Renderer
 				gfx.SetCamera(XMMatrixLookAtLH(pos, lookAt, XMLoadFloat3(&m_cameraUps[i])));
 				RenderQueuePass::Execute(gfx);
 			}
-			gfx.ResizeFrame(initWidth, initHeight);
+			gfx.ResizeScreenSpace(initWidth, initHeight);
 		}
 	private:
 		void SetDepthBuffer(std::shared_ptr<DepthStencil> ds) const

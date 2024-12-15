@@ -173,10 +173,10 @@ namespace Renderer
 					staticSamplers[1] = sampler2;
 
 					PipelineDescription phongPipelineDesc{};
-					phongPipelineDesc.useTexture = true;
 					phongPipelineDesc.numConstants = 1;
 					phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 					phongPipelineDesc.numConstantBufferViews = 3;
+					phongPipelineDesc.numShaderResourceViews = numSRVDescriptors;
 					phongPipelineDesc.numSamplers = 2; // One extra Sampler for Shadow Texture.
 					phongPipelineDesc.samplers = staticSamplers;
 					phongPipelineDesc.backFaceCulling = !hasAlpha;
@@ -344,6 +344,7 @@ namespace Renderer
 					drawPipelineDesc.backFaceCulling = true;
 					drawPipelineDesc.numSamplers = 1;
 					drawPipelineDesc.samplers = samplers;
+					drawPipelineDesc.depthUsage = DepthUsage::None;
 
 					m_pipelineDesc["outlineDraw"] = drawPipelineDesc;
 				}

@@ -8,7 +8,7 @@ namespace Renderer
 
         m_numRootParameters = pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews;
 
-        if (pipelineDesc.useTexture) m_numRootParameters++;
+        if (pipelineDesc.numShaderResourceViews) m_numRootParameters++;
 
         m_rootParameters = new CD3DX12_ROOT_PARAMETER[m_numRootParameters];
 
@@ -18,7 +18,7 @@ namespace Renderer
         for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++)
             m_rootParameters[j].InitAsConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_ALL); // Here Shader Register can be different from Root Paramerer Index.
 
-        if (pipelineDesc.useTexture)
+        if (pipelineDesc.numShaderResourceViews)
         {
             const CD3DX12_DESCRIPTOR_RANGE descRange{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, UINT_MAX , 0 };
             m_rootParameters[pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews].InitAsDescriptorTable(1, &descRange, D3D12_SHADER_VISIBILITY_PIXEL);
