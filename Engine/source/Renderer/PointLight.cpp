@@ -4,7 +4,7 @@ namespace Renderer
 {
 	PointLight::PointLight(D3D12RHI& gfx, XMFLOAT3 pos, float radius)
 		:
-		m_mesh(gfx, radius)
+		m_indicator(gfx, radius)
 	{
 		m_home = {
 			pos,
@@ -22,7 +22,7 @@ namespace Renderer
 		Drawable::m_lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(m_cbData), &m_cbData));
 	}
 
-	bool PointLight::SpawnControlWindow() noexcept(!IS_DEBUG)
+	bool PointLight::SpawnWindow() noexcept(!IS_DEBUG)
 	{
 		if (ImGui::Begin("Light", &m_imGUIwndOpen))
 		{
@@ -64,8 +64,8 @@ namespace Renderer
 
 	void PointLight::Submit(size_t channels) const noexcept(!IS_DEBUG)
 	{
-		m_mesh.SetPos(m_cbData.pos);
-		m_mesh.Submit(channels);
+		m_indicator.SetPos(m_cbData.pos);
+		m_indicator.Submit(channels);
 	}
 
 	void PointLight::Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept(!IS_DEBUG)
@@ -87,7 +87,7 @@ namespace Renderer
 
 	void PointLight::LinkTechniques(RenderGraph& rg)
 	{
-		m_mesh.LinkTechniques(rg);
+		m_indicator.LinkTechniques(rg);
 	}
 
 	std::shared_ptr<Camera> PointLight::ShareCamera() const noexcept(!IS_DEBUG)

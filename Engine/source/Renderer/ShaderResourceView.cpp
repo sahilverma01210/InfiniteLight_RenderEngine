@@ -2,9 +2,10 @@
 
 namespace Renderer
 {
-	ShaderResourceView::ShaderResourceView(D3D12RHI& gfx, UINT rootParameterIndex, UINT numSRVDescriptors)
+	ShaderResourceView::ShaderResourceView(D3D12RHI& gfx, UINT rootParameterIndex, UINT numSRVDescriptors, UINT backwardRTOffset)
 		:
-		m_rootParameterIndex(rootParameterIndex)
+		m_rootParameterIndex(rootParameterIndex),
+		m_backwardRTOffset(backwardRTOffset)
 	{
 		INFOMAN(gfx);
 
@@ -20,11 +21,13 @@ namespace Renderer
 		return m_srvHeap.Get();
 	}
 
-	void ShaderResourceView::AddTextureResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* texureBuffer, bool isCubeMap)
+	void ShaderResourceView::AddTextureResource(D3D12RHI& gfx, UINT offset, ID3D12Resource* textureBuffer, bool isCubeMap)
 	{
+		m_buffer = textureBuffer;
+
 		DXGI_FORMAT targetTextureFormat;
 
-		switch (texureBuffer->GetDesc().Format)
+		switch (textureBuffer->GetDesc().Format)
 		{
 		case DXGI_FORMAT_R24G8_TYPELESS:
 			targetTextureFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
@@ -33,7 +36,7 @@ namespace Renderer
 			targetTextureFormat = DXGI_FORMAT_R32_FLOAT;
 			break;
 		default:
-			targetTextureFormat = texureBuffer->GetDesc().Format;
+			targetTextureFormat = textureBuffer->GetDesc().Format;
 			break;
 		}
 
@@ -45,29 +48,32 @@ namespace Renderer
 		{
 			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 			srvDesc.TextureCube.MostDetailedMip = 0;
-			srvDesc.TextureCube.MipLevels = texureBuffer->GetDesc().MipLevels;
+			srvDesc.TextureCube.MipLevels = textureBuffer->GetDesc().MipLevels;
 			srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
 		}
 		else
 		{
 			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			srvDesc.Texture2D.MipLevels = texureBuffer->GetDesc().MipLevels;
+			srvDesc.Texture2D.MipLevels = textureBuffer->GetDesc().MipLevels;
 		}
 
 		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 		CPUHandle.ptr += GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * offset;
 
 		INFOMAN_NOHR(gfx);
-		D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateShaderResourceView(texureBuffer, &srvDesc, CPUHandle));
+		D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateShaderResourceView(textureBuffer, &srvDesc, CPUHandle));
 	}
 
-	void ShaderResourceView::AddBackBufferAsResource(D3D12RHI& gfx)
+	ID3D12Resource* ShaderResourceView::GetResource(D3D12RHI& gfx)
 	{
-		AddTextureResource(gfx, 0, GetBackBuffers(gfx)[GetSwapChain(gfx)->GetCurrentBackBufferIndex()].Get());
+		return m_buffer;
 	}
 
 	void ShaderResourceView::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
+		UINT size = gfx.GetRenderTargetBuffers().size();
+		if (m_backwardRTOffset) AddTextureResource(gfx, 0, gfx.GetRenderTargetBuffers()[size - m_backwardRTOffset].Get());
+
 		INFOMAN_NOHR(gfx);
 
 		// bind the descriptor table containing the texture descriptor 

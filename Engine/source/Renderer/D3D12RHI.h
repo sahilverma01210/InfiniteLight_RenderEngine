@@ -80,7 +80,7 @@ namespace Renderer
         // RENDER TARGET & DEPTH BUFFER METHODS
         void SetRenderTargetBuffer(ID3D12Resource* buffer);
         void SetDepthBuffer(ID3D12Resource* buffer);
-        ID3D12Resource* GetRenderTargetBuffer();
+        std::vector<ComPtr<ID3D12Resource>>& GetRenderTargetBuffers();
         ID3D12Resource* GetDepthBuffer();
         // DEPTH STENCIL METHODS
         DXGI_FORMAT MapUsageTypeless(DepthUsage usage)
@@ -155,7 +155,7 @@ namespace Renderer
 #endif
         UINT m_backBufferIndex;
         static const UINT m_backBufferCount = 2;
-        ComPtr<ID3D12Resource> m_currentTargetBuffer = nullptr;
+        std::vector<ComPtr<ID3D12Resource>> m_targetBuffers;
         ComPtr<ID3D12Resource> m_currentDepthBuffer = nullptr;
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
         ComPtr<ID3D12DescriptorHeap> m_srvHeap;

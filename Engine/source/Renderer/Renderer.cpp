@@ -8,6 +8,8 @@ namespace Renderer
 		m_blurRenderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI));
 		m_sponza = std::move(std::make_unique<Model>(*m_pRHI, "data\\models\\sponza\\sponza.obj", 1.0f / 20.0f));
 		m_light = std::move(std::make_unique<PointLight>(*m_pRHI, XMFLOAT3{ 10.0f,5.0f,0.0f }));
+		m_skybox = std::move(std::make_unique<Skybox>(*m_pRHI));
+		m_postProcessFilter = std::move(std::make_unique<PostProcessFilter>(*m_pRHI));
 		m_uiManager = std::move(std::make_unique<UIManager>(*m_pRHI));
 		
 		m_sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
@@ -16,6 +18,8 @@ namespace Renderer
 		m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, "B", XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f));
 		m_cameraContainer.AddCamera(m_light->ShareCamera());
 
+		m_postProcessFilter->LinkTechniques(*m_blurRenderGraph);
+		m_skybox->LinkTechniques(*m_blurRenderGraph);
 		m_light->LinkTechniques(*m_blurRenderGraph);
 		m_sponza->LinkTechniques(*m_blurRenderGraph);
 		m_cameraContainer.LinkTechniques(*m_blurRenderGraph);
@@ -40,6 +44,8 @@ namespace Renderer
 
 	void ILRenderer::Update()
 	{
+		m_postProcessFilter->Submit(Channel::main);
+		m_skybox->Submit(Channel::main);
 		m_light->Submit(Channel::main);
 		m_cameraContainer.Submit(Channel::main);
 		m_sponza->Submit(Channel::main);
@@ -54,12 +60,12 @@ namespace Renderer
 
 		// Update UI.
 		{
-			static MP sponzeProbe{ "m_sponza" };
+			static MP sponzeProbe{ "sponza" };
 
-			sponzeProbe.SpawnWindow(*m_sponza);
+			if (sponzeProbe.m_imGUIwndOpen) sponzeProbe.SpawnWindow(*m_sponza);
 			if (m_cameraContainer.m_imGUIwndOpen) m_cameraContainer.SpawnWindow(*m_pRHI);
-			if (m_light->m_imGUIwndOpen) m_light->SpawnControlWindow();
-			m_blurRenderGraph->RenderWidgets(*m_pRHI);
+			if (m_light->m_imGUIwndOpen) m_light->SpawnWindow();
+			if (m_postProcessFilter->m_imGUIwndOpen) m_postProcessFilter->SpawnWindow(*m_pRHI); // To be implemented.
 
 			m_uiManager->UpdateUIFrame(*m_pRHI);
 		}

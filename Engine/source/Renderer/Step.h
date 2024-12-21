@@ -16,12 +16,11 @@ namespace Renderer
 		Step& operator=(const Step&) = delete;
 		Step& operator=(Step&&) = delete;
 		void AddBindable(std::shared_ptr<Bindable> bind_in) noexcept(!IS_DEBUG);
-		void Submit(const Drawable& drawable) const;
 		void Bind(D3D12RHI& gfx) const noexcept(!IS_DEBUG);
-		void Accept(TechniqueProbe& probe);
-		void Link(RenderGraph& rg);
-		std::vector<std::shared_ptr<Bindable>> GetBindables() noexcept(!IS_DEBUG);
 		std::string GetTargetPass() const;
+		void Link(RenderGraph& rg);
+		void Submit(const Drawable& drawable) const;
+		void Accept(TechniqueProbe& probe);
 
 	private:
 		std::vector<std::shared_ptr<Bindable>> m_bindables;

@@ -19,12 +19,14 @@ namespace Renderer
 		}
 
 		// parse materials
-		std::vector<Material> materials;
+		std::vector<ImportMaterial> materials;
 		materials.reserve(pScene->mNumMaterials);
 		for (size_t i = 0; i < pScene->mNumMaterials; i++)
 		{
 			materials.emplace_back(gfx, *pScene->mMaterials[i], pathString);
 		}
+
+		// apply materials
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		{
 			const auto& mesh = *pScene->mMeshes[i];

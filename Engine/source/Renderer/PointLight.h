@@ -1,9 +1,7 @@
 #pragma once
+#include "PointLightIndicator.h"
 #include "RenderMath.h"
-
-#include "D3D12RHI.h"
 #include "UIManager.h"
-#include "SolidSphere.h"
 #include "Drawable.h"
 #include "Camera.h"
 
@@ -29,7 +27,7 @@ namespace Renderer
 
 	public:
 		PointLight(D3D12RHI& gfx, XMFLOAT3 pos = { 10.0f,9.0f,2.5f }, float radius = 0.5f);
-		bool SpawnControlWindow() noexcept(!IS_DEBUG);
+		bool SpawnWindow() noexcept(!IS_DEBUG);
 		void Reset() noexcept(!IS_DEBUG);
 		void Submit(size_t channels) const noexcept(!IS_DEBUG);
 		void Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept(!IS_DEBUG);
@@ -42,7 +40,7 @@ namespace Renderer
 		PointLightCBuf m_home;
 		PointLightCBuf m_cbData;
 		ShadowLightTransform m_shadowData;
-		mutable SolidSphere m_mesh;
+		mutable PointLightIndicator m_indicator;
 		std::shared_ptr<Camera> m_pCamera;
 	};
 }

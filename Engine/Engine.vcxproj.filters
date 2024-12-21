@@ -119,9 +119,6 @@
     <Filter Include="Source\Renderer\Public\RenderGraph\Probes">
       <UniqueIdentifier>{b0ca8af6-409a-4814-8383-5179285b664d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\RenderGraph\Probes">
-      <UniqueIdentifier>{7a46160b-7d5c-40c9-8dfc-56f4c3c8e966}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_External\Public\Assimp">
       <UniqueIdentifier>{b922efd4-06b1-4df3-a4eb-c5c98c92a448}</UniqueIdentifier>
     </Filter>
@@ -146,20 +143,26 @@
     <Filter Include="Source\Renderer\Private\Common\Primitives">
       <UniqueIdentifier>{2a6dda3a-6d68-4a77-a813-db6fc6add4be}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Public\RenderGraph\Drawables">
-      <UniqueIdentifier>{9076667c-8be2-4ed5-8884-0a9961c9d62e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Private\RenderGraph\Drawables">
-      <UniqueIdentifier>{cc7003b6-cfb0-49b1-a423-7691a2e290f0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\RenderGraph\Drawables\Model">
+    <Filter Include="Source\Renderer\Public\Model">
       <UniqueIdentifier>{829f7351-0107-4a76-b223-30b1f6196013}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\RenderGraph\Drawables\Model">
+    <Filter Include="Source\Renderer\Public\Post Processing">
+      <UniqueIdentifier>{b20ae8f9-2183-4140-9003-b7453e85248b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Post Processing">
+      <UniqueIdentifier>{e68b8dd9-7996-45d9-b88e-02642d9d2d56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Model">
       <UniqueIdentifier>{0487562a-0b4f-4c81-8a76-8c4ecbd58302}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Public\Common\Primitives\Shapes">
-      <UniqueIdentifier>{d89f739a-6e71-45b8-850f-fc6e0b161054}</UniqueIdentifier>
+    <Filter Include="Source\Renderer\Private\Skybox">
+      <UniqueIdentifier>{34d3e0c4-dbd7-4637-8b41-ebd8832784fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Skybox">
+      <UniqueIdentifier>{bb76c504-3a1c-47cb-b529-1a181a0afd34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Materials">
+      <UniqueIdentifier>{0293d600-4fd3-40d1-baf1-19e3a1e88a39}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -184,9 +187,6 @@
     <ClInclude Include="source\Renderer\CommonBindables.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Drawable.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Drawables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\TransformBuffer.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
@@ -201,9 +201,6 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\PointLight.h">
       <Filter>Source\Renderer\Public\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\SolidSphere.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Drawables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\UIManager.h">
       <Filter>Source\Renderer\Public\UI</Filter>
@@ -224,16 +221,13 @@
       <Filter>Source\Renderer\Public\RHI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Model.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\IndexedTriangleList.h">
       <Filter>Source\Renderer\Public\Common\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Vertex.h">
       <Filter>Source\Renderer\Public\Common\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Sphere.h">
-      <Filter>Source\Renderer\Public\Common\Primitives\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderMath.h">
       <Filter>Source\Renderer\Public\Common</Filter>
@@ -247,9 +241,6 @@
     <ClInclude Include="source\Renderer\DynamicConstant.h">
       <Filter>Source\Renderer\Public\Common</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Cube.h">
-      <Filter>Source\Renderer\Public\Common\Primitives\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\Job.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
@@ -259,17 +250,14 @@
     <ClInclude Include="source\Renderer\Technique.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Material.h">
-      <Filter>Source\Renderer\Public\RHI</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\ModelException.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Node.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Mesh.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\GraphicsResource.h">
       <Filter>Source\Renderer\Public\RHI</Filter>
@@ -289,13 +277,10 @@
     <ClInclude Include="source\Renderer\CameraContainer.h">
       <Filter>Source\Renderer\Public\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Projection.h">
+    <ClInclude Include="source\Renderer\CameraProjection.h">
       <Filter>Source\Renderer\Public\Camera</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\CameraIndicator.h">
-      <Filter>Source\Renderer\Public\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Frustum.h">
       <Filter>Source\Renderer\Public\Camera</Filter>
     </ClInclude>
     <ClInclude Include="source\_External\common.h">
@@ -349,9 +334,6 @@
     <ClInclude Include="source\Renderer\BufferClearPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\FullscreenPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\HorizontalBlurPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
@@ -391,9 +373,6 @@
     <ClInclude Include="source\Renderer\RenderGraph.h">
       <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\StepLinkingProbe.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Probes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\TestModelProbe.h">
       <Filter>Source\Renderer\Public\RenderGraph\Probes</Filter>
     </ClInclude>
@@ -418,11 +397,47 @@
     <ClInclude Include="source\Renderer\RenderTarget.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Plane.h">
-      <Filter>Source\Renderer\Public\Common\Primitives\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Common\ILPerfLog.h">
       <Filter>Source\Common\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Shapes.h">
+      <Filter>Source\Renderer\Public\Common\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ImportMaterial.h">
+      <Filter>Source\Renderer\Public\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\SolidMaterial.h">
+      <Filter>Source\Renderer\Public\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LineMaterial.h">
+      <Filter>Source\Renderer\Public\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LineWireMaterial.h">
+      <Filter>Source\Renderer\Public\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PointLightIndicator.h">
+      <Filter>Source\Renderer\Public\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\SkyboxMaterial.h">
+      <Filter>Source\Renderer\Public\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PostProcessMaterial.h">
+      <Filter>Source\Renderer\Public\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PostProcessFilter.h">
+      <Filter>Source\Renderer\Public\Post Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Skybox.h">
+      <Filter>Source\Renderer\Public\Skybox</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Drawable.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ILMaterial.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ILMesh.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -444,9 +459,6 @@
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Drawable.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Drawables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\TransformBuffer.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
@@ -461,9 +473,6 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\PointLight.cpp">
       <Filter>Source\Renderer\Private\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\SolidSphere.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Drawables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\UIManager.cpp">
       <Filter>Source\Renderer\Private\UI</Filter>
@@ -481,7 +490,7 @@
       <Filter>Source\Renderer\Private\RHI</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Model.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Private\Model</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DynamicConstant.cpp">
       <Filter>Source\Renderer\Private\Common</Filter>
@@ -495,17 +504,14 @@
     <ClCompile Include="source\Renderer\Technique.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Material.cpp">
-      <Filter>Source\Renderer\Private\RHI</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\ModelException.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Private\Model</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Node.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Private\Model</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Mesh.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Drawables\Model</Filter>
+      <Filter>Source\Renderer\Private\Model</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\GraphicsResource.cpp">
       <Filter>Source\Renderer\Private\RHI</Filter>
@@ -522,13 +528,10 @@
     <ClCompile Include="source\Renderer\CameraContainer.cpp">
       <Filter>Source\Renderer\Private\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Projection.cpp">
+    <ClCompile Include="source\Renderer\CameraProjection.cpp">
       <Filter>Source\Renderer\Private\Camera</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\CameraIndicator.cpp">
-      <Filter>Source\Renderer\Private\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Frustum.cpp">
       <Filter>Source\Renderer\Private\Camera</Filter>
     </ClCompile>
     <ClCompile Include="source\Common\ILException.cpp">
@@ -579,19 +582,10 @@
     <ClCompile Include="source\Renderer\BufferClearPass.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\FullscreenPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\HorizontalBlurPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\Pass.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderQueuePass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\VerticalBlurPass.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
@@ -602,9 +596,6 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderGraph.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\StepLinkingProbe.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Probes</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DepthStencil.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
@@ -617,6 +608,21 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\Vertex.cpp">
       <Filter>Source\Renderer\Private\Common\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\PointLightIndicator.cpp">
+      <Filter>Source\Renderer\Private\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\PostProcessFilter.cpp">
+      <Filter>Source\Renderer\Private\Post Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Skybox.cpp">
+      <Filter>Source\Renderer\Private\Skybox</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Drawable.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\ILMesh.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

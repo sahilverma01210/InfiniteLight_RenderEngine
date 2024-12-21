@@ -21,7 +21,6 @@ namespace Renderer
 		{
 			m_pStep = pStep_in;
 			m_stepIdx++;
-			OnSetStep();
 		}
 		bool VisitBuffer(Buffer& buf)
 		{
@@ -30,7 +29,6 @@ namespace Renderer
 		}
 	protected:
 		virtual void OnSetTechnique() {}
-		virtual void OnSetStep() {}
 		virtual bool OnVisitBuffer(Buffer&)
 		{
 			return false;

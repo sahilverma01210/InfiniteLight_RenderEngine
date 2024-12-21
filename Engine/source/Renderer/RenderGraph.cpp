@@ -52,18 +52,18 @@ namespace Renderer
 	void RenderGraph::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		assert(m_finalized);
-		for (auto& p : m_passes)
+		for (auto& pass : m_passes)
 		{
-			p->Execute(gfx);
+			pass->Execute(gfx);
 		}
 	}
 
 	void RenderGraph::Reset() noexcept(!IS_DEBUG)
 	{
 		assert(m_finalized);
-		for (auto& p : m_passes)
+		for (auto& pass : m_passes)
 		{
-			p->Reset();
+			pass->Reset();
 		}
 	}
 
@@ -71,9 +71,9 @@ namespace Renderer
 	{
 		assert(!m_finalized);
 		// validate name uniqueness
-		for (const auto& p : m_passes)
+		for (const auto& existingPass : m_passes)
 		{
-			if (pass->GetName() == p->GetName())
+			if (pass->GetName() == existingPass->GetName())
 			{
 				throw RG_EXCEPTION("Pass name already exists: " + pass->GetName());
 			}
@@ -100,14 +100,14 @@ namespace Renderer
 
 	void RenderGraph::LinkSinks(Pass& pass)
 	{
-		for (auto& si : pass.GetSinks())
+		for (auto& sink : pass.GetSinks())
 		{
-			const auto& inputSourcePassName = si->GetPassName();
+			const auto& inputSourcePassName = sink->GetPassName();
 
 			if (inputSourcePassName.empty())
 			{
 				std::ostringstream oss;
-				oss << "In pass named [" << pass.GetName() << "] sink named [" << si->GetRegisteredName() << "] has no target source set.";
+				oss << "In pass named [" << pass.GetName() << "] sink named [" << sink->GetRegisteredName() << "] has no target source set.";
 				throw RG_EXCEPTION(oss.str());
 			}
 
@@ -117,9 +117,9 @@ namespace Renderer
 				bool bound = false;
 				for (auto& source : m_globalSources)
 				{
-					if (source->GetName() == si->GetOutputName())
+					if (source->GetName() == sink->GetOutputName())
 					{
-						si->Bind(*source);
+						sink->Bind(*source);
 						bound = true;
 						break;
 					}
@@ -127,7 +127,7 @@ namespace Renderer
 				if (!bound)
 				{
 					std::ostringstream oss;
-					oss << "Output named [" << si->GetOutputName() << "] not found in globals";
+					oss << "Output named [" << sink->GetOutputName() << "] not found in globals";
 					throw RG_EXCEPTION(oss.str());
 				}
 			}
@@ -138,8 +138,8 @@ namespace Renderer
 				{
 					if (existingPass->GetName() == inputSourcePassName)
 					{
-						auto& source = existingPass->GetSource(si->GetOutputName());
-						si->Bind(source);
+						auto& source = existingPass->GetSource(sink->GetOutputName());
+						sink->Bind(source);
 						bound = true;
 						break;
 					}
@@ -174,9 +174,9 @@ namespace Renderer
 	void RenderGraph::Finalize()
 	{
 		assert(!m_finalized);
-		for (const auto& p : m_passes)
+		for (const auto& pass : m_passes)
 		{
-			p->Finalize();
+			pass->Finalize();
 		}
 		LinkGlobalSinks();
 		m_finalized = true;
@@ -186,11 +186,11 @@ namespace Renderer
 	{
 		try
 		{
-			for (const auto& p : m_passes)
+			for (const auto& pass : m_passes)
 			{
-				if (p->GetName() == passName)
+				if (pass->GetName() == passName)
 				{
-					return dynamic_cast<RenderQueuePass&>(*p);
+					return dynamic_cast<RenderQueuePass&>(*pass);
 				}
 			}
 		}

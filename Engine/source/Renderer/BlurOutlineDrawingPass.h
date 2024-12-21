@@ -11,7 +11,6 @@ namespace Renderer
 			RenderQueuePass(std::move(name))
 		{
 			m_renderTargetVector.push_back(std::make_unique<RenderTarget>(gfx, fullWidth, fullHeight));
-			RegisterSource(DirectBindableSource<RenderTarget>::Make("scratchOut", m_renderTargetVector[0]));
 		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{

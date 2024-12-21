@@ -324,7 +324,7 @@ namespace Renderer
 
     void D3D12RHI::SetRenderTargetBuffer(ID3D12Resource* buffer)
     {
-        m_currentTargetBuffer = buffer;
+        m_targetBuffers.push_back(buffer);
     }
 
     void D3D12RHI::SetDepthBuffer(ID3D12Resource* buffer)
@@ -332,9 +332,9 @@ namespace Renderer
         m_currentDepthBuffer = buffer;
     }
 
-    ID3D12Resource* D3D12RHI::GetRenderTargetBuffer()
+    std::vector<ComPtr<ID3D12Resource>>& D3D12RHI::GetRenderTargetBuffers()
     {
-        return m_currentTargetBuffer.Get();
+        return m_targetBuffers;
     }
 
     ID3D12Resource* D3D12RHI::GetDepthBuffer()

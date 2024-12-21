@@ -1,20 +1,18 @@
 #pragma once
 #include "ILMesh.h"
-#include "LineMaterial.h"
+#include "SolidMaterial.h"
 
 namespace Renderer
 {
-	class CameraIndicator : public ILMesh
+	class PointLightIndicator : public ILMesh
 	{
 	public:
-		CameraIndicator(D3D12RHI& gfx);
+		PointLightIndicator(D3D12RHI& gfx, float radius);
 		void SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG);
-		void SetRotation(XMFLOAT3 pos) noexcept(!IS_DEBUG);
 		XMMATRIX GetTransformXM() const noexcept(!IS_DEBUG) override;
 
 	private:
-		XMFLOAT3 m_pos = { 0.0f,0.0f,0.0f };
-		XMFLOAT3 m_rot = { 0.0f,0.0f,0.0f };
+		XMFLOAT3 m_pos = { 1.0f,1.0f,1.0f };
 		IndexedTriangleList m_indexedList;
 	};
 }

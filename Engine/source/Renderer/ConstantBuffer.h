@@ -11,7 +11,6 @@ namespace Renderer
 		ConstantBuffer(D3D12RHI& gfx, UINT rootParameterIndex, Buffer dataBuffer);
 		~ConstantBuffer() = default;
 		void Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG) override;
-		void Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept(!IS_DEBUG) override;
 		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 		Buffer GetBuffer() const noexcept(!IS_DEBUG);
 		void SetBuffer(const Buffer& buf_in);

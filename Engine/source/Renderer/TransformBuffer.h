@@ -25,4 +25,21 @@ namespace Renderer
 		Transforms m_transform;
 		UINT m_rootParameterIndex;
 	};
+
+	class SkyboxTransformBuffer : public Bindable
+	{
+	public:
+		struct Transforms
+		{
+			XMMATRIX viewProj;
+		};
+
+		SkyboxTransformBuffer(D3D12RHI& gfx, UINT rootParameterIndex);
+		~SkyboxTransformBuffer() = default;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+
+	private:
+		Transforms m_transform;
+		UINT m_rootParameterIndex;
+	};
 }

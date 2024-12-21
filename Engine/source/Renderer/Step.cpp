@@ -8,11 +8,6 @@
 
 namespace Renderer
 {
-	void Step::Submit(const Drawable& drawable) const
-	{
-		m_pTargetPass->Accept(Job{ this,&drawable });
-	}
-
 	Step::Step(std::string targetPassName)
 		:
 		m_targetPassName{ std::move(targetPassName) }
@@ -38,29 +33,15 @@ namespace Renderer
 
 	void Step::AddBindable(std::shared_ptr<Bindable> bind_in) noexcept(!IS_DEBUG)
 	{
-		m_bindables.push_back(std::move(bind_in));
+		m_bindables.push_back(bind_in);
 	}
 
 	void Step::Bind(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		for (const auto& b : m_bindables)
+		for (const auto& bindable : m_bindables)
 		{
-			b->Bind(gfx);
+			bindable->Bind(gfx);
 		}
-	}
-
-	void Step::Accept(TechniqueProbe& probe)
-	{
-		probe.SetStep(this);
-		for (auto& pb : m_bindables)
-		{
-			pb->Accept(probe);
-		}
-	}
-
-	std::vector<std::shared_ptr<Bindable>> Step::GetBindables() noexcept(!IS_DEBUG)
-	{
-		return m_bindables;
 	}
 
 	std::string Step::GetTargetPass() const
@@ -72,5 +53,19 @@ namespace Renderer
 	{
 		assert(m_pTargetPass == nullptr);
 		m_pTargetPass = &rg.GetRenderQueue(m_targetPassName);
+	}
+
+	void Step::Submit(const Drawable& drawable) const
+	{
+		m_pTargetPass->Accept(Job{ this,&drawable });
+	}
+
+	void Step::Accept(TechniqueProbe& probe)
+	{
+		probe.SetStep(this);
+		for (auto& bindable : m_bindables)
+		{
+			bindable->Accept(probe);
+		}
 	}
 }

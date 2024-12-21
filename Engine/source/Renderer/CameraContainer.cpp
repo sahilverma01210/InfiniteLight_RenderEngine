@@ -6,9 +6,9 @@ namespace Renderer
 	{
 	}
 
-	void CameraContainer::SpawnWindow(D3D12RHI& gfx)
+	bool CameraContainer::SpawnWindow(D3D12RHI& gfx)
 	{
-		if (ImGui::Begin("Cameras"))
+		if (ImGui::Begin("Cameras", &m_imGUIwndOpen))
 		{
 			if (ImGui::BeginCombo("Active Camera", GetActiveCamera().GetName().c_str()))
 			{
@@ -39,6 +39,8 @@ namespace Renderer
 			GetControlledCamera().SpawnControlWidgets(gfx);
 		}
 		ImGui::End();
+
+		return m_imGUIwndOpen;
 	}
 
 	void CameraContainer::Bind(D3D12RHI& gfx)

@@ -17,7 +17,7 @@ namespace Renderer
 		{
 			using namespace std::string_literals;
 			ImGui::TextColored({ 0.4f,1.0f,0.6f,1.0f }, m_pTech->GetName().c_str());
-			bool active = m_pTech->IsActive();
+			bool active = m_pTech->GetActiveState();
 			ImGui::Checkbox(("Tech Active##"s + std::to_string(m_techIdx)).c_str(), &active);
 			m_pTech->SetActiveState(active);
 		}
@@ -87,9 +87,9 @@ namespace Renderer
 	public:
 		MP(std::string name) : m_name(std::move(name))
 		{}
-		void SpawnWindow(Model& model)
+		bool SpawnWindow(Model& model)
 		{
-			ImGui::Begin(m_name.c_str());
+			ImGui::Begin(m_name.c_str(), &m_imGUIwndOpen);
 			ImGui::Columns(2, nullptr, true);
 			model.Accept(*this);
 			ImGui::NextColumn();
@@ -122,6 +122,8 @@ namespace Renderer
 				m_pSelectedNode->Accept(probe);
 			}
 			ImGui::End();
+
+			return m_imGUIwndOpen;
 		}
 	protected:
 		bool PushNode(Node& node) override
@@ -195,6 +197,8 @@ namespace Renderer
 			return m_transformParams.insert({ id,{ tp } }).first->second;
 		}
 
+	public:
+		bool m_imGUIwndOpen = true;
 	private:
 		std::string m_name;
 		Node* m_pSelectedNode = nullptr;

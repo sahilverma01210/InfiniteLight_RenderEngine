@@ -3,7 +3,6 @@
 
 #include "UIManager.h"
 #include "Camera.h"
-#include "D3D12RHI.h"
 #include "RenderGraph.h"
 
 namespace Renderer
@@ -12,7 +11,7 @@ namespace Renderer
 	{
 	public:
 		~CameraContainer();
-		void SpawnWindow(D3D12RHI& gfx);
+		bool SpawnWindow(D3D12RHI& gfx);
 		void Bind(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
 		void LinkTechniques(RenderGraph& rg);

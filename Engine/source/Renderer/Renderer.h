@@ -6,6 +6,8 @@
 #include "UIManager.h"
 #include "PointLight.h"
 #include "Model.h"
+#include "Skybox.h"
+#include "PostProcessFilter.h"
 #include "BlurOutlineRenderGraph.h"
 #include "TestModelProbe.h"
 
@@ -31,6 +33,8 @@ namespace Renderer
 		std::unique_ptr<BlurOutlineRenderGraph> m_blurRenderGraph;
 		std::unique_ptr<Model> m_sponza;
 		std::unique_ptr<PointLight> m_light;
+		std::unique_ptr<Skybox> m_skybox;
+		std::unique_ptr<PostProcessFilter> m_postProcessFilter;
 		std::unique_ptr<UIManager> m_uiManager;
 	};
 }

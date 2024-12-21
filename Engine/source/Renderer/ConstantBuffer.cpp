@@ -80,16 +80,11 @@ namespace Renderer
         gfx.InsertFence();
     }
 
-    void ConstantBuffer::Update(D3D12RHI& gfx, Buffer dataBuffer) noexcept(!IS_DEBUG)
-    {
-        Update(gfx, dataBuffer.GetData());
-    }
-
 	void ConstantBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
         if (m_selected)
         {
-            Update(gfx, m_dataBuffer.value());
+            Update(gfx, m_dataBuffer.value().GetData());
             m_selected = false;
         }
 

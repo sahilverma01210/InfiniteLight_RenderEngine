@@ -1,8 +1,7 @@
 #pragma once
 #include "RenderMath.h"
-#include "Projection.h"
 #include "CameraIndicator.h"
-#include "D3D12RHI.h"
+#include "CameraProjection.h"
 #include "UIManager.h"
 
 namespace Renderer
@@ -33,7 +32,7 @@ namespace Renderer
 		float m_homePitch;
 		float m_yaw;
 		float m_homeYaw;
-		Projection m_projection;
+		CameraProjection m_projection;
 		CameraIndicator m_indicator;
 		bool m_enableCameraIndicator = false;
 		bool m_enableFrustumIndicator = false;

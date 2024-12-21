@@ -13,7 +13,7 @@ namespace Renderer
         m_rootParameters = new CD3DX12_ROOT_PARAMETER[m_numRootParameters];
 
         for (int i = 0; i < pipelineDesc.numConstants; i++)
-            m_rootParameters[i].InitAsConstants(pipelineDesc.num32BitConstants, i, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Here Shader Register can be different from Root Paramerer Index.
+            m_rootParameters[i].InitAsConstants(pipelineDesc.num32BitConstants, i, 1, D3D12_SHADER_VISIBILITY_VERTEX); // Here Shader Register can be different from Root Paramerer Index.
 
         for (int j = pipelineDesc.numConstants; j < pipelineDesc.numConstants + pipelineDesc.numConstantBufferViews; j++)
             m_rootParameters[j].InitAsConstantBufferView(j, 0, D3D12_SHADER_VISIBILITY_ALL); // Here Shader Register can be different from Root Paramerer Index.
