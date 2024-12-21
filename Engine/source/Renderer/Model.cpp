@@ -37,9 +37,9 @@ namespace Renderer
 		m_pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
 	}
 
-	void Model::Submit(size_t channels) const noexcept(!IS_DEBUG)
+	void Model::Submit(size_t channel) const noexcept(!IS_DEBUG)
 	{
-		m_pRoot->Submit(channels, XMMatrixIdentity());
+		m_pRoot->Submit(channel, XMMatrixIdentity());
 	}
 
 	void Model::SetRootTransform(FXMMATRIX tf) noexcept(!IS_DEBUG)

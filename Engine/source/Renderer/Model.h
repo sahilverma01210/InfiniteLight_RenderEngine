@@ -11,7 +11,7 @@ namespace Renderer
 	{
 	public:
 		Model(D3D12RHI& gfx, const std::string& pathString, float fscale = 1.0f);
-		void Submit(size_t channels) const noexcept(!IS_DEBUG);
+		void Submit(size_t channel) const noexcept(!IS_DEBUG);
 		void SetRootTransform(FXMMATRIX tf) noexcept(!IS_DEBUG);
 		void Accept(class ModelProbe& probe);
 		void LinkTechniques(RenderGraph&);

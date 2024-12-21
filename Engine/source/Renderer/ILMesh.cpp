@@ -26,8 +26,8 @@ namespace Renderer
 			AddTechnique(std::move(technique));
 		}
 	}
-	void ILMesh::Submit(size_t channels) const noexcept(!IS_DEBUG)
+	void ILMesh::Submit(size_t channel) const noexcept(!IS_DEBUG)
 	{
-		Drawable::Submit(channels);
+		Drawable::Submit(channel);
 	}
 }

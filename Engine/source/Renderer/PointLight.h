@@ -29,7 +29,7 @@ namespace Renderer
 		PointLight(D3D12RHI& gfx, XMFLOAT3 pos = { 10.0f,9.0f,2.5f }, float radius = 0.5f);
 		bool SpawnWindow() noexcept(!IS_DEBUG);
 		void Reset() noexcept(!IS_DEBUG);
-		void Submit(size_t channels) const noexcept(!IS_DEBUG);
+		void Submit(size_t channel) const noexcept(!IS_DEBUG);
 		void Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept(!IS_DEBUG);
 		void LinkTechniques(RenderGraph&);
 		std::shared_ptr<Camera> ShareCamera() const noexcept(!IS_DEBUG);

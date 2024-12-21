@@ -156,15 +156,15 @@ namespace Renderer
 		m_projection.LinkTechniques(rg);
 	}
 
-	void Camera::Submit(size_t channels) const
+	void Camera::Submit(size_t channel) const
 	{
 		if (m_enableCameraIndicator)
 		{
-			m_indicator.Submit(channels);
+			m_indicator.Submit(channel);
 		}
 		if (m_enableFrustumIndicator)
 		{
-			m_projection.Submit(channels);
+			m_projection.Submit(channel);
 		}
 	}
 }

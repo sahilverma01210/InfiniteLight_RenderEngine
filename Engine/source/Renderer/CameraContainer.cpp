@@ -61,13 +61,13 @@ namespace Renderer
 		}
 	}
 
-	void CameraContainer::Submit(size_t channels) const
+	void CameraContainer::Submit(size_t channel) const
 	{
 		for (size_t i = 0; i < m_cameras.size(); i++)
 		{
 			if (i != m_active)
 			{
-				m_cameras[i]->Submit(channels);
+				m_cameras[i]->Submit(channel);
 			}
 		}
 	}

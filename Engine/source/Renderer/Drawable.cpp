@@ -43,11 +43,11 @@ namespace Renderer
 		}
 	}
 
-	void Drawable::Submit(size_t channels) const noexcept(!IS_DEBUG)
+	void Drawable::Submit(size_t channel) const noexcept(!IS_DEBUG)
 	{
 		for (const auto& technique : m_techniques)
 		{
-			technique.Submit(*this, channels);
+			technique.Submit(*this, channel);
 		}
 	}
 

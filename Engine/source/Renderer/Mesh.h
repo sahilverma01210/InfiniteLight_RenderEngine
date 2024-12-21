@@ -13,7 +13,7 @@ namespace Renderer
 		VertexRawBuffer MakeVertices(D3D12RHI& gfx, const aiMesh& mesh, float scale = 1.0f) const noexcept(!IS_DEBUG);
 		std::vector<USHORT> MakeIndices(D3D12RHI& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG);
 		XMMATRIX GetTransformXM() const noexcept(!IS_DEBUG) override;
-		void Submit(size_t channels, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG);
+		void Submit(size_t channel, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG);
 
 	private:
 		VertexLayout m_vtxLayout;

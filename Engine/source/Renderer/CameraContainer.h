@@ -15,7 +15,7 @@ namespace Renderer
 		void Bind(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
 		void LinkTechniques(RenderGraph& rg);
-		void Submit(size_t channels) const;
+		void Submit(size_t channel) const;
 		Camera& GetActiveCamera();
 	private:
 		Camera& GetControlledCamera();

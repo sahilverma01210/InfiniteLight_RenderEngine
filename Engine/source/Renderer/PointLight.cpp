@@ -62,10 +62,10 @@ namespace Renderer
 		m_cbData = m_home;
 	}
 
-	void PointLight::Submit(size_t channels) const noexcept(!IS_DEBUG)
+	void PointLight::Submit(size_t channel) const noexcept(!IS_DEBUG)
 	{
 		m_indicator.SetPos(m_cbData.pos);
-		m_indicator.Submit(channels);
+		m_indicator.Submit(channel);
 	}
 
 	void PointLight::Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept(!IS_DEBUG)

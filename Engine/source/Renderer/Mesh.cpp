@@ -44,10 +44,10 @@ namespace Renderer
 		return indices;
 	}
 
-	void Mesh::Submit(size_t channels, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG)
+	void Mesh::Submit(size_t channel, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG)
 	{
 		XMStoreFloat4x4(&m_transform, accumulatedTranform);
-		ILMesh::Submit(channels);
+		ILMesh::Submit(channel);
 	}
 
 	XMMATRIX Mesh::GetTransformXM() const noexcept(!IS_DEBUG)

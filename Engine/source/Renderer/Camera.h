@@ -21,7 +21,7 @@ namespace Renderer
 		void SetPos(const XMFLOAT3& pos) noexcept(!IS_DEBUG);
 		const std::string& GetName() const noexcept(!IS_DEBUG);
 		void LinkTechniques(RenderGraph& rg);
-		void Submit(size_t channels) const;
+		void Submit(size_t channel) const;
 
 	private:
 		bool m_tethered;

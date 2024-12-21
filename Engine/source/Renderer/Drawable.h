@@ -15,7 +15,7 @@ namespace Renderer
 		void Draw(D3D12RHI& gfx) const noexcept(!IS_DEBUG);
 		void AddTechnique(Technique tech_in) noexcept(!IS_DEBUG);
 		void LinkTechniques(RenderGraph&);
-		void Submit(size_t channels) const noexcept(!IS_DEBUG);
+		void Submit(size_t channel) const noexcept(!IS_DEBUG);
 		void Accept(TechniqueProbe& probe);
 
 	protected:
