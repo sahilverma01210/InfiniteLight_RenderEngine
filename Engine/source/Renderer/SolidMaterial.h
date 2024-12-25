@@ -48,7 +48,11 @@ namespace Renderer
 
 					only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, 1, 1));
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 1;
+					params.numCbvSrvUavDescriptors = 1;
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
 
 					SolidCB data = { XMFLOAT3{ 1.0f,1.0f,1.0f } };
 					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));

@@ -316,6 +316,8 @@ namespace Renderer
         TransitionResource(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
         ExecuteCommandList();
 
+        InsertFence();
+
         // Present the frame.
         D3D12RHI_THROW_INFO(m_swapChain->Present(1, 0));
     }

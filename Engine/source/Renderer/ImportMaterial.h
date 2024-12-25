@@ -186,33 +186,12 @@ namespace Renderer
 
 						numSRVDescriptors++; // One extra for Shadow Texture.
 
-						CD3DX12_STATIC_SAMPLER_DESC* staticSamplers = new CD3DX12_STATIC_SAMPLER_DESC[2];
-
-						CD3DX12_STATIC_SAMPLER_DESC sampler1{ 0 };
-						sampler1.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-						sampler1.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-						sampler1.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-						sampler1.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-						sampler1.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-						staticSamplers[0] = sampler1;
-
-						CD3DX12_STATIC_SAMPLER_DESC sampler2{ 1 };
-						sampler2.Filter = D3D12_FILTER_ANISOTROPIC;
-						sampler2.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						sampler2.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						sampler2.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-						sampler2.MipLODBias = 0.0f;
-						sampler2.MinLOD = 0.0f;
-						sampler2.MaxLOD = D3D12_FLOAT32_MAX;
-						staticSamplers[1] = sampler2;
-
 						PipelineDescription phongPipelineDesc{};
 						phongPipelineDesc.numConstants = 1;
 						phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 						phongPipelineDesc.numConstantBufferViews = 3;
 						phongPipelineDesc.numShaderResourceViews = numSRVDescriptors;
-						phongPipelineDesc.numStaticSamplers = 2; // One extra Sampler for Shadow Texture.
-						phongPipelineDesc.staticSamplers = staticSamplers;
+						phongPipelineDesc.numSamplers = 2;
 						phongPipelineDesc.backFaceCulling = !hasAlpha;
 						phongPipelineDesc.numElements = vec.size();
 						phongPipelineDesc.inputElementDescs = inputElementDescs;
@@ -224,7 +203,13 @@ namespace Renderer
 
 					step.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
-					std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, 1, numSRVDescriptors + 3);
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 1;
+					params.samplerParameterIndex = 2;
+					params.numCbvSrvUavDescriptors = numSRVDescriptors + 3;
+					params.numSamplerDescriptors = 2;
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, params);
 
 					descriptorTable->AddConstantBufferView(gfx, m_lightShadowBindable->GetBuffer());
 					step.AddBindable(m_lightShadowBindable);
@@ -232,8 +217,8 @@ namespace Renderer
 					step.AddBindable(m_lightBindable);
 
 					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData);
-
 					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+
 					step.AddBindable(constBuffer);
 
 					// Add Textures
@@ -246,6 +231,29 @@ namespace Renderer
 						if (hasSpecularMap) descriptorTable->AddShaderResourceView(gfx, specTex->GetBuffer());
 						if (hasNormalMap) descriptorTable->AddShaderResourceView(gfx, normTex->GetBuffer());
 					}
+
+					D3D12_SAMPLER_DESC shadowSampler{};
+					shadowSampler.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+					shadowSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+					shadowSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+					shadowSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+					shadowSampler.BorderColor[0] = 1.0f;
+					shadowSampler.BorderColor[1] = 1.0f;
+					shadowSampler.BorderColor[2] = 1.0f;
+					shadowSampler.BorderColor[3] = 1.0f;
+					shadowSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+					descriptorTable->AddSampler(gfx, &shadowSampler);
+
+					D3D12_SAMPLER_DESC phongSampler{};
+					phongSampler.Filter = D3D12_FILTER_ANISOTROPIC;
+					phongSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+					phongSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+					phongSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+					phongSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+					phongSampler.MipLODBias = 0.0f;
+					phongSampler.MinLOD = 0.0f;
+					phongSampler.MaxLOD = D3D12_FLOAT32_MAX;
+					descriptorTable->AddSampler(gfx, &phongSampler);
 
 					step.AddBindable(std::move(descriptorTable));
 				}
@@ -325,7 +333,11 @@ namespace Renderer
 
 					draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, 1, 1));
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 1;
+					params.numCbvSrvUavDescriptors = 1;
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
 
 					SolidCB data = { XMFLOAT3{ 1.0f,0.4f,0.4f } };
 					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));

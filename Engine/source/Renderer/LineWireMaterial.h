@@ -50,7 +50,11 @@ namespace Renderer
 
 					unoccluded.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, 1, 1));
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 1;
+					params.numCbvSrvUavDescriptors = 1;
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
 
 					SolidCB data = { XMFLOAT3{ 0.6f,0.2f,0.2f } };
 					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
@@ -95,7 +99,11 @@ namespace Renderer
 
 					occluded.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, 1, 1));
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 1;
+					params.numCbvSrvUavDescriptors = 1;
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
 
 					SolidCB data = { XMFLOAT3{ 0.25f,0.08f,0.08f } };
 					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));

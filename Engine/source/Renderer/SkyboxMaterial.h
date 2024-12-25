@@ -28,27 +28,12 @@ namespace Renderer
 						D3DCompileFromFile(GetAssetFullPath(L"Skybox_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 						D3DCompileFromFile(GetAssetFullPath(L"Skybox_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
-						CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
-
-						// define static sampler 
-						CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-						staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-						staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-						staticSampler.MipLODBias = 0.0f;
-						staticSampler.MinLOD = 0.0f;
-						staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-
-						samplers[0] = staticSampler;
-
 						PipelineDescription skyboxPipelineDesc{};
 
 						skyboxPipelineDesc.numConstants = 1;
 						skyboxPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4);
 						skyboxPipelineDesc.numShaderResourceViews = 1;
-						skyboxPipelineDesc.numStaticSamplers = 1;
-						skyboxPipelineDesc.staticSamplers = samplers;
+						skyboxPipelineDesc.numSamplers = 1;
 						skyboxPipelineDesc.depthStencilMode = Mode::DepthFirst;
 						skyboxPipelineDesc.numElements = vec.size();
 						skyboxPipelineDesc.inputElementDescs = inputElementDescs;
@@ -60,10 +45,23 @@ namespace Renderer
 
 					only.AddBindable(std::make_shared<SkyboxTransformBuffer>(gfx, 0));
 
-					std::shared_ptr<CubeMapTextureBuffer> texture = std::make_shared<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox");
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 1;
+					params.samplerParameterIndex = 2;
+					params.numCbvSrvUavDescriptors = 1;
+					params.numSamplerDescriptors = 1;
 
-					std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, 1, 1);
+					std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, params);
+
+					std::shared_ptr<CubeMapTextureBuffer> texture = std::make_shared<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox");
 					descriptorTable->AddShaderResourceView(gfx, texture->GetBuffer(), false, true);
+
+					D3D12_SAMPLER_DESC sampler{};
+					sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+					sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+					sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+					sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+					descriptorTable->AddSampler(gfx, &sampler);
 
 					only.AddBindable(std::move(texture));
 					only.AddBindable(std::move(descriptorTable));

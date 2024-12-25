@@ -704,7 +704,7 @@
     <CustomBuild Include="shaders\HLSL\BlurOutline_PS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Fullscreen_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\BlurOutline_VS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Solid_PS.hlsl">

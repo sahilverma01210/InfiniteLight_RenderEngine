@@ -52,27 +52,12 @@ namespace Renderer
 						ID3DBlob* vertexShader;
 
 						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-
-						CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
-
-						// define static sampler 
-						CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-						staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-						staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-						staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-						staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-						staticSampler.MipLODBias = 0.0f;
-						staticSampler.MinLOD = 0.0f;
-						staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-
-						samplers[0] = staticSampler;
+						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
 						pipelineDesc.numShaderResourceViews = 1;
-						pipelineDesc.numStaticSamplers = 1;
-						pipelineDesc.staticSamplers = samplers;
+						pipelineDesc.numSamplers = 1;
 						pipelineDesc.backFaceCulling = true;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.inputElementDescs = inputElementDescs;
@@ -81,7 +66,14 @@ namespace Renderer
 
 						m_pipelineDesc["horizontal"] = pipelineDesc;
 					}
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, 0, 3));
+
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 0;
+					params.samplerParameterIndex = 1;
+					params.numCbvSrvUavDescriptors = 3;
+					params.numSamplerDescriptors = 1;
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
 
 					// setup blur constant buffers
 					{
@@ -98,6 +90,13 @@ namespace Renderer
 					}
 
 					descriptorTable->AddShaderResourceView(gfx, gfx.GetRenderTargetBuffers()[gfx.GetRenderTargetBuffers().size() - 2].Get());
+
+					D3D12_SAMPLER_DESC sampler{};
+					sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+					sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+					sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+					sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+					descriptorTable->AddSampler(gfx, &sampler);
 
 					horizontalBlur.AddBindable(descriptorTable);
 				}
@@ -119,27 +118,12 @@ namespace Renderer
 						ID3DBlob* vertexShader;
 
 						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"Fullscreen_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-
-						CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
-
-						// define static sampler 
-						CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-						staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-						staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-						staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-						staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-						staticSampler.MipLODBias = 0.0f;
-						staticSampler.MinLOD = 0.0f;
-						staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-
-						samplers[0] = staticSampler;
+						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
 						pipelineDesc.numShaderResourceViews = 1;
-						pipelineDesc.numStaticSamplers = 1;
-						pipelineDesc.staticSamplers = samplers;
+						pipelineDesc.numSamplers = 1;
 						pipelineDesc.backFaceCulling = true;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.inputElementDescs = inputElementDescs;
@@ -151,7 +135,13 @@ namespace Renderer
 						m_pipelineDesc["vertical"] = pipelineDesc;
 					}
 
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, 0, 3));
+					DescriptorTable::TableParams params;
+					params.resourceParameterIndex = 0;
+					params.samplerParameterIndex = 1;
+					params.numCbvSrvUavDescriptors = 3;
+					params.numSamplerDescriptors = 1;
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
 
 					// setup blur constant buffers
 					{
@@ -168,6 +158,14 @@ namespace Renderer
 					}
 
 					descriptorTable->AddShaderResourceView(gfx, gfx.GetRenderTargetBuffers()[gfx.GetRenderTargetBuffers().size() - 1].Get());
+
+					D3D12_SAMPLER_DESC sampler{};
+					sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+					sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+					sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+					sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+					descriptorTable->AddSampler(gfx, &sampler);
+
 					verticalBlur.AddBindable(descriptorTable);
 				}
 				postProcess.AddStep(verticalBlur);
