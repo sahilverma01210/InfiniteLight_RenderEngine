@@ -12,7 +12,6 @@ namespace Renderer
 	{		
 		m_pDrawable->Bind(gfx, m_pStep->GetTargetPass());
 		m_pStep->Bind(gfx);
-		if (m_pStep->GetTargetPass() == "lambertian") m_pDrawable->BindLighting(gfx); // Only Lambertian Step or Pass uses Lighting data in Material/SolidSphere.
 		m_pDrawable->Draw(gfx);
 	}
 }

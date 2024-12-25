@@ -27,8 +27,5 @@ namespace Renderer
 		std::unordered_map<std::string, std::unique_ptr<RootSignature>> m_rootSignBindables;
 		std::unordered_map<std::string, std::unique_ptr<PipelineState>> m_psoBindables;
 		std::vector<Technique> m_techniques;
-	private:
-		static std::shared_ptr<Bindable> m_lightBindable;
-		static std::shared_ptr<Bindable> m_lightShadowBindable;
 	};
 }

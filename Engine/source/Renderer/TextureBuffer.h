@@ -2,7 +2,7 @@
 #include "BindableCodex.h"
 #include "DepthStencil.h"
 #include "RenderTarget.h"
-#include "ShaderResourceView.h"
+#include "DescriptorTable.h"
 
 namespace Renderer
 {

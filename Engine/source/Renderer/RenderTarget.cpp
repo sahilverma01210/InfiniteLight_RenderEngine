@@ -44,6 +44,8 @@ namespace Renderer
             D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(m_texureBuffer.Get(), nullptr, m_renderTargetViewHandle));
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
+
+        gfx.SetRenderTargetBuffer(m_texureBuffer.Get());
 	}
 
     RenderTarget::RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture, std::optional<UINT> face)
@@ -51,6 +53,7 @@ namespace Renderer
         INFOMAN(gfx);
 
         m_texureBuffer = pTexture;
+        gfx.SetRenderTargetBuffer(m_texureBuffer.Get());
 
         // Describe and create a RTV descriptor heap.
         {
@@ -96,7 +99,6 @@ namespace Renderer
     {
         INFOMAN_NOHR(gfx);
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, bufferResource ? &(static_cast<DepthStencil*>(bufferResource)->m_depthStensilViewHandle) : nullptr));
-        if (m_texureBuffer) gfx.SetRenderTargetBuffer(m_texureBuffer.Get());
     }
 
     void RenderTarget::Clear(D3D12RHI& gfx) noexcept(!IS_DEBUG)

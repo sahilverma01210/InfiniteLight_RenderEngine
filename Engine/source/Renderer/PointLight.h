@@ -2,7 +2,7 @@
 #include "PointLightIndicator.h"
 #include "RenderMath.h"
 #include "UIManager.h"
-#include "Drawable.h"
+#include "ImportMaterial.h"
 #include "Camera.h"
 
 namespace Renderer
@@ -10,7 +10,11 @@ namespace Renderer
 	class PointLight
 	{
 	private:
-		struct PointLightCBuf
+		__declspec(align(256u)) struct ShadowLightTransform
+		{
+			XMMATRIX ViewProj;
+		};
+		__declspec(align(256u)) struct PointLightCBuf
 		{
 			alignas(16) XMFLOAT3 pos;
 			alignas(16) XMFLOAT3 ambient;
@@ -19,10 +23,6 @@ namespace Renderer
 			float attConst;
 			float attLin;
 			float attQuad;
-		};
-		struct ShadowLightTransform
-		{
-			XMMATRIX ViewProj;
 		};
 
 	public:

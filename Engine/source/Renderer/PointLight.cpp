@@ -2,6 +2,9 @@
 
 namespace Renderer
 {
+	std::shared_ptr<ConstantBuffer> ImportMaterial::m_lightBindable;
+	std::shared_ptr<ConstantBuffer> ImportMaterial::m_lightShadowBindable;
+
 	PointLight::PointLight(D3D12RHI& gfx, XMFLOAT3 pos, float radius)
 		:
 		m_indicator(gfx, radius)
@@ -18,8 +21,8 @@ namespace Renderer
 
 		Reset();
 		m_pCamera = std::make_shared<Camera>(gfx, "Light", m_cbData.pos, 0.0f, PI / 2.0f, true);
-		Drawable::m_lightShadowBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 1, sizeof(m_shadowData), &m_shadowData));
-		Drawable::m_lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, 2, sizeof(m_cbData), &m_cbData));
+		ImportMaterial::m_lightShadowBindable = std::move(std::make_unique<ConstantBuffer>(gfx, sizeof(m_shadowData), static_cast<const void*>(&m_shadowData)));
+		ImportMaterial::m_lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, sizeof(m_cbData), static_cast<const void*>(&m_cbData)));
 	}
 
 	bool PointLight::SpawnWindow() noexcept(!IS_DEBUG)
@@ -81,8 +84,8 @@ namespace Renderer
 		);
 		shadowDataCopy.ViewProj = ViewProj;
 
-		Drawable::m_lightShadowBindable->Update(gfx, &shadowDataCopy);
-		Drawable::m_lightBindable->Update(gfx, &dataCopy);
+		ImportMaterial::m_lightShadowBindable->Update(gfx, &shadowDataCopy);
+		ImportMaterial::m_lightBindable->Update(gfx, &dataCopy);
 	}
 
 	void PointLight::LinkTechniques(RenderGraph& rg)

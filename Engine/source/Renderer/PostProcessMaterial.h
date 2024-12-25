@@ -13,6 +13,24 @@ namespace Renderer
 			Box,
 		};
 
+		struct alignas(16) Coefficient
+		{
+			float value;
+		};
+
+		__declspec(align(256u)) struct Kernel
+		{
+
+
+			alignas(16) UINT numTaps;
+			Coefficient coefficients[15];
+		};
+
+		__declspec(align(256u)) struct Direction
+		{
+			bool horizontal;
+		};
+
 	public:
 		PostProcessMaterial(D3D12RHI& gfx, VertexLayout layout) noexcept(!IS_DEBUG)
 		{
@@ -53,8 +71,8 @@ namespace Renderer
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
 						pipelineDesc.numShaderResourceViews = 1;
-						pipelineDesc.numSamplers = 1;
-						pipelineDesc.samplers = samplers;
+						pipelineDesc.numStaticSamplers = 1;
+						pipelineDesc.staticSamplers = samplers;
 						pipelineDesc.backFaceCulling = true;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.inputElementDescs = inputElementDescs;
@@ -63,29 +81,25 @@ namespace Renderer
 
 						m_pipelineDesc["horizontal"] = pipelineDesc;
 					}
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, 0, 3));
 
 					// setup blur constant buffers
 					{
-						RawLayout l;
-						l.Add<Integer>("nTaps");
-						l.Add<Array>("coefficients");
-						l["coefficients"].Set<Float>(m_maxRadius * 2 + 1);
-						Buffer buf{ std::move(l) };
-						m_blurKernel = std::make_shared<ConstantBuffer>(gfx, 0, buf);
-						horizontalBlur.AddBindable(m_blurKernel);
 						SetKernelGauss(m_radius, m_sigma);
+						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
+						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+						horizontalBlur.AddBindable(constBuffer);
 					}
 					{
-						RawLayout l;
-						l.Add<Bool>("isHorizontal");
-						Buffer buf{ std::move(l) };
-						buf["isHorizontal"] = true;
-						m_horizontalFilter = std::make_shared<ConstantBuffer>(gfx, 1, buf);
-						horizontalBlur.AddBindable(m_horizontalFilter);
+						m_direction.horizontal = true;
+						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
+						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+						horizontalBlur.AddBindable(constBuffer);
 					}
 
-					std::shared_ptr<ShaderResourceView> srvBindablePtr = std::move(std::make_shared<ShaderResourceView>(gfx, 2, 1, 2));
-					horizontalBlur.AddBindable(srvBindablePtr);
+					descriptorTable->AddShaderResourceView(gfx, gfx.GetRenderTargetBuffers()[gfx.GetRenderTargetBuffers().size() - 2].Get());
+
+					horizontalBlur.AddBindable(descriptorTable);
 				}
 				postProcess.AddStep(horizontalBlur);
 
@@ -124,8 +138,8 @@ namespace Renderer
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
 						pipelineDesc.numShaderResourceViews = 1;
-						pipelineDesc.numSamplers = 1;
-						pipelineDesc.samplers = samplers;
+						pipelineDesc.numStaticSamplers = 1;
+						pipelineDesc.staticSamplers = samplers;
 						pipelineDesc.backFaceCulling = true;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.inputElementDescs = inputElementDescs;
@@ -137,32 +151,57 @@ namespace Renderer
 						m_pipelineDesc["vertical"] = pipelineDesc;
 					}
 
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, 0, 3));
+
 					// setup blur constant buffers
 					{
-						RawLayout l;
-						l.Add<Integer>("nTaps");
-						l.Add<Array>("coefficients");
-						l["coefficients"].Set<Float>(m_maxRadius * 2 + 1);
-						Buffer buf{ std::move(l) };
-						m_blurKernel = std::make_shared<ConstantBuffer>(gfx, 0, buf);
 						SetKernelGauss(m_radius, m_sigma);
-						verticalBlur.AddBindable(m_blurKernel);
+						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
+						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+						verticalBlur.AddBindable(constBuffer);
 					}
 					{
-						RawLayout l;
-						l.Add<Bool>("isHorizontal");
-						Buffer buf{ std::move(l) };
-						buf["isHorizontal"] = false;
-						m_verticalFilter = std::make_shared<ConstantBuffer>(gfx, 1, buf);
-						verticalBlur.AddBindable(m_verticalFilter);
+						m_direction.horizontal = false;
+						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
+						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+						verticalBlur.AddBindable(constBuffer);
 					}
 
-					std::shared_ptr<ShaderResourceView> srvBindablePtr = std::move(std::make_unique<ShaderResourceView>(gfx, 2, 1, 2));
-					verticalBlur.AddBindable(srvBindablePtr);
+					descriptorTable->AddShaderResourceView(gfx, gfx.GetRenderTargetBuffers()[gfx.GetRenderTargetBuffers().size() - 1].Get());
+					verticalBlur.AddBindable(descriptorTable);
 				}
 				postProcess.AddStep(verticalBlur);
 			}
 			m_techniques.push_back(std::move(postProcess));
+		}
+		void SetKernelBox(int radius) noexcept(!IS_DEBUG)
+		{
+			assert(radius <= m_maxRadius);
+			const int nTaps = radius * 2 + 1;
+			m_kernel.numTaps = nTaps;
+			const float c = 1.0f / nTaps;
+			for (int i = 0; i < nTaps; i++)
+			{
+				m_kernel.coefficients[i].value = c;
+			}
+		}
+		void SetKernelGauss(int radius, float sigma) noexcept(!IS_DEBUG)
+		{
+			assert(radius <= m_maxRadius);
+			const int nTaps = radius * 2 + 1;
+			m_kernel.numTaps = nTaps;
+			float sum = 0.0f;
+			for (int i = 0; i < nTaps; i++)
+			{
+				const auto x = float(i - radius);
+				const auto g = gauss(x, sigma);
+				sum += g;
+				m_kernel.coefficients[i].value = g;
+			}
+			for (int i = 0; i < nTaps; i++)
+			{
+				m_kernel.coefficients[i].value = (float)m_kernel.coefficients[i].value / sum;
+			}
 		}
 		void RenderWidgets(D3D12RHI& gfx)
 		{
@@ -214,48 +253,13 @@ namespace Renderer
 			}
 			ImGui::End();
 		}
-		void SetKernelBox(int radius) noexcept(!IS_DEBUG)
-		{
-			assert(radius <= m_maxRadius);
-			auto k = m_blurKernel->GetBuffer();
-			const int nTaps = radius * 2 + 1;
-			k["nTaps"] = nTaps;
-			const float c = 1.0f / nTaps;
-			for (int i = 0; i < nTaps; i++)
-			{
-				k["coefficients"][i] = c;
-			}
-			m_blurKernel->SetBuffer(k);
-		}
-		void SetKernelGauss(int radius, float sigma) noexcept(!IS_DEBUG)
-		{
-			assert(radius <= m_maxRadius);
-			auto k = m_blurKernel->GetBuffer();
-			const int nTaps = radius * 2 + 1;
-			k["nTaps"] = nTaps;
-			float sum = 0.0f;
-			for (int i = 0; i < nTaps; i++)
-			{
-				const auto x = float(i - radius);
-				const auto g = gauss(x, sigma);
-				sum += g;
-				k["coefficients"][i] = g;
-			}
-			for (int i = 0; i < nTaps; i++)
-			{
-				k["coefficients"][i] = (float)k["coefficients"][i] / sum;
-			}
-			m_blurKernel->SetBuffer(k);
-		}
 
 	private:
-		KernelType m_kernelType = KernelType::Gauss;
 		static constexpr int m_maxRadius = 7;
 		int m_radius = 5;
 		float m_sigma = 4.0f;
-		std::shared_ptr<ConstantBuffer> m_blurKernel;
-		std::shared_ptr<ConstantBuffer> m_horizontalFilter;
-		std::shared_ptr<ConstantBuffer> m_verticalFilter;
-		std::shared_ptr<ShaderResourceView> m_srvBindable;
+		KernelType m_kernelType = KernelType::Gauss;
+		Kernel m_kernel = {};
+		Direction m_direction = { true };
 	};
 }

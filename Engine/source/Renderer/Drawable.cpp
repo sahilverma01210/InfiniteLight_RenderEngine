@@ -2,9 +2,6 @@
 
 namespace Renderer
 {
-	std::shared_ptr<Bindable> Drawable::m_lightBindable;
-	std::shared_ptr<Bindable> Drawable::m_lightShadowBindable;
-
 	void Drawable::Bind(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
 		gfx.SetTransform(GetTransformXM());
@@ -14,15 +11,6 @@ namespace Renderer
 		m_indexBufferBindable->Bind(gfx);
 		m_rootSignBindables.at(targetPass)->Bind(gfx);
 		m_psoBindables.at(targetPass)->Bind(gfx);
-	}
-
-	void Drawable::BindLighting(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
-	{
-		if (m_enableLighting)
-		{
-			m_lightBindable->Bind(gfx);
-			m_lightShadowBindable->Bind(gfx);
-		}
 	}
 
 	void Drawable::Draw(D3D12RHI& gfx) const noexcept(!IS_DEBUG)

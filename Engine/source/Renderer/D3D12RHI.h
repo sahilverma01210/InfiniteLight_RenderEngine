@@ -31,7 +31,8 @@ namespace Renderer
         UINT numConstantBufferViews = 0;
         UINT numShaderResourceViews = 0;
         UINT numSamplers = 0;
-        CD3DX12_STATIC_SAMPLER_DESC* samplers = nullptr;
+        UINT numStaticSamplers = 0;
+        CD3DX12_STATIC_SAMPLER_DESC* staticSamplers = nullptr;
 
         // Pipeline State
         bool blending = false;

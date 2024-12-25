@@ -196,7 +196,7 @@
     <ClInclude Include="source\Renderer\RootSignature.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\ShaderResourceView.h">
+    <ClInclude Include="source\Renderer\DescriptorTable.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PointLight.h">
@@ -468,7 +468,7 @@
     <ClCompile Include="source\Renderer\RootSignature.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\ShaderResourceView.cpp">
+    <ClCompile Include="source\Renderer\DescriptorTable.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PointLight.cpp">

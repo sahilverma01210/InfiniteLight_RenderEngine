@@ -77,7 +77,7 @@
     <ClInclude Include="source\Renderer\RHI.h" />
     <ClInclude Include="source\Renderer\RootSignature.h" />
     <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h" />
-    <ClInclude Include="source\Renderer\ShaderResourceView.h" />
+    <ClInclude Include="source\Renderer\DescriptorTable.h" />
     <ClInclude Include="source\Renderer\Skybox.h" />
     <ClInclude Include="source\Renderer\SkyboxMaterial.h" />
     <ClInclude Include="source\Renderer\SkyboxPass.h" />
@@ -151,7 +151,7 @@
     <ClCompile Include="source\Renderer\RenderTarget.cpp" />
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
     <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp" />
-    <ClCompile Include="source\Renderer\ShaderResourceView.cpp" />
+    <ClCompile Include="source\Renderer\DescriptorTable.cpp" />
     <ClCompile Include="source\Renderer\PointLightIndicator.cpp" />
     <ClCompile Include="source\Renderer\Step.cpp" />
     <ClCompile Include="source\Renderer\Technique.cpp" />

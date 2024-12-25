@@ -7,6 +7,25 @@ namespace Renderer
 {
 	class ImportMaterial : public ILMaterial
 	{
+		friend class PointLight;
+
+		__declspec(align(256u)) struct PhongCB
+		{
+			alignas(16) XMFLOAT3 materialColor = XMFLOAT3();
+			alignas(16) XMFLOAT3 specularColor = XMFLOAT3();
+			float specularGloss = 0.0f;
+			float specularWeight = 0.0f;
+			float normalMapWeight = 0.0f;
+			bool useGlossAlpha = false;
+			bool useSpecularMap = false;
+			bool useNormalMap = false;
+		};
+
+		__declspec(align(256u)) struct SolidCB
+		{
+			XMFLOAT3 materialColor;
+		};
+
 	public:
 		ImportMaterial(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path) noexcept(!IS_DEBUG)
 		{
@@ -34,16 +53,16 @@ namespace Renderer
 						// Compile Shaders.
 						D3DCompileFromFile(GetAssetFullPath(L"Shadow_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
-						PipelineDescription shadowMapkPipelineDesc{};
-						shadowMapkPipelineDesc.numConstants = 1;
-						shadowMapkPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						shadowMapkPipelineDesc.shadowMapping = true;
-						shadowMapkPipelineDesc.numElements = vec.size();
-						shadowMapkPipelineDesc.inputElementDescs = inputElementDescs;
-						shadowMapkPipelineDesc.vertexShader = vertexShader;
-						shadowMapkPipelineDesc.depthUsage = DepthUsage::ShadowDepth;
+						PipelineDescription shadowMapPipelineDesc{};
+						shadowMapPipelineDesc.numConstants = 1;
+						shadowMapPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+						shadowMapPipelineDesc.shadowMapping = true;
+						shadowMapPipelineDesc.numElements = vec.size();
+						shadowMapPipelineDesc.inputElementDescs = inputElementDescs;
+						shadowMapPipelineDesc.vertexShader = vertexShader;
+						shadowMapPipelineDesc.depthUsage = DepthUsage::ShadowDepth;
 
-						m_pipelineDesc["shadowMap"] = shadowMapkPipelineDesc;
+						m_pipelineDesc["shadowMap"] = shadowMapPipelineDesc;
 					}
 
 					draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
@@ -58,7 +77,7 @@ namespace Renderer
 				// 1. Lambertian Step
 				Step step("lambertian");
 				{
-					UINT numSRVDescriptors = 0, srvDescriptorIndex = 0;
+					UINT numSRVDescriptors = 0;
 
 					std::string diffPath, specPath, normPath;
 					std::shared_ptr<TextureBuffer> diffTex, specTex, normTex;
@@ -97,11 +116,23 @@ namespace Renderer
 						}
 						else
 						{
-							pscLayout.Add<Float3>("materialColor");
+							aiColor3D color = { 0.45f,0.45f,0.85f };
+							material.Get(AI_MATKEY_COLOR_DIFFUSE, color);
+							m_phongData.materialColor = reinterpret_cast<XMFLOAT3&>(color);
 						}
 					}
 					// specular
 					{
+						aiColor3D color = { 0.18f,0.18f,0.18f };
+						material.Get(AI_MATKEY_COLOR_SPECULAR, color);
+
+						float gloss = 8.0f;
+						material.Get(AI_MATKEY_SHININESS, gloss);
+
+						m_phongData.specularColor = reinterpret_cast<XMFLOAT3&>(color);
+						m_phongData.specularGloss = gloss;
+						m_phongData.specularWeight = 1.0f;
+
 						if (material.GetTexture(aiTextureType_SPECULAR, 0, &specFileName) == aiReturn_SUCCESS)
 						{
 							hasTexture = true;
@@ -112,12 +143,10 @@ namespace Renderer
 							hasGlossAlpha = specTex->HasAlpha();
 							m_vtxLayout.Append(VertexLayout::Texture2D);
 							numSRVDescriptors++;
-							pscLayout.Add<Bool>("useGlossAlpha");
-							pscLayout.Add<Bool>("useSpecularMap");
+
+							m_phongData.useGlossAlpha = hasGlossAlpha;
+							m_phongData.useSpecularMap = true;
 						}
-						pscLayout.Add<Float3>("specularColor");
-						pscLayout.Add<Float>("specularWeight");
-						pscLayout.Add<Float>("specularGloss");
 					}
 					// normal
 					{
@@ -132,8 +161,9 @@ namespace Renderer
 							m_vtxLayout.Append(VertexLayout::Tangent);
 							m_vtxLayout.Append(VertexLayout::Bitangent);
 							numSRVDescriptors++;
-							pscLayout.Add<Bool>("useNormalMap");
-							pscLayout.Add<Float>("normalMapWeight");
+
+							m_phongData.useNormalMap = true;
+							m_phongData.normalMapWeight = 1.0f;
 						}
 					}
 
@@ -181,8 +211,8 @@ namespace Renderer
 						phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 						phongPipelineDesc.numConstantBufferViews = 3;
 						phongPipelineDesc.numShaderResourceViews = numSRVDescriptors;
-						phongPipelineDesc.numSamplers = 2; // One extra Sampler for Shadow Texture.
-						phongPipelineDesc.samplers = staticSamplers;
+						phongPipelineDesc.numStaticSamplers = 2; // One extra Sampler for Shadow Texture.
+						phongPipelineDesc.staticSamplers = staticSamplers;
 						phongPipelineDesc.backFaceCulling = !hasAlpha;
 						phongPipelineDesc.numElements = vec.size();
 						phongPipelineDesc.inputElementDescs = inputElementDescs;
@@ -192,64 +222,32 @@ namespace Renderer
 						m_pipelineDesc["lambertian"] = phongPipelineDesc;
 					}
 
+					step.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
+
+					std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, 1, numSRVDescriptors + 3);
+
+					descriptorTable->AddConstantBufferView(gfx, m_lightShadowBindable->GetBuffer());
+					step.AddBindable(m_lightShadowBindable);
+					descriptorTable->AddConstantBufferView(gfx, m_lightBindable->GetBuffer());
+					step.AddBindable(m_lightBindable);
+
+					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData);
+
+					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+					step.AddBindable(constBuffer);
+
 					// Add Textures
 					if (hasTexture)
 					{
-						std::shared_ptr<ShaderResourceView> srvBindablePtr = std::make_shared<ShaderResourceView>(gfx, 4, numSRVDescriptors);
-
 						// Link Shadow Texture;
-						srvBindablePtr->AddTextureResource(gfx, srvDescriptorIndex, gfx.GetDepthBuffer(), true);
-						srvDescriptorIndex++;
+						descriptorTable->AddShaderResourceView(gfx, gfx.GetDepthBuffer(), false, true);
 
-						if (hasDiffuseMap)
-						{
-							srvBindablePtr->AddTextureResource(gfx, srvDescriptorIndex, diffTex->GetBuffer());
-							srvDescriptorIndex++;
-						}
-
-						if (hasSpecularMap)
-						{
-							srvBindablePtr->AddTextureResource(gfx, srvDescriptorIndex, specTex->GetBuffer());
-							srvDescriptorIndex++;
-						}
-
-						if (hasNormalMap)
-						{
-							srvBindablePtr->AddTextureResource(gfx, srvDescriptorIndex, normTex->GetBuffer());
-							srvDescriptorIndex++;
-						}
-
-						step.AddBindable(std::move(srvBindablePtr));
+						if (hasDiffuseMap) descriptorTable->AddShaderResourceView(gfx, diffTex->GetBuffer());
+						if (hasSpecularMap) descriptorTable->AddShaderResourceView(gfx, specTex->GetBuffer());
+						if (hasNormalMap) descriptorTable->AddShaderResourceView(gfx, normTex->GetBuffer());
 					}
 
-					step.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
-
-					// PS material params (cbuf)
-					Buffer buf{ std::move(pscLayout) };
-					if (auto r = buf["materialColor"]; r.Exists())
-					{
-						aiColor3D color = { 0.45f,0.45f,0.85f };
-						material.Get(AI_MATKEY_COLOR_DIFFUSE, color);
-						r = reinterpret_cast<XMFLOAT3&>(color);
-					}
-					buf["useGlossAlpha"].SetIfExists(hasGlossAlpha);
-					buf["useSpecularMap"].SetIfExists(true);
-					if (auto r = buf["specularColor"]; r.Exists())
-					{
-						aiColor3D color = { 0.18f,0.18f,0.18f };
-						material.Get(AI_MATKEY_COLOR_SPECULAR, color);
-						r = reinterpret_cast<XMFLOAT3&>(color);
-					}
-					buf["specularWeight"].SetIfExists(1.0f);
-					if (auto r = buf["specularGloss"]; r.Exists())
-					{
-						float gloss = 8.0f;
-						material.Get(AI_MATKEY_SHININESS, gloss);
-						r = gloss;
-					}
-					buf["useNormalMap"].SetIfExists(true);
-					buf["normalMapWeight"].SetIfExists(1.0f);
-					step.AddBindable(std::make_shared<ConstantBuffer>(gfx, 3, buf));
+					step.AddBindable(std::move(descriptorTable));
 				}
 				phong.AddStep(std::move(step));
 			}
@@ -276,23 +274,9 @@ namespace Renderer
 						// Compile Shaders.
 						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 
-						CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
-
-						CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-						staticSampler.Filter = D3D12_FILTER_ANISOTROPIC;
-						staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-						staticSampler.MipLODBias = 0.0f;
-						staticSampler.MinLOD = 0.0f;
-						staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-						samplers[0] = staticSampler;
-
 						PipelineDescription maskPipelineDesc{};
 						maskPipelineDesc.numConstants = 1;
 						maskPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						maskPipelineDesc.numSamplers = 1;
-						maskPipelineDesc.samplers = samplers;
 						maskPipelineDesc.depthStencilMode = Mode::Write;
 						maskPipelineDesc.numElements = vec.size();
 						maskPipelineDesc.inputElementDescs = inputElementDescs;
@@ -325,18 +309,6 @@ namespace Renderer
 						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
 						D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 
-						CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
-
-						CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-						staticSampler.Filter = D3D12_FILTER_ANISOTROPIC;
-						staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-						staticSampler.MipLODBias = 0.0f;
-						staticSampler.MinLOD = 0.0f;
-						staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-						samplers[0] = staticSampler;
-
 						PipelineDescription drawPipelineDesc{};
 						drawPipelineDesc.vertexShader = vertexShader;
 						drawPipelineDesc.pixelShader = pixelShader;
@@ -346,8 +318,6 @@ namespace Renderer
 						drawPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 						drawPipelineDesc.numConstantBufferViews = 1;
 						drawPipelineDesc.backFaceCulling = true;
-						drawPipelineDesc.numSamplers = 1;
-						drawPipelineDesc.samplers = samplers;
 						drawPipelineDesc.depthUsage = DepthUsage::None;
 
 						m_pipelineDesc["outlineDraw"] = drawPipelineDesc;
@@ -355,11 +325,14 @@ namespace Renderer
 
 					draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
-					RawLayout lay;
-					lay.Add<Float3>("materialColor");
-					auto buf = Buffer(std::move(lay));
-					buf["materialColor"] = XMFLOAT3{ 1.0f,0.4f,0.4f };
-					draw.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, 1, 1));
+
+					SolidCB data = { XMFLOAT3{ 1.0f,0.4f,0.4f } };
+					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
+					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+
+					draw.AddBindable(constBuffer);
+					draw.AddBindable(descriptorTable);
 				}
 				outline.AddStep(std::move(draw));
 			}
@@ -371,6 +344,9 @@ namespace Renderer
 		}
 
 	private:
+		PhongCB m_phongData;
 		VertexLayout m_vtxLayout;
+		static std::shared_ptr<ConstantBuffer> m_lightBindable;
+		static std::shared_ptr<ConstantBuffer> m_lightShadowBindable;
 	};
 }

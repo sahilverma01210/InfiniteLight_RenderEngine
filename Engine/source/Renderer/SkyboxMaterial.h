@@ -47,8 +47,8 @@ namespace Renderer
 						skyboxPipelineDesc.numConstants = 1;
 						skyboxPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4);
 						skyboxPipelineDesc.numShaderResourceViews = 1;
-						skyboxPipelineDesc.numSamplers = 1;
-						skyboxPipelineDesc.samplers = samplers;
+						skyboxPipelineDesc.numStaticSamplers = 1;
+						skyboxPipelineDesc.staticSamplers = samplers;
 						skyboxPipelineDesc.depthStencilMode = Mode::DepthFirst;
 						skyboxPipelineDesc.numElements = vec.size();
 						skyboxPipelineDesc.inputElementDescs = inputElementDescs;
@@ -62,11 +62,11 @@ namespace Renderer
 
 					std::shared_ptr<CubeMapTextureBuffer> texture = std::make_shared<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox");
 
-					std::shared_ptr<ShaderResourceView> srvBindablePtr = std::make_shared<ShaderResourceView>(gfx, 1, 1);
-					srvBindablePtr->AddTextureResource(gfx, 0, texture->GetBuffer(), true);
+					std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, 1, 1);
+					descriptorTable->AddShaderResourceView(gfx, texture->GetBuffer(), false, true);
 
 					only.AddBindable(std::move(texture));
-					only.AddBindable(std::move(srvBindablePtr));
+					only.AddBindable(std::move(descriptorTable));
 				}
 				skybox.AddStep(std::move(only));
 			}

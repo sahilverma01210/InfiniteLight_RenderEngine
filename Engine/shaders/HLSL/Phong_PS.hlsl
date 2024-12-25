@@ -4,12 +4,16 @@
 #include "PointLight.hlsl"
 #include "PShadow.hlsl"
 
-cbuffer ObjectCBuf : register(b3)
+cbuffer ObjectCBuf : register(b2)
 {
     float3 materialColor;
     float3 specularColor;
-    float specularWeight;
     float specularGloss;
+    float specularWeight;
+    float normalMapWeight;
+    bool useGlossAlpha;
+    bool useSpecularMap;
+    bool useNormalMap;
 };
 
 

@@ -6,13 +6,13 @@ namespace Renderer
 	{
 		m_pRHI = std::move(std::make_unique<D3D12RHI>(hWnd));
 		m_blurRenderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI));
-		m_sponza = std::move(std::make_unique<Model>(*m_pRHI, "data\\models\\sponza\\sponza.obj", 1.0f / 20.0f));
 		m_light = std::move(std::make_unique<PointLight>(*m_pRHI, XMFLOAT3{ 10.0f,5.0f,0.0f }));
+		m_sponza = std::move(std::make_unique<Model>(*m_pRHI, "data\\models\\sponza\\sponza.obj", 1.0f / 20.0f));
 		m_skybox = std::move(std::make_unique<Skybox>(*m_pRHI));
 		m_postProcessFilter = std::move(std::make_unique<PostProcessFilter>(*m_pRHI));
 		m_uiManager = std::move(std::make_unique<UIManager>(*m_pRHI));
 		
-		m_sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
+		m_sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 0.0f));
 		
 		m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, "A", XMFLOAT3{ -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f));
 		m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, "B", XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f));

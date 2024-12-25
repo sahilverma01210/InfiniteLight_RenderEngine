@@ -6,7 +6,7 @@
 #include "TextureBuffer.h"
 #include "Topology.h"
 #include "PipelineState.h"
-#include "ShaderResourceView.h"
+#include "DescriptorTable.h"
 #include "Viewport.h"
 #include "RenderTarget.h"
 #include "DepthStencil.h"

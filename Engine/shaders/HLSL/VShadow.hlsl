@@ -1,4 +1,4 @@
-cbuffer ShadowTransformCBuf : register(b1)
+cbuffer ShadowTransformCBuf : register(b0)
 {
     matrix shadowPos;
 };

@@ -5,6 +5,11 @@ namespace Renderer
 {
 	class SolidMaterial : public ILMaterial
 	{
+		__declspec(align(256u)) struct SolidCB
+		{
+			XMFLOAT3 materialColor;
+		};
+
 	public:
 		SolidMaterial(D3D12RHI& gfx, VertexLayout layout) noexcept(!IS_DEBUG)
 		{
@@ -29,26 +34,10 @@ namespace Renderer
 							inputElementDescs[i] = vec[i];
 						}
 
-						CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
-
-						// define static sampler 
-						CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-						staticSampler.Filter = D3D12_FILTER_ANISOTROPIC;
-						staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-						staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-						staticSampler.MipLODBias = 0.0f;
-						staticSampler.MinLOD = 0.0f;
-						staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-
-						samplers[0] = staticSampler;
-
 						PipelineDescription lambertianPipelineDesc{};
 						lambertianPipelineDesc.numConstants = 1;
 						lambertianPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 						lambertianPipelineDesc.numConstantBufferViews = 1;
-						lambertianPipelineDesc.numSamplers = 1;
-						lambertianPipelineDesc.samplers = samplers;
 						lambertianPipelineDesc.numElements = vec.size();
 						lambertianPipelineDesc.inputElementDescs = inputElementDescs;
 						lambertianPipelineDesc.vertexShader = vertexShader;
@@ -59,11 +48,14 @@ namespace Renderer
 
 					only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
-					RawLayout lay;
-					lay.Add<Float3>("materialColor");
-					auto buf = Buffer(std::move(lay));
-					buf["materialColor"] = XMFLOAT3{ 1.0f,1.0f,1.0f };
-					only.AddBindable(std::make_shared<ConstantBuffer>(gfx, 1, buf));
+					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, 1, 1));
+
+					SolidCB data = { XMFLOAT3{ 1.0f,1.0f,1.0f } };
+					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
+					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+
+					only.AddBindable(constBuffer);
+					only.AddBindable(descriptorTable);
 				}
 				solid.AddStep(std::move(only));
 			}
