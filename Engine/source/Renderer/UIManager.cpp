@@ -30,10 +30,19 @@ namespace Renderer
 
         // Initialize D3D12 ImGUI.
         {
+            // Describe and create a SRV descriptor heap.
+            {
+                D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+                srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+                srvHeapDesc.NumDescriptors = 1;
+                srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+                gfx.m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
+            }
+
             ImGui_ImplDX12_Init(gfx.m_device.Get(), 1,
                 DXGI_FORMAT_R8G8B8A8_UNORM, nullptr,
-                gfx.m_srvHeap->GetCPUDescriptorHandleForHeapStart(),
-                gfx.m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+                m_srvHeap->GetCPUDescriptorHandleForHeapStart(),
+                m_srvHeap->GetGPUDescriptorHandleForHeapStart());
         }
     }
 
@@ -62,6 +71,8 @@ namespace Renderer
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
+
+        gfx.m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
     }
 
     void UIManager::UpdateUIFrame(D3D12RHI& gfx)

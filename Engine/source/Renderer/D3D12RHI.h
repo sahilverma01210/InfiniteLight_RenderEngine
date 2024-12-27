@@ -113,6 +113,5 @@ namespace Renderer
         std::vector<ComPtr<ID3D12Resource>> m_targetBuffers;
         ComPtr<ID3D12Resource> m_currentDepthBuffer = nullptr;
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
-        ComPtr<ID3D12DescriptorHeap> m_srvHeap;
     };
 }

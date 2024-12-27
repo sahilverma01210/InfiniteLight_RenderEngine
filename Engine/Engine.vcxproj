@@ -26,7 +26,6 @@
     <ClInclude Include="source\Common\ILUtility.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
     <ClInclude Include="source\Renderer\BindableCodex.h" />
-    <ClInclude Include="source\Renderer\BindingPass.h" />
     <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h" />
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h" />
     <ClInclude Include="source\Renderer\BufferClearPass.h" />
@@ -72,7 +71,7 @@
     <ClInclude Include="source\Renderer\RenderGraph.h" />
     <ClInclude Include="source\Renderer\RenderGraphException.h" />
     <ClInclude Include="source\Renderer\RenderMath.h" />
-    <ClInclude Include="source\Renderer\RenderQueuePass.h" />
+    <ClInclude Include="source\Renderer\RenderPass.h" />
     <ClInclude Include="source\Renderer\RenderTarget.h" />
     <ClInclude Include="source\Renderer\RHI.h" />
     <ClInclude Include="source\Renderer\RootSignature.h" />
@@ -115,9 +114,7 @@
     <ClCompile Include="source\Common\ILTimer.cpp" />
     <ClCompile Include="source\Common\ILUtility.cpp" />
     <ClCompile Include="source\Launch.cpp" />
-    <ClCompile Include="source\Renderer\BindingPass.cpp" />
     <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp" />
-    <ClCompile Include="source\Renderer\BufferClearPass.cpp" />
     <ClCompile Include="source\Renderer\Camera.cpp" />
     <ClCompile Include="source\Renderer\CameraContainer.cpp" />
     <ClCompile Include="source\Renderer\CameraIndicator.cpp" />
@@ -146,7 +143,7 @@
     <ClCompile Include="source\Renderer\RenderGraph.cpp" />
     <ClCompile Include="source\Renderer\RenderGraphException.cpp" />
     <ClCompile Include="source\Renderer\RenderMath.cpp" />
-    <ClCompile Include="source\Renderer\RenderQueuePass.cpp" />
+    <ClCompile Include="source\Renderer\RenderPass.cpp" />
     <ClCompile Include="source\Renderer\RenderTarget.cpp" />
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
     <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp" />

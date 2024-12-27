@@ -1,14 +1,14 @@
 #pragma once
-#include "RenderQueuePass.h"
+#include "RenderPass.h"
 
 namespace Renderer
 {
-	class WireframePass : public RenderQueuePass
+	class WireframePass : public RenderPass
 	{
 	public:
 		WireframePass(D3D12RHI& gfx, std::string name)
 			:
-			RenderQueuePass(std::move(name))
+			RenderPass(std::move(name))
 		{
 			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", m_renderTargetVector));
 			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));

@@ -6,8 +6,6 @@ namespace Renderer
 {
 	class Drawable
 	{
-		friend class PointLight;
-
 	public:
 		virtual void SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG) = 0;
 		void Bind(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG);

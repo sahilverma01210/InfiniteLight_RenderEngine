@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderQueuePass.h"
+#include "RenderPass.h"
 #include "RenderMath.h"
 #include "DynamicConstant.h"
 #include "UIManager.h"
@@ -13,7 +13,7 @@ namespace Renderer
 		~RenderGraph();
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		void Reset() noexcept(!IS_DEBUG);
-		RenderQueuePass& GetRenderQueue(const std::string& passName);
+		RenderPass& GetRenderQueue(const std::string& passName);
 	protected:
 		void SetSinkTarget(const std::string& sinkName, const std::string& target);
 		void AddGlobalSource(std::unique_ptr<Source>);

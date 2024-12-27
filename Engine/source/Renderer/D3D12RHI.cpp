@@ -94,15 +94,6 @@ namespace Renderer
             }
         }
 
-        // Describe and create a SRV descriptor heap.
-        {
-            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-            srvHeapDesc.NumDescriptors = 1;
-            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            D3D12RHI_THROW_INFO(m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
-        }
-
         // Describe and create the swap chain.
         {
             DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
@@ -264,9 +255,6 @@ namespace Renderer
     {
         // Wait for Previous Frame to complete then proceed.
         ResetCommandList();
-
-        // bind the heap containing the texture descriptor 
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf()));
 
         // configure Rasterizer Stage (RS).
         D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetViewports(1, &m_viewport));

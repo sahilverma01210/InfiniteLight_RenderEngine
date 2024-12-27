@@ -1,16 +1,16 @@
 #pragma once
-#include "RenderQueuePass.h"
+#include "RenderPass.h"
 #include "Camera.h"
 #include "Shapes.h"
 
 namespace Renderer
 {
-	class SkyboxPass : public RenderQueuePass
+	class SkyboxPass : public RenderPass
 	{
 	public:
 		SkyboxPass(D3D12RHI& gfx, std::string name)
 			:
-			RenderQueuePass(std::move(name))
+			RenderPass(std::move(name))
 		{
 			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", m_renderTargetVector));
 			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));

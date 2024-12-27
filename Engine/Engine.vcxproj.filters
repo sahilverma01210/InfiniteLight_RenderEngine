@@ -110,9 +110,6 @@
     <Filter Include="Source\Renderer\Public\RenderGraph\Graphs">
       <UniqueIdentifier>{87f3a57c-42a0-461d-a1c9-01dd58ab1be6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\RenderGraph\Passes">
-      <UniqueIdentifier>{359e1464-2c4b-4c7a-97ed-aa63629ee69d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer\Private\RenderGraph\Graphs">
       <UniqueIdentifier>{2d0fa85d-1a76-4674-a3f0-8b0972856b2f}</UniqueIdentifier>
     </Filter>
@@ -322,9 +319,6 @@
     <ClInclude Include="source\Renderer\Viewport.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BindingPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
@@ -343,12 +337,6 @@
     <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Pass.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RenderQueuePass.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\ShadowMappingPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
@@ -365,9 +353,6 @@
       <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RenderGraph.h">
       <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TestModelProbe.h">
@@ -434,6 +419,15 @@
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ILMesh.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\Pass.h">
+      <Filter>Source\Renderer\Public\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\RenderPass.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>
@@ -570,25 +564,10 @@
     <ClCompile Include="source\Renderer\Renderer.cpp">
       <Filter>Source\Renderer\Private</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\BindingPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\BufferClearPass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Pass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\RenderQueuePass.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Passes</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\RenderGraph.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DepthStencil.cpp">
@@ -616,6 +595,15 @@
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ILMesh.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderGraph.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\RenderPass.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\Pass.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
   </ItemGroup>

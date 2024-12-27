@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderQueuePass.h"
+#include "RenderPass.h"
 
 /*
 * Todo (Optional): Configure this Pass and use it in Render Graph. Modify Material outlineDraw Step PipelineDesc for the same.
@@ -7,12 +7,12 @@
 
 namespace Renderer
 {
-	class OutlineDrawingPass : public RenderQueuePass
+	class OutlineDrawingPass : public RenderPass
 	{
 	public:
 		OutlineDrawingPass(D3D12RHI& gfx, std::string name)
 			:
-			RenderQueuePass(std::move(name))
+			RenderPass(std::move(name))
 		{
 			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", m_renderTargetVector));
 			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));

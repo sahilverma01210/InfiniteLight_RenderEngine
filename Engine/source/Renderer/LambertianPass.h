@@ -1,15 +1,15 @@
 #pragma once
-#include "RenderQueuePass.h"
+#include "RenderPass.h"
 #include "Camera.h"
 
 namespace Renderer
 {
-	class LambertianPass : public RenderQueuePass
+	class LambertianPass : public RenderPass
 	{
 	public:
 		LambertianPass(D3D12RHI& gfx, std::string name)
 			:
-			RenderQueuePass(std::move(name))
+			RenderPass(std::move(name))
 		{
 			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", m_renderTargetVector));
 			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));
@@ -27,7 +27,7 @@ namespace Renderer
 			m_pMainCamera->Update();
 
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			RenderQueuePass::Execute(gfx);
+			RenderPass::Execute(gfx);
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}
 

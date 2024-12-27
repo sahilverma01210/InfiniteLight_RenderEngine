@@ -1,14 +1,14 @@
 #pragma once
-#include "RenderQueuePass.h"
+#include "RenderPass.h"
 
 namespace Renderer
 {
-	class VerticalBlurPass : public RenderQueuePass
+	class VerticalBlurPass : public RenderPass
 	{
 	public:
 		VerticalBlurPass(D3D12RHI& gfx, std::string name)
 			:
-			RenderQueuePass(std::move(name))
+			RenderPass(std::move(name))
 		{
 			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTarget", m_renderTargetVector));
 			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));
@@ -22,7 +22,7 @@ namespace Renderer
 			ID3D12Resource* blurTargetBuffer = gfx.GetRenderTargetBuffers().back().Get();
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-			RenderQueuePass::Execute(gfx);
+			RenderPass::Execute(gfx);
 
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}

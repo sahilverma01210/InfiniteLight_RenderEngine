@@ -5,7 +5,7 @@
 namespace Renderer
 {
 	class RenderGraph;
-	class RenderQueuePass;
+	class RenderPass;
 
 	class Step
 	{
@@ -24,7 +24,7 @@ namespace Renderer
 
 	private:
 		std::vector<std::shared_ptr<Bindable>> m_bindables;
-		RenderQueuePass* m_pTargetPass = nullptr;
+		RenderPass* m_pTargetPass = nullptr;
 		std::string m_targetPassName;
 	};
 }

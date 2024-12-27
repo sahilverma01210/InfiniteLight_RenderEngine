@@ -1,16 +1,16 @@
 #pragma once
-#include "RenderQueuePass.h"
+#include "RenderPass.h"
 #include "RenderMath.h"
 #include "Camera.h"
 
 namespace Renderer
 {
-	class ShadowMappingPass : public RenderQueuePass
+	class ShadowMappingPass : public RenderPass
 	{
 	public:
 		ShadowMappingPass(D3D12RHI& gfx, std::string name)
 			:
-			RenderQueuePass(std::move(name))
+			RenderPass(std::move(name))
 		{
 			m_pDepthCube = std::make_shared<DepthCubeMapTextureBuffer>(gfx, m_size);
 			gfx.SetDepthBuffer(m_pDepthCube->GetBuffer());
@@ -37,7 +37,7 @@ namespace Renderer
 
 				m_pShadowCamera->Update(true, i);
 
-				RenderQueuePass::Execute(gfx);
+				RenderPass::Execute(gfx);
 			}
 			gfx.ResizeScreenSpace(initWidth, initHeight);
 		}

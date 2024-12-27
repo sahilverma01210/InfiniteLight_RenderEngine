@@ -182,7 +182,7 @@ namespace Renderer
 		m_finalized = true;
 	}
 
-	RenderQueuePass& RenderGraph::GetRenderQueue(const std::string& passName)
+	RenderPass& RenderGraph::GetRenderQueue(const std::string& passName)
 	{
 		try
 		{
@@ -190,13 +190,13 @@ namespace Renderer
 			{
 				if (pass->GetName() == passName)
 				{
-					return dynamic_cast<RenderQueuePass&>(*pass);
+					return dynamic_cast<RenderPass&>(*pass);
 				}
 			}
 		}
 		catch (std::bad_cast&)
 		{
-			throw RG_EXCEPTION("In RenderGraph::GetRenderQueue, pass was not RenderQueuePass: " + passName);
+			throw RG_EXCEPTION("In RenderGraph::GetRenderQueue, pass was not RenderPass: " + passName);
 		}
 		throw RG_EXCEPTION("In RenderGraph::GetRenderQueue, pass not found: " + passName);
 	}

@@ -15,5 +15,8 @@ namespace Renderer
 		void UpdateUIFrame(D3D12RHI& gfx);
 		void EndUIFrame(D3D12RHI& gfx);
 		bool HandleWindowResize(D3D12RHI& gfx);
+
+	private:
+		ComPtr<ID3D12DescriptorHeap> m_srvHeap;
 	};
 }
