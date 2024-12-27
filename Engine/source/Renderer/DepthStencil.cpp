@@ -60,12 +60,12 @@ namespace Renderer
         {
             CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
             CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
-                gfx.MapUsageTypeless(usage),
+                MapUsageTypeless(usage),
                 m_width, m_height,
                 1, 0, 1, 0,
                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
             D3D12_CLEAR_VALUE clearValue = {};
-            clearValue.Format = gfx.MapUsageTyped(usage);
+            clearValue.Format = MapUsageTyped(usage);
             clearValue.DepthStencil = { 1.0f, 0xFF };
 
             D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
@@ -79,7 +79,7 @@ namespace Renderer
             m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
             D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
-            descView.Format = gfx.MapUsageTyped(usage);
+            descView.Format = MapUsageTyped(usage);
             descView.Flags = D3D12_DSV_FLAG_NONE;
             descView.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
             descView.Texture2D.MipSlice = 0;

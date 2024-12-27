@@ -9,11 +9,21 @@ namespace Renderer
 	class Camera
 	{
 	public:
-		Camera(D3D12RHI& gfx, std::string name, XMFLOAT3 homePos = { 0.0f,0.0f,0.0f }, float homePitch = 0.0f, float homeYaw = 0.0f, bool tethered = false) noexcept(!IS_DEBUG);
-		XMMATRIX GetMatrix() const noexcept(!IS_DEBUG);
-		XMMATRIX GetProjection() const noexcept(!IS_DEBUG);
+		struct Transform
+		{
+			XMFLOAT3 position = { 0.0f,0.0f,0.0f };
+			float pitch = 0.0f;
+			float yaw = 0.0f;
+		};
+
+	public:
+		Camera(D3D12RHI& gfx, std::string name, Transform transform, bool tethered = false) noexcept(!IS_DEBUG);
+		void Update(bool has360View = false, UINT direction = 0) const noexcept(!IS_DEBUG);
+		XMMATRIX GetCameraMatrix() const noexcept(!IS_DEBUG);
+		XMMATRIX GetProjectionMatrix() const noexcept(!IS_DEBUG);
+		XMMATRIX Get360CameraMatrix(UINT directionIndex) const noexcept(!IS_DEBUG);
+		XMMATRIX Get360ProjectionMatrix() const noexcept(!IS_DEBUG);
 		void SpawnControlWidgets(D3D12RHI& gfx) noexcept(!IS_DEBUG);
-		void Update(D3D12RHI& gfx) const;
 		void Reset(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		void Rotate(float dx, float dy) noexcept(!IS_DEBUG);
 		void Translate(XMFLOAT3 translation) noexcept(!IS_DEBUG);
@@ -26,17 +36,13 @@ namespace Renderer
 	private:
 		bool m_tethered;
 		std::string m_name;
-		XMFLOAT3 m_pos;
-		XMFLOAT3 m_homePos;
-		float m_pitch;
-		float m_homePitch;
-		float m_yaw;
-		float m_homeYaw;
-		CameraProjection m_projection;
-		CameraIndicator m_indicator;
+		float m_travelSpeed = 12.0f;
+		float m_rotationSpeed = 0.004f;
+		Transform m_transform;
+		Transform m_homeTransform;
 		bool m_enableCameraIndicator = false;
 		bool m_enableFrustumIndicator = false;
-		static constexpr float m_travelSpeed = 12.0f;
-		static constexpr float m_rotationSpeed = 0.004f;
+		CameraProjection m_projection;
+		CameraIndicator m_indicator;
 	};
 }

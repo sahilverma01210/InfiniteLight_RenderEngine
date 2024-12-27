@@ -75,7 +75,7 @@ namespace Renderer
         m_psoDescription.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         m_psoDescription.NumRenderTargets = 1;
         m_psoDescription.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-        m_psoDescription.DSVFormat = gfx.MapUsageTyped(pipelineDesc.depthUsage);
+        m_psoDescription.DSVFormat = DepthStencil::MapUsageTyped(pipelineDesc.depthUsage);
         m_psoDescription.DepthStencilState = depthStencilDesc;
         m_psoDescription.SampleDesc.Count = 1;
         D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateGraphicsPipelineState(&m_psoDescription, IID_PPV_ARGS(&m_pipelineState)));

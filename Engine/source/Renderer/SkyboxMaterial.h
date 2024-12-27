@@ -43,8 +43,6 @@ namespace Renderer
 						m_pipelineDesc["skybox"] = skyboxPipelineDesc;
 					}
 
-					only.AddBindable(std::make_shared<SkyboxTransformBuffer>(gfx, 0));
-
 					DescriptorTable::TableParams params;
 					params.resourceParameterIndex = 1;
 					params.samplerParameterIndex = 2;

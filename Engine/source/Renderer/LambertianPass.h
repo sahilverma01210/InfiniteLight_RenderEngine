@@ -24,8 +24,8 @@ namespace Renderer
 		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
-			assert(m_pMainCamera);
-			m_pMainCamera->Update(gfx);
+			m_pMainCamera->Update();
+
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 			RenderQueuePass::Execute(gfx);
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);

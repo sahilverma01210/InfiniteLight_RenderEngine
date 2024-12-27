@@ -50,8 +50,24 @@ namespace Renderer
 		ILMesh::Submit(channel);
 	}
 
-	XMMATRIX Mesh::GetTransformXM() const noexcept(!IS_DEBUG)
+	void Mesh::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
-		return XMLoadFloat4x4(&m_transform);
+		const auto model = XMLoadFloat4x4(&m_transform);
+		const auto modelView = model * m_cameraMatrix;
+
+		/*
+		* Convert all XMMATRIX or XMFLOAT4X4 which are Row - major into Column - major matrix which is used by HLSL by default.
+		* Use XMMatrixTranspose() to achieve this.
+		*/
+		m_transforms = {
+			XMMatrixTranspose(model),
+			XMMatrixTranspose(modelView),
+			XMMatrixTranspose(
+				modelView *
+				m_projectionMatrix
+			)
+		};
+
+		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
 	}
 }

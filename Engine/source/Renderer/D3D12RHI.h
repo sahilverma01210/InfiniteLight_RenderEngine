@@ -62,17 +62,11 @@ namespace Renderer
         RECT GetScreenRect();
         void ResetCommandList();
         void ExecuteCommandList();
+        void Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data);
         void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
         void InsertFence();
         void Info(HRESULT hresult);
         std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
-        // TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
-        void SetTransform(FXMMATRIX transformMatrix);
-        void SetCamera(FXMMATRIX cameraMatrix);
-        void SetProjection(FXMMATRIX projectionMatrix);
-        XMMATRIX GetTransform();
-        XMMATRIX GetCamera();
-        XMMATRIX GetProjection();
         // RENDER FRAME METHODS
         void ResizeScreenSpace(UINT width, UINT height);
         void StartFrame();
@@ -83,42 +77,6 @@ namespace Renderer
         void SetDepthBuffer(ID3D12Resource* buffer);
         std::vector<ComPtr<ID3D12Resource>>& GetRenderTargetBuffers();
         ID3D12Resource* GetDepthBuffer();
-        // DEPTH STENCIL METHODS
-        DXGI_FORMAT MapUsageTypeless(DepthUsage usage)
-        {
-            switch (usage)
-            {
-            case DepthUsage::DepthStencil:
-                return DXGI_FORMAT::DXGI_FORMAT_R24G8_TYPELESS;
-            case DepthUsage::ShadowDepth:
-                return DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
-            }
-            throw std::runtime_error{ "Base usage for Typeless format map in DepthStencil." };
-        }
-        DXGI_FORMAT MapUsageTyped(DepthUsage usage)
-        {
-            switch (usage)
-            {
-            case DepthUsage::None:
-                return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
-            case DepthUsage::DepthStencil:
-                return DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
-            case DepthUsage::ShadowDepth:
-                return DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
-            }
-            throw std::runtime_error{ "Base usage for Typed format map in DepthStencil." };
-        }
-        DXGI_FORMAT MapUsageColored(DepthUsage usage)
-        {
-            switch (usage)
-            {
-            case DepthUsage::DepthStencil:
-                return DXGI_FORMAT::DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-            case DepthUsage::ShadowDepth:
-                return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
-            }
-            throw std::runtime_error{ "Base usage for Colored format map in DepthStencil." };
-        }
     private:
         // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
         // If no such adapter can be found, *ppAdapter will be set to nullptr.
@@ -135,10 +93,6 @@ namespace Renderer
         // Viewport dimensions.
         UINT m_width;
         UINT m_height;
-        // View Projection Matrix.
-        XMMATRIX m_TransformMatrix;
-        XMMATRIX m_CameraMatrix;
-        XMMATRIX m_ProjectionMatrix;
         // Synchronization objects.
         UINT64 m_fenceValue;
         HANDLE m_fenceEvent;

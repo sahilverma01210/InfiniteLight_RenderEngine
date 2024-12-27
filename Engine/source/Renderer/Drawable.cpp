@@ -4,13 +4,13 @@ namespace Renderer
 {
 	void Drawable::Bind(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
-		gfx.SetTransform(GetTransformXM());
-
 		m_topologyBindable->Bind(gfx);
 		m_vertexBufferBindable->Bind(gfx);
 		m_indexBufferBindable->Bind(gfx);
 		m_rootSignBindables.at(targetPass)->Bind(gfx);
 		m_psoBindables.at(targetPass)->Bind(gfx);
+
+		SetTransform(gfx, targetPass);
 	}
 
 	void Drawable::Draw(D3D12RHI& gfx) const noexcept(!IS_DEBUG)

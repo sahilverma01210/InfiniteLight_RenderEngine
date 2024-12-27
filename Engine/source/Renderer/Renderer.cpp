@@ -5,8 +5,14 @@ namespace Renderer
 	ILRenderer::ILRenderer(HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
 	{
 		m_pRHI = std::move(std::make_unique<D3D12RHI>(hWnd));
-		m_blurRenderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI));
+
 		m_light = std::move(std::make_unique<PointLight>(*m_pRHI, XMFLOAT3{ 10.0f,5.0f,0.0f }));
+		m_cameraContainer.AddLightingCamera(m_light->ShareCamera());
+
+		m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, "A", Camera::Transform{ XMFLOAT3{ -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f }));
+		m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, "B", Camera::Transform{ XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f }));
+		
+		m_blurRenderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI, m_cameraContainer));
 		m_sponza = std::move(std::make_unique<Model>(*m_pRHI, "data\\models\\sponza\\sponza.obj", 1.0f / 20.0f));
 		m_skybox = std::move(std::make_unique<Skybox>(*m_pRHI));
 		m_postProcessFilter = std::move(std::make_unique<PostProcessFilter>(*m_pRHI));
@@ -14,17 +20,11 @@ namespace Renderer
 		
 		m_sponza->SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 0.0f));
 		
-		m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, "A", XMFLOAT3{ -13.5f,6.0f,3.5f }, 0.0f, PI / 2.0f));
-		m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, "B", XMFLOAT3{ -13.5f,28.8f,-6.4f }, PI / 180.0f * 13.0f, PI / 180.0f * 61.0f));
-		m_cameraContainer.AddCamera(m_light->ShareCamera());
-
 		m_postProcessFilter->LinkTechniques(*m_blurRenderGraph);
 		m_skybox->LinkTechniques(*m_blurRenderGraph);
 		m_light->LinkTechniques(*m_blurRenderGraph);
 		m_sponza->LinkTechniques(*m_blurRenderGraph);
 		m_cameraContainer.LinkTechniques(*m_blurRenderGraph);
-
-		m_blurRenderGraph->BindShadowCamera(*m_light->ShareCamera());
 	}
 
 	ILRenderer::~ILRenderer()
@@ -52,9 +52,7 @@ namespace Renderer
 
 		m_sponza->Submit(Channel::shadow);
 
-		m_cameraContainer.GetActiveCamera().Update(*m_pRHI);
-		m_light->Update(*m_pRHI, m_cameraContainer.GetActiveCamera().GetMatrix());
-		m_blurRenderGraph->BindMainCamera(m_cameraContainer.GetActiveCamera());
+		m_light->Update(*m_pRHI, m_cameraContainer.GetActiveCamera().GetCameraMatrix());
 
 		m_blurRenderGraph->Execute(*m_pRHI);
 

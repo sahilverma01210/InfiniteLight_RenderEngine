@@ -48,8 +48,6 @@ namespace Renderer
 						m_pipelineDesc["lambertian"] = lambertianPipelineDesc;
 					}
 
-					unoccluded.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
-
 					DescriptorTable::TableParams params;
 					params.resourceParameterIndex = 1;
 					params.numCbvSrvUavDescriptors = 1;
@@ -96,8 +94,6 @@ namespace Renderer
 
 						m_pipelineDesc["wireframe"] = lambertianPipelineDesc;
 					}
-
-					occluded.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
 					DescriptorTable::TableParams params;
 					params.resourceParameterIndex = 1;

@@ -12,11 +12,12 @@ namespace Renderer
 	public:
 		~CameraContainer();
 		bool SpawnWindow(D3D12RHI& gfx);
-		void Bind(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
+		void AddLightingCamera(std::shared_ptr<Camera> pCam);
 		void LinkTechniques(RenderGraph& rg);
 		void Submit(size_t channel) const;
 		Camera& GetActiveCamera();
+		Camera& GetLightingCamera();
 	private:
 		Camera& GetControlledCamera();
 
@@ -24,6 +25,7 @@ namespace Renderer
 		bool m_imGUIwndOpen = true;
 	private:
 		std::vector<std::shared_ptr<Camera>> m_cameras;
+		std::shared_ptr<Camera> m_lightingCamera;
 		int m_active = 0;
 		int m_controlled = 0;
 	};

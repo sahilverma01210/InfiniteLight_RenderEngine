@@ -20,14 +20,7 @@ namespace Renderer
 		m_bindables.reserve(src.m_bindables.size());
 		for (auto& pb : src.m_bindables)
 		{
-			if (auto* pCloning = dynamic_cast<const TransformBuffer*>(pb.get()))
-			{
-				m_bindables.push_back(std::make_unique<TransformBuffer>(*pCloning));
-			}
-			else
-			{
-				m_bindables.push_back(pb);
-			}
+			m_bindables.push_back(pb);
 		}
 	}
 

@@ -43,14 +43,14 @@ namespace Renderer
 		return m_imGUIwndOpen;
 	}
 
-	void CameraContainer::Bind(D3D12RHI& gfx)
-	{
-		gfx.SetCamera(GetActiveCamera().GetMatrix());
-	}
-
 	void CameraContainer::AddCamera(std::shared_ptr<Camera> pCam)
 	{
 		m_cameras.push_back(std::move(pCam));
+	}
+
+	void CameraContainer::AddLightingCamera(std::shared_ptr<Camera> pCam)
+	{
+		m_lightingCamera = pCam;
 	}
 
 	void CameraContainer::LinkTechniques(RenderGraph& rg)
@@ -75,6 +75,11 @@ namespace Renderer
 	Camera& CameraContainer::GetActiveCamera()
 	{
 		return *m_cameras[m_active];
+	}
+
+	Camera& CameraContainer::GetLightingCamera()
+	{
+		return *m_lightingCamera;
 	}
 
 	Camera& CameraContainer::GetControlledCamera()

@@ -13,8 +13,12 @@ namespace Renderer
 		ApplyMaterial(gfx, material);
 	}
 
-	XMMATRIX Skybox::GetTransformXM() const noexcept(!IS_DEBUG)
+	void Skybox::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
-		return XMMATRIX();
+		m_transforms = {
+			XMMatrixTranspose(m_cameraMatrix * m_projectionMatrix)
+		};
+
+		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
 	}
 }

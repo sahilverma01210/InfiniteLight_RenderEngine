@@ -22,9 +22,24 @@ namespace Renderer
 		this->m_rot = rot;
 	}
 
-	XMMATRIX CameraIndicator::GetTransformXM() const noexcept(!IS_DEBUG)
+	void CameraIndicator::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
-		return XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&m_rot)) *
-			XMMatrixTranslationFromVector(XMLoadFloat3(&m_pos));
+		const auto model = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&m_rot)) * XMMatrixTranslationFromVector(XMLoadFloat3(&m_pos));
+		const auto modelView = model * m_cameraMatrix;
+
+		/*
+		* Convert all XMMATRIX or XMFLOAT4X4 which are Row - major into Column - major matrix which is used by HLSL by default.
+		* Use XMMatrixTranspose() to achieve this.
+		*/
+		m_transforms = {
+			XMMatrixTranspose(model),
+			XMMatrixTranspose(modelView),
+			XMMatrixTranspose(
+				modelView *
+				m_projectionMatrix
+			)
+		};
+
+		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
 	}
 }

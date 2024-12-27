@@ -7,14 +7,23 @@ namespace Renderer
 	class CameraIndicator : public ILMesh
 	{
 	public:
+		struct Transforms
+		{
+			XMMATRIX model;
+			XMMATRIX modelView;
+			XMMATRIX modelViewProj;
+		};
+
+	public:
 		CameraIndicator(D3D12RHI& gfx);
 		void SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG);
 		void SetRotation(XMFLOAT3 pos) noexcept(!IS_DEBUG);
-		XMMATRIX GetTransformXM() const noexcept(!IS_DEBUG) override;
+		void SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG) override;
 
 	private:
 		XMFLOAT3 m_pos = { 0.0f,0.0f,0.0f };
 		XMFLOAT3 m_rot = { 0.0f,0.0f,0.0f };
 		IndexedTriangleList m_indexedList;
+		mutable Transforms m_transforms;
 	};
 }

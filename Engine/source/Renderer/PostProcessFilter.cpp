@@ -17,8 +17,7 @@ namespace Renderer
 	{		
 	}
 
-	XMMATRIX PostProcessFilter::GetTransformXM() const noexcept(!IS_DEBUG)
+	void PostProcessFilter::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
-		return XMMATRIX();
 	}
 }

@@ -187,9 +187,6 @@
     <ClInclude Include="source\Renderer\CommonBindables.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\TransformBuffer.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\PipelineState.h">
       <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
     </ClInclude>
@@ -457,9 +454,6 @@
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\TransformBuffer.cpp">
       <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PipelineState.cpp">

@@ -18,6 +18,41 @@ namespace Renderer
 		unsigned int GetWidth() const;
 		unsigned int GetHeight() const;
 		ID3D12Resource* GetBuffer() const noexcept(!IS_DEBUG);
+        static DXGI_FORMAT MapUsageTypeless(DepthUsage usage)
+        {
+            switch (usage)
+            {
+            case DepthUsage::DepthStencil:
+                return DXGI_FORMAT::DXGI_FORMAT_R24G8_TYPELESS;
+            case DepthUsage::ShadowDepth:
+                return DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
+            }
+            throw std::runtime_error{ "Base usage for Typeless format map in DepthStencil." };
+        }
+        static DXGI_FORMAT MapUsageTyped(DepthUsage usage)
+        {
+            switch (usage)
+            {
+            case DepthUsage::None:
+                return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+            case DepthUsage::DepthStencil:
+                return DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
+            case DepthUsage::ShadowDepth:
+                return DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
+            }
+            throw std::runtime_error{ "Base usage for Typed format map in DepthStencil." };
+        }
+        static DXGI_FORMAT MapUsageColored(DepthUsage usage)
+        {
+            switch (usage)
+            {
+            case DepthUsage::DepthStencil:
+                return DXGI_FORMAT::DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+            case DepthUsage::ShadowDepth:
+                return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+            }
+            throw std::runtime_error{ "Base usage for Colored format map in DepthStencil." };
+        }
 
 	protected:
 		ComPtr<ID3D12Resource> m_depthBuffer;

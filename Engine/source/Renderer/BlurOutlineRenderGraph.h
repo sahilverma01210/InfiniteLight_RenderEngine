@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderGraph.h"
+#include "CameraContainer.h"
 
 // Passes Used in this Render Graph.
 #include "BufferClearPass.h"
@@ -17,8 +18,10 @@ namespace Renderer
 	class BlurOutlineRenderGraph : public RenderGraph
 	{
 	public:
-		BlurOutlineRenderGraph(D3D12RHI& gfx);
-		void BindMainCamera(Camera& cam);
-		void BindShadowCamera(Camera& cam);
+		BlurOutlineRenderGraph(D3D12RHI& gfx, CameraContainer& cameraContainer);
+		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+
+	private:
+		CameraContainer& m_cameraContainer;
 	};
 }

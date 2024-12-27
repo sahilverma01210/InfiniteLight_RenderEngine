@@ -9,9 +9,8 @@ namespace Renderer
 		friend class PointLight;
 
 	public:
-		virtual XMMATRIX GetTransformXM() const noexcept(!IS_DEBUG) = 0;
+		virtual void SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG) = 0;
 		void Bind(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG);
-		void BindLighting(D3D12RHI& gfx) const noexcept(!IS_DEBUG);
 		void Draw(D3D12RHI& gfx) const noexcept(!IS_DEBUG);
 		void AddTechnique(Technique tech_in) noexcept(!IS_DEBUG);
 		void LinkTechniques(RenderGraph&);

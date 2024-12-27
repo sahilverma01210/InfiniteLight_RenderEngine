@@ -2,9 +2,10 @@
 
 namespace Renderer
 {
-	BlurOutlineRenderGraph::BlurOutlineRenderGraph(D3D12RHI& gfx)
+	BlurOutlineRenderGraph::BlurOutlineRenderGraph(D3D12RHI& gfx, CameraContainer& cameraContainer)
 		:
-		RenderGraph(gfx)
+		RenderGraph(gfx),
+		m_cameraContainer(cameraContainer)
 	{
 		{
 			auto pass = std::make_unique<BufferBucketClearPass>("clearRT");
@@ -63,13 +64,11 @@ namespace Renderer
 		Finalize();
 	}
 
-	void BlurOutlineRenderGraph::BindMainCamera(Camera& cam)
+	void BlurOutlineRenderGraph::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-		dynamic_cast<LambertianPass&>(FindPassByName("lambertian")).BindMainCamera(cam);
-	}
+		dynamic_cast<LambertianPass&>(FindPassByName("lambertian")).BindMainCamera(m_cameraContainer.GetActiveCamera());
+		dynamic_cast<ShadowMappingPass&>(FindPassByName("shadowMap")).BindShadowCamera(m_cameraContainer.GetLightingCamera());
 
-	void BlurOutlineRenderGraph::BindShadowCamera(Camera& cam)
-	{
-		dynamic_cast<ShadowMappingPass&>(FindPassByName("shadowMap")).BindShadowCamera(cam);
+		RenderGraph::Execute(gfx);
 	}
 }

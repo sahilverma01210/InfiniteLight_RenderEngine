@@ -15,6 +15,7 @@ namespace Renderer
         ComPtr<IDXGIFactory4> factory;
         D3D12RHI_THROW_INFO(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
 
+#ifdef _DEBUG
         // Enable D3D12 CPU & GPU Debug Layers.
         {
             ComPtr<ID3D12Debug> debugController;
@@ -27,6 +28,7 @@ namespace Renderer
                 debugController1->SetEnableGPUBasedValidation(TRUE);
             }
         }
+#endif
 
         // Create D3D Device.
         {
@@ -206,6 +208,11 @@ namespace Renderer
         D3D12RHI_THROW_INFO_ONLY(m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists));
     }
 
+    void D3D12RHI::Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data)
+    {
+        D3D12RHI_THROW_INFO_ONLY(m_commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, num32BitValues, data, 0));
+    }
+
     void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
     {
         auto resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState);
@@ -227,39 +234,6 @@ namespace Renderer
     std::vector<ComPtr<ID3D12Resource>> D3D12RHI::GetTargetBuffers()
     {
         return m_backBuffers;
-    }
-
-    // PUBLIC - TRASFORMATION & PROJECTION METHODS FOR THE CAMERA
-
-    void D3D12RHI::SetTransform(FXMMATRIX transformMatrix)
-    {
-        m_TransformMatrix = transformMatrix;
-    }
-    
-    void D3D12RHI::SetCamera(FXMMATRIX cameraMatrix)
-    {
-        // setup view (camera) matrix
-        m_CameraMatrix = cameraMatrix;
-    }
-    
-    void D3D12RHI::SetProjection(FXMMATRIX projectionMatrix)
-    {
-        m_ProjectionMatrix = projectionMatrix;
-    }
-
-    XMMATRIX D3D12RHI::GetTransform()
-    {
-        return m_TransformMatrix;
-    }
-
-    XMMATRIX D3D12RHI::GetCamera()
-    {
-        return m_CameraMatrix;
-    }
-
-    XMMATRIX D3D12RHI::GetProjection()
-    {
-        return m_ProjectionMatrix;
     }
 
     // PUBLIC - RENDER FRAME METHODS

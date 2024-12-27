@@ -64,8 +64,6 @@ namespace Renderer
 
 						m_pipelineDesc["shadowMap"] = shadowMapPipelineDesc;
 					}
-
-					draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 				}
 				map.AddStep(std::move(draw));
 			}
@@ -201,8 +199,6 @@ namespace Renderer
 						m_pipelineDesc["lambertian"] = phongPipelineDesc;
 					}
 
-					step.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
-
 					DescriptorTable::TableParams params;
 					params.resourceParameterIndex = 1;
 					params.samplerParameterIndex = 2;
@@ -292,8 +288,6 @@ namespace Renderer
 
 						m_pipelineDesc["outlineMask"] = maskPipelineDesc;
 					}
-
-					mask.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 				}
 				outline.AddStep(std::move(mask));
 
@@ -330,8 +324,6 @@ namespace Renderer
 
 						m_pipelineDesc["outlineDraw"] = drawPipelineDesc;
 					}
-
-					draw.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
 
 					DescriptorTable::TableParams params;
 					params.resourceParameterIndex = 1;

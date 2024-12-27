@@ -48,8 +48,6 @@ namespace Renderer
 						m_pipelineDesc["lambertian"] = lambertianPipelineDesc;
 					}
 
-					only.AddBindable(std::make_shared<TransformBuffer>(gfx, 0));
-
 					DescriptorTable::TableParams params;
 					params.resourceParameterIndex = 1;
 					params.numCbvSrvUavDescriptors = 1;
