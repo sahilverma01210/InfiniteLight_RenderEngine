@@ -8,13 +8,9 @@ namespace Renderer
 		m_cameraContainer(cameraContainer)
 	{
 		{
-			auto pass = std::make_unique<BufferBucketClearPass>("clearRT");
-			pass->SetSinkLinkage("buffer", "$.backbuffer");
-			AppendPass(std::move(pass));
-		}
-		{
-			auto pass = std::make_unique<BufferClearPass>("clearDS");
-			pass->SetSinkLinkage("buffer", "$.masterDepth");
+			auto pass = std::make_unique<BufferClearPass>("clear");
+			pass->SetSinkLinkage("renderTargetBuffers", "$.backbuffer");
+			pass->SetSinkLinkage("depthStencilBuffer", "$.masterDepth");
 			AppendPass(std::move(pass));
 		}
 		{
@@ -24,19 +20,19 @@ namespace Renderer
 		{
 			auto pass = std::make_unique<LambertianPass>(gfx, "lambertian");
 			pass->SetSinkLinkage("shadowMap", "shadowMap.map");
-			pass->SetSinkLinkage("renderTarget", "clearRT.buffer");
-			pass->SetSinkLinkage("depthStencil", "clearDS.buffer");
+			pass->SetSinkLinkage("renderTargetBuffers", "clear.renderTargetBuffers");
+			pass->SetSinkLinkage("depthStencilBuffer", "clear.depthStencilBuffer");
 			AppendPass(std::move(pass));
 		}
 		{
 			auto pass = std::make_unique<SkyboxPass>(gfx, "skybox");
-			pass->SetSinkLinkage("renderTarget", "lambertian.renderTarget");
-			pass->SetSinkLinkage("depthStencil", "lambertian.depthStencil");
+			pass->SetSinkLinkage("renderTargetBuffers", "lambertian.renderTargetBuffers");
+			pass->SetSinkLinkage("depthStencilBuffer", "lambertian.depthStencilBuffer");
 			AppendPass(std::move(pass));
 		}
 		{
 			auto pass = std::make_unique<OutlineMaskGenerationPass>(gfx, "outlineMask");
-			pass->SetSinkLinkage("depthStencil", "skybox.depthStencil");
+			pass->SetSinkLinkage("depthStencilBuffer", "skybox.depthStencilBuffer");
 			AppendPass(std::move(pass));
 		}
 		{
@@ -49,17 +45,17 @@ namespace Renderer
 		}
 		{
 			auto pass = std::make_unique<VerticalBlurPass>(gfx, "vertical");
-			pass->SetSinkLinkage("renderTarget", "skybox.renderTarget");
-			pass->SetSinkLinkage("depthStencil", "outlineMask.depthStencil");
+			pass->SetSinkLinkage("renderTargetBuffers", "skybox.renderTargetBuffers");
+			pass->SetSinkLinkage("depthStencilBuffer", "outlineMask.depthStencilBuffer");
 			AppendPass(std::move(pass));
 		}
 		{
 			auto pass = std::make_unique<WireframePass>(gfx, "wireframe");
-			pass->SetSinkLinkage("renderTarget", "vertical.renderTarget");
-			pass->SetSinkLinkage("depthStencil", "vertical.depthStencil");
+			pass->SetSinkLinkage("renderTargetBuffers", "vertical.renderTargetBuffers");
+			pass->SetSinkLinkage("depthStencilBuffer", "vertical.depthStencilBuffer");
 			AppendPass(std::move(pass));
 		}
-		SetSinkTarget("backbuffer", "wireframe.renderTarget");
+		SetSinkTarget("backbuffer", "wireframe.renderTargetBuffers");
 
 		Finalize();
 	}

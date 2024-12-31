@@ -148,6 +148,8 @@ namespace Renderer
 
     D3D12RHI::~D3D12RHI()
     {
+        InsertFence();
+
         D3D12RHI_THROW_INFO_ONLY(CloseHandle(m_fenceEvent));
     }
 

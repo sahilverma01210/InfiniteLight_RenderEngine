@@ -3,7 +3,6 @@
 
 #include "RenderMath.h"
 #include "CameraContainer.h"
-#include "UIManager.h"
 #include "PointLight.h"
 #include "Model.h"
 #include "Skybox.h"
@@ -21,10 +20,12 @@ namespace Renderer
 		ILRenderer(HWND hWnd, HINSTANCE hInstance, bool useWarpDevice);
 		~ILRenderer();
 		void StartFrame();
-		void Update();
+		void RenderWorld();
+		void RenderUI();
 		void EndFrame();
 		void Rotate(float dx, float dy);
 		void Translate(XMFLOAT3 translation);
+		D3D12RHI& GetRHI();
 		RECT GetScreenRect();
 
 	private:
@@ -35,6 +36,5 @@ namespace Renderer
 		std::unique_ptr<PointLight> m_light;
 		std::unique_ptr<Skybox> m_skybox;
 		std::unique_ptr<PostProcessFilter> m_postProcessFilter;
-		std::unique_ptr<UIManager> m_uiManager;
 	};
 }

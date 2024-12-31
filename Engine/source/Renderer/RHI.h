@@ -3,9 +3,7 @@
 
 namespace Renderer
 {
-	class RHI {
-	public:
-		virtual void OnInit() = 0;
-		virtual void OnDestroy() = 0;
-	};
+	/*
+	* To Be Implemented.
+	*/
 }

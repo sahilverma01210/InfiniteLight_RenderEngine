@@ -1,8 +1,9 @@
 #pragma once
+#include "../Common/ImGUI_Includes.h"
+
 #include "RenderMath.h"
 #include "CameraIndicator.h"
 #include "CameraProjection.h"
-#include "UIManager.h"
 
 namespace Renderer
 {
@@ -11,9 +12,8 @@ namespace Renderer
 	public:
 		struct Transform
 		{
-			XMFLOAT3 position = { 0.0f,0.0f,0.0f };
-			float pitch = 0.0f;
-			float yaw = 0.0f;
+			XMFLOAT3 position = { 0.0f,0.0f,0.0f }; // X, Y, Z
+			XMFLOAT3 rotation = { 0.0f,0.0f,0.0f }; // Pitch, Yaw, Roll
 		};
 
 	public:

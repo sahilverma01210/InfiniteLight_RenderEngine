@@ -7,10 +7,10 @@ namespace Renderer
 		m_indexedList = Cube::Make();
 		m_indexedList.Transform(XMMatrixScaling(3.0f, 3.0f, 3.0f));
 
-		SkyboxMaterial material(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<SkyboxMaterial>(gfx, m_indexedList.vertices.GetLayout());
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
-		ApplyMaterial(gfx, material);
+		ApplyMaterial(gfx, material.get());
 	}
 
 	void Skybox::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)

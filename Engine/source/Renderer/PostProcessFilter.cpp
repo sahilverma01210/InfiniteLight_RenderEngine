@@ -6,10 +6,10 @@ namespace Renderer
 	{
 		m_indexedList = Plane::Make();
 
-		PostProcessMaterial material(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<PostProcessMaterial>(gfx, m_indexedList.vertices.GetLayout());
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
-		ApplyMaterial(gfx, material);
+		ApplyMaterial(gfx, material.get());
 	}
 
 	// To be implemented.

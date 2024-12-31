@@ -1,7 +1,8 @@
 #pragma once
+#include "../Common/ImGUI_Includes.h"
+
 #include "Mesh.h"
 #include "ModelProbe.h"
-#include "UIManager.h"
 
 namespace Renderer
 {

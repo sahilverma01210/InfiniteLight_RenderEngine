@@ -50,7 +50,6 @@ namespace Renderer
     class D3D12RHI
     {
         friend class GraphicsResource;
-        friend class UIManager;
 
     public:
         // D3D12RHI METHODS
@@ -77,6 +76,9 @@ namespace Renderer
         void SetDepthBuffer(ID3D12Resource* buffer);
         std::vector<ComPtr<ID3D12Resource>>& GetRenderTargetBuffers();
         ID3D12Resource* GetDepthBuffer();
+        // ACESS RHI INTERFACE
+        ID3D12Device* GetDevice() { return m_device.Get(); }
+        ID3D12GraphicsCommandList* GetCommandList() { return m_commandList.Get(); }
     private:
         // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
         // If no such adapter can be found, *ppAdapter will be set to nullptr.

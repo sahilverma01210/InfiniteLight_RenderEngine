@@ -1,7 +1,8 @@
 #pragma once
+#include "../Common/ImGUI_Includes.h"
+
 #include "TechniqueProbe.h"
 #include "ModelProbe.h"
-#include "UIManager.h"
 #include "Technique.h"
 #include "DynamicConstant.h"
 #include "Model.h"

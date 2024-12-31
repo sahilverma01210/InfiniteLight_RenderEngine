@@ -36,4 +36,17 @@ namespace Common
 	{
 		return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end()) != haystack.end();
 	}
+
+	bool ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept(!IS_DEBUG)
+	{
+		for (int i = 1; i < argc; ++i)
+		{
+			if (_wcsnicmp(argv[i], L"-warp", wcslen(argv[i])) == 0 ||
+				_wcsnicmp(argv[i], L"/warp", wcslen(argv[i])) == 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

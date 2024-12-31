@@ -63,7 +63,7 @@ namespace Renderer
         }
         const char* GetType() const noexcept(!IS_DEBUG) override
         {
-            return "Chili Graphics Info Exception";
+            return "Infinite Light DXGI Info Exception";
         }
         std::string GetErrorInfo() const noexcept(!IS_DEBUG)
         {

@@ -6,10 +6,10 @@ namespace Renderer
 	{
 		m_indexedList = Pyramid::Make();
 
-		LineMaterial material(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<LineMaterial>(gfx, m_indexedList.vertices.GetLayout());
 
-		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material.GetTopology());
-		ApplyMaterial(gfx, material);
+		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material->GetTopology());
+		ApplyMaterial(gfx, material.get());
 	}
 
 	void CameraIndicator::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)

@@ -8,10 +8,10 @@ namespace Renderer
 	{
 		m_indexedList = Frustum::Make(m_homeProjection.width, m_homeProjection.height, m_homeProjection.nearZ, m_homeProjection.farZ);
 
-		LineWireMaterial material(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<LineWireMaterial>(gfx, m_indexedList.vertices.GetLayout());
 
-		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material.GetTopology());
-		ApplyMaterial(gfx, material);
+		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material->GetTopology());
+		ApplyMaterial(gfx, material.get());
 
 		m_projection = m_homeProjection;
 	}

@@ -2,7 +2,9 @@
 
 namespace Renderer
 {
-	Model::Model(D3D12RHI& gfx, const std::string& pathString, float scale)
+	//std::mutex mutex;
+
+	Model::Model(D3D12RHI& gfx, const std::string& pathString, XMFLOAT3 transform, float scale)
 	{
 		Assimp::Importer imp;
 		const auto pScene = imp.ReadFile(pathString.c_str(),
@@ -18,33 +20,47 @@ namespace Renderer
 			throw MDL_EXCEPTION(imp.GetErrorString());
 		}
 
+		//// parse materials
+		//std::vector<std::shared_ptr<ImportMaterial>> materials;
+		//materials.resize(pScene->mNumMaterials);
+		//{
+		//	std::vector<std::thread> threads;
+		//	for (size_t i = 0; i < pScene->mNumMaterials; i++)
+		//	{
+		//		threads.emplace_back([&materials, &gfx, pScene, i, pathString]() {
+		//			std::lock_guard<std::mutex> guard(mutex);
+		//			materials[i] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString);
+		//			});
+		//	}
+		//
+		//	for (auto& thread : threads)
+		//	{
+		//		thread.join();
+		//	}
+		//}
+
 		// parse materials
-		std::vector<ImportMaterial> materials;
-		materials.reserve(pScene->mNumMaterials);
+		std::vector<std::shared_ptr<ImportMaterial>> materials;
 		for (size_t i = 0; i < pScene->mNumMaterials; i++)
 		{
-			materials.emplace_back(gfx, *pScene->mMaterials[i], pathString);
+			materials.push_back(std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString));
 		}
 
-		// apply materials
+		// parse mesh and apply materials
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		{
 			const auto& mesh = *pScene->mMeshes[i];
-			m_meshPtrs.push_back(std::make_shared<Mesh>(gfx, materials[mesh.mMaterialIndex], mesh, scale));
+			m_meshPtrs.push_back(std::make_shared<Mesh>(gfx, materials[mesh.mMaterialIndex].get(), mesh, scale));
 		}
 
 		int nextId = 0;
 		m_pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
+		m_pRoot->SetAppliedTransform(XMMatrixTranslation(transform.x, transform.y, transform.z));
 	}
 
 	void Model::Submit(size_t channel) const noexcept(!IS_DEBUG)
 	{
 		m_pRoot->Submit(channel, XMMatrixIdentity());
-	}
-
-	void Model::SetRootTransform(FXMMATRIX tf) noexcept(!IS_DEBUG)
-	{
-		m_pRoot->SetAppliedTransform(tf);
 	}
 
 	std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept(!IS_DEBUG)

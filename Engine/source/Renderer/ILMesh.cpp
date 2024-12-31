@@ -11,17 +11,17 @@ namespace Renderer
 		m_numIndices = m_indexBufferBindable->GetNumOfIndices();
 	}
 
-	void ILMesh::ApplyMaterial(D3D12RHI& gfx, ILMaterial& material, bool enableLighting) noexcept(!IS_DEBUG)
+	void ILMesh::ApplyMaterial(D3D12RHI& gfx, ILMaterial* material, bool enableLighting) noexcept(!IS_DEBUG)
 	{
 		m_enableLighting = enableLighting;
 
-		for (auto& pipelineDesc : material.GetPipelineDesc())
+		for (auto& pipelineDesc : material->GetPipelineDesc())
 		{
 			m_rootSignBindables[pipelineDesc.first] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc.second));
 			m_psoBindables[pipelineDesc.first] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc.second));
 		}
 
-		for (auto& technique : material.GetTechniques())
+		for (auto& technique : material->GetTechniques())
 		{
 			AddTechnique(std::move(technique));
 		}

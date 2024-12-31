@@ -1,6 +1,7 @@
 #pragma once
+#include "../Common/ImGUI_Includes.h"
+
 #include "ILMaterial.h"
-#include "UIManager.h"
 
 namespace Renderer
 {

@@ -5,45 +5,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Runtime
 {
-	Window::WindowClass Window::WindowClass::m_wndClass;
-
-	Window::WindowClass::WindowClass() noexcept(!IS_DEBUG)
-		:
-		m_hInst(GetModuleHandle(nullptr))
-	{
-		WNDCLASSEX windowClass = { 0 };
-		windowClass.cbSize = sizeof(WNDCLASSEX);
-		windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-		windowClass.lpfnWndProc = HandleMsgSetup;
-		windowClass.cbClsExtra = 0;
-		windowClass.cbWndExtra = 0;
-		windowClass.hInstance = GetInstance();
-		windowClass.hIcon = nullptr;
-		windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-		windowClass.hbrBackground = nullptr;
-		windowClass.lpszMenuName = nullptr;
-		windowClass.lpszClassName = GetName();
-		windowClass.hIconSm = nullptr;
-		RegisterClassEx(&windowClass);
-
-		m_hInst = GetModuleHandle(nullptr);
-	}
-
-	Window::WindowClass::~WindowClass()
-	{
-		UnregisterClass(m_wndClassName, GetInstance());
-	}
-
-	const WCHAR* Window::WindowClass::GetName() noexcept(!IS_DEBUG)
-	{
-		return m_wndClassName;
-	}
-
-	HINSTANCE Window::WindowClass::GetInstance() noexcept(!IS_DEBUG)
-	{
-		return m_wndClass.m_hInst;
-	}
-
 	Window::Window()
 		: 
 		m_width(WIDTH),
@@ -60,12 +21,28 @@ namespace Runtime
 			throw IL_LAST_EXCEPT();
 		};
 
+		// Create and Register Window Class
+		m_windowClass = { 0 };
+		m_windowClass.cbSize = sizeof(WNDCLASSEX);
+		m_windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+		m_windowClass.lpfnWndProc = HandleWndMsg;
+		m_windowClass.cbClsExtra = 0;
+		m_windowClass.cbWndExtra = 0;
+		m_windowClass.hInstance = GetModuleHandle(nullptr);
+		m_windowClass.hIcon = nullptr;
+		m_windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+		m_windowClass.hbrBackground = nullptr;
+		m_windowClass.lpszMenuName = nullptr;
+		m_windowClass.lpszClassName = TITLE;
+		m_windowClass.hIconSm = nullptr;
+		RegisterClassEx(&m_windowClass);
+
 		// create window & get hWnd
 		m_hWnd = CreateWindow(
-			WindowClass::GetName(), TITLE,
+			TITLE, TITLE,
 			WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top,
-			nullptr, nullptr, WindowClass::GetInstance(), this
+			nullptr, nullptr, m_windowClass.hInstance, this
 		);
 		
 		// check for error
@@ -81,7 +58,10 @@ namespace Runtime
 		}
 
 		// create and initialize Renderer
-		m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, WindowClass::GetInstance(), false));
+		m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, m_windowClass.hInstance, false));
+#ifdef UI_ENABLED
+		m_uiManager = std::move(std::make_unique<UIManager>(m_hWnd, m_renderer.get()));
+#endif
 
 		// register mouse raw input device
 		RAWINPUTDEVICE rid;
@@ -100,7 +80,13 @@ namespace Runtime
 
 	Window::~Window()
 	{
-		if (m_renderer) m_renderer.reset();
+		if (m_renderer) 
+		{
+#ifdef UI_ENABLED
+			m_uiManager.reset();
+#endif
+			m_renderer.reset();
+		}
 
 		DestroyWindow(m_hWnd);
 	}
@@ -137,6 +123,9 @@ namespace Runtime
 		if (m_renderer)
 		{
 			m_renderer->StartFrame();
+#ifdef UI_ENABLED
+			m_uiManager->StartUIFrame();
+#endif
 
 			const auto e = m_keyboard.ReadKey();
 
@@ -144,26 +133,46 @@ namespace Runtime
 			{
 				switch (e.GetCode())
 				{
-				case VK_ESCAPE:
-					if (CursorEnabled())
-					{
-						DisableCursor();
-						m_mouse.EnableRaw();
-					}
-					else
-					{
-						EnableCursor();
-						m_mouse.DisableRaw();
-					}
-					break;
+//				case VK_RETURN: // Enter Key
+//					if (GetKeyState(VK_MENU) & 0x8000) // Alt + Enter
+//					{
+//						if (m_renderer)
+//						{
+//							ToggleFullscreenWindow();
+//#ifdef UI_ENABLED
+//							m_uiManager->EndUIFrame();
+//#endif
+//							m_renderer->EndFrame();
+//#ifdef UI_ENABLED
+//							m_uiManager.reset();
+//#endif
+//							m_renderer.reset();
+//
+//							m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, m_windowClass.hInstance, false));
+//#ifdef UI_ENABLED
+//							m_uiManager = std::move(std::make_unique<UIManager>(m_hWnd, m_renderer.get()));
+//#endif
+//							return;
+//						}
+//					}
+//					break;
 				case VK_SPACE:
 					if (m_renderer)
 					{
 						ToggleFullscreenWindow();
-
+#ifdef UI_ENABLED
+						m_uiManager->EndUIFrame();
+#endif
 						m_renderer->EndFrame();
+#ifdef UI_ENABLED
+						m_uiManager.reset();
+#endif
 						m_renderer.reset();
-						m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, WindowClass::GetInstance(), false));
+
+						m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, m_windowClass.hInstance, false));
+#ifdef UI_ENABLED
+						m_uiManager = std::move(std::make_unique<UIManager>(m_hWnd, m_renderer.get()));
+#endif
 						return;
 					}
 					break;
@@ -208,7 +217,14 @@ namespace Runtime
 				}
 			}
 
-			m_renderer->Update();
+			m_renderer->RenderWorld();
+#ifdef UI_ENABLED
+			m_renderer->RenderUI();
+			m_uiManager->UpdateUIFrame();
+#endif
+#ifdef UI_ENABLED
+			m_uiManager->EndUIFrame();
+#endif
 			m_renderer->EndFrame();
 		}
 	}
@@ -244,6 +260,9 @@ namespace Runtime
 			{
 				// Get the settings of the display on which the app's window is currently displayed
 				fullscreenWindowRect = m_renderer->GetScreenRect();
+#ifdef UI_ENABLED
+				m_uiManager->HandleWindowResize();
+#endif
 			}
 			catch (HrException& e)
 			{
@@ -282,7 +301,9 @@ namespace Runtime
 	{
 		m_cursorEnabled = true;
 		ShowCursor();
-		EnableImGUIMouse();
+#ifdef UI_ENABLED
+		m_uiManager->EnableUIMouse();
+#endif
 		FreeCursor();
 	}
 
@@ -290,7 +311,9 @@ namespace Runtime
 	{
 		m_cursorEnabled = false;
 		HideCursor();
-		DisableImGUIMouse();
+#ifdef UI_ENABLED
+		m_uiManager->DisableUIMouse();
+#endif
 		ConfineCursor();
 	}
 
@@ -322,19 +345,8 @@ namespace Runtime
 		while (::ShowCursor(TRUE) < 0);
 	}
 
-	void Window::EnableImGUIMouse() noexcept(!IS_DEBUG)
+	LRESULT WINAPI Window::HandleWndMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept(!IS_DEBUG)
 	{
-		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
-	}
-
-	void Window::DisableImGUIMouse() noexcept(!IS_DEBUG)
-	{
-		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
-	}
-
-	LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept(!IS_DEBUG)
-	{
-		// use create parameter passed in from CreateWindow() to store window class pointer at WinAPI side
 		if (msg == WM_NCCREATE)
 		{
 			// extract ptr to window class from creation data
@@ -342,25 +354,11 @@ namespace Runtime
 			Window* const pWnd = static_cast<Window*>(pCreate->lpCreateParams);
 			// set WinAPI-managed user data to store ptr to window class
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
-			// set message proc to normal (non-setup) handler now that setup is finished
-			SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::HandleMsgThunk));
-			// forward message to window class handler
-			return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 		}
-		// if we get a message before the WM_NCCREATE message, handle with default handler
-		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
 
-	LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept(!IS_DEBUG)
-	{
 		// retrieve ptr to window class
 		Window* const pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-		// forward message to window class handler
-		return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
-	}
 
-	LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept(!IS_DEBUG)
-	{
 		//static WindowsMessageMap mm; // Add and Include "WindowsMessageMap.h and WindowsMessageMap.cpp" files.
 		//OutputDebugString(mm(message, lParam, wParam).c_str());
 
@@ -378,24 +376,24 @@ namespace Runtime
 			return 0;
 			// clear keystate when window loses focus to prevent input getting "stuck"
 		case WM_KILLFOCUS:
-			m_keyboard.ClearState();
+			pWnd->m_keyboard.ClearState();
 			break;
 		case WM_ACTIVATE:
 			OutputDebugString(L"activate\n");
 			// confine/free cursor on window to foreground/background if cursor disabled
-			if (!m_cursorEnabled)
+			if (!pWnd->m_cursorEnabled)
 			{
 				if (wParam & WA_ACTIVE)
 				{
 					OutputDebugString(L"activate => confine\n");
-					ConfineCursor();
-					HideCursor();
+					pWnd->ConfineCursor();
+					pWnd->HideCursor();
 				}
 				else
 				{
 					OutputDebugString(L"activate => free\n");
-					FreeCursor();
-					ShowCursor();
+					pWnd->FreeCursor();
+					pWnd->ShowCursor();
 				}
 			}
 			break;
@@ -404,17 +402,17 @@ namespace Runtime
 		case WM_KEYDOWN:
 			// syskey commands need to be handled to track ALT key (VK_MENU) and F10
 		case WM_SYSKEYDOWN:
-			if (!(lParam & 0x40000000) || m_keyboard.AutorepeatIsEnabled()) // filter autorepeat
+			if (!(lParam & 0x40000000) || pWnd->m_keyboard.AutorepeatIsEnabled()) // filter autorepeat
 			{
-				m_keyboard.OnKeyPressed(static_cast<unsigned char>(wParam));
+				pWnd->m_keyboard.OnKeyPressed(static_cast<unsigned char>(wParam));
 			}
 			break;
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
-			m_keyboard.OnKeyReleased(static_cast<unsigned char>(wParam));
+			pWnd->m_keyboard.OnKeyReleased(static_cast<unsigned char>(wParam));
 			break;
 		case WM_CHAR:
-			m_keyboard.OnChar(static_cast<unsigned char>(wParam));
+			pWnd->m_keyboard.OnChar(static_cast<unsigned char>(wParam));
 			break;
 		/*********** END KEYBOARD MESSAGES ***********/
 
@@ -424,25 +422,25 @@ namespace Runtime
 			const POINTS pt = MAKEPOINTS(lParam);
 
 			// cursorless exclusive gets first dibs
-			if (!m_cursorEnabled)
+			if (!pWnd->m_cursorEnabled)
 			{
-				if (!m_mouse.IsInWindow())
+				if (!pWnd->m_mouse.IsInWindow())
 				{
 					SetCapture(hWnd);
-					m_mouse.OnMouseEnter();
-					HideCursor();
+					pWnd->m_mouse.OnMouseEnter();
+					pWnd->HideCursor();
 				}
 				break;
 			}
 
 			// in client region -> log move, and log enter + capture mouse (if not previously in window)
-			if (pt.x >= 0 && pt.x < m_width && pt.y >= 0 && pt.y < m_height)
+			if (pt.x >= 0 && pt.x < pWnd->m_width && pt.y >= 0 && pt.y < pWnd->m_height)
 			{
-				m_mouse.OnMouseMove(pt.x, pt.y);
-				if (!m_mouse.IsInWindow())
+				pWnd->m_mouse.OnMouseMove(pt.x, pt.y);
+				if (!pWnd->m_mouse.IsInWindow())
 				{
 					SetCapture(hWnd);
-					m_mouse.OnMouseEnter();
+					pWnd->m_mouse.OnMouseEnter();
 				}
 			}
 			// not in client -> log move / maintain capture if button down
@@ -450,13 +448,13 @@ namespace Runtime
 			{
 				if (wParam & (MK_LBUTTON | MK_RBUTTON))
 				{
-					m_mouse.OnMouseMove(pt.x, pt.y);
+					pWnd->m_mouse.OnMouseMove(pt.x, pt.y);
 				}
 				// button up -> release capture / log event for leaving
 				else
 				{
 					ReleaseCapture();
-					m_mouse.OnMouseLeave();
+					pWnd->m_mouse.OnMouseLeave();
 				}
 			}
 			break;
@@ -464,43 +462,49 @@ namespace Runtime
 		case WM_LBUTTONDOWN:
 		{
 			SetForegroundWindow(hWnd);
-			if (!m_cursorEnabled)
+			if (!pWnd->m_cursorEnabled)
 			{
 				OutputDebugString(L"lclick => recapture\n");
-				ConfineCursor();
-				HideCursor();
+				pWnd->ConfineCursor();
+				pWnd->HideCursor();
 			}
 			const POINTS pt = MAKEPOINTS(lParam);
-			m_mouse.OnLeftPressed(pt.x, pt.y);
+			pWnd->m_mouse.OnLeftPressed(pt.x, pt.y);
 			break;
 		}
 		case WM_RBUTTONDOWN:
 		{
+			pWnd->DisableCursor();
+			pWnd->m_mouse.EnableRaw();
+
 			const POINTS pt = MAKEPOINTS(lParam);
-			m_mouse.OnRightPressed(pt.x, pt.y);
+			pWnd->m_mouse.OnRightPressed(pt.x, pt.y);
 			break;
 		}
 		case WM_LBUTTONUP:
 		{
 			const POINTS pt = MAKEPOINTS(lParam);
-			m_mouse.OnLeftReleased(pt.x, pt.y);
+			pWnd->m_mouse.OnLeftReleased(pt.x, pt.y);
 			// release mouse if outside of window
-			if (pt.x < 0 || pt.x >= m_width || pt.y < 0 || pt.y >= m_height)
+			if (pt.x < 0 || pt.x >= pWnd->m_width || pt.y < 0 || pt.y >= pWnd->m_height)
 			{
 				ReleaseCapture();
-				m_mouse.OnMouseLeave();
+				pWnd->m_mouse.OnMouseLeave();
 			}
 			break;
 		}
 		case WM_RBUTTONUP:
 		{
+			pWnd->EnableCursor();
+			pWnd->m_mouse.DisableRaw();
+
 			const POINTS pt = MAKEPOINTS(lParam);
-			m_mouse.OnRightReleased(pt.x, pt.y);
+			pWnd->m_mouse.OnRightReleased(pt.x, pt.y);
 			// release mouse if outside of window
-			if (pt.x < 0 || pt.x >= m_width || pt.y < 0 || pt.y >= m_height)
+			if (pt.x < 0 || pt.x >= pWnd->m_width || pt.y < 0 || pt.y >= pWnd->m_height)
 			{
 				ReleaseCapture();
-				m_mouse.OnMouseLeave();
+				pWnd->m_mouse.OnMouseLeave();
 			}
 			break;
 		}
@@ -508,7 +512,7 @@ namespace Runtime
 		{
 			const POINTS pt = MAKEPOINTS(lParam);
 			const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-			m_mouse.OnWheelDelta(pt.x, pt.y, delta);
+			pWnd->m_mouse.OnWheelDelta(pt.x, pt.y, delta);
 			break;
 		}
 		/************** END MOUSE MESSAGES **************/
@@ -516,7 +520,7 @@ namespace Runtime
 		/************** RAW MOUSE MESSAGES **************/
 		case WM_INPUT:
 		{
-			if (!m_mouse.RawEnabled())
+			if (!pWnd->m_mouse.RawEnabled())
 			{
 				break;
 			}
@@ -532,12 +536,13 @@ namespace Runtime
 				// bail msg processing if error
 				break;
 			}
-			m_rawBuffer.resize(size);
+			std::vector<BYTE> rawBuffer;
+			rawBuffer.resize(size);
 			// read in the input data
 			if (GetRawInputData(
 				reinterpret_cast<HRAWINPUT>(lParam),
 				RID_INPUT,
-				m_rawBuffer.data(),
+				rawBuffer.data(),
 				&size,
 				sizeof(RAWINPUTHEADER)) != size)
 			{
@@ -545,11 +550,11 @@ namespace Runtime
 				break;
 			}
 			// process the raw input data
-			auto& ri = reinterpret_cast<const RAWINPUT&>(*m_rawBuffer.data());
+			auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
 			if (ri.header.dwType == RIM_TYPEMOUSE &&
 				(ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
 			{
-				m_mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+				pWnd->m_mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
 			}
 			break;
 		}
@@ -557,18 +562,5 @@ namespace Runtime
 		}
 
 		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
-
-	bool Window::ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept(!IS_DEBUG)
-	{
-		for (int i = 1; i < argc; ++i)
-		{
-			if (_wcsnicmp(argv[i], L"-warp", wcslen(argv[i])) == 0 ||
-				_wcsnicmp(argv[i], L"/warp", wcslen(argv[i])) == 0)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 }

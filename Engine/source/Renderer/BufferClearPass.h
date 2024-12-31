@@ -1,44 +1,24 @@
 #pragma once
-#include "Pass.h"
+#include "RenderPass.h"
 
 namespace Renderer
 {
-	class BufferClearPass : public Pass
+	class BufferClearPass : public RenderPass
 	{
 	public:
 		BufferClearPass(std::string name)
 			:
-			Pass(std::move(name))
+			RenderPass(std::move(name))
 		{
-			RegisterSink(DirectBufferSink<BufferResource>::Make("buffer", m_buffer));
-			RegisterSource(DirectBufferSource<BufferResource>::Make("buffer", m_buffer));
+			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
+			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
+			RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
+			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
 		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
-			m_buffer->Clear(gfx);
+			m_renderTargetVector[gfx.GetCurrentBackBufferIndex()]->Clear(gfx);
+			m_depthStencil->Clear(gfx);
 		}
-
-	private:
-		std::shared_ptr<BufferResource> m_buffer;
-	};
-
-	class BufferBucketClearPass : public Pass
-	{
-	public:
-		BufferBucketClearPass(std::string name)
-			:
-			Pass(std::move(name))
-		{
-			RegisterSink(DirectBufferBucketSink<BufferResource>::Make("buffer", m_bufferVector));
-			RegisterSource(DirectBufferBucketSource<BufferResource>::Make("buffer", m_bufferVector));
-		}
-
-		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
-		{
-			m_bufferVector[gfx.GetCurrentBackBufferIndex()]->Clear(gfx);
-		}
-
-	private:
-		std::vector<std::shared_ptr<BufferResource>> m_bufferVector;
 	};
 }

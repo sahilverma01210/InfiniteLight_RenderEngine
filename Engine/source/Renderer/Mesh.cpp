@@ -2,9 +2,9 @@
 
 namespace Renderer
 {
-	Mesh::Mesh(D3D12RHI& gfx, ImportMaterial& material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
+	Mesh::Mesh(D3D12RHI& gfx, ImportMaterial* material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
 	{
-		m_vtxLayout = material.GetVertexLayout();
+		m_vtxLayout = material->GetVertexLayout();
 
 		ApplyMesh(gfx, MakeVertices(gfx, mesh, scale), MakeIndices(gfx, mesh));
 

@@ -10,8 +10,8 @@ namespace Renderer
 			:
 			RenderPass(std::move(name))
 		{
-			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencil", m_depthStencil));
-			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencil", m_depthStencil));
+			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
+			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
 		}
 	};
 }

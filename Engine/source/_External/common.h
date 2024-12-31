@@ -73,6 +73,7 @@ using namespace Microsoft::WRL;
 #include <limits>
 #include <chrono>
 #include <thread>
+#include <mutex>
 #include <queue>
 #include <bitset>
 #include <array>

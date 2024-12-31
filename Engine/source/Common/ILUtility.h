@@ -56,4 +56,6 @@ namespace Common
 		std::wstring wideAssetsPath = assetsPath;
 		return wideAssetsPath + assetName;
 	}
+
+	static bool ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept(!IS_DEBUG);
 }

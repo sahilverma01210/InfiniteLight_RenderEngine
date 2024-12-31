@@ -1,8 +1,14 @@
 #include "UIManager.h"
 
-namespace Renderer
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+namespace Runtime
 {
-    UIManager::UIManager(D3D12RHI& gfx)
+    UIManager::UIManager(HWND hWnd, ILRenderer* renderer)
+        :
+        m_hWnd(hWnd),
+        m_gfx(renderer->GetRHI())
     {
         // Initialize Win32 ImGUI.
         {
@@ -25,7 +31,7 @@ namespace Renderer
             //ImGui::StyleColorsLight();
 
             // Setup Platform/Renderer backends
-            ImGui_ImplWin32_Init(gfx.m_hWnd);
+            ImGui_ImplWin32_Init(m_hWnd);
         }
 
         // Initialize D3D12 ImGUI.
@@ -36,10 +42,10 @@ namespace Renderer
                 srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
                 srvHeapDesc.NumDescriptors = 1;
                 srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-                gfx.m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
+                m_gfx.GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
             }
 
-            ImGui_ImplDX12_Init(gfx.m_device.Get(), 1,
+            ImGui_ImplDX12_Init(m_gfx.GetDevice(), 1,
                 DXGI_FORMAT_R8G8B8A8_UNORM, nullptr,
                 m_srvHeap->GetCPUDescriptorHandleForHeapStart(),
                 m_srvHeap->GetGPUDescriptorHandleForHeapStart());
@@ -62,35 +68,47 @@ namespace Renderer
         }
     }
 
-    void UIManager::StartUIFrame(D3D12RHI& gfx)
+    void UIManager::StartUIFrame()
     {
-        // Wait for Previous Frame to complete.
-        gfx.InsertFence();
-
         // Start the Dear ImGui frame
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        gfx.m_commandList->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
+        m_gfx.GetCommandList()->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
     }
 
-    void UIManager::UpdateUIFrame(D3D12RHI& gfx)
+    void UIManager::UpdateUIFrame()
     {
     }
 
-    void UIManager::EndUIFrame(D3D12RHI& gfx)
+    void UIManager::EndUIFrame()
     {
         // Rendering
         ImGui::Render();
-        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), gfx.m_commandList.Get());
+        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_gfx.GetCommandList());
+    }
+        
+	void UIManager::EnableUIMouse()
+	{
+		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+	}
+
+	void UIManager::DisableUIMouse()
+	{
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+	}
+
+    bool UIManager::HandleUIMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    {
+        return ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
     }
 
-    bool UIManager::HandleWindowResize(D3D12RHI& gfx)
+    bool UIManager::HandleWindowResize()
     {
         ImVec2 view = ImGui::GetContentRegionAvail();
         
-        if (view.x != gfx.GetWidth() || view.y != gfx.GetHeight())
+        if (view.x != m_gfx.GetWidth() || view.y != m_gfx.GetHeight())
         {
             if (view.x == 0 || view.y == 0)
             {
@@ -98,7 +116,7 @@ namespace Renderer
                 return false;
             }
 
-            ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
+            ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(m_gfx.GetWidth()), static_cast<float>(m_gfx.GetHeight()));
         
             //m_Window.width = view.x;
             //m_Window.height = view.y;

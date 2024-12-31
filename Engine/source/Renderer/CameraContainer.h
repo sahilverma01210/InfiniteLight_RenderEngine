@@ -1,7 +1,7 @@
 #pragma once
 #include "../_External/common.h"
+#include "../Common/ImGUI_Includes.h"
 
-#include "UIManager.h"
 #include "Camera.h"
 #include "RenderGraph.h"
 

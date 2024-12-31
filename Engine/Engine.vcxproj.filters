@@ -71,15 +71,6 @@
     <Filter Include="Source\Renderer\Private\RenderGraph">
       <UniqueIdentifier>{4be52e22-33ca-4818-beb7-e4cbb5354e5a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\RHI">
-      <UniqueIdentifier>{00defb13-6d02-4066-a3e8-f5b56086dfd9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Private\RHI\Bindables">
-      <UniqueIdentifier>{932de8dc-04f9-44ad-9dc3-403a72bb1280}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Private\UI">
-      <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer\Public">
       <UniqueIdentifier>{967d906d-9899-4ff4-a0dc-5c16635a5197}</UniqueIdentifier>
     </Filter>
@@ -94,15 +85,6 @@
     </Filter>
     <Filter Include="Source\Renderer\Public\RenderGraph">
       <UniqueIdentifier>{34c9a6e8-9d5b-48ab-b527-715361136937}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\RHI">
-      <UniqueIdentifier>{18677345-aa5b-4815-982a-df2d026566c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\RHI\Bindables">
-      <UniqueIdentifier>{88b16e8a-ee95-4357-abca-ecb3f84fbd25}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\UI">
-      <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Renderer\Public\RenderGraph\Passes">
       <UniqueIdentifier>{93ecefa4-eabd-407d-b0e0-1eff9e7a8337}</UniqueIdentifier>
@@ -161,43 +143,58 @@
     <Filter Include="Source\Renderer\Public\Materials">
       <UniqueIdentifier>{0293d600-4fd3-40d1-baf1-19e3a1e88a39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Renderer\Public\RenderGraph\RHI">
+      <UniqueIdentifier>{18677345-aa5b-4815-982a-df2d026566c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\RenderGraph\RHI\Bindables">
+      <UniqueIdentifier>{88b16e8a-ee95-4357-abca-ecb3f84fbd25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RenderGraph\RHI">
+      <UniqueIdentifier>{00defb13-6d02-4066-a3e8-f5b56086dfd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\RenderGraph\RHI\Bindables">
+      <UniqueIdentifier>{932de8dc-04f9-44ad-9dc3-403a72bb1280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Runtime\Public\UI">
+      <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Runtime\Private\UI">
+      <UniqueIdentifier>{dc6fe5dd-e719-49b9-8533-4306b1560467}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Renderer\VertexBuffer.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TextureBuffer.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\IndexBuffer.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Topology.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ConstantBuffer.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Bindable.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\CommonBindables.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PipelineState.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RootSignature.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\DescriptorTable.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PointLight.h">
       <Filter>Source\Renderer\Public\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\UIManager.h">
-      <Filter>Source\Renderer\Public\UI</Filter>
     </ClInclude>
     <ClInclude Include="source\Runtime\Keyboard.h">
       <Filter>Source\Runtime\Public\IO</Filter>
@@ -209,10 +206,10 @@
       <Filter>Source\Renderer\Public\Camera</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RHI.h">
-      <Filter>Source\Renderer\Public\RHI</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\D3D12RHI.h">
-      <Filter>Source\Renderer\Public\RHI</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Model.h">
       <Filter>Source\Renderer\Public\Model</Filter>
@@ -227,10 +224,10 @@
       <Filter>Source\Renderer\Public\Common</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\D3D12RHIException.h">
-      <Filter>Source\Renderer\Public\RHI</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BindableCodex.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\DynamicConstant.h">
       <Filter>Source\Renderer\Public\Common</Filter>
@@ -254,7 +251,7 @@
       <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\GraphicsResource.h">
-      <Filter>Source\Renderer\Public\RHI</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderGraphException.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
@@ -317,7 +314,7 @@
       <Filter>Source\Renderer\Public</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Viewport.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
@@ -374,10 +371,10 @@
       <Filter>Source\_External\Public\DX12</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\DepthStencil.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderTarget.h">
-      <Filter>Source\Renderer\Public\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="source\Common\ILPerfLog.h">
       <Filter>Source\Common\Public</Filter>
@@ -430,40 +427,46 @@
     <ClInclude Include="source\Renderer\RenderPass.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
+    <ClInclude Include="source\Common\ImGUI_Includes.h">
+      <Filter>Source\Common\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\UIManager.h">
+      <Filter>Source\Runtime\Public\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Runtime\IOManager.h">
+      <Filter>Source\Runtime\Public\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\VertexBuffer.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Topology.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\TextureBuffer.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\IndexBuffer.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PipelineState.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RootSignature.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DescriptorTable.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PointLight.cpp">
       <Filter>Source\Renderer\Private\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\UIManager.cpp">
-      <Filter>Source\Renderer\Private\UI</Filter>
     </ClCompile>
     <ClCompile Include="source\Runtime\Keyboard.cpp">
       <Filter>Source\Runtime\Private\IO</Filter>
@@ -475,7 +478,7 @@
       <Filter>Source\Renderer\Private\Camera</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\D3D12RHI.cpp">
-      <Filter>Source\Renderer\Private\RHI</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Model.cpp">
       <Filter>Source\Renderer\Private\Model</Filter>
@@ -502,7 +505,7 @@
       <Filter>Source\Renderer\Private\Model</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\GraphicsResource.cpp">
-      <Filter>Source\Renderer\Private\RHI</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderGraphException.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
@@ -571,13 +574,13 @@
       <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DepthStencil.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderTarget.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Viewport.cpp">
-      <Filter>Source\Renderer\Private\RHI\Bindables</Filter>
+      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\Vertex.cpp">
       <Filter>Source\Renderer\Private\Common\Primitives</Filter>
@@ -605,6 +608,12 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\Pass.cpp">
       <Filter>Source\Renderer\Private\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\UIManager.cpp">
+      <Filter>Source\Runtime\Private\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Runtime\IOManager.cpp">
+      <Filter>Source\Runtime\Private\IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

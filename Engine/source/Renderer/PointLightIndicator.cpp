@@ -7,10 +7,10 @@ namespace Renderer
 		m_indexedList = Sphere::Make();		
 		m_indexedList.Transform(XMMatrixScaling(radius, radius, radius)); // deform vertices of model by linear transformation
 
-		SolidMaterial material(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<SolidMaterial>(gfx, m_indexedList.vertices.GetLayout());
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
-		ApplyMaterial(gfx, material);
+		ApplyMaterial(gfx, material.get());
 	}
 
 	void PointLightIndicator::SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG)

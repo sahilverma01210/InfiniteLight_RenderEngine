@@ -27,6 +27,7 @@ namespace Renderer
 		};
 
 	public:
+		ImportMaterial() = default;
 		ImportMaterial(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path) noexcept(!IS_DEBUG)
 		{
 			m_vtxLayout.Append(VertexLayout::Position3D);

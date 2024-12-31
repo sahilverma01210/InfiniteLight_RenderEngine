@@ -51,17 +51,4 @@ namespace Renderer
 		ComPtr<ID3D12Resource> m_texureBuffer;
 		std::vector<std::shared_ptr<DepthStencil>> m_depthBuffers;
 	};
-
-	class TargetCubeMapTextureBuffer : public Bindable
-	{
-	public:
-		TargetCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);
-		~TargetCubeMapTextureBuffer() = default;
-		ID3D12Resource* GetBuffer();
-		std::shared_ptr<RenderTarget> GetRenderTarget(size_t index) const;
-
-	private:
-		ComPtr<ID3D12Resource> m_texureBuffer;
-		std::vector<std::shared_ptr<RenderTarget>> m_renderTargets;
-	};
 }
