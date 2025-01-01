@@ -87,3 +87,7 @@ using namespace Microsoft::WRL;
 #include <cassert>
 #include <typeinfo>
 #include <fstream>
+
+// Nlohmann JSON
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;

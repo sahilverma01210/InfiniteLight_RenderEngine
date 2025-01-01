@@ -1,26 +1,23 @@
 #pragma once
 #include "RenderPass.h"
 #include "RenderMath.h"
-#include "Camera.h"
+#include "CameraContainer.h"
 
 namespace Renderer
 {
 	class ShadowMappingPass : public RenderPass
 	{
 	public:
-		ShadowMappingPass(D3D12RHI& gfx, std::string name)
+		ShadowMappingPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
 			:
-			RenderPass(std::move(name))
+			RenderPass(std::move(name)),
+			m_cameraContainer(cameraContainer)
 		{
 			m_pDepthCube = std::make_shared<DepthCubeMapTextureBuffer>(gfx, m_size);
 			gfx.SetDepthBuffer(m_pDepthCube->GetBuffer());
 			RegisterSource(DirectBindableSource<DepthCubeMapTextureBuffer>::Make("map", m_pDepthCube));
 
 			SetDepthBuffer(m_pDepthCube->GetDepthBuffer(0));
-		}
-		void BindShadowCamera(const Camera& cam) noexcept(!IS_DEBUG)
-		{
-			m_pShadowCamera = &cam;
 		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
@@ -35,7 +32,7 @@ namespace Renderer
 				d->Clear(gfx);
 				SetDepthBuffer(std::move(d));
 
-				m_pShadowCamera->Update(true, i);
+				m_cameraContainer.GetLightingCamera().Update(true, i);
 
 				RenderPass::Execute(gfx);
 			}
@@ -49,7 +46,7 @@ namespace Renderer
 
 	private:
 		static constexpr UINT m_size = 1000;
-		const Camera* m_pShadowCamera = nullptr;
+		CameraContainer& m_cameraContainer;
 		std::shared_ptr<DepthCubeMapTextureBuffer> m_pDepthCube;
 	};
 }

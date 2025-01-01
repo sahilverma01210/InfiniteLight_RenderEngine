@@ -57,7 +57,6 @@
     <ClInclude Include="source\Renderer\ModelException.h" />
     <ClInclude Include="source\Renderer\ModelProbe.h" />
     <ClInclude Include="source\Renderer\Node.h" />
-    <ClInclude Include="source\Renderer\OutlineDrawingPass.h" />
     <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h" />
     <ClInclude Include="source\Renderer\Pass.h" />
     <ClInclude Include="source\Renderer\CameraProjection.h" />
@@ -76,7 +75,6 @@
     <ClInclude Include="source\Renderer\RenderTarget.h" />
     <ClInclude Include="source\Renderer\RHI.h" />
     <ClInclude Include="source\Renderer\RootSignature.h" />
-    <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h" />
     <ClInclude Include="source\Renderer\DescriptorTable.h" />
     <ClInclude Include="source\Renderer\Skybox.h" />
     <ClInclude Include="source\Renderer\SkyboxMaterial.h" />
@@ -148,7 +146,6 @@
     <ClCompile Include="source\Renderer\RenderPass.cpp" />
     <ClCompile Include="source\Renderer\RenderTarget.cpp" />
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
-    <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp" />
     <ClCompile Include="source\Renderer\DescriptorTable.cpp" />
     <ClCompile Include="source\Renderer\PointLightIndicator.cpp" />
     <ClCompile Include="source\Renderer\Step.cpp" />

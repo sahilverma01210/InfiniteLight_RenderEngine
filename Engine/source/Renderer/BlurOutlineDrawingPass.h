@@ -10,6 +10,9 @@ namespace Renderer
 			:
 			RenderPass(std::move(name))
 		{
+			//RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
+			//RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
+
 			m_renderTargetVector.push_back(std::make_unique<RenderTarget>(gfx, fullWidth, fullHeight));
 		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override

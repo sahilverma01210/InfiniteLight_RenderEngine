@@ -4,21 +4,20 @@ namespace Renderer
 {
 	BlurOutlineRenderGraph::BlurOutlineRenderGraph(D3D12RHI& gfx, CameraContainer& cameraContainer)
 		:
-		RenderGraph(gfx),
-		m_cameraContainer(cameraContainer)
+		RenderGraph(gfx)
 	{
 		{
 			auto pass = std::make_unique<BufferClearPass>("clear");
-			pass->SetSinkLinkage("renderTargetBuffers", "$.backbuffer");
-			pass->SetSinkLinkage("depthStencilBuffer", "$.masterDepth");
+			pass->SetSinkLinkage("renderTargetBuffers", "$.renderTargetBuffers");
+			pass->SetSinkLinkage("depthStencilBuffer", "$.depthStencilBuffer");
 			AppendPass(std::move(pass));
 		}
 		{
-			auto pass = std::make_unique<ShadowMappingPass>(gfx, "shadowMap");
+			auto pass = std::make_unique<ShadowMappingPass>(gfx, "shadowMap", cameraContainer);
 			AppendPass(std::move(pass));
 		}
 		{
-			auto pass = std::make_unique<LambertianPass>(gfx, "lambertian");
+			auto pass = std::make_unique<LambertianPass>(gfx, "lambertian", cameraContainer);
 			pass->SetSinkLinkage("shadowMap", "shadowMap.map");
 			pass->SetSinkLinkage("renderTargetBuffers", "clear.renderTargetBuffers");
 			pass->SetSinkLinkage("depthStencilBuffer", "clear.depthStencilBuffer");
@@ -55,16 +54,8 @@ namespace Renderer
 			pass->SetSinkLinkage("depthStencilBuffer", "vertical.depthStencilBuffer");
 			AppendPass(std::move(pass));
 		}
-		SetSinkTarget("backbuffer", "wireframe.renderTargetBuffers");
+		SetSinkTarget("renderTargetBuffers", "wireframe.renderTargetBuffers");
 
 		Finalize();
-	}
-
-	void BlurOutlineRenderGraph::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
-	{
-		dynamic_cast<LambertianPass&>(FindPassByName("lambertian")).BindMainCamera(m_cameraContainer.GetActiveCamera());
-		dynamic_cast<ShadowMappingPass&>(FindPassByName("shadowMap")).BindShadowCamera(m_cameraContainer.GetLightingCamera());
-
-		RenderGraph::Execute(gfx);
 	}
 }

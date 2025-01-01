@@ -31,8 +31,8 @@ namespace Renderer
 	private:
 		CameraContainer m_cameraContainer;
 		std::unique_ptr<D3D12RHI> m_pRHI;
-		std::unique_ptr<BlurOutlineRenderGraph> m_blurRenderGraph;
-		std::unique_ptr<Model> m_sponza;
+		std::unique_ptr<RenderGraph> m_renderGraph;
+		std::unique_ptr<Model> m_model;
 		std::unique_ptr<PointLight> m_light;
 		std::unique_ptr<Skybox> m_skybox;
 		std::unique_ptr<PostProcessFilter> m_postProcessFilter;

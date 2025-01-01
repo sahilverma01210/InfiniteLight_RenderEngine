@@ -10,6 +10,9 @@ namespace Renderer
 			:
 			RenderPass(std::move(name))
 		{
+			//RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
+			//RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
+
 			m_renderTargetVector.push_back(std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight));
 		}
 

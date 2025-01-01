@@ -19,9 +19,5 @@ namespace Renderer
 	{
 	public:
 		BlurOutlineRenderGraph(D3D12RHI& gfx, CameraContainer& cameraContainer);
-		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG);
-
-	private:
-		CameraContainer& m_cameraContainer;
 	};
 }

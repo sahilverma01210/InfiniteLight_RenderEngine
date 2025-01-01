@@ -1,0 +1,55 @@
+{
+    "cameras": [
+        {
+            "name": "Camera A",
+            "position": {
+                "x": -13.5,
+                "y": 6.0,
+                "z": 3.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 1.5707963705062866,
+                "z": 0.0
+            }
+        },
+        {
+            "name": "Camera B",
+            "position": {
+                "x": -13.5,
+                "y": 28.799999237060547,
+                "z": -6.400000095367432
+            },
+            "rotation": {
+                "x": 0.22689281404018402,
+                "y": 1.0646508932113647,
+                "z": 0.0
+            }
+        }
+    ],
+    "config": {
+        "post-processing": true
+    },
+    "lights": [
+        {
+            "position": {
+                "x": 10.0,
+                "y": 5.0,
+                "z": 0.0
+            },
+            "type": "Point Light"
+        }
+    ],
+    "models": [
+        {
+            "name": "Sponza",
+            "path": "data\\models\\sponza\\sponza.obj",
+            "scale": 0.05000000074505806,
+            "transform": {
+                "x": 0.0,
+                "y": -7.0,
+                "z": 0.0
+            }
+        }
+    ]
+}

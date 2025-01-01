@@ -1,15 +1,16 @@
 #pragma once
 #include "RenderPass.h"
-#include "Camera.h"
+#include "CameraContainer.h"
 
 namespace Renderer
 {
 	class LambertianPass : public RenderPass
 	{
 	public:
-		LambertianPass(D3D12RHI& gfx, std::string name)
+		LambertianPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
 			:
-			RenderPass(std::move(name))
+			RenderPass(std::move(name)),
+			m_cameraContainer(cameraContainer)
 		{
 			RegisterSink(DirectBufferBucketSink<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
 			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
@@ -18,13 +19,9 @@ namespace Renderer
 			RegisterSource(DirectBufferBucketSource<RenderTarget>::Make("renderTargetBuffers", m_renderTargetVector));
 			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
 		}
-		void BindMainCamera(const Camera& cam) noexcept(!IS_DEBUG)
-		{
-			m_pMainCamera = &cam;
-		}
 		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
 		{
-			m_pMainCamera->Update();
+			m_cameraContainer.GetActiveCamera().Update();
 
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 			RenderPass::Execute(gfx);
@@ -32,7 +29,7 @@ namespace Renderer
 		}
 
 	private:
+		CameraContainer& m_cameraContainer;
 		std::shared_ptr<DepthCubeMapTextureBuffer> m_pShadowMap;
-		const Camera* m_pMainCamera = nullptr;
 	};
 }

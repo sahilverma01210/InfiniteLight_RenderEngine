@@ -328,9 +328,6 @@
     <ClInclude Include="source\Renderer\LambertianPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\OutlineDrawingPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
@@ -347,9 +344,6 @@
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\ScaleOutlineRenderGraph.h">
       <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TestModelProbe.h">
@@ -568,9 +562,6 @@
       <Filter>Source\Renderer\Private</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\ScaleOutlineRenderGraph.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DepthStencil.cpp">
