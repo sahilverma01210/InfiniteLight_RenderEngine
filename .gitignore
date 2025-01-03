@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Ignore Assimp and DirectXTex extracted files.
+external/Libraries/assimp
+packages/directxtex_desktop_win10.2024.6.5.1
+
 # User-specific files
 *.rsuser
 *.suo
