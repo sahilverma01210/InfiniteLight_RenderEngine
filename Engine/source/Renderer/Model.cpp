@@ -41,8 +41,10 @@ namespace Renderer
 
 		// parse materials
 		std::vector<std::shared_ptr<ImportMaterial>> materials;
-		for (size_t i = 0; i < pScene->mNumMaterials; i++)
+		for (size_t i = 1; i < pScene->mNumMaterials; i++)
 		{
+			//aiMaterial mat = *pScene->mMaterials[i];
+			//std::string name = mat.GetName().C_Str();
 			materials.push_back(std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString));
 		}
 
@@ -50,7 +52,8 @@ namespace Renderer
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		{
 			const auto& mesh = *pScene->mMeshes[i];
-			m_meshPtrs.push_back(std::make_shared<Mesh>(gfx, materials[mesh.mMaterialIndex].get(), mesh, scale));
+			//std::string name = mesh.mName.C_Str();
+			m_meshPtrs.push_back(std::make_shared<Mesh>(gfx, materials[mesh.mMaterialIndex - 1].get(), mesh, scale));
 		}
 
 		int nextId = 0;

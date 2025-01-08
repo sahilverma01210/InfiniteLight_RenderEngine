@@ -93,14 +93,12 @@ namespace Renderer
 					// common (pre)
 					RawLayout pscLayout;
 					bool hasAlpha = false;
-					bool hasTexture = false;
 					bool hasGlossAlpha = false;
 
 					// diffuse
 					{
 						if (material.GetTexture(aiTextureType_DIFFUSE, 0, &diffFileName) == aiReturn_SUCCESS)
 						{
-							hasTexture = true;
 							hasDiffuseMap = true;
 							shaderCode += L"Dif";
 							diffPath = rootPath + diffFileName.C_Str();
@@ -134,7 +132,6 @@ namespace Renderer
 
 						if (material.GetTexture(aiTextureType_SPECULAR, 0, &specFileName) == aiReturn_SUCCESS)
 						{
-							hasTexture = true;
 							hasSpecularMap = true;
 							shaderCode += L"Spc";
 							specPath = rootPath + specFileName.C_Str();
@@ -151,7 +148,6 @@ namespace Renderer
 					{
 						if (material.GetTexture(aiTextureType_NORMALS, 0, &normFileName) == aiReturn_SUCCESS)
 						{
-							hasTexture = true;
 							hasNormalMap = true;
 							shaderCode += L"Nrm";
 							normPath = rootPath + normFileName.C_Str();
@@ -207,19 +203,16 @@ namespace Renderer
 					params.numSamplerDescriptors = 2;
 
 					std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, params);
+					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData);
 
 					descriptorTable->AddConstantBufferView(gfx, m_lightShadowBindable->GetBuffer());
 					step.AddBindable(m_lightShadowBindable);
 					descriptorTable->AddConstantBufferView(gfx, m_lightBindable->GetBuffer());
 					step.AddBindable(m_lightBindable);
-
-					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData);
 					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-
 					step.AddBindable(constBuffer);
 
 					// Add Textures
-					if (hasTexture)
 					{
 						// Link Shadow Texture;
 						descriptorTable->AddShaderResourceView(gfx, gfx.GetDepthBuffer(), false, true);
@@ -258,90 +251,93 @@ namespace Renderer
 			}
 			m_techniques.push_back(std::move(phong));
 
-			// outline technique
-			Technique outline{ "Outline",Channel::main,false };
+			if (m_postProcessEnabled)
 			{
-				// 1. Outline Mask Step
-				Step mask("outlineMask");
+				// outline technique
+				Technique outline{ "Outline",Channel::main,false };
 				{
-					// Define the vertex input layout.
-					std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
-					D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
-
-					for (size_t i = 0; i < vec.size(); ++i) {
-						inputElementDescs[i] = vec[i];
-					}
-
-					// Add Pipeline State Obejct
+					// 1. Outline Mask Step
+					Step mask("outlineMask");
 					{
-						ID3DBlob* vertexShader;
+						// Define the vertex input layout.
+						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
+						D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 
-						// Compile Shaders.
-						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+						for (size_t i = 0; i < vec.size(); ++i) {
+							inputElementDescs[i] = vec[i];
+						}
 
-						PipelineDescription maskPipelineDesc{};
-						maskPipelineDesc.numConstants = 1;
-						maskPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						maskPipelineDesc.depthStencilMode = Mode::Write;
-						maskPipelineDesc.numElements = vec.size();
-						maskPipelineDesc.inputElementDescs = inputElementDescs;
-						maskPipelineDesc.vertexShader = vertexShader;
+						// Add Pipeline State Obejct
+						{
+							ID3DBlob* vertexShader;
 
-						m_pipelineDesc["outlineMask"] = maskPipelineDesc;
+							// Compile Shaders.
+							D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+
+							PipelineDescription maskPipelineDesc{};
+							maskPipelineDesc.numConstants = 1;
+							maskPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+							maskPipelineDesc.depthStencilMode = Mode::Write;
+							maskPipelineDesc.numElements = vec.size();
+							maskPipelineDesc.inputElementDescs = inputElementDescs;
+							maskPipelineDesc.vertexShader = vertexShader;
+
+							m_pipelineDesc["outlineMask"] = maskPipelineDesc;
+						}
 					}
-				}
-				outline.AddStep(std::move(mask));
+					outline.AddStep(std::move(mask));
 
-				// 2. Outline Draw Step
-				Step draw("outlineDraw");
-				{
-					// Define the vertex input layout.
-					std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
-					D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
-
-					for (size_t i = 0; i < vec.size(); ++i) {
-						inputElementDescs[i] = vec[i];
-					}
-
-					// Add Pipeline State Obejct
+					// 2. Outline Draw Step
+					Step draw("outlineDraw");
 					{
-						ID3DBlob* vertexShader;
-						ID3DBlob* pixelShader;
+						// Define the vertex input layout.
+						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
+						D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 
-						// Compile Shaders.
-						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+						for (size_t i = 0; i < vec.size(); ++i) {
+							inputElementDescs[i] = vec[i];
+						}
 
-						PipelineDescription drawPipelineDesc{};
-						drawPipelineDesc.vertexShader = vertexShader;
-						drawPipelineDesc.pixelShader = pixelShader;
-						drawPipelineDesc.inputElementDescs = inputElementDescs;
-						drawPipelineDesc.numElements = vec.size();
-						drawPipelineDesc.numConstants = 1;
-						drawPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						drawPipelineDesc.numConstantBufferViews = 1;
-						drawPipelineDesc.backFaceCulling = true;
-						drawPipelineDesc.depthUsage = DepthUsage::None;
+						// Add Pipeline State Obejct
+						{
+							ID3DBlob* vertexShader;
+							ID3DBlob* pixelShader;
 
-						m_pipelineDesc["outlineDraw"] = drawPipelineDesc;
+							// Compile Shaders.
+							D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+							D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+
+							PipelineDescription drawPipelineDesc{};
+							drawPipelineDesc.vertexShader = vertexShader;
+							drawPipelineDesc.pixelShader = pixelShader;
+							drawPipelineDesc.inputElementDescs = inputElementDescs;
+							drawPipelineDesc.numElements = vec.size();
+							drawPipelineDesc.numConstants = 1;
+							drawPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+							drawPipelineDesc.numConstantBufferViews = 1;
+							drawPipelineDesc.backFaceCulling = true;
+							drawPipelineDesc.depthUsage = DepthUsage::None;
+
+							m_pipelineDesc["outlineDraw"] = drawPipelineDesc;
+						}
+
+						DescriptorTable::TableParams params;
+						params.resourceParameterIndex = 1;
+						params.numCbvSrvUavDescriptors = 1;
+
+						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
+
+						SolidCB data = { XMFLOAT3{ 1.0f,0.4f,0.4f } };
+						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
+						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+
+						draw.AddBindable(constBuffer);
+						draw.AddBindable(descriptorTable);
 					}
-
-					DescriptorTable::TableParams params;
-					params.resourceParameterIndex = 1;
-					params.numCbvSrvUavDescriptors = 1;
-
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
-
-					SolidCB data = { XMFLOAT3{ 1.0f,0.4f,0.4f } };
-					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
-					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-
-					draw.AddBindable(constBuffer);
-					draw.AddBindable(descriptorTable);
+					outline.AddStep(std::move(draw));
 				}
-				outline.AddStep(std::move(draw));
+				m_techniques.push_back(std::move(outline));
 			}
-			m_techniques.push_back(std::move(outline));
 		}
 		VertexLayout& GetVertexLayout()
 		{

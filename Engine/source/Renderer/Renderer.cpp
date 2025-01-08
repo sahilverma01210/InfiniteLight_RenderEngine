@@ -6,55 +6,14 @@ namespace Renderer
 	{
 		m_pRHI = std::move(std::make_unique<D3D12RHI>(hWnd));
 
-		/* 
-		// Store Scene Data into JSON File.
-		{
-			json scene;
-
-			json light;
-			light["type"] = "Point Light";
-			light["position"] = { {"x", 10.0f}, {"y", 5.0f}, {"z", 0.0f} };
-
-			scene["lights"].push_back(light);
-
-			json cameraA;
-			cameraA["name"] = "Camera A";
-			cameraA["position"] = { {"x", -13.5f}, {"y", 6.0f}, {"z", 3.5f} };
-			cameraA["rotation"] = { {"x", 0.0f}, {"y", PI / 2.0f}, {"z", 0.0f} };
-
-			json cameraB;
-			cameraB["name"] = "Camera B";
-			cameraB["position"] = { {"x", -13.5f}, {"y", 28.8f}, {"z", -6.4f} };
-			cameraB["rotation"] = { {"x", PI / 180.0f * 13.0f}, {"y", PI / 180.0f * 61.0f}, {"z", 0.0f} };
-
-			scene["cameras"].push_back(cameraA);
-			scene["cameras"].push_back(cameraB);
-
-			json sponza;
-			sponza["name"] = "Sponza";
-			sponza["path"] = "data\\models\\sponza\\sponza.obj";
-			sponza["transform"] = { {"x", 0.0f}, {"y", -7.0f}, {"z", 0.0f} };
-			sponza["scale"] = 1.0f / 20.0f;
-
-			scene["models"].push_back(sponza);
-
-			json config;
-			config["post-processing"] = true;
-
-			scene["config"] = config;
-
-			// Save JSON to a file.
-			std::ofstream outFile("data\\scenes\\sponza_scene.json");
-			if (outFile.is_open()) {
-				outFile << scene.dump(4); // Pretty print with an indent of 4 spaces
-				outFile.close();
-			}
-		}
-		*/
-
 		// Retieve Scene data from JSON file.
 		std::ifstream f("data\\scenes\\sponza_scene.json");
 		json scene = json::parse(f);
+
+		//m_postProcessingEnabled = scene["config"]["post-processing"].get<bool>();
+		m_postProcessingEnabled = false;
+
+		//ILMaterial::TogglePostProcessing(m_postProcessingEnabled);
 
 		// Add Lights
 		{
@@ -87,7 +46,11 @@ namespace Renderer
 			}
 		}
 
-		m_renderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI, m_cameraContainer));
+		// Create Render Graph
+		{
+			if (m_postProcessingEnabled) m_renderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI, m_cameraContainer));
+			else m_renderGraph = std::move(std::make_unique<DefaultRenderGraph>(*m_pRHI, m_cameraContainer));
+		}
 
 		// Add Models
 		{
@@ -99,17 +62,22 @@ namespace Renderer
 				json jsonTransform = model["transform"];
 				XMFLOAT3 transform = XMFLOAT3{ jsonTransform["x"].get<float>(), jsonTransform["y"].get<float>() , jsonTransform["z"].get<float>() };
 
-				m_model = std::move(std::make_unique<Model>(*m_pRHI, model["path"].get<std::string>(), transform, model["scale"].get<float>()));
+				m_models.push_back(std::move(std::make_unique<Model>(*m_pRHI, model["path"].get<std::string>(), transform, model["scale"].get<float>())));
 			}
 		}
 
 		m_skybox = std::move(std::make_unique<Skybox>(*m_pRHI));
-		m_postProcessFilter = std::move(std::make_unique<PostProcessFilter>(*m_pRHI));
-		
-		m_postProcessFilter->LinkTechniques(*m_renderGraph);
+
+		// Add Post Processing Filter
+		if (m_postProcessingEnabled)
+		{
+			m_postProcessFilter = std::move(std::make_unique<PostProcessFilter>(*m_pRHI));		
+			m_postProcessFilter->LinkTechniques(*m_renderGraph);
+		}
+
 		m_skybox->LinkTechniques(*m_renderGraph);
 		m_light->LinkTechniques(*m_renderGraph);
-		m_model->LinkTechniques(*m_renderGraph);
+		for(size_t i = 0; i < m_models.size(); i++) m_models[i]->LinkTechniques(*m_renderGraph);
 		m_cameraContainer.LinkTechniques(*m_renderGraph);
 	}
 
@@ -126,13 +94,17 @@ namespace Renderer
 
 	void ILRenderer::RenderWorld()
 	{
-		m_postProcessFilter->Submit(Channel::main);
+		if (m_postProcessingEnabled) m_postProcessFilter->Submit(Channel::main);
+
 		m_skybox->Submit(Channel::main);
 		m_light->Submit(Channel::main);
 		m_cameraContainer.Submit(Channel::main);
 
-		m_model->Submit(Channel::main);
-		m_model->Submit(Channel::shadow);
+		for (size_t i = 0; i < m_models.size(); i++)
+		{
+			m_models[i]->Submit(Channel::main);
+			m_models[i]->Submit(Channel::shadow);
+		}
 
 		m_light->Update(*m_pRHI, m_cameraContainer.GetActiveCamera().GetCameraMatrix());
 
@@ -141,11 +113,11 @@ namespace Renderer
 
 	void ILRenderer::RenderUI()
 	{
-		static MP modelProbe{ "Model" };
-		if (modelProbe.m_imGUIwndOpen) modelProbe.SpawnWindow(*m_model);
-		if (m_cameraContainer.m_imGUIwndOpen) m_cameraContainer.SpawnWindow(*m_pRHI);
+		//static MP modelProbe{ "Model" };
+		//if (modelProbe.m_imGUIwndOpen) modelProbe.SpawnWindow(*m_model);
+		//if (m_cameraContainer.m_imGUIwndOpen) m_cameraContainer.SpawnWindow(*m_pRHI);
 		if (m_light->m_imGUIwndOpen) m_light->SpawnWindow();
-		//if (m_postProcessFilter->m_imGUIwndOpen) m_postProcessFilter->SpawnWindow(*m_pRHI); // To be implemented.
+		//if (m_postProcessingEnabled && m_postProcessFilter->m_imGUIwndOpen) m_postProcessFilter->SpawnWindow(*m_pRHI); // To be implemented.
 	}
 
 	void ILRenderer::EndFrame()

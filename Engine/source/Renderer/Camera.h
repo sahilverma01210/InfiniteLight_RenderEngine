@@ -38,11 +38,13 @@ namespace Renderer
 		std::string m_name;
 		float m_travelSpeed = 12.0f;
 		float m_rotationSpeed = 0.004f;
+		CameraProjection::Projection m_projection;
+		CameraProjection::Projection m_homeProjection;
 		Transform m_transform;
 		Transform m_homeTransform;
 		bool m_enableCameraIndicator = false;
-		bool m_enableFrustumIndicator = false;
-		CameraProjection m_projection;
-		CameraIndicator m_indicator;
+		bool m_enableCameraProjection = false;
+		CameraProjection m_cameraProjection;
+		CameraIndicator m_cameraIndicator;
 	};
 }

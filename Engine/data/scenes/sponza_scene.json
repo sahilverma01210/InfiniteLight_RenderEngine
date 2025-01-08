@@ -43,11 +43,31 @@
     "models": [
         {
             "name": "Sponza",
-            "path": "data\\models\\sponza\\sponza.obj",
+            "path": "data\\models\\sponza\\Obj\\sponza.obj",
             "scale": 0.05000000074505806,
             "transform": {
                 "x": 0.0,
                 "y": -7.0,
+                "z": 0.0
+            }
+        },
+        {
+            "name": "Muro",
+            "path": "data\\models\\muro\\muro.obj",
+            "scale": 1.0,
+            "transform": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "name": "Gobber",
+            "path": "data\\models\\gobber\\GoblinX.obj",
+            "scale": 1.0,
+            "transform": {
+                "x": 0.0,
+                "y": 0.0,
                 "z": 0.0
             }
         }

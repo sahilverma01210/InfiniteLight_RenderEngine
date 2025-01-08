@@ -63,52 +63,55 @@ namespace Renderer
 				}
 				lineWire.AddStep(std::move(unoccluded));
 
-				Step occluded("wireframe");
+				if (m_wireframeEnabled)
 				{
-					// Add Pipeline State Obejct
+					Step occluded("wireframe");
 					{
-						ID3DBlob* vertexShader;
-						ID3DBlob* pixelShader;
+						// Add Pipeline State Obejct
+						{
+							ID3DBlob* vertexShader;
+							ID3DBlob* pixelShader;
 
-						// Compile Shaders.
-						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+							// Compile Shaders.
+							D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+							D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
 
-						// Define the vertex input layout.
-						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = layout.GetD3DLayout();
-						D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+							// Define the vertex input layout.
+							std::vector<D3D12_INPUT_ELEMENT_DESC> vec = layout.GetD3DLayout();
+							D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
 
-						for (size_t i = 0; i < vec.size(); ++i) {
-							inputElementDescs[i] = vec[i];
+							for (size_t i = 0; i < vec.size(); ++i) {
+								inputElementDescs[i] = vec[i];
+							}
+
+							PipelineDescription lambertianPipelineDesc{};
+							lambertianPipelineDesc.numConstants = 1;
+							lambertianPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+							lambertianPipelineDesc.numConstantBufferViews = 1;
+							lambertianPipelineDesc.numElements = vec.size();
+							lambertianPipelineDesc.inputElementDescs = inputElementDescs;
+							lambertianPipelineDesc.vertexShader = vertexShader;
+							lambertianPipelineDesc.pixelShader = pixelShader;
+							lambertianPipelineDesc.depthStencilMode = Mode::DepthReversed;
+
+							m_pipelineDesc["wireframe"] = lambertianPipelineDesc;
 						}
 
-						PipelineDescription lambertianPipelineDesc{};
-						lambertianPipelineDesc.numConstants = 1;
-						lambertianPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						lambertianPipelineDesc.numConstantBufferViews = 1;
-						lambertianPipelineDesc.numElements = vec.size();
-						lambertianPipelineDesc.inputElementDescs = inputElementDescs;
-						lambertianPipelineDesc.vertexShader = vertexShader;
-						lambertianPipelineDesc.pixelShader = pixelShader;
-						lambertianPipelineDesc.depthStencilMode = Mode::DepthReversed;
+						DescriptorTable::TableParams params;
+						params.resourceParameterIndex = 1;
+						params.numCbvSrvUavDescriptors = 1;
 
-						m_pipelineDesc["wireframe"] = lambertianPipelineDesc;
+						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
+
+						SolidCB data = { XMFLOAT3{ 0.25f,0.08f,0.08f } };
+						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
+						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+
+						occluded.AddBindable(constBuffer);
+						occluded.AddBindable(descriptorTable);
 					}
-
-					DescriptorTable::TableParams params;
-					params.resourceParameterIndex = 1;
-					params.numCbvSrvUavDescriptors = 1;
-
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
-
-					SolidCB data = { XMFLOAT3{ 0.25f,0.08f,0.08f } };
-					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
-					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-
-					occluded.AddBindable(constBuffer);
-					occluded.AddBindable(descriptorTable);
+					lineWire.AddStep(std::move(occluded));
 				}
-				lineWire.AddStep(std::move(occluded));
 			}
 			m_techniques.push_back(std::move(lineWire));
 		}

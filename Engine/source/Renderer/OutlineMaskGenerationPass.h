@@ -13,5 +13,9 @@ namespace Renderer
 			RegisterSink(DirectBufferSink<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
 			RegisterSource(DirectBufferSource<DepthStencil>::Make("depthStencilBuffer", m_depthStencil));
 		}
+		void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override
+		{
+			RenderPass::Execute(gfx);
+		}
 	};
 }

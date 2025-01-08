@@ -11,13 +11,16 @@ namespace Renderer
 		m_homeTransform(transform),
 		m_transform(transform),
 		m_tethered(tethered),
-		m_projection(gfx, CameraProjection::Projection{ 1.0f, 9.0f / 16.0f, 0.5f, 400.0f }),
-		m_indicator(gfx)
+		m_homeProjection(CameraProjection::Projection{ 1.0f, 9.0f / 16.0f, 0.5f, 400.0f }),
+		m_cameraProjection(gfx, m_homeProjection),
+		m_cameraIndicator(gfx)
 	{
-		m_indicator.SetPos(m_transform.position);
-		m_projection.SetPos(m_transform.position);
-		m_indicator.SetRotation(m_transform.rotation);
-		m_projection.SetRotation(m_transform.rotation);
+		m_cameraIndicator.SetPos(m_transform.position);
+		m_cameraProjection.SetPos(m_transform.position);
+		m_cameraIndicator.SetRotation(m_transform.rotation);
+		m_cameraProjection.SetRotation(m_transform.rotation);
+
+		m_projection = m_homeProjection;
 	}
 
 	void Camera::Update(bool has360View, UINT direction) const noexcept(!IS_DEBUG)
@@ -43,7 +46,7 @@ namespace Renderer
 
 	XMMATRIX Camera::GetProjectionMatrix() const noexcept(!IS_DEBUG)
 	{
-		return m_projection.GetProjectionMatrix();
+		return XMMatrixPerspectiveLH(m_projection.width, m_projection.height, m_projection.nearZ, m_projection.farZ);
 	}
 
 	XMMATRIX Camera::Get360CameraMatrix(UINT directionIndex) const noexcept(!IS_DEBUG)
@@ -85,6 +88,7 @@ namespace Renderer
 	{
 		bool rotDirty = false;
 		bool posDirty = false;
+		bool projDirty = false;
 		const auto dcheck = [](bool d, bool& carry) { carry = carry || d; };
 		if (!m_tethered)
 		{
@@ -96,22 +100,30 @@ namespace Renderer
 		ImGui::Text("Orientation");
 		dcheck(ImGui::SliderAngle("Pitch", &m_transform.rotation.x, 0.995f * -90.0f, 0.995f * 90.0f), rotDirty);
 		dcheck(ImGui::SliderAngle("Yaw", &m_transform.rotation.x, -180.0f, 180.0f), rotDirty);
-		m_projection.RenderWidgets(gfx);
+		ImGui::Text("Projection");
+		dcheck(ImGui::SliderFloat("Width", &m_projection.width, 0.01f, 4.0f, "%.2f"), projDirty);
+		dcheck(ImGui::SliderFloat("Height", &m_projection.height, 0.01f, 4.0f, "%.2f"), projDirty);
+		dcheck(ImGui::SliderFloat("Near Z", &m_projection.nearZ, 0.01f, m_projection.farZ - 0.01f, "%.2f"), projDirty);
+		dcheck(ImGui::SliderFloat("Far Z", &m_projection.farZ, m_projection.nearZ + 0.01f, 400.0f, "%.2f"), projDirty);
 		ImGui::Checkbox("Camera Indicator", &m_enableCameraIndicator);
-		ImGui::Checkbox("Frustum Indicator", &m_enableFrustumIndicator);
+		ImGui::Checkbox("Camera Projection", &m_enableCameraProjection);
 		if (ImGui::Button("Reset"))
 		{
 			Reset(gfx);
 		}
 		if (rotDirty)
 		{
-			m_indicator.SetRotation(m_transform.rotation);
-			m_projection.SetRotation(m_transform.rotation);
+			m_cameraIndicator.SetRotation(m_transform.rotation);
+			m_cameraProjection.SetRotation(m_transform.rotation);
 		}
 		if (posDirty)
 		{
-			m_indicator.SetPos(m_transform.position);
-			m_projection.SetPos(m_transform.position);
+			m_cameraIndicator.SetPos(m_transform.position);
+			m_cameraProjection.SetPos(m_transform.position);
+		}
+		if (projDirty)
+		{
+			m_cameraProjection.SetVertices(gfx, m_projection);
 		}
 	}
 
@@ -120,15 +132,17 @@ namespace Renderer
 		if (!m_tethered)
 		{
 			m_transform.position = m_homeTransform.position;
-			m_indicator.SetPos(m_transform.position);
-			m_projection.SetPos(m_transform.position);
+			m_cameraIndicator.SetPos(m_transform.position);
+			m_cameraProjection.SetPos(m_transform.position);
 		}
 
 		m_transform.rotation = m_homeTransform.rotation;
 
-		m_indicator.SetRotation(m_transform.rotation);
-		m_projection.SetRotation(m_transform.rotation);
-		m_projection.Reset(gfx);
+		m_cameraIndicator.SetRotation(m_transform.rotation);
+		m_cameraProjection.SetRotation(m_transform.rotation);
+		m_projection = m_homeProjection;
+
+		m_cameraProjection.SetVertices(gfx, m_projection);
 	}
 
 	void Camera::Rotate(float dx, float dy) noexcept(!IS_DEBUG)
@@ -136,8 +150,8 @@ namespace Renderer
 		m_transform.rotation.x = std::clamp(m_transform.rotation.x + dy * m_rotationSpeed, 0.995f * -PI / 2.0f, 0.995f * PI / 2.0f);
 		m_transform.rotation.y = wrap_angle(m_transform.rotation.y + dx * m_rotationSpeed);
 
-		m_indicator.SetRotation(m_transform.rotation);
-		m_projection.SetRotation(m_transform.rotation);
+		m_cameraIndicator.SetRotation(m_transform.rotation);
+		m_cameraProjection.SetRotation(m_transform.rotation);
 	}
 
 	void Camera::Translate(XMFLOAT3 translation) noexcept(!IS_DEBUG)
@@ -154,8 +168,8 @@ namespace Renderer
 				m_transform.position.y + translation.y,
 				m_transform.position.z + translation.z
 			};
-			m_indicator.SetPos(m_transform.position);
-			m_projection.SetPos(m_transform.position);
+			m_cameraIndicator.SetPos(m_transform.position);
+			m_cameraProjection.SetPos(m_transform.position);
 		}
 	}
 
@@ -167,8 +181,8 @@ namespace Renderer
 	void Camera::SetPos(const XMFLOAT3& pos) noexcept(!IS_DEBUG)
 	{
 		this->m_transform.position = pos;
-		m_indicator.SetPos(pos);
-		m_projection.SetPos(pos);
+		m_cameraIndicator.SetPos(pos);
+		m_cameraProjection.SetPos(pos);
 	}
 
 	const std::string& Camera::GetName() const noexcept(!IS_DEBUG)
@@ -178,19 +192,19 @@ namespace Renderer
 
 	void Camera::LinkTechniques(RenderGraph& rg)
 	{
-		m_indicator.LinkTechniques(rg);
-		m_projection.LinkTechniques(rg);
+		m_cameraIndicator.LinkTechniques(rg);
+		m_cameraProjection.LinkTechniques(rg);
 	}
 
 	void Camera::Submit(size_t channel) const
 	{
 		if (m_enableCameraIndicator)
 		{
-			m_indicator.Submit(channel);
+			m_cameraIndicator.Submit(channel);
 		}
-		if (m_enableFrustumIndicator)
+		if (m_enableCameraProjection)
 		{
-			m_projection.Submit(channel);
+			m_cameraProjection.Submit(channel);
 		}
 	}
 }

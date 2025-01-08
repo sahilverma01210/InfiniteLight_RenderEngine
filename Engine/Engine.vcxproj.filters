@@ -92,9 +92,6 @@
     <Filter Include="Source\Renderer\Public\RenderGraph\Graphs">
       <UniqueIdentifier>{87f3a57c-42a0-461d-a1c9-01dd58ab1be6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\RenderGraph\Graphs">
-      <UniqueIdentifier>{2d0fa85d-1a76-4674-a3f0-8b0972856b2f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer\Public\RenderGraph\Probes">
       <UniqueIdentifier>{b0ca8af6-409a-4814-8383-5179285b664d}</UniqueIdentifier>
     </Filter>
@@ -430,6 +427,9 @@
     <ClInclude Include="source\Runtime\IOManager.h">
       <Filter>Source\Runtime\Public\IO</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\DefaultRenderGraph.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
@@ -560,9 +560,6 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\Renderer.cpp">
       <Filter>Source\Renderer\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\BlurOutlineRenderGraph.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\Graphs</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\DepthStencil.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
