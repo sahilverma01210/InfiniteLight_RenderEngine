@@ -4,10 +4,10 @@
 
 namespace Renderer
 {
-	class LambertianPass : public RenderPass
+	class PhongPass : public RenderPass
 	{
 	public:
-		LambertianPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
+		PhongPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
 			:
 			RenderPass(std::move(name)),
 			m_cameraContainer(cameraContainer)

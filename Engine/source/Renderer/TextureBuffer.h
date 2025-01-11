@@ -9,18 +9,18 @@ namespace Renderer
 	class TextureBuffer : public Bindable
 	{
 	public:
-		TextureBuffer(D3D12RHI& gfx, const WCHAR* filename);
+		TextureBuffer(D3D12RHI& gfx, std::string filename);
 		~TextureBuffer() = default;
 		ID3D12Resource* GetBuffer();
 		bool HasAlpha() const noexcept(!IS_DEBUG);
 		bool HasAlphaChannel(const Image& image);
-		static std::shared_ptr<TextureBuffer> Resolve(D3D12RHI& gfx, const WCHAR* filename);
-		static std::string GenerateUID(const WCHAR* filename);
+		static std::shared_ptr<TextureBuffer> Resolve(D3D12RHI& gfx, std::string filename);
+		static std::string GenerateUID(std::string filename);
 		std::string GetUID() const noexcept(!IS_DEBUG) override;
 
 	private:
 		bool m_hasAlpha = false;
-		const WCHAR* m_filename;
+		std::string m_filename;
 		ComPtr<ID3D12Resource> m_texureBuffer;
 	};
 

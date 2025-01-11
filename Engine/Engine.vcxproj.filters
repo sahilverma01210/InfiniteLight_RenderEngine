@@ -322,7 +322,7 @@
     <ClInclude Include="source\Renderer\HorizontalBlurPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\LambertianPass.h">
+    <ClInclude Include="source\Renderer\PhongPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
@@ -639,36 +639,6 @@
       <Filter>Shaders\HLSL\Phong Shading</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Phong_VS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDif_PS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDif_VS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_PS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifMskSpcNrm_VS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifNrm_PS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifNrm_VS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpc_PS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpc_VS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_PS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PhongDifSpcNrm_VS.hlsl">
       <Filter>Shaders\HLSL\Phong Shading</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Skybox_PS.hlsl">

@@ -2,20 +2,28 @@
 
 namespace Renderer
 {
-    TextureBuffer::TextureBuffer(D3D12RHI& gfx, const WCHAR* filename)
+    TextureBuffer::TextureBuffer(D3D12RHI& gfx, std::string filename)
         :
         m_filename(filename)
     {
         INFOMAN(gfx);
 
-        // load image data from disk 
-        ScratchImage image;
-        D3D12RHI_THROW_INFO(LoadFromWICFile(filename, WIC_FLAGS_IGNORE_SRGB, nullptr, image));
-
         // generate mip chain 
         ScratchImage mipChain;
-        D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain));
-        m_hasAlpha = !mipChain.IsAlphaAllOpaque();
+
+        if (filename != "NULL_TEX")
+        {
+            // load image data from disk 
+            ScratchImage image;
+            D3D12RHI_THROW_INFO(LoadFromWICFile(std::wstring(filename.begin(), filename.end()).c_str(), WIC_FLAGS_IGNORE_SRGB, nullptr, image));
+
+            D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain));
+            m_hasAlpha = !mipChain.IsAlphaAllOpaque();
+        }
+        else
+        {
+            mipChain.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, 512, 512, 1, 1);
+        }
 
         // collect subresource data
         std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
@@ -131,18 +139,15 @@ namespace Renderer
         }
     }
 
-    std::shared_ptr<TextureBuffer> TextureBuffer::Resolve(D3D12RHI& gfx, const WCHAR* filename)
+    std::shared_ptr<TextureBuffer> TextureBuffer::Resolve(D3D12RHI& gfx, std::string filename)
     {
         return Codex::Resolve<TextureBuffer>(gfx, filename);
     }
 
-    std::string TextureBuffer::GenerateUID(const WCHAR* filename)
+    std::string TextureBuffer::GenerateUID(std::string filename)
     {
-        std::wstring wstringFileName = std::wstring(filename);
-        std::string stringFileName = std::string(wstringFileName.begin(), wstringFileName.end());
-
         using namespace std::string_literals;
-        return typeid(TextureBuffer).name() + "#"s + stringFileName;
+        return typeid(TextureBuffer).name() + "#"s + filename;
     }
 
     std::string TextureBuffer::GetUID() const noexcept(!IS_DEBUG)

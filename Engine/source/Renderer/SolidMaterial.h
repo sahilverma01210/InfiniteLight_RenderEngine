@@ -15,7 +15,7 @@ namespace Renderer
 		{
 			Technique solid{ "solid", Channel::main};
 			{
-				Step only("lambertian");
+				Step only("phong_shading");
 				{
 					// Add Pipeline State Obejct
 					{
@@ -23,8 +23,8 @@ namespace Renderer
 						ID3DBlob* pixelShader;
 
 						// Compile Shaders.
-						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"Solid_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", SHADER_DEBUG, 0, &vertexShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"Solid_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", SHADER_DEBUG, 0, &pixelShader, nullptr);
 
 						// Define the vertex input layout.
 						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = layout.GetD3DLayout();
@@ -34,16 +34,16 @@ namespace Renderer
 							inputElementDescs[i] = vec[i];
 						}
 
-						PipelineDescription lambertianPipelineDesc{};
-						lambertianPipelineDesc.numConstants = 1;
-						lambertianPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						lambertianPipelineDesc.numConstantBufferViews = 1;
-						lambertianPipelineDesc.numElements = vec.size();
-						lambertianPipelineDesc.inputElementDescs = inputElementDescs;
-						lambertianPipelineDesc.vertexShader = vertexShader;
-						lambertianPipelineDesc.pixelShader = pixelShader;
+						PipelineDescription phongPipelineDesc{};
+						phongPipelineDesc.numConstants = 1;
+						phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+						phongPipelineDesc.numConstantBufferViews = 1;
+						phongPipelineDesc.numElements = vec.size();
+						phongPipelineDesc.inputElementDescs = inputElementDescs;
+						phongPipelineDesc.vertexShader = vertexShader;
+						phongPipelineDesc.pixelShader = pixelShader;
 
-						m_pipelineDesc["lambertian"] = lambertianPipelineDesc;
+						m_pipelineDesc["phong_shading"] = phongPipelineDesc;
 					}
 
 					DescriptorTable::TableParams params;

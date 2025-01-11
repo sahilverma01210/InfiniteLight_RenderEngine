@@ -16,7 +16,9 @@ namespace Renderer
 			float specularGloss = 0.0f;
 			float specularWeight = 0.0f;
 			float normalMapWeight = 0.0f;
+			bool useDiffuseAlpha = false;
 			bool useGlossAlpha = false;
+			bool useDiffuseMap = false;
 			bool useSpecularMap = false;
 			bool useNormalMap = false;
 		};
@@ -32,6 +34,9 @@ namespace Renderer
 		{
 			m_vtxLayout.Append(VertexLayout::Position3D);
 			m_vtxLayout.Append(VertexLayout::Normal);
+			m_vtxLayout.Append(VertexLayout::Texture2D);
+			m_vtxLayout.Append(VertexLayout::Tangent);
+			m_vtxLayout.Append(VertexLayout::Bitangent);
 
 			// shadow map technique
 			Technique map{ "ShadowMap",Channel::shadow,true };
@@ -73,43 +78,36 @@ namespace Renderer
 			// phong technique
 			Technique phong{ "Phong",Channel::main };
 			{
-				// 1. Lambertian Step
-				Step step("lambertian");
+				// 1. Phong Shading Step
+				Step step("phong_shading");
 				{
 					UINT numSRVDescriptors = 0;
 
 					std::string diffPath, specPath, normPath;
 					std::shared_ptr<TextureBuffer> diffTex, specTex, normTex;
-					std::wstring vertexShaderName, pixelShaderName;
-
-					bool hasSpecularMap = false;
-					bool hasNormalMap = false;
-					bool hasDiffuseMap = false;
 
 					const auto rootPath = path.parent_path().string() + "\\";
 
-					std::wstring shaderCode = L"Phong";
 					aiString diffFileName, specFileName, normFileName;
 					// common (pre)
 					RawLayout pscLayout;
-					bool hasAlpha = false;
-					bool hasGlossAlpha = false;
+					std::vector<D3D_SHADER_MACRO> macros;
 
 					// diffuse
 					{
 						if (material.GetTexture(aiTextureType_DIFFUSE, 0, &diffFileName) == aiReturn_SUCCESS)
 						{
-							hasDiffuseMap = true;
-							shaderCode += L"Dif";
+							m_phongData.useDiffuseMap = true;
 							diffPath = rootPath + diffFileName.C_Str();
-							diffTex = std::move(TextureBuffer::Resolve(gfx, std::wstring(diffPath.begin(), diffPath.end()).c_str()));
+							diffTex = std::move(TextureBuffer::Resolve(gfx, diffPath));
 							if (diffTex->HasAlpha())
 							{
-								hasAlpha = true;
-								shaderCode += L"Msk";
+								m_phongData.useDiffuseAlpha = true;
 							}
-							m_vtxLayout.Append(VertexLayout::Texture2D);
+							macros.push_back({ "USE_DIFFUSE_MAP", "1" });
 							numSRVDescriptors++;
+
+							m_phongData.useDiffuseMap = true;
 						}
 						else
 						{
@@ -132,15 +130,13 @@ namespace Renderer
 
 						if (material.GetTexture(aiTextureType_SPECULAR, 0, &specFileName) == aiReturn_SUCCESS)
 						{
-							hasSpecularMap = true;
-							shaderCode += L"Spc";
+							m_phongData.useSpecularMap = true;
 							specPath = rootPath + specFileName.C_Str();
-							specTex = std::move(TextureBuffer::Resolve(gfx, std::wstring(specPath.begin(), specPath.end()).c_str()));
-							hasGlossAlpha = specTex->HasAlpha();
-							m_vtxLayout.Append(VertexLayout::Texture2D);
+							specTex = std::move(TextureBuffer::Resolve(gfx, specPath));
+							m_phongData.useGlossAlpha = specTex->HasAlpha();
+							macros.push_back({ "USE_SPECULAR_MAP", "1" });
 							numSRVDescriptors++;
 
-							m_phongData.useGlossAlpha = hasGlossAlpha;
 							m_phongData.useSpecularMap = true;
 						}
 					}
@@ -148,13 +144,10 @@ namespace Renderer
 					{
 						if (material.GetTexture(aiTextureType_NORMALS, 0, &normFileName) == aiReturn_SUCCESS)
 						{
-							hasNormalMap = true;
-							shaderCode += L"Nrm";
+							m_phongData.useNormalMap = true;
 							normPath = rootPath + normFileName.C_Str();
-							normTex = std::move(TextureBuffer::Resolve(gfx, std::wstring(normPath.begin(), normPath.end()).c_str()));
-							m_vtxLayout.Append(VertexLayout::Texture2D);
-							m_vtxLayout.Append(VertexLayout::Tangent);
-							m_vtxLayout.Append(VertexLayout::Bitangent);
+							normTex = std::move(TextureBuffer::Resolve(gfx, normPath));
+							macros.push_back({ "USE_NORMAL_MAP", "1" });
 							numSRVDescriptors++;
 
 							m_phongData.useNormalMap = true;
@@ -175,9 +168,15 @@ namespace Renderer
 						ID3DBlob* vertexShader;
 						ID3DBlob* pixelShader;
 
+						ID3DBlob* errorBlob;
+
+						macros.push_back({ nullptr, nullptr }); // Null-terminate the array
+
 						// Compile Shaders.
-						D3DCompileFromFile(GetAssetFullPath((shaderCode + L"_VS.hlsl").c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath((shaderCode + L"_PS.hlsl").c_str()).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"Phong_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", SHADER_DEBUG, 0, &vertexShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"Phong_PS.hlsl").c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", SHADER_DEBUG, 0, &pixelShader, nullptr);
+
+						//const char* charData = static_cast<const char*>(errorBlob->GetBufferPointer());
 
 						numSRVDescriptors++; // One extra for Shadow Texture.
 
@@ -187,13 +186,13 @@ namespace Renderer
 						phongPipelineDesc.numConstantBufferViews = 3;
 						phongPipelineDesc.numShaderResourceViews = numSRVDescriptors;
 						phongPipelineDesc.numSamplers = 2;
-						phongPipelineDesc.backFaceCulling = !hasAlpha;
+						phongPipelineDesc.backFaceCulling = !m_phongData.useDiffuseAlpha;
 						phongPipelineDesc.numElements = vec.size();
 						phongPipelineDesc.inputElementDescs = inputElementDescs;
 						phongPipelineDesc.vertexShader = vertexShader;
 						phongPipelineDesc.pixelShader = pixelShader;
 
-						m_pipelineDesc["lambertian"] = phongPipelineDesc;
+						m_pipelineDesc["phong_shading"] = phongPipelineDesc;
 					}
 
 					DescriptorTable::TableParams params;
@@ -217,9 +216,9 @@ namespace Renderer
 						// Link Shadow Texture;
 						descriptorTable->AddShaderResourceView(gfx, gfx.GetDepthBuffer(), false, true);
 
-						if (hasDiffuseMap) descriptorTable->AddShaderResourceView(gfx, diffTex->GetBuffer());
-						if (hasSpecularMap) descriptorTable->AddShaderResourceView(gfx, specTex->GetBuffer());
-						if (hasNormalMap) descriptorTable->AddShaderResourceView(gfx, normTex->GetBuffer());
+						if (m_phongData.useDiffuseMap) descriptorTable->AddShaderResourceView(gfx, diffTex->GetBuffer());
+						if (m_phongData.useSpecularMap) descriptorTable->AddShaderResourceView(gfx, specTex->GetBuffer());
+						if (m_phongData.useNormalMap) descriptorTable->AddShaderResourceView(gfx, normTex->GetBuffer());
 					}
 
 					D3D12_SAMPLER_DESC shadowSampler{};

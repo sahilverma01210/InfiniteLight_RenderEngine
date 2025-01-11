@@ -5,7 +5,7 @@
 // Passes Used in this Render Graph.
 #include "BufferClearPass.h"
 #include "ShadowMappingPass.h"
-#include "LambertianPass.h"
+#include "PhongPass.h"
 #include "SkyboxPass.h"
 
 namespace Renderer
@@ -28,7 +28,7 @@ namespace Renderer
 				AppendPass(std::move(pass));
 			}
 			{
-				auto pass = std::make_unique<LambertianPass>(gfx, "lambertian", cameraContainer);
+				auto pass = std::make_unique<PhongPass>(gfx, "phong_shading", cameraContainer);
 				pass->SetSinkLinkage("shadowMap", "shadowMap.map");
 				pass->SetSinkLinkage("renderTargetBuffers", "clear.renderTargetBuffers");
 				pass->SetSinkLinkage("depthStencilBuffer", "clear.depthStencilBuffer");
@@ -36,8 +36,8 @@ namespace Renderer
 			}
 			{
 				auto pass = std::make_unique<SkyboxPass>(gfx, "skybox");
-				pass->SetSinkLinkage("renderTargetBuffers", "lambertian.renderTargetBuffers");
-				pass->SetSinkLinkage("depthStencilBuffer", "lambertian.depthStencilBuffer");
+				pass->SetSinkLinkage("renderTargetBuffers", "phong_shading.renderTargetBuffers");
+				pass->SetSinkLinkage("depthStencilBuffer", "phong_shading.depthStencilBuffer");
 				AppendPass(std::move(pass));
 			}
 			SetSinkTarget("renderTargetBuffers", "skybox.renderTargetBuffers");

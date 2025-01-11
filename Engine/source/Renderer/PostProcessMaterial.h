@@ -52,8 +52,8 @@ namespace Renderer
 						ID3DBlob* pixelShader;
 						ID3DBlob* vertexShader;
 
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", SHADER_DEBUG, 0, &pixelShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", SHADER_DEBUG, 0, &vertexShader, nullptr);
 
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
@@ -118,8 +118,8 @@ namespace Renderer
 						ID3DBlob* pixelShader;
 						ID3DBlob* vertexShader;
 
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", 0, 0, &pixelShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", 0, 0, &vertexShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", SHADER_DEBUG, 0, &pixelShader, nullptr);
+						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", SHADER_DEBUG, 0, &vertexShader, nullptr);
 
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
