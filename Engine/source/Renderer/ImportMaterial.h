@@ -102,7 +102,18 @@ namespace Renderer
 							material.Get(AI_MATKEY_COLOR_DIFFUSE, color);
 							m_phongData.materialColor = reinterpret_cast<XMFLOAT3&>(color);
 						}
-					}					
+					}
+					// normal
+					{
+						if (aiString normFileName; m_phongData.useNormalMap = material.GetTexture(aiTextureType_NORMALS, 0, &normFileName) == aiReturn_SUCCESS)
+						{
+							std::string normPath = rootPath + normFileName.C_Str();
+							normTex = std::move(TextureBuffer::Resolve(gfx, normPath));
+
+							macros.push_back({ L"USE_NORMAL_MAP", L"1" });
+							numSRVDescriptors++;
+						}
+					}
 					// specular
 					{
 						aiColor3D color = { 0.18f,0.18f,0.18f };
@@ -121,17 +132,6 @@ namespace Renderer
 							specTex = std::move(TextureBuffer::Resolve(gfx, specPath));
 
 							macros.push_back({ L"USE_SPECULAR_MAP", L"1" });
-							numSRVDescriptors++;
-						}
-					}
-					// normal
-					{
-						if (aiString normFileName; m_phongData.useNormalMap = material.GetTexture(aiTextureType_NORMALS, 0, &normFileName) == aiReturn_SUCCESS)
-						{
-							std::string normPath = rootPath + normFileName.C_Str();
-							normTex = std::move(TextureBuffer::Resolve(gfx, normPath));
-
-							macros.push_back({ L"USE_NORMAL_MAP", L"1" });
 							numSRVDescriptors++;
 						}
 					}
@@ -193,8 +193,8 @@ namespace Renderer
 						descriptorTable->AddShaderResourceView(gfx, gfx.GetDepthBuffer(), false, true);
 
 						if (m_phongData.useDiffuseMap) descriptorTable->AddShaderResourceView(gfx, diffTex->GetBuffer());
-						if (m_phongData.useSpecularMap) descriptorTable->AddShaderResourceView(gfx, specTex->GetBuffer());
 						if (m_phongData.useNormalMap) descriptorTable->AddShaderResourceView(gfx, normTex->GetBuffer());
+						if (m_phongData.useSpecularMap) descriptorTable->AddShaderResourceView(gfx, specTex->GetBuffer());
 					}
 
 					// Add Samplers

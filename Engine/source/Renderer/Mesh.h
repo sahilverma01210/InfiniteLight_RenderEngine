@@ -8,13 +8,6 @@ namespace Renderer
 {
 	class Mesh : public ILMesh
 	{
-		struct Transforms
-		{
-			XMMATRIX model;
-			XMMATRIX modelView;
-			XMMATRIX modelViewProj;
-		};
-
 	public:
 		Mesh(D3D12RHI& gfx, ImportMaterial* material, const aiMesh& mesh, float scale = 1.0f) noexcept(!IS_DEBUG);
 		VertexRawBuffer MakeVertices(D3D12RHI& gfx, const aiMesh& mesh, float scale = 1.0f) const noexcept(!IS_DEBUG);

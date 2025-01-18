@@ -1,15 +1,14 @@
-Texture2D tex : register(t0);
-SamplerState splr;
-
-cbuffer Kernel : register(b0)
+struct Kernel
 {
     uint nTaps;
     float coefficients[15];
-}
-cbuffer Control : register(b1)
-{
-    bool horizontal;
-}
+};
+
+ConstantBuffer<Kernel> kernel : register(b0);
+bool horizontal : register(b1);
+
+Texture2D tex : register(t0);
+SamplerState splr;
 
 float4 main(float2 uv : Texcoord) : SV_Target
 {
@@ -26,7 +25,7 @@ float4 main(float2 uv : Texcoord) : SV_Target
         dx = 0.0f;
         dy = 1.0f / height;
     }
-    const int r = nTaps / 2;
+    const int r = kernel.nTaps / 2;
     
     float accAlpha = 0.0f;
     float3 maxColor = float3(0.0f, 0.0f, 0.0f);
@@ -34,7 +33,7 @@ float4 main(float2 uv : Texcoord) : SV_Target
     {
         const float2 tc = uv + float2(dx * i, dy * i);
         const float4 s = tex.Sample(splr, tc).rgba;
-        const float coef = coefficients[i + r];
+        const float coef = kernel.coefficients[i + r];
         accAlpha += s.a * coef;
         maxColor = max(s.rgb, maxColor);
     }

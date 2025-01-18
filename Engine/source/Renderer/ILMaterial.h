@@ -30,7 +30,7 @@ namespace Renderer
 		D3D12_PRIMITIVE_TOPOLOGY m_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		std::unordered_map<std::string, PipelineDescription> m_pipelineDesc;
 		std::vector<Technique> m_techniques;
-		bool m_postProcessEnabled = false;
-		bool m_wireframeEnabled = false;
+		bool m_postProcessEnabled = true;
+		bool m_wireframeEnabled = true;
 	};
 }

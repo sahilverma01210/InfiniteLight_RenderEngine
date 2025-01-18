@@ -6,13 +6,6 @@ namespace Renderer
 {
 	class PointLightIndicator : public ILMesh
 	{
-		struct Transforms
-		{
-			XMMATRIX model;
-			XMMATRIX modelView;
-			XMMATRIX modelViewProj;
-		};
-
 	public:
 		PointLightIndicator(D3D12RHI& gfx, float radius);
 		void SetPos(XMFLOAT3 pos) noexcept(!IS_DEBUG);

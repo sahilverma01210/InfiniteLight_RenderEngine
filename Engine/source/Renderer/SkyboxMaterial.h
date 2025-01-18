@@ -25,7 +25,7 @@ namespace Renderer
 						PipelineDescription skyboxPipelineDesc{};
 
 						skyboxPipelineDesc.numConstants = 1;
-						skyboxPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4);
+						skyboxPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 						skyboxPipelineDesc.numShaderResourceViews = 1;
 						skyboxPipelineDesc.numSamplers = 1;
 						skyboxPipelineDesc.depthStencilMode = Mode::DepthFirst;

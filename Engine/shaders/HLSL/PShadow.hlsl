@@ -1,1 +1,0 @@
-#include "_PShadow_Static.hlsl" // use _PShadow_Dynamic.hlsl instead for controling parameters from UI.

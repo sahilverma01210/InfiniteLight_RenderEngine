@@ -16,6 +16,8 @@ namespace Renderer
 	void Skybox::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
 	{
 		m_transforms = {
+			XMMatrixIdentity(),
+			XMMatrixIdentity(),
 			XMMatrixTranspose(m_cameraMatrix * m_projectionMatrix)
 		};
 

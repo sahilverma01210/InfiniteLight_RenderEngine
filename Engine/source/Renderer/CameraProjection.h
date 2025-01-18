@@ -16,12 +16,6 @@ namespace Renderer
 			float nearZ;
 			float farZ;
 		};
-		struct Transforms
-		{
-			XMMATRIX model;
-			XMMATRIX modelView;
-			XMMATRIX modelViewProj;
-		};
 
 	public:
 		CameraProjection(D3D12RHI& gfx, Projection projection);

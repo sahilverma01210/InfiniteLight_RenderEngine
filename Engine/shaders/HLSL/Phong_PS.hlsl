@@ -1,8 +1,5 @@
-#include "ShaderOps.hlsl"
-#include "LightVectorData.hlsl"
-
-#include "PointLight.hlsl"
-#include "PShadow.hlsl"
+#include "PixelShaderUtils.hlsl"
+#include "LightShadowUtils.hlsl"
 
 struct SurfaceProps
 {
@@ -17,37 +14,31 @@ struct SurfaceProps
     bool useSpecularMap;
     bool useNormalMap;
 };
-
-ConstantBuffer<SurfaceProps> surfaceProps : register(b2);
-
-SamplerState splr : register(s1);
-
 struct VSIn
 {
     float3 viewFragPos : Position;
     float3 viewNormal : Normal;
     float3 viewTan : Tangent;
     float3 viewBitan : Bitangent;
-    float2 tc : Texcoord;
-    float4 spos : ShadowPosition;
+    float2 texUV : Texcoord;
+    float4 shadowPos : ShadowPosition;
 };
 
-#if defined(USE_DIFFUSE_MAP) && defined(USE_NORMAL_MAP) && defined(USE_SPECULAR_MAP)
-Texture2D tex : register(t1);
-Texture2D spec : register(t2);
-Texture2D nmap : register(t3);
-#elif defined(USE_DIFFUSE_MAP) && defined(USE_SPECULAR_MAP)
-Texture2D tex : register(t1);
-Texture2D spec : register(t2);
-#elif defined(USE_DIFFUSE_MAP) && defined(USE_NORMAL_MAP)
-Texture2D tex : register(t1);
-Texture2D nmap : register(t2);
-#elif defined(USE_DIFFUSE_MAP)
-Texture2D tex : register(t1);
+ConstantBuffer<PointLightProps> pointLightCB : register(b1);
+ConstantBuffer<SurfaceProps> surfaceProps : register(b2);
+
+TextureCube smap : register(t0);
+#if defined(USE_DIFFUSE_MAP)
+Texture2D tex[] : register(t1);
 #endif
+
+SamplerComparisonState ssam : register(s0);
+SamplerState splr : register(s1);
 
 float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
 {
+    int texIndex = 0;
+    
     float3 diffuse;
     float3 specularReflected;
     float3 specular;
@@ -55,7 +46,8 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
     // sample diffuse texture if defined
     float4 dtex = float4(1.0f, 1.0f, 1.0f, 1.0f);
 #if defined(USE_DIFFUSE_MAP)
-    dtex = tex.Sample(splr, vsIn.tc);
+    //Texture2D<float4> diffTex = ResourceDescriptorHeap[texIndex++];
+    dtex = tex[texIndex++].Sample(splr, vsIn.texUV);
 #endif
 
     if (ObjectCBuf.useDiffuseAlpha)
@@ -70,7 +62,7 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
     }
     
     // shadow map test
-    const float shadowLevel = Shadow(vsIn.spos);
+    const float shadowLevel = smap.SampleCmpLevelZero(ssam, vsIn.shadowPos.xyz, CalculateShadowDepth(vsIn.shadowPos));
     if (shadowLevel != 0.0f)
     {
         // normalize the mesh normal
@@ -78,25 +70,22 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
         
         // replace normal with mapped if normal mapping enabled
 #if defined(USE_NORMAL_MAP)
-        if (ObjectCBuf.useNormalMap)
-        {
-            const float3 mappedNormal = MapNormal(normalize(vsIn.viewTan), normalize(vsIn.viewBitan), vsIn.viewNormal, vsIn.tc, nmap, splr);
-            vsIn.viewNormal = lerp(vsIn.viewNormal, mappedNormal, ObjectCBuf.normalMapWeight);
-        }
+        //Texture2D<float4> normTex = ResourceDescriptorHeap[texIndex++];
+        const float3 mappedNormal = MapNormal(normalize(vsIn.viewTan), normalize(vsIn.viewBitan), vsIn.viewNormal, vsIn.texUV, tex[texIndex++], splr);
+        vsIn.viewNormal = lerp(vsIn.viewNormal, mappedNormal, ObjectCBuf.normalMapWeight);
 #endif
 
         // fragment to light vector data
-        const LightVectorData lv = CalculateLightVectorData(viewLightPos, vsIn.viewFragPos);
+        const LightVector lv = CalculateLightVector(pointLightCB.viewLightPos, vsIn.viewFragPos);
         
         // specular parameter determination (mapped or uniform)
         float3 specularReflectionColor = ObjectCBuf.specularColor;
         float specularPower = ObjectCBuf.specularGloss;
 #if defined(USE_SPECULAR_MAP)
-        const float4 specularSample = spec.Sample(splr, vsIn.tc);
-        if (ObjectCBuf.useSpecularMap)
-        {
-            specularReflectionColor = specularSample.rgb;
-        }
+        //Texture2D<float4> specTex = ResourceDescriptorHeap[texIndex++];
+        const float4 specularSample = tex[texIndex++].Sample(splr, vsIn.texUV);
+        specularReflectionColor = specularSample.rgb;
+                    
         if (ObjectCBuf.useGlossAlpha)
         {
             specularPower = pow(2.0f, specularSample.a * 13.0f);
@@ -104,14 +93,14 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
 #endif
 
         // attenuation
-        const float att = Attenuate(attConst, attLin, attQuad, lv.distToL);
+        const float att = Attenuate(pointLightCB.attConst, pointLightCB.attLin, pointLightCB.attQuad, lv.distToL);
         
         // diffuse light
-        diffuse = Diffuse(diffuseColor, diffuseIntensity, att, lv.dirToL, vsIn.viewNormal);
+        diffuse = Diffuse(pointLightCB.diffuseColor, pointLightCB.diffuseIntensity, att, lv.dirToL, vsIn.viewNormal);
         
         // specular reflected
         specularReflected = Speculate(
-            diffuseColor * diffuseIntensity * specularReflectionColor, ObjectCBuf.specularWeight, vsIn.viewNormal,
+            pointLightCB.diffuseColor * pointLightCB.diffuseIntensity * specularReflectionColor, ObjectCBuf.specularWeight, vsIn.viewNormal,
             lv.vToL, vsIn.viewFragPos, att, specularPower
         );
         
@@ -126,9 +115,9 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
 
     // final color = attenuate diffuse & ambient by diffuse texture color and add specular reflected
 #if defined(USE_DIFFUSE_MAP)
-    return float4(saturate((diffuse + ambient) * dtex.rgb + specularReflected), 1.0f);
+    return float4(saturate((diffuse + pointLightCB.ambient) * dtex.rgb + specularReflected), 1.0f);
 #else
-    return float4(saturate((diffuse + ambient) * ObjectCBuf.materialColor + specularReflected), 1.0f);
+    return float4(saturate((diffuse + pointLightCB.ambient) * ObjectCBuf.materialColor + specularReflected), 1.0f);
 #endif
 }
 
