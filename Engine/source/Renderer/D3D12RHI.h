@@ -4,6 +4,7 @@
 
 #include "RHI.h"
 #include "D3D12RHIException.h"
+#include "D3D12Shader.h"
 
 namespace Renderer
 {
@@ -42,8 +43,8 @@ namespace Renderer
         UINT numElements = 0;
         D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
         ID3D12RootSignature* rootSignature = nullptr;
-        ID3DBlob* vertexShader = nullptr;
-        ID3DBlob* pixelShader = nullptr;
+        D3D12Shader vertexShader{};
+        D3D12Shader pixelShader{};
         DepthUsage depthUsage = DepthUsage::DepthStencil;
     };
 

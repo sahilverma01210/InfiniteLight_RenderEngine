@@ -49,12 +49,6 @@ namespace Renderer
 							inputElementDescs[i] = vec[i];
 						}
 
-						ID3DBlob* pixelShader;
-						ID3DBlob* vertexShader;
-
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", SHADER_DEBUG, 0, &pixelShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", SHADER_DEBUG, 0, &vertexShader, nullptr);
-
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
 						pipelineDesc.numShaderResourceViews = 1;
@@ -62,8 +56,8 @@ namespace Renderer
 						pipelineDesc.backFaceCulling = true;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.inputElementDescs = inputElementDescs;
-						pipelineDesc.pixelShader = pixelShader;
-						pipelineDesc.vertexShader = vertexShader;
+						pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, GetAssetFullPath(L"BlurOutline_VS.hlsl") };
+						pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, GetAssetFullPath(L"BlurOutline_PS.hlsl") };
 
 						m_pipelineDesc["horizontal"] = pipelineDesc;
 					}
@@ -115,12 +109,6 @@ namespace Renderer
 							inputElementDescs[i] = vec[i];
 						}
 
-						ID3DBlob* pixelShader;
-						ID3DBlob* vertexShader;
-
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", SHADER_DEBUG, 0, &pixelShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"BlurOutline_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", SHADER_DEBUG, 0, &vertexShader, nullptr);
-
 						PipelineDescription pipelineDesc{};
 						pipelineDesc.numConstantBufferViews = 2;
 						pipelineDesc.numShaderResourceViews = 1;
@@ -128,8 +116,8 @@ namespace Renderer
 						pipelineDesc.backFaceCulling = true;
 						pipelineDesc.numElements = vec.size();
 						pipelineDesc.inputElementDescs = inputElementDescs;
-						pipelineDesc.pixelShader = pixelShader;
-						pipelineDesc.vertexShader = vertexShader;
+						pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader,  GetAssetFullPath(L"BlurOutline_VS.hlsl") };
+						pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, GetAssetFullPath(L"BlurOutline_PS.hlsl") };
 						pipelineDesc.blending = true;
 						pipelineDesc.depthStencilMode = Mode::Mask;
 

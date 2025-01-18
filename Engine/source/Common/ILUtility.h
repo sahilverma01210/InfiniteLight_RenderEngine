@@ -28,15 +28,12 @@ namespace Common
 	std::vector<std::string> SplitString(const std::string& s, const std::string& delim);
 	bool StringContains(std::string_view haystack, std::string_view needle);
 
-	inline void GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, UINT pathSize)
+	inline std::wstring GetAssetsPath()
 	{
-		if (path == nullptr)
-		{
-			throw std::exception();
-		}
+		WCHAR path[512];
 
-		DWORD size = GetModuleFileName(nullptr, path, pathSize);
-		if (size == 0 || size == pathSize)
+		DWORD size = GetModuleFileName(nullptr, path, _countof(path));
+		if (size == 0 || size == _countof(path))
 		{
 			// Method failed or path was truncated.
 			throw std::exception();
@@ -47,13 +44,13 @@ namespace Common
 		{
 			*(lastSlash + 1) = L'\0';
 		}
+
+		return std::wstring(path);
 	}
 	inline std::wstring GetAssetFullPath(LPCWSTR assetName)
 	{
-		WCHAR assetsPath[512];
-		GetAssetsPath(assetsPath, _countof(assetsPath));
 		// Root assets path.
-		std::wstring wideAssetsPath = assetsPath;
+		std::wstring wideAssetsPath = GetAssetsPath();
 		return wideAssetsPath + assetName;
 	}
 

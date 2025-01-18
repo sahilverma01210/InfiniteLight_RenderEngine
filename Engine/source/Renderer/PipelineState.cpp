@@ -67,8 +67,8 @@ namespace Renderer
         // Describe and create the graphics pipeline state object (PSO).
         m_psoDescription.InputLayout = { pipelineDesc.inputElementDescs , pipelineDesc.numElements };
         m_psoDescription.pRootSignature = pipelineDesc.rootSignature;
-        m_psoDescription.VS = pipelineDesc.vertexShader ? CD3DX12_SHADER_BYTECODE(pipelineDesc.vertexShader) : CD3DX12_SHADER_BYTECODE();
-        m_psoDescription.PS = pipelineDesc.pixelShader ? CD3DX12_SHADER_BYTECODE(pipelineDesc.pixelShader) : CD3DX12_SHADER_BYTECODE();
+        m_psoDescription.VS = pipelineDesc.vertexShader.GetShaderByteCode();
+        m_psoDescription.PS = pipelineDesc.pixelShader.GetShaderByteCode();
         m_psoDescription.RasterizerState = rasterizerDesc;
         m_psoDescription.BlendState = blenderDesc;
         m_psoDescription.SampleMask = UINT_MAX;

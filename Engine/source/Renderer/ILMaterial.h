@@ -3,13 +3,7 @@
 #include "Technique.h"
 #include "Vertex.h"
 #include "DynamicConstant.h"
-
-#ifdef _DEBUG
-#define SHADER_DEBUG (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION)
-#else
-constexpr auto SHADER_DEBUG = 0;
-#endif
-						
+				
 namespace Renderer
 {
 	class ILMaterial

@@ -22,12 +22,6 @@ namespace Renderer
 							inputElementDescs[i] = vec[i];
 						}
 
-						ID3DBlob* pixelShader;
-						ID3DBlob* vertexShader;
-
-						D3DCompileFromFile(GetAssetFullPath(L"Skybox_PS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_1", SHADER_DEBUG, 0, &pixelShader, nullptr);
-						D3DCompileFromFile(GetAssetFullPath(L"Skybox_VS.hlsl").c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_1", SHADER_DEBUG, 0, &vertexShader, nullptr);
-
 						PipelineDescription skyboxPipelineDesc{};
 
 						skyboxPipelineDesc.numConstants = 1;
@@ -37,8 +31,8 @@ namespace Renderer
 						skyboxPipelineDesc.depthStencilMode = Mode::DepthFirst;
 						skyboxPipelineDesc.numElements = vec.size();
 						skyboxPipelineDesc.inputElementDescs = inputElementDescs;
-						skyboxPipelineDesc.pixelShader = pixelShader;
-						skyboxPipelineDesc.vertexShader = vertexShader;
+						skyboxPipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader,  GetAssetFullPath(L"Skybox_VS.hlsl") };
+						skyboxPipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, GetAssetFullPath(L"Skybox_PS.hlsl") };
 
 						m_pipelineDesc["skybox"] = skyboxPipelineDesc;
 					}

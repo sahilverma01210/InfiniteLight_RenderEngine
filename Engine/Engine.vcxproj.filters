@@ -430,6 +430,9 @@
     <ClInclude Include="source\Renderer\DefaultRenderGraph.h">
       <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12Shader.h">
+      <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
@@ -602,6 +605,9 @@
     </ClCompile>
     <ClCompile Include="source\Runtime\IOManager.cpp">
       <Filter>Source\Runtime\Private\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12Shader.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\RHI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

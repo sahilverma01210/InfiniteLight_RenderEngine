@@ -63,6 +63,7 @@
     <ClInclude Include="source\Renderer\CameraProjection.h" />
     <ClInclude Include="source\Renderer\PostProcessFilter.h" />
     <ClInclude Include="source\Renderer\PostProcessMaterial.h" />
+    <ClInclude Include="source\Renderer\D3D12Shader.h" />
     <ClInclude Include="source\Renderer\ShadowMappingPass.h" />
     <ClInclude Include="source\Renderer\Shapes.h" />
     <ClInclude Include="source\Renderer\Sink.h" />
@@ -120,6 +121,7 @@
     <ClCompile Include="source\Renderer\CameraIndicator.cpp" />
     <ClCompile Include="source\Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
+    <ClCompile Include="source\Renderer\D3D12Shader.cpp" />
     <ClCompile Include="source\Renderer\DepthStencil.cpp" />
     <ClCompile Include="source\Renderer\Drawable.cpp" />
     <ClCompile Include="source\Renderer\DynamicConstant.cpp" />
@@ -495,7 +497,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\assimp\lib\x64;$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mtd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxcompiler.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mtd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
       <EnableUAC>true</EnableUAC>
@@ -533,7 +535,7 @@ xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mtd.dll $(Ou
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\assimp\lib\x64;$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxcompiler.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>

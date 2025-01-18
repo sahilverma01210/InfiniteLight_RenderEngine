@@ -7,11 +7,11 @@ namespace Renderer
 		m_resourceParameterIndex(params.resourceParameterIndex),
 		m_samplerParameterIndex(params.samplerParameterIndex)
 	{
-		CreateCbvSrvUavHeap(gfx, params.numCbvSrvUavDescriptors);
-		CreateSamplerHeap(gfx, params.numSamplerDescriptors);
+		CreateResourceDescriptorHeap(gfx, params.numCbvSrvUavDescriptors);
+		CreateSamplerDescriptorHeap(gfx, params.numSamplerDescriptors);
 	}
 
-	void DescriptorTable::CreateCbvSrvUavHeap(D3D12RHI& gfx, UINT numDescriptors)
+	void DescriptorTable::CreateResourceDescriptorHeap(D3D12RHI& gfx, UINT numDescriptors)
 	{
 		INFOMAN(gfx);
 
@@ -25,7 +25,7 @@ namespace Renderer
 		}
 	}
 
-	void DescriptorTable::CreateSamplerHeap(D3D12RHI& gfx, UINT numDescriptors)
+	void DescriptorTable::CreateSamplerDescriptorHeap(D3D12RHI& gfx, UINT numDescriptors)
 	{
 		INFOMAN(gfx);
 
