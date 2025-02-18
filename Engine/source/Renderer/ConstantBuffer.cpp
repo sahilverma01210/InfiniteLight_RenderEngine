@@ -46,15 +46,10 @@ namespace Renderer
                 ));
             }
 
-            gfx.ResetCommandList();
-
             // copy Upload Buffer to Index Buffer 
             D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get()));
 
             gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-            gfx.ExecuteCommandList();
-
-            gfx.InsertFence();
         }
 	}
 
@@ -78,8 +73,6 @@ namespace Renderer
             D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get()));
 
             gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-
-            gfx.InsertFence();
         }
     }
 

@@ -7,13 +7,21 @@ namespace Renderer
 		m_pRHI = std::move(std::make_unique<D3D12RHI>(hWnd));
 
 		// Retieve Scene data from JSON file.
-		std::ifstream f("data\\scenes\\sponza_scene.json");
-		json scene = json::parse(f);
+		std::ifstream sceneFile("data\\scenes\\sponza_scene.json");
+		json scene = json::parse(sceneFile);
 
 		//m_postProcessingEnabled = scene["config"]["post-processing"].get<bool>();
 		m_postProcessingEnabled = true;
 
 		//ILMaterial::TogglePostProcessing(m_postProcessingEnabled);
+
+		m_pRHI->ResetCommandList();
+
+		// Create Render Graph
+		{
+			if (m_postProcessingEnabled) m_renderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI, m_cameraContainer));
+			else m_renderGraph = std::move(std::make_unique<DefaultRenderGraph>(*m_pRHI, m_cameraContainer));
+		}
 
 		// Add Lights
 		{
@@ -46,12 +54,6 @@ namespace Renderer
 			}
 		}
 
-		// Create Render Graph
-		{
-			if (m_postProcessingEnabled) m_renderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI, m_cameraContainer));
-			else m_renderGraph = std::move(std::make_unique<DefaultRenderGraph>(*m_pRHI, m_cameraContainer));
-		}
-
 		// Add Models
 		{
 			// Muliple Models currently not supported. Hence scene["models"].size() = 1.
@@ -79,6 +81,9 @@ namespace Renderer
 		m_light->LinkTechniques(*m_renderGraph);
 		for(size_t i = 0; i < m_models.size(); i++) m_models[i]->LinkTechniques(*m_renderGraph);
 		m_cameraContainer.LinkTechniques(*m_renderGraph);
+
+		m_pRHI->ExecuteCommandList();
+		m_pRHI->InsertFence();
 	}
 
 	ILRenderer::~ILRenderer()

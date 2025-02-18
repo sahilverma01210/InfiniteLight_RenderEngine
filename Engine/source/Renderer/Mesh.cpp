@@ -4,10 +4,13 @@ namespace Renderer
 {
 	Mesh::Mesh(D3D12RHI& gfx, ImportMaterial* material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
 	{
-		m_vtxLayout = material->GetVertexLayout();
+		m_vtxLayout.Append(VertexLayout::Position3D);
+		m_vtxLayout.Append(VertexLayout::Normal);
+		m_vtxLayout.Append(VertexLayout::Texture2D);
+		m_vtxLayout.Append(VertexLayout::Tangent);
+		m_vtxLayout.Append(VertexLayout::Bitangent);
 
 		ApplyMesh(gfx, MakeVertices(gfx, mesh, scale), MakeIndices(gfx, mesh));
-
 		ApplyMaterial(gfx, material, true);
 	}
 

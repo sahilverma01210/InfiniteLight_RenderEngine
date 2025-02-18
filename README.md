@@ -7,6 +7,7 @@ DirectX 12 based Render Engine used as sandbox for 3D simulations and exploring 
 # Controls:
 1. Movement & Rotation [Press and hold Right Mouse Button + WASD Keys]
 2. Toggle Fullscreen [Spacebar]
+3. Exit Application [Esc]
 
 # Dependencies:
 1. [Json (nlohmann)](https://github.com/nlohmann/json)<br>

@@ -259,7 +259,7 @@
     <ClInclude Include="source\Renderer\Sink.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BufferResource.h">
+    <ClInclude Include="source\Renderer\Resource.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Source.h">
@@ -434,6 +434,12 @@
       <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\D3D12Shader.h">
+      <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\FlatPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\TextureManager.h">
       <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -612,6 +618,9 @@
     <ClCompile Include="source\Renderer\D3D12Shader.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\RHI</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\TextureManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\HLSL\Phong_PS.hlsl">
@@ -632,10 +641,10 @@
     <CustomBuild Include="shaders\HLSL\BlurOutline_VS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Solid_PS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Flat_PS.hlsl">
       <Filter>Shaders\HLSL\Flat Shading</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Solid_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Flat_VS.hlsl">
       <Filter>Shaders\HLSL\Flat Shading</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Shadow_PS.hlsl">

@@ -39,123 +39,93 @@ namespace Renderer
 			{
 				Step horizontalBlur("horizontal");
 				{
-					// Add Pipeline State Obejct
+					// Add Resources & Samplers
 					{
-						// Define the vertex input layout.
-						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = layout.GetD3DLayout();
-						D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+						DescriptorTable::TableParams params;
+						params.resourceParameterIndex = 0;
+						params.samplerParameterIndex = 1;
+						params.numCbvSrvUavDescriptors = 3;
+						params.numSamplerDescriptors = 1;
 
-						for (size_t i = 0; i < vec.size(); ++i) {
-							inputElementDescs[i] = vec[i];
+						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
+
+						// Add Constants
+						{
+							SetKernelGauss(m_radius, m_sigma);
+
+							std::shared_ptr<ConstantBuffer> kernelConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
+							descriptorTable->AddConstantBufferView(gfx, kernelConstBuffer->GetBuffer());
+							horizontalBlur.AddBindable(std::move(kernelConstBuffer));
+							m_direction.horizontal = true;
+
+							std::shared_ptr<ConstantBuffer> directionConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
+							descriptorTable->AddConstantBufferView(gfx, directionConstBuffer->GetBuffer());
+							horizontalBlur.AddBindable(std::move(directionConstBuffer));
 						}
 
-						PipelineDescription pipelineDesc{};
-						pipelineDesc.numConstantBufferViews = 2;
-						pipelineDesc.numShaderResourceViews = 1;
-						pipelineDesc.numSamplers = 1;
-						pipelineDesc.backFaceCulling = true;
-						pipelineDesc.numElements = vec.size();
-						pipelineDesc.inputElementDescs = inputElementDescs;
-						pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, GetAssetFullPath(L"BlurOutline_VS.hlsl") };
-						pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, GetAssetFullPath(L"BlurOutline_PS.hlsl") };
+						// Add Textures
+						{
+							descriptorTable->AddShaderResourceView(gfx, 5);
+						}
 
-						m_pipelineDesc["horizontal"] = pipelineDesc;
+						// Add Samplers
+						{
+							D3D12_SAMPLER_DESC sampler{};
+							sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+							sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+							sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+							sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+							descriptorTable->AddSampler(gfx, &sampler);
+						}
+
+						horizontalBlur.AddBindable(std::move(descriptorTable));
 					}
-
-					DescriptorTable::TableParams params;
-					params.resourceParameterIndex = 0;
-					params.samplerParameterIndex = 1;
-					params.numCbvSrvUavDescriptors = 3;
-					params.numSamplerDescriptors = 1;
-
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
-
-					// setup blur constant buffers
-					{
-						SetKernelGauss(m_radius, m_sigma);
-						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
-						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-						horizontalBlur.AddBindable(constBuffer);
-					}
-					{
-						m_direction.horizontal = true;
-						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
-						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-						horizontalBlur.AddBindable(constBuffer);
-					}
-
-					descriptorTable->AddShaderResourceView(gfx, gfx.GetRenderTargetBuffers()[gfx.GetRenderTargetBuffers().size() - 2].Get());
-
-					D3D12_SAMPLER_DESC sampler{};
-					sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-					sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-					sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-					sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-					descriptorTable->AddSampler(gfx, &sampler);
-
-					horizontalBlur.AddBindable(descriptorTable);
 				}
 				postProcess.AddStep(horizontalBlur);
 
 				Step verticalBlur("vertical");
 				{
-					// Add Pipeline State Obejct
+					// Add Resources & Samplers
 					{
-						// Define the vertex input layout.
-						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = layout.GetD3DLayout();
-						D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+						DescriptorTable::TableParams params;
+						params.resourceParameterIndex = 0;
+						params.samplerParameterIndex = 1;
+						params.numCbvSrvUavDescriptors = 3;
+						params.numSamplerDescriptors = 1;
 
-						for (size_t i = 0; i < vec.size(); ++i) {
-							inputElementDescs[i] = vec[i];
+						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
+
+						// Add Constants
+						{
+							SetKernelGauss(m_radius, m_sigma);
+
+							std::shared_ptr<ConstantBuffer> kernelConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
+							descriptorTable->AddConstantBufferView(gfx, kernelConstBuffer->GetBuffer());
+							verticalBlur.AddBindable(std::move(kernelConstBuffer));
+							m_direction.horizontal = false;
+
+							std::shared_ptr<ConstantBuffer> directionConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
+							descriptorTable->AddConstantBufferView(gfx, directionConstBuffer->GetBuffer());
+							verticalBlur.AddBindable(std::move(directionConstBuffer));
 						}
 
-						PipelineDescription pipelineDesc{};
-						pipelineDesc.numConstantBufferViews = 2;
-						pipelineDesc.numShaderResourceViews = 1;
-						pipelineDesc.numSamplers = 1;
-						pipelineDesc.backFaceCulling = true;
-						pipelineDesc.numElements = vec.size();
-						pipelineDesc.inputElementDescs = inputElementDescs;
-						pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader,  GetAssetFullPath(L"BlurOutline_VS.hlsl") };
-						pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, GetAssetFullPath(L"BlurOutline_PS.hlsl") };
-						pipelineDesc.blending = true;
-						pipelineDesc.depthStencilMode = Mode::Mask;
+						// Add Textures
+						{
+							descriptorTable->AddShaderResourceView(gfx, 6);
+						}
 
-						m_pipelineDesc["vertical"] = pipelineDesc;
+						// Add Samplers
+						{
+							D3D12_SAMPLER_DESC sampler{};
+							sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+							sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+							sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+							sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+							descriptorTable->AddSampler(gfx, &sampler);
+						}
+
+						verticalBlur.AddBindable(std::move(descriptorTable));
 					}
-
-					DescriptorTable::TableParams params;
-					params.resourceParameterIndex = 0;
-					params.samplerParameterIndex = 1;
-					params.numCbvSrvUavDescriptors = 3;
-					params.numSamplerDescriptors = 1;
-
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
-
-					// setup blur constant buffers
-					{
-						SetKernelGauss(m_radius, m_sigma);
-						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
-						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-						verticalBlur.AddBindable(constBuffer);
-					}
-					{
-						m_direction.horizontal = false;
-						std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
-						descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-						verticalBlur.AddBindable(constBuffer);
-					}
-
-					descriptorTable->AddShaderResourceView(gfx, gfx.GetRenderTargetBuffers()[gfx.GetRenderTargetBuffers().size() - 1].Get());
-
-					D3D12_SAMPLER_DESC sampler{};
-					sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-					sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-					sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-					sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-					descriptorTable->AddSampler(gfx, &sampler);
-
-					verticalBlur.AddBindable(descriptorTable);
 				}
 				postProcess.AddStep(verticalBlur);
 			}

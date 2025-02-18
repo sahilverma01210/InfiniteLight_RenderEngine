@@ -4,8 +4,11 @@ _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     try
-    {		
-		return Runtime::Application{}.Run();
+    {
+		// Retieve App Config Data from JSON file.
+		std::ifstream configFile("config\\app_config.json");
+
+		return Runtime::Application{ json::parse(configFile) }.Run();
     }
 	catch (const ILException& e)
 	{

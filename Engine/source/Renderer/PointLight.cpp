@@ -21,6 +21,7 @@ namespace Renderer
 
 		Reset();
 		m_pCamera = std::make_shared<Camera>(gfx, "Light", Camera::Transform{ m_cbData.pos, XMFLOAT3{ 0.0f, PI / 2.0f, 0.0f } }, true);
+
 		ImportMaterial::m_lightShadowBindable = std::move(std::make_unique<ConstantBuffer>(gfx, sizeof(m_shadowData), static_cast<const void*>(&m_shadowData)));
 		ImportMaterial::m_lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, sizeof(m_cbData), static_cast<const void*>(&m_cbData)));
 	}

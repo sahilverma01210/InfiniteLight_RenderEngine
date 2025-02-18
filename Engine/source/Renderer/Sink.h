@@ -3,7 +3,7 @@
 
 #include "Source.h"
 #include "CommonBindables.h"
-#include "BufferResource.h"
+#include "Resource.h"
 
 namespace Renderer
 {
@@ -31,7 +31,7 @@ namespace Renderer
 	template<class T>
 	class DirectBufferSink : public Sink
 	{
-		static_assert(std::is_base_of_v<BufferResource, T>, "DirectBufferSink target type must be a BufferResource type");
+		static_assert(std::is_base_of_v<RenderGraphResource, T>, "DirectBufferSink target type must be a RenderGraphResource type");
 	public:
 		DirectBufferSink(std::string registeredName, std::shared_ptr<T>& bind)
 			:
@@ -72,7 +72,7 @@ namespace Renderer
 	template<class T>
 	class DirectBufferBucketSink : public Sink
 	{
-		static_assert(std::is_base_of_v<BufferResource, T>, "DirectBufferSink target type must be a BufferResource type");
+		static_assert(std::is_base_of_v<RenderGraphResource, T>, "DirectBufferSink target type must be a RenderGraphResource type");
 	public:
 		DirectBufferBucketSink(std::string registeredName, std::vector<std::shared_ptr<T>>& bindVector)
 			:
@@ -96,7 +96,7 @@ namespace Renderer
 		{
 			if (source.m_isVector)
 			{
-				for (std::shared_ptr<BufferResource> buffer : source.YieldBufferBucket())
+				for (std::shared_ptr<RenderGraphResource> buffer : source.YieldBufferBucket())
 				{
 					auto p = std::dynamic_pointer_cast<T>(buffer);
 					m_targetVector.push_back(std::move(p));

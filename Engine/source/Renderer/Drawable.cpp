@@ -7,8 +7,6 @@ namespace Renderer
 		m_topologyBindable->Bind(gfx);
 		m_vertexBufferBindable->Bind(gfx);
 		m_indexBufferBindable->Bind(gfx);
-		m_rootSignBindables.at(targetPass)->Bind(gfx);
-		m_psoBindables.at(targetPass)->Bind(gfx);
 
 		SetTransform(gfx, targetPass);
 	}

@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	//std::mutex mutex;
+	std::mutex mutex;
 
 	Model::Model(D3D12RHI& gfx, const std::string& pathString, XMFLOAT3 transform, float scale)
 	{
@@ -20,33 +20,38 @@ namespace Renderer
 			throw MDL_EXCEPTION(imp.GetErrorString());
 		}
 
-		//// parse materials
-		//std::vector<std::shared_ptr<ImportMaterial>> materials;
-		//materials.resize(pScene->mNumMaterials);
-		//{
-		//	std::vector<std::thread> threads;
-		//	for (size_t i = 0; i < pScene->mNumMaterials; i++)
-		//	{
-		//		threads.emplace_back([&materials, &gfx, pScene, i, pathString]() {
-		//			std::lock_guard<std::mutex> guard(mutex);
-		//			materials[i] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString);
-		//			});
-		//	}
-		//
-		//	for (auto& thread : threads)
-		//	{
-		//		thread.join();
-		//	}
-		//}
-
 		// parse materials
 		std::vector<std::shared_ptr<ImportMaterial>> materials;
-		for (size_t i = 1; i < pScene->mNumMaterials; i++)
+		materials.resize(pScene->mNumMaterials - 1);
 		{
-			//aiMaterial mat = *pScene->mMaterials[i];
-			//std::string name = mat.GetName().C_Str();
-			materials.push_back(std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString));
+			std::vector<std::thread> threads;
+			for (size_t i = 1; i < pScene->mNumMaterials; i++)
+			{
+				threads.emplace_back([&materials, &gfx, pScene, i, pathString]() {
+					std::lock_guard<std::mutex> guard(mutex);
+					materials[i - 1] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString, mutex);
+					});
+
+				// Assigning Name to each Threads.
+				const char* matNamePtr = pScene->mMaterials[i]->GetName().C_Str();
+				const std::wstring& matName = std::wstring(matNamePtr, matNamePtr + std::strlen(matNamePtr));
+				SetThreadDescription(threads[i - 1].native_handle(), matName.c_str());
+			}
+		
+			for (auto& thread : threads)
+			{
+				thread.join();
+			}
 		}
+
+		// parse materials
+		//std::vector<std::shared_ptr<ImportMaterial>> materials;
+		//for (size_t i = 1; i < pScene->mNumMaterials; i++)
+		//{
+		//	//aiMaterial mat = *pScene->mMaterials[i];
+		//	//std::string name = mat.GetName().C_Str();
+		//	materials.push_back(std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString));
+		//}
 
 		// parse mesh and apply materials
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)

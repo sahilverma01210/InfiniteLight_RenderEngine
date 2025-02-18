@@ -2,14 +2,11 @@
 
 namespace Renderer
 {
-    TextureBuffer::TextureBuffer(D3D12RHI& gfx, std::string filename)
+    MeshTextureBuffer::MeshTextureBuffer(D3D12RHI& gfx, std::string filename)
         :
         m_filename(filename)
     {
         INFOMAN(gfx);
-
-        // generate mip chain 
-        ScratchImage mipChain;
 
         if (filename != "NULL_TEX")
         {
@@ -17,21 +14,21 @@ namespace Renderer
             ScratchImage image;
             D3D12RHI_THROW_INFO(LoadFromWICFile(std::wstring(filename.begin(), filename.end()).c_str(), WIC_FLAGS_IGNORE_SRGB, nullptr, image));
 
-            D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, mipChain));
-            m_hasAlpha = !mipChain.IsAlphaAllOpaque();
+            D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, m_mipChain));
+            m_hasAlpha = !m_mipChain.IsAlphaAllOpaque();
         }
         else
         {
-            mipChain.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, 512, 512, 1, 1);
+            m_mipChain.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, 512, 512, 1, 1);
         }
 
         // collect subresource data
         std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
         {
-            subresourceData.reserve(mipChain.GetImageCount());
+            subresourceData.reserve(m_mipChain.GetImageCount());
 
-            for (int i = 0; i < mipChain.GetImageCount(); ++i) {
-                const auto img = mipChain.GetImage(i, 0, 0);
+            for (int i = 0; i < m_mipChain.GetImageCount(); ++i) {
+                const auto img = m_mipChain.GetImage(i, 0, 0);
                 subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
                     .pData = img->pixels,
                     .RowPitch = (LONG_PTR)img->rowPitch,
@@ -43,13 +40,13 @@ namespace Renderer
         // create committed resource (Texture Buffer) for GPU access of Texture data.
         {
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
-            const auto& chainBase = *mipChain.GetImages();
+            const auto& chainBase = *m_mipChain.GetImages();
             auto resourceDesc = CD3DX12_RESOURCE_DESC{};
             resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
             resourceDesc.Width = (UINT)chainBase.width;
             resourceDesc.Height = (UINT)chainBase.height;
             resourceDesc.DepthOrArraySize = 1;
-            resourceDesc.MipLevels = (UINT16)mipChain.GetImageCount();
+            resourceDesc.MipLevels = (UINT16)m_mipChain.GetImageCount();
             resourceDesc.Format = chainBase.format;
             resourceDesc.SampleDesc = { .Count = 1 };
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -65,8 +62,7 @@ namespace Renderer
             ));
         }
 
-        // create committed resource (Upload Buffer) for CPU upload of Index data.
-        ComPtr<ID3D12Resource> texureUploadBuffer;
+        // create committed resource (Upload Buffer) for CPU upload of Index data.        
         {
             UINT texureUploadBufferSize = GetRequiredIntermediateSize(m_texureBuffer.Get(), 0, (UINT)subresourceData.size());
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
@@ -78,39 +74,29 @@ namespace Renderer
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(&texureUploadBuffer)
+                IID_PPV_ARGS(&m_texureUploadBuffer)
             ));
         }
-
-        gfx.ResetCommandList();
 
         // write commands to copy data to upload texture (copying each subresource). Copy the texture data to the texture buffer.
         UpdateSubresources(
             GetCommandList(gfx),
             m_texureBuffer.Get(),
-            texureUploadBuffer.Get(),
+            m_texureUploadBuffer.Get(),
             0, 0,
             (UINT)subresourceData.size(),
             subresourceData.data()
         );
 
         gfx.TransitionResource(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        gfx.ExecuteCommandList();
-
-        gfx.InsertFence();
     }
 
-    ID3D12Resource* TextureBuffer::GetBuffer()
-    {
-        return m_texureBuffer.Get();
-    }
-
-    bool TextureBuffer::HasAlpha() const noexcept(!IS_DEBUG)
+    bool MeshTextureBuffer::HasAlpha() const noexcept(!IS_DEBUG)
     {
         return m_hasAlpha;
     }
 
-    bool TextureBuffer::HasAlphaChannel(const Image& image) {
+    bool MeshTextureBuffer::HasAlphaChannel(const Image& image) {
         switch (image.format) {
             // Common formats with alpha channel
         case DXGI_FORMAT_R32G32B32A32_FLOAT:
@@ -139,18 +125,18 @@ namespace Renderer
         }
     }
 
-    std::shared_ptr<TextureBuffer> TextureBuffer::Resolve(D3D12RHI& gfx, std::string filename)
+    std::shared_ptr<MeshTextureBuffer> MeshTextureBuffer::Resolve(D3D12RHI& gfx, std::string filename)
     {
-        return Codex::Resolve<TextureBuffer>(gfx, filename);
+        return Codex::Resolve<MeshTextureBuffer>(gfx, filename);
     }
 
-    std::string TextureBuffer::GenerateUID(std::string filename)
+    std::string MeshTextureBuffer::GenerateUID(std::string filename)
     {
         using namespace std::string_literals;
-        return typeid(TextureBuffer).name() + "#"s + filename;
+        return typeid(MeshTextureBuffer).name() + "#"s + filename;
     }
 
-    std::string TextureBuffer::GetUID() const noexcept(!IS_DEBUG)
+    std::string MeshTextureBuffer::GetUID() const noexcept(!IS_DEBUG)
     {
         return GenerateUID(m_filename);
     }
@@ -208,7 +194,6 @@ namespace Renderer
         }
 
         // create committed resource (Upload Buffer) for CPU upload of Index data.
-        ComPtr<ID3D12Resource> texureUploadBuffer;
         {
             UINT texureUploadBufferSize = GetRequiredIntermediateSize(m_texureBuffer.Get(), 0, (UINT)subresourceData.size());
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
@@ -220,31 +205,21 @@ namespace Renderer
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(&texureUploadBuffer)
+                IID_PPV_ARGS(&m_texureUploadBuffer)
             ));
         }
-
-        gfx.ResetCommandList();
 
         // write commands to copy data to upload texture (copying each subresource). Copy the texture data to the texture buffer.
         UpdateSubresources(
             GetCommandList(gfx),
             m_texureBuffer.Get(),
-            texureUploadBuffer.Get(),
+            m_texureUploadBuffer.Get(),
             0, 0,
             (UINT)subresourceData.size(),
             subresourceData.data()
         );
 
         gfx.TransitionResource(m_texureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        gfx.ExecuteCommandList();
-
-        gfx.InsertFence();
-    }
-
-    ID3D12Resource* CubeMapTextureBuffer::GetBuffer()
-    {
-        return m_texureBuffer.Get();
     }
 
     std::shared_ptr<CubeMapTextureBuffer> CubeMapTextureBuffer::Resolve(D3D12RHI& gfx, const WCHAR* filename)
@@ -298,11 +273,6 @@ namespace Renderer
         {
             m_depthBuffers.push_back(std::make_shared<DepthStencil>(gfx, m_texureBuffer.Get(), face));
         }
-    }
-
-    ID3D12Resource* DepthCubeMapTextureBuffer::GetBuffer()
-    {
-        return m_texureBuffer.Get();
     }
 
     std::shared_ptr<DepthStencil> DepthCubeMapTextureBuffer::GetDepthBuffer(size_t index) const

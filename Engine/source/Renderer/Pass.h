@@ -7,7 +7,7 @@ namespace Renderer
 	{
 	public:
 		Pass(std::string name) noexcept(!IS_DEBUG);
-		virtual void Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG) = 0;
+		virtual void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) = 0;
 		virtual void Reset() noexcept(!IS_DEBUG);
 		const std::string& GetName() const noexcept(!IS_DEBUG);
 		const std::vector<std::unique_ptr<Sink>>& GetSinks() const;

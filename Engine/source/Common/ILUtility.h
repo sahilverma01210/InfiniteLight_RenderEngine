@@ -28,7 +28,12 @@ namespace Common
 	std::vector<std::string> SplitString(const std::string& s, const std::string& delim);
 	bool StringContains(std::string_view haystack, std::string_view needle);
 
-	inline std::wstring GetAssetsPath()
+	enum AssetType
+	{
+		Shader
+	};
+
+	inline std::wstring GetAssetsPath(AssetType assetType)
 	{
 		WCHAR path[512];
 
@@ -45,12 +50,20 @@ namespace Common
 			*(lastSlash + 1) = L'\0';
 		}
 
-		return std::wstring(path);
+		switch (assetType)
+		{
+		case AssetType::Shader:
+			return std::wstring(path) + L"shaders\\HLSL\\";
+			break;
+		default:
+			return std::wstring(path);
+			break;
+		}
 	}
-	inline std::wstring GetAssetFullPath(LPCWSTR assetName)
+	inline std::wstring GetAssetFullPath(LPCWSTR assetName, AssetType assetType)
 	{
 		// Root assets path.
-		std::wstring wideAssetsPath = GetAssetsPath();
+		std::wstring wideAssetsPath = GetAssetsPath(assetType);
 		return wideAssetsPath + assetName;
 	}
 

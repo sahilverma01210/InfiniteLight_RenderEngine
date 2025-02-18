@@ -20,7 +20,7 @@ namespace Renderer
 		void CreateResourceDescriptorHeap(D3D12RHI& gfx, UINT numDescriptors);
 		void CreateSamplerDescriptorHeap(D3D12RHI& gfx, UINT numDescriptors);
 		void AddConstantBufferView(D3D12RHI& gfx, ID3D12Resource* constantBuffer, bool overwrite = false);
-		void AddShaderResourceView(D3D12RHI& gfx, ID3D12Resource* textureBuffer, bool overwrite = false, bool isCubeMap = false);
+		void AddShaderResourceView(D3D12RHI& gfx, TextureHandle textureBufferHandle, bool overwrite = false, bool isCubeMap = false);
 		void AddSampler(D3D12RHI& gfx, D3D12_SAMPLER_DESC* samplerDesc, bool overwrite = false);
 		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 

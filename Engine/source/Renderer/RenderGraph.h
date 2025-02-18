@@ -26,9 +26,6 @@ namespace Renderer
 		void LinkSinks(Pass& pass);
 		void LinkGlobalSinks();
 
-	protected:
-		std::vector<std::shared_ptr<RenderTarget>> m_renderTargetVector;
-		std::shared_ptr<DepthStencil> m_depthStencil;
 	private:
 		std::vector<std::unique_ptr<Pass>> m_passes;
 		std::vector<std::unique_ptr<Source>> m_globalSources;

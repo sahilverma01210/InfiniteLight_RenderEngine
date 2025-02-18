@@ -65,6 +65,9 @@ using namespace Microsoft::WRL;
 #include <memory>
 #include <exception>
 #include <sstream>
+#include <aclapi.h>
+#include <sddl.h>
+#include <iostream>
 #include <iomanip>
 #include <math.h>
 #include <cmath> 

@@ -48,15 +48,8 @@ namespace Renderer
         vertexData.RowPitch = m_vertexBufferSize;
         vertexData.SlicePitch = vertexData.RowPitch;
 
-        gfx.ResetCommandList();
-
         UpdateSubresources(GetCommandList(gfx), m_vertexBuffer.Get(), m_vertexUploadBuffer.Get(), 0, 0, 1, &vertexData);
-
         gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-        gfx.ExecuteCommandList();
-
-        gfx.InsertFence();
-
         CreateView(gfx, layoutSize);
     }
 
@@ -83,8 +76,6 @@ namespace Renderer
         GetCommandList(gfx)->CopyResource(m_vertexBuffer.Get(), m_vertexUploadBuffer.Get());
 
         gfx.TransitionResource(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-
-        gfx.InsertFence();
     }
 
     void VertexBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)

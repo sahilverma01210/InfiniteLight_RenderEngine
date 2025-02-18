@@ -21,8 +21,6 @@ namespace Renderer
 		std::shared_ptr<Topology> m_topologyBindable;
 		std::shared_ptr<VertexBuffer> m_vertexBufferBindable;
 		std::shared_ptr<IndexBuffer> m_indexBufferBindable;
-		std::unordered_map<std::string, std::unique_ptr<RootSignature>> m_rootSignBindables;
-		std::unordered_map<std::string, std::unique_ptr<PipelineState>> m_psoBindables;
 		std::vector<Technique> m_techniques;
 	};
 }

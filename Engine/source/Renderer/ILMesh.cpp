@@ -15,12 +15,6 @@ namespace Renderer
 	{
 		m_enableLighting = enableLighting;
 
-		for (auto& pipelineDesc : material->GetPipelineDesc())
-		{
-			m_rootSignBindables[pipelineDesc.first] = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc.second));
-			m_psoBindables[pipelineDesc.first] = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc.second));
-		}
-
 		for (auto& technique : material->GetTechniques())
 		{
 			AddTechnique(std::move(technique));

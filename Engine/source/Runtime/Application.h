@@ -6,10 +6,12 @@ namespace Runtime
 	class Application
 	{
 	public:
-		Application();
+		Application(json appConfig);
 		int Run();
+		void Restart();
 	private:
-		void UpdateFrame();
+		void UpdateApp(bool& triggerRestart, bool& exit);
+		void ExitApp();
 
 	private:
 		Window m_window;

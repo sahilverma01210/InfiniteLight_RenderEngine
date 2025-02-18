@@ -29,6 +29,7 @@ namespace Renderer
 		UINT m_numOfIndices;
 		UINT m_indexBufferSize;
 		ComPtr<ID3D12Resource> m_indexBuffer;
+		ComPtr<ID3D12Resource> m_indexUploadBuffer;
 		D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
 	};
 }

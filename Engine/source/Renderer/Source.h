@@ -2,7 +2,7 @@
 #include "../_External/common.h"
 
 #include "Bindable.h"
-#include "BufferResource.h"
+#include "Resource.h"
 #include "RenderGraphException.h"
 
 namespace Renderer
@@ -14,8 +14,8 @@ namespace Renderer
 		const std::string& GetName() const noexcept(!IS_DEBUG);
 		virtual void PostLinkValidate() const = 0;
 		virtual std::shared_ptr<Bindable> YieldBindable();
-		virtual std::shared_ptr<BufferResource> YieldBuffer();
-		virtual std::vector<std::shared_ptr<BufferResource>> YieldBufferBucket();
+		virtual std::shared_ptr<RenderGraphResource> YieldBuffer();
+		virtual std::vector<std::shared_ptr<RenderGraphResource>> YieldBufferBucket();
 	protected:
 		Source(std::string name);
 
@@ -41,7 +41,7 @@ namespace Renderer
 		}
 		void PostLinkValidate() const
 		{}
-		std::shared_ptr<BufferResource> YieldBuffer() override
+		std::shared_ptr<RenderGraphResource> YieldBuffer() override
 		{
 			if (m_linked)
 			{
@@ -73,21 +73,21 @@ namespace Renderer
 		}
 		void PostLinkValidate() const
 		{}
-		std::vector<std::shared_ptr<BufferResource>> YieldBufferBucket() override
+		std::vector<std::shared_ptr<RenderGraphResource>> YieldBufferBucket() override
 		{
 			if (m_linked)
 			{
 				throw RG_EXCEPTION("Mutable output bound twice: " + GetName());
 			}
 			m_linked = true;
-			std::vector<std::shared_ptr<BufferResource>> bufferResources;
-			bufferResources.reserve(m_bufferVector.size());
+			std::vector<std::shared_ptr<RenderGraphResource>> RenderGraphResources;
+			RenderGraphResources.reserve(m_bufferVector.size());
 			std::transform(m_bufferVector.begin(), m_bufferVector.end(),
-				std::back_inserter(bufferResources),
+				std::back_inserter(RenderGraphResources),
 				[](const std::shared_ptr<T>& buffer) {
-					return std::static_pointer_cast<BufferResource>(buffer);
+					return std::static_pointer_cast<RenderGraphResource>(buffer);
 				});
-			return bufferResources;
+			return RenderGraphResources;
 		}
 
 	private:

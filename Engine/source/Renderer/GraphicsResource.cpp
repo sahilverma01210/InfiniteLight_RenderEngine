@@ -19,7 +19,7 @@ namespace Renderer
 
 	ID3D12GraphicsCommandList* GraphicsResource::GetCommandList(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-		return gfx.m_commandList.Get();
+		return gfx.m_currentCommandList.Get();
 	}
 
 	IDXGISwapChain3* GraphicsResource::GetSwapChain(D3D12RHI& gfx) noexcept(!IS_DEBUG)

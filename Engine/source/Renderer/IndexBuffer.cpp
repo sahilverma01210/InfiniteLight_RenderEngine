@@ -29,8 +29,7 @@ namespace Renderer
             ));
         }
 
-        // create committed resource (Upload Buffer) for CPU upload of Index data.
-        ComPtr<ID3D12Resource> indexUploadBuffer;
+        // create committed resource (Upload Buffer) for CPU upload of Index data.        
         {
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_indexBufferSize) };
@@ -41,7 +40,7 @@ namespace Renderer
                 &resourceDesc,
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(&indexUploadBuffer)
+                IID_PPV_ARGS(&m_indexUploadBuffer)
             ));
         }
 
@@ -50,15 +49,8 @@ namespace Renderer
         indexData.RowPitch = m_indexBufferSize;
         indexData.SlicePitch = indexData.RowPitch;
 
-        gfx.ResetCommandList();
-
-        UpdateSubresources(GetCommandList(gfx), m_indexBuffer.Get(), indexUploadBuffer.Get(), 0, 0, 1, &indexData);
-
+        UpdateSubresources(GetCommandList(gfx), m_indexBuffer.Get(), m_indexUploadBuffer.Get(), 0, 0, 1, &indexData);
         gfx.TransitionResource(m_indexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);
-        gfx.ExecuteCommandList();
-
-        gfx.InsertFence();
-
         CreateView(gfx);
     }
 

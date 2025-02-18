@@ -16,18 +16,21 @@ namespace Renderer
 	void RenderPass::Finalize()
 	{
 		Pass::Finalize();
-		if (!m_renderTargetVector.size() && !m_depthStencil)
+		if (!m_renderTarget && !m_depthStencil)
 		{
 			throw RG_EXCEPTION("Render Pass [" + GetName() + "] needs at least one of a renderTarget or depthStencil");
 		}
 	}
 
-	void RenderPass::Execute(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
+	void RenderPass::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-		BindBufferResources(gfx);
+		BindRenderGraphResources(gfx);
 
 		for (const auto& job : m_jobs)
 		{
+			m_rootSignature->Bind(gfx);
+			m_pipelineStateObject->Bind(gfx);
+
 			job.Execute(gfx);
 		}
 	}
@@ -37,13 +40,11 @@ namespace Renderer
 		m_jobs.clear();
 	}
 
-	void RenderPass::BindBufferResources(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
+	void RenderPass::BindRenderGraphResources(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		UINT renderSize = m_renderTargetVector.size();
-
-		if (renderSize)
+		if (!m_depthOnlyPass)
 		{
-			m_renderTargetVector[renderSize == 1 ? 0 : gfx.GetCurrentBackBufferIndex()]->BindAsBuffer(gfx, m_depthStencil.get());
+			m_renderTarget->BindAsBuffer(gfx, m_depthStencil.get());
 		}
 		else
 		{

@@ -2,6 +2,25 @@
 
 namespace Renderer
 {
+    TextureHandle TextureManager::LoadTexture(std::shared_ptr<TextureResource> textureBuffer)
+    {
+        m_textureHandle++;
+
+        m_textureMap[m_textureHandle] = std::move(textureBuffer);
+
+        return m_textureHandle;
+    }
+
+    TextureResource& TextureManager::GetTexture(TextureHandle handle)
+    {
+        return *m_textureMap[handle];
+    }
+
+    std::shared_ptr<TextureResource> TextureManager::GetTexturePtr(TextureHandle handle)
+    {
+        return m_textureMap[handle];
+    }
+
     // PUBLIC - D3D12RHI METHODS
 
     D3D12RHI::D3D12RHI(HWND hWnd) :
@@ -15,19 +34,19 @@ namespace Renderer
         ComPtr<IDXGIFactory4> factory;
         D3D12RHI_THROW_INFO(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
 
-#ifdef _DEBUG
-        // Enable D3D12 CPU & GPU Debug Layers.
-        {
-            ComPtr<ID3D12Debug> debugController;
-            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-                debugController->EnableDebugLayer();
-            }
-
-            ComPtr<ID3D12Debug1> debugController1;
-            if (SUCCEEDED(debugController.As(&debugController1))) {
-                debugController1->SetEnableGPUBasedValidation(TRUE);
-            }
-        }
+#ifdef _DEBUG // Disable Debug Layer while using Nsight Tools
+        //// Enable D3D12 CPU & GPU Debug Layers.
+        //{
+        //    ComPtr<ID3D12Debug> debugController;
+        //    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+        //        debugController->EnableDebugLayer();
+        //    }
+        //
+        //    ComPtr<ID3D12Debug1> debugController1;
+        //    if (SUCCEEDED(debugController.As(&debugController1))) {
+        //        debugController1->SetEnableGPUBasedValidation(TRUE);
+        //    }
+        //}
 #endif
 
         // Create D3D Device.
@@ -70,11 +89,11 @@ namespace Renderer
         // Create Command Allocator & Command List.
         {
             D3D12RHI_THROW_INFO(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
-            D3D12RHI_THROW_INFO(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList)));
+            D3D12RHI_THROW_INFO(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_currentCommandList)));
 
             // Command lists are created in the recording state, but there is nothing
             // to record yet. The main loop expects it to be closed, so close it now.
-            D3D12RHI_THROW_INFO(m_commandList->Close());
+            D3D12RHI_THROW_INFO(m_currentCommandList->Close());
         }
 
         /*
@@ -191,25 +210,36 @@ namespace Renderer
         // However, when ExecuteCommandList() is called on a particular command 
         // list, that command list can then be reset at any time and must be before 
         // re-recording.
-        D3D12RHI_THROW_INFO(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
+        D3D12RHI_THROW_INFO(m_currentCommandList->Reset(m_commandAllocator.Get(), nullptr));
     }
 
     void D3D12RHI::ExecuteCommandList()
     {
-        D3D12RHI_THROW_INFO(m_commandList->Close());
-        ID3D12CommandList* const commandLists[] = { m_commandList.Get() };
+        D3D12RHI_THROW_INFO(m_currentCommandList->Close());
+        ID3D12CommandList* const commandLists[] = { m_currentCommandList.Get() };
         D3D12RHI_THROW_INFO_ONLY(m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists));
     }
 
     void D3D12RHI::Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data)
     {
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, num32BitValues, data, 0));
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->SetGraphicsRoot32BitConstants(rootParameterIndex, num32BitValues, data, 0));
     }
 
     void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
     {
-        auto resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState);
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->ResourceBarrier(1, &resourceBarrier));
+        CreateBarrier(resource, beforeState, afterState);
+        FlushBarrier();
+    }
+
+    void D3D12RHI::CreateBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
+    {
+        m_barriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState));
+    }
+
+    void D3D12RHI::FlushBarrier()
+    {
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ResourceBarrier(m_barriers.size(), m_barriers.data()));
+        m_barriers.clear();
     }
 
     void D3D12RHI::InsertFence()
@@ -249,8 +279,8 @@ namespace Renderer
         m_scissorRect.bottom = static_cast<LONG>(m_height);
 
         // configure Rasterizer Stage (RS).
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetViewports(1, &m_viewport));
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetScissorRects(1, &m_scissorRect));
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->RSSetViewports(1, &m_viewport));
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->RSSetScissorRects(1, &m_scissorRect));
     }
 
     void D3D12RHI::StartFrame()
@@ -259,8 +289,8 @@ namespace Renderer
         ResetCommandList();
 
         // configure Rasterizer Stage (RS).
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetViewports(1, &m_viewport));
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->RSSetScissorRects(1, &m_scissorRect));
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->RSSetViewports(1, &m_viewport));
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->RSSetScissorRects(1, &m_scissorRect));
 
         // advance back buffer
         m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
@@ -271,7 +301,7 @@ namespace Renderer
 
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)
     {
-        D3D12RHI_THROW_INFO_ONLY(m_commandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0));
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0));
     }
 
     void D3D12RHI::EndFrame()
@@ -284,28 +314,6 @@ namespace Renderer
 
         // Present the frame.
         D3D12RHI_THROW_INFO(m_swapChain->Present(1, 0));
-    }
-
-    // RENDER TARGET METHODS
-
-    void D3D12RHI::SetRenderTargetBuffer(ID3D12Resource* buffer)
-    {
-        m_targetBuffers.push_back(buffer);
-    }
-
-    void D3D12RHI::SetDepthBuffer(ID3D12Resource* buffer)
-    {
-        m_currentDepthBuffer = buffer;
-    }
-
-    std::vector<ComPtr<ID3D12Resource>>& D3D12RHI::GetRenderTargetBuffers()
-    {
-        return m_targetBuffers;
-    }
-
-    ID3D12Resource* D3D12RHI::GetDepthBuffer()
-    {
-        return m_currentDepthBuffer.Get();
     }
 
     // PRIVATE - HELPER D3D12RHI METHODS

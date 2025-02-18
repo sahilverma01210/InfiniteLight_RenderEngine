@@ -5,18 +5,20 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Runtime
 {
-	Window::Window()
-		: 
-		m_width(WIDTH),
-		m_height(HEIGHT)
+	Window::Window(json appConfig)
+		:
+		m_appConfig(appConfig),
+		m_fullscreenMode(m_appConfig["isFullScreen"]),
+		m_width(m_appConfig["ScreenResolution"]["Width"]),
+		m_height(m_appConfig["ScreenResolution"]["Height"])
 	{
 		// calculate window size based on desired client region size
-		RECT wr;
-		wr.left = 100;
-		wr.right = m_width + wr.left;
-		wr.top = 100;
-		wr.bottom = m_height + wr.top;
-		if (FAILED(AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE)))
+		RECT windowRect;
+		windowRect.left = 0;
+		windowRect.right = m_width + windowRect.left;
+		windowRect.top = 0;
+		windowRect.bottom = m_height + windowRect.top;
+		if (FAILED(AdjustWindowRect(&windowRect, m_fullscreenMode ? WS_POPUP | WS_VISIBLE : WS_OVERLAPPEDWINDOW, FALSE)))
 		{
 			throw IL_LAST_EXCEPT();
 		};
@@ -40,8 +42,9 @@ namespace Runtime
 		// create window & get hWnd
 		m_hWnd = CreateWindow(
 			TITLE, TITLE,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top,
+			m_fullscreenMode ? WS_POPUP | WS_VISIBLE : WS_OVERLAPPEDWINDOW,
+			m_fullscreenMode ? 0 : CW_USEDEFAULT, m_fullscreenMode ? 0 : CW_USEDEFAULT, 
+			windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
 			nullptr, nullptr, m_windowClass.hInstance, this
 		);
 		
@@ -75,7 +78,7 @@ namespace Runtime
 		}
 
 		// show window
-		ShowWindow(m_hWnd, SW_SHOWDEFAULT);
+		ShowWindow(m_hWnd, m_fullscreenMode ? SW_MAXIMIZE : SW_SHOWDEFAULT);
 	}
 
 	Window::~Window()
@@ -118,7 +121,7 @@ namespace Runtime
 		return {};
 	}
 
-	void Window::UpdateWindow()
+	void Window::UpdateWindow(bool& triggerRestart, bool& exit)
 	{
 		if (m_renderer)
 		{
@@ -133,48 +136,31 @@ namespace Runtime
 			{
 				switch (e.GetCode())
 				{
-//				case VK_RETURN: // Enter Key
-//					if (GetKeyState(VK_MENU) & 0x8000) // Alt + Enter
-//					{
-//						if (m_renderer)
-//						{
-//							ToggleFullscreenWindow();
-//#ifdef UI_ENABLED
-//							m_uiManager->EndUIFrame();
-//#endif
-//							m_renderer->EndFrame();
-//#ifdef UI_ENABLED
-//							m_uiManager.reset();
-//#endif
-//							m_renderer.reset();
-//
-//							m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, m_windowClass.hInstance, false));
-//#ifdef UI_ENABLED
-//							m_uiManager = std::move(std::make_unique<UIManager>(m_hWnd, m_renderer.get()));
-//#endif
-//							return;
-//						}
-//					}
-//					break;
+				case VK_ESCAPE:
+					exit = true;
+					break;
 				case VK_SPACE:
-					if (m_renderer)
+					if (m_fullscreenMode)
 					{
-						ToggleFullscreenWindow();
-#ifdef UI_ENABLED
-						m_uiManager->EndUIFrame();
-#endif
-						m_renderer->EndFrame();
-#ifdef UI_ENABLED
-						m_uiManager.reset();
-#endif
-						m_renderer.reset();
-
-						m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, m_windowClass.hInstance, false));
-#ifdef UI_ENABLED
-						m_uiManager = std::move(std::make_unique<UIManager>(m_hWnd, m_renderer.get()));
-#endif
-						return;
+						m_appConfig["isFullScreen"] = false;
+						m_appConfig["ScreenResolution"]["Width"] = WIDTH;
+						m_appConfig["ScreenResolution"]["Height"] = HEIGHT;
 					}
+					else
+					{
+						RECT fullscreenRect = m_renderer->GetScreenRect();
+						m_appConfig["isFullScreen"] = true;
+						m_appConfig["ScreenResolution"]["Width"] = fullscreenRect.right;
+						m_appConfig["ScreenResolution"]["Height"] = fullscreenRect.bottom;
+					}
+					
+					std::ofstream outFile("config\\app_config.json");
+					if (outFile.is_open()) {
+						outFile << m_appConfig.dump(4); // Pretty print with an indent of 4 spaces
+						outFile.close();
+					}
+
+					triggerRestart = true;
 					break;
 				}
 			}

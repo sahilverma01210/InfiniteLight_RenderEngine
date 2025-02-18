@@ -17,42 +17,28 @@ namespace Renderer
 
 			Technique line{ "line", Channel::main};
 			{
-				Step only("phong_shading");
+				Step only("flat_shading");
 				{
-					// Add Pipeline State Obejct
+					// Add Resources & Samplers
 					{
-						// Define the vertex input layout.
-						std::vector<D3D12_INPUT_ELEMENT_DESC> vec = layout.GetD3DLayout();
-						D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
+						DescriptorTable::TableParams params;
+						params.resourceParameterIndex = 1;
+						params.numCbvSrvUavDescriptors = 1;
 
-						for (size_t i = 0; i < vec.size(); ++i) {
-							inputElementDescs[i] = vec[i];
+						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
+
+						// Add Constants
+						{
+							SolidCB data = { XMFLOAT3{ 0.2f,0.2f,0.6f } };
+
+							std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
+
+							descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
+							only.AddBindable(std::move(constBuffer));
 						}
 
-						PipelineDescription phongPipelineDesc{};
-						phongPipelineDesc.numConstants = 1;
-						phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-						phongPipelineDesc.numConstantBufferViews = 1;
-						phongPipelineDesc.numElements = vec.size();
-						phongPipelineDesc.inputElementDescs = inputElementDescs;
-						phongPipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, GetAssetFullPath(L"Solid_VS.hlsl") };
-						phongPipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, GetAssetFullPath(L"Solid_PS.hlsl") };
-
-						m_pipelineDesc["phong_shading"] = phongPipelineDesc;
+						only.AddBindable(std::move(descriptorTable));
 					}
-
-					DescriptorTable::TableParams params;
-					params.resourceParameterIndex = 1;
-					params.numCbvSrvUavDescriptors = 1;
-
-					std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
-
-					SolidCB data = { XMFLOAT3{ 0.2f,0.2f,0.6f } };
-					std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
-					descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-
-					only.AddBindable(constBuffer);
-					only.AddBindable(descriptorTable);
 				}
 				line.AddStep(std::move(only));
 			}

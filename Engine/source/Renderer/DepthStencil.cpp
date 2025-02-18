@@ -11,12 +11,12 @@ namespace Renderer
     }
 
     DepthStencil::DepthStencil(D3D12RHI& gfx, ID3D12Resource* depthBuffer, UINT face)
-        :
-        m_depthBuffer(depthBuffer),
-        m_width(depthBuffer->GetDesc().Width),
-        m_height(depthBuffer->GetDesc().Height)
     {
         INFOMAN(gfx);
+
+        m_texureBuffer = depthBuffer;
+        m_width = depthBuffer->GetDesc().Width;
+        m_height = depthBuffer->GetDesc().Height;
 
         // Describe and create a DSV descriptor heap.
         {
@@ -37,7 +37,7 @@ namespace Renderer
             descView.Texture2DArray.MipSlice = 0;
             descView.Texture2DArray.ArraySize = 1;
             descView.Texture2DArray.FirstArraySlice = face;
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_depthBuffer.Get(), &descView, m_depthStensilViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_texureBuffer.Get(), &descView, m_depthStensilViewHandle));
         }
     }
 
@@ -74,7 +74,7 @@ namespace Renderer
                 &desc,
                 D3D12_RESOURCE_STATE_DEPTH_WRITE,
                 &clearValue,
-                IID_PPV_ARGS(&m_depthBuffer)));
+                IID_PPV_ARGS(&m_texureBuffer)));
 
             m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -83,15 +83,15 @@ namespace Renderer
             descView.Flags = D3D12_DSV_FLAG_NONE;
             descView.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
             descView.Texture2D.MipSlice = 0;
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_depthBuffer.Get(), &descView, m_depthStensilViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_texureBuffer.Get(), &descView, m_depthStensilViewHandle));
         }
 	}
 
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, BufferResource* bufferResource) noexcept(!IS_DEBUG)
+    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, RenderGraphResource* RenderGraphResource) noexcept(!IS_DEBUG)
     {
-        if (bufferResource)
+        if (RenderGraphResource)
         {
-            static_cast<RenderTarget*>(bufferResource)->BindAsBuffer(gfx, this);
+            static_cast<RenderTarget*>(RenderGraphResource)->BindAsBuffer(gfx, this);
         }
         else
         {
@@ -114,10 +114,5 @@ namespace Renderer
     unsigned int DepthStencil::GetHeight() const
     {
         return m_height;
-    }
-
-    ID3D12Resource* DepthStencil::GetBuffer() const noexcept(!IS_DEBUG)
-    {
-        return m_depthBuffer.Get();
     }
 }

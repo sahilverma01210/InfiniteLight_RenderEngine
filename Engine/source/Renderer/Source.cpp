@@ -24,12 +24,12 @@ namespace Renderer
 		throw RG_EXCEPTION("Output cannot be accessed as bindable");
 	}
 
-	std::shared_ptr<BufferResource> Source::YieldBuffer()
+	std::shared_ptr<RenderGraphResource> Source::YieldBuffer()
 	{
 		throw RG_EXCEPTION("Output cannot be accessed as buffer");
 	}
 
-	std::vector<std::shared_ptr<BufferResource>> Source::YieldBufferBucket()
+	std::vector<std::shared_ptr<RenderGraphResource>> Source::YieldBufferBucket()
 	{
 		throw RG_EXCEPTION("Output cannot be accessed as bindable");
 	}

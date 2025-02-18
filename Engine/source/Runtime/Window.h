@@ -27,13 +27,13 @@ namespace Runtime
 	class Window
 	{
 	public:
-		Window();
+		Window(json appConfig);
 		~Window();
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
 		void SetTitle(const std::wstring& title);
 		static std::optional<int> ProcessMessages();
-		void UpdateWindow();
+		void UpdateWindow(bool &triggerRestart, bool& exit);
 		void ToggleFullscreenWindow();
 		void EnableCursor() noexcept(!IS_DEBUG);
 		void DisableCursor() noexcept(!IS_DEBUG);
@@ -50,6 +50,7 @@ namespace Runtime
 		Keyboard m_keyboard;
 		Mouse m_mouse;
 	private:
+		json m_appConfig;
 		LONG m_width;
 		LONG m_height;
 		HWND m_hWnd;
