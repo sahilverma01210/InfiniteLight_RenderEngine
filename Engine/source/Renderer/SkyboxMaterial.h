@@ -16,9 +16,7 @@ namespace Renderer
 					{
 						DescriptorTable::TableParams params;
 						params.resourceParameterIndex = 1;
-						params.samplerParameterIndex = 2;
 						params.numCbvSrvUavDescriptors = 1;
-						params.numSamplerDescriptors = 1;
 
 						std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, params);
 
@@ -26,16 +24,6 @@ namespace Renderer
 						{
 							TextureHandle textureHandle = gfx.m_textureManager.LoadTexture(std::make_shared<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox"));
 							descriptorTable->AddShaderResourceView(gfx, textureHandle, false, true);
-						}
-
-						// Add Samplers
-						{
-							D3D12_SAMPLER_DESC sampler{};
-							sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-							sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-							sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-							sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-							descriptorTable->AddSampler(gfx, &sampler);
 						}
 
 						only.AddBindable(std::move(descriptorTable));

@@ -27,6 +27,9 @@ struct VSIn
 ConstantBuffer<PointLightProps> pointLightCB : register(b1); // Can use StructuredBuffer instead.
 ConstantBuffer<SurfaceProps> surfaceProps : register(b2);
 
+SamplerComparisonState samplerCompareState : register(s0);
+SamplerState samplerState : register(s1);
+
 TextureCube smap : register(t0);
 Texture2D tex[] : register(t1);
 
@@ -40,10 +43,8 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
     
     // sample diffuse texture if defined
     float4 dtex = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    SamplerState samplerState;
     if (surfaceProps.useDiffuseMap)
     {        
-        samplerState = SamplerDescriptorHeap[1];
         //Texture2D<float4> diffTex = ResourceDescriptorHeap[texIndex++];
         dtex = tex[texIndex++].Sample(samplerState, vsIn.texUV);
     }
@@ -60,7 +61,6 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
     }
     
     // shadow map test
-    SamplerComparisonState samplerCompareState = SamplerDescriptorHeap[0];
     const float shadowLevel = smap.SampleCmpLevelZero(samplerCompareState, vsIn.shadowPos.xyz, CalculateShadowDepth(vsIn.shadowPos));
     if (shadowLevel != 0.0f)
     {

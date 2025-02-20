@@ -27,12 +27,32 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				CD3DX12_STATIC_SAMPLER_DESC* staticSamplers = new CD3DX12_STATIC_SAMPLER_DESC[2];
+				
+				CD3DX12_STATIC_SAMPLER_DESC sampler1{ 0 };
+				sampler1.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+				sampler1.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+				sampler1.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+				sampler1.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+				sampler1.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+				staticSamplers[0] = sampler1;
+				CD3DX12_STATIC_SAMPLER_DESC sampler2{ 1 };
+				sampler2.Filter = D3D12_FILTER_ANISOTROPIC;
+				sampler2.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+				sampler2.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+				sampler2.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+				sampler2.MipLODBias = 0.0f;
+				sampler2.MinLOD = 0.0f;
+				sampler2.MaxLOD = D3D12_FLOAT32_MAX;
+				staticSamplers[1] = sampler2;
+
 				PipelineDescription phongPipelineDesc{};
 				phongPipelineDesc.numConstants = 1;
 				phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 				phongPipelineDesc.numConstantBufferViews = 3;
 				phongPipelineDesc.numShaderResourceViews = 4;
-				phongPipelineDesc.numSamplers = 2;
+				phongPipelineDesc.numStaticSamplers = 2; // One extra Sampler for Shadow Texture.
+				phongPipelineDesc.staticSamplers = staticSamplers;
 				phongPipelineDesc.backFaceCulling = true;
 				phongPipelineDesc.numElements = vec.size();
 				phongPipelineDesc.inputElementDescs = inputElementDescs;

@@ -23,12 +23,25 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
+				// define static sampler 
+				CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
+				staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+				staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+				staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+				staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+				staticSampler.MipLODBias = 0.0f;
+				staticSampler.MinLOD = 0.0f;
+				staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+				samplers[0] = staticSampler;
+
 				PipelineDescription skyboxPipelineDesc{};
 
 				skyboxPipelineDesc.numConstants = 1;
 				skyboxPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
 				skyboxPipelineDesc.numShaderResourceViews = 1;
-				skyboxPipelineDesc.numSamplers = 1;
+				skyboxPipelineDesc.numStaticSamplers = 1;
+				skyboxPipelineDesc.staticSamplers = samplers;
 				skyboxPipelineDesc.depthStencilMode = Mode::DepthFirst;
 				skyboxPipelineDesc.numElements = vec.size();
 				skyboxPipelineDesc.inputElementDescs = inputElementDescs;

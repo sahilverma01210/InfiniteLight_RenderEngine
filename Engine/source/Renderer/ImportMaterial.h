@@ -123,9 +123,7 @@ namespace Renderer
 					{
 						DescriptorTable::TableParams params;
 						params.resourceParameterIndex = 1;
-						params.samplerParameterIndex = 2;
 						params.numCbvSrvUavDescriptors = numSRVDescriptors + 3;
-						params.numSamplerDescriptors = 2;
 
 						std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, params);
 
@@ -153,32 +151,6 @@ namespace Renderer
 							if (diffTexHandle) descriptorTable->AddShaderResourceView(gfx, diffTexHandle);
 							if (normTexHandle) descriptorTable->AddShaderResourceView(gfx, normTexHandle);
 							if (specTexHandle) descriptorTable->AddShaderResourceView(gfx, specTexHandle);
-						}
-
-						// Add Samplers
-						{
-							D3D12_SAMPLER_DESC shadowSampler{};
-							shadowSampler.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-							shadowSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-							shadowSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-							shadowSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-							shadowSampler.BorderColor[0] = 1.0f;
-							shadowSampler.BorderColor[1] = 1.0f;
-							shadowSampler.BorderColor[2] = 1.0f;
-							shadowSampler.BorderColor[3] = 1.0f;
-							shadowSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-							descriptorTable->AddSampler(gfx, &shadowSampler);
-
-							D3D12_SAMPLER_DESC phongSampler{};
-							phongSampler.Filter = D3D12_FILTER_ANISOTROPIC;
-							phongSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-							phongSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-							phongSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-							phongSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-							phongSampler.MipLODBias = 0.0f;
-							phongSampler.MinLOD = 0.0f;
-							phongSampler.MaxLOD = D3D12_FLOAT32_MAX;
-							descriptorTable->AddSampler(gfx, &phongSampler);
 						}
 
 						step.AddBindable(std::move(descriptorTable));

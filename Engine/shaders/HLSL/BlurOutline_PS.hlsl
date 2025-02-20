@@ -4,6 +4,8 @@ struct Kernel
     float coefficients[15];
 };
 
+SamplerState samplerState : register(s0);
+
 ConstantBuffer<Kernel> kernel : register(b0);
 bool horizontal : register(b1);
 
@@ -11,8 +13,6 @@ Texture2D tex : register(t0);
 
 float4 main(float2 uv : Texcoord) : SV_Target
 {
-    SamplerState samplerState = SamplerDescriptorHeap[0];
-    
     float width, height;
     tex.GetDimensions(width, height);
     float dx, dy;

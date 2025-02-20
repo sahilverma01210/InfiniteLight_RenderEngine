@@ -21,10 +21,23 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
+				// define static sampler 
+				CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
+				staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+				staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+				staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+				staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
+				staticSampler.MipLODBias = 0.0f;
+				staticSampler.MinLOD = 0.0f;
+				staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
+				samplers[0] = staticSampler;
+
 				PipelineDescription pipelineDesc{};
 				pipelineDesc.numConstantBufferViews = 2;
 				pipelineDesc.numShaderResourceViews = 1;
-				pipelineDesc.numSamplers = 1;
+				pipelineDesc.numStaticSamplers = 1;
+				pipelineDesc.staticSamplers = samplers;
 				pipelineDesc.backFaceCulling = true;
 				pipelineDesc.numElements = vec.size();
 				pipelineDesc.inputElementDescs = inputElementDescs;

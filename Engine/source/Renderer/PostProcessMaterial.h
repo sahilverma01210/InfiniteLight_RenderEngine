@@ -43,9 +43,7 @@ namespace Renderer
 					{
 						DescriptorTable::TableParams params;
 						params.resourceParameterIndex = 0;
-						params.samplerParameterIndex = 1;
 						params.numCbvSrvUavDescriptors = 3;
-						params.numSamplerDescriptors = 1;
 
 						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
 
@@ -68,16 +66,6 @@ namespace Renderer
 							descriptorTable->AddShaderResourceView(gfx, 5);
 						}
 
-						// Add Samplers
-						{
-							D3D12_SAMPLER_DESC sampler{};
-							sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-							sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-							sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-							sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-							descriptorTable->AddSampler(gfx, &sampler);
-						}
-
 						horizontalBlur.AddBindable(std::move(descriptorTable));
 					}
 				}
@@ -89,9 +77,7 @@ namespace Renderer
 					{
 						DescriptorTable::TableParams params;
 						params.resourceParameterIndex = 0;
-						params.samplerParameterIndex = 1;
 						params.numCbvSrvUavDescriptors = 3;
-						params.numSamplerDescriptors = 1;
 
 						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
 
@@ -112,16 +98,6 @@ namespace Renderer
 						// Add Textures
 						{
 							descriptorTable->AddShaderResourceView(gfx, 6);
-						}
-
-						// Add Samplers
-						{
-							D3D12_SAMPLER_DESC sampler{};
-							sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-							sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-							sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-							sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-							descriptorTable->AddSampler(gfx, &sampler);
 						}
 
 						verticalBlur.AddBindable(std::move(descriptorTable));
