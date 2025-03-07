@@ -21,9 +21,11 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+
 				PipelineDescription maskPipelineDesc{};
-				maskPipelineDesc.numConstants = 1;
-				maskPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+				maskPipelineDesc.numConstants = 2;
+				maskPipelineDesc.num32BitConstants = num32BitConstants;
 				maskPipelineDesc.depthStencilMode = Mode::Write;
 				maskPipelineDesc.numElements = vec.size();
 				maskPipelineDesc.inputElementDescs = inputElementDescs;
@@ -33,7 +35,7 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, maskPipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.m_textureManager.GetTexturePtr(3));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
 			m_depthOnlyPass = true;
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override

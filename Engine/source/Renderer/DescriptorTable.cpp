@@ -40,23 +40,25 @@ namespace Renderer
 		}
 	}
 
-	void DescriptorTable::AddConstantBufferView(D3D12RHI& gfx, ID3D12Resource* constantBuffer, bool overwrite)
+	void DescriptorTable::AddConstantBufferView(D3D12RHI& gfx, ResourceHandle constantBufferHandle)
 	{
+		ID3D12Resource* constantBuffer = gfx.GetResource(constantBufferHandle).GetBuffer();
+
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 		cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
 		cbvDesc.SizeInBytes = constantBuffer->GetDesc().Width; // Not Sure.
 
 		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_cbvSrvUavHeap->GetCPUDescriptorHandleForHeapStart());
 		CPUHandle.ptr += GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_cbvSrvUavCount;
-		if (!overwrite) m_cbvSrvUavCount++;
+		m_cbvSrvUavCount++;
 
 		INFOMAN_NOHR(gfx);
 		D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateConstantBufferView(&cbvDesc, CPUHandle));
 	}
 
-	void DescriptorTable::AddShaderResourceView(D3D12RHI& gfx, TextureHandle textureBufferHandle, bool overwrite, bool isCubeMap)
+	void DescriptorTable::AddShaderResourceView(D3D12RHI& gfx, ResourceHandle textureBufferHandle, bool isCubeMap)
 	{
-		ID3D12Resource* textureBuffer = gfx.m_textureManager.GetTexture(textureBufferHandle).GetBuffer();
+		ID3D12Resource* textureBuffer = gfx.GetResource(textureBufferHandle).GetBuffer();
 
 		DXGI_FORMAT targetTextureFormat;
 
@@ -92,7 +94,7 @@ namespace Renderer
 
 		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_cbvSrvUavHeap->GetCPUDescriptorHandleForHeapStart());
 		CPUHandle.ptr += GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_cbvSrvUavCount;
-		if (!overwrite) m_cbvSrvUavCount++;
+		m_cbvSrvUavCount++;
 
 		INFOMAN_NOHR(gfx);
 		D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateShaderResourceView(textureBuffer, &srvDesc, CPUHandle));
@@ -117,7 +119,7 @@ namespace Renderer
 			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvSrvUavHeap.Get(), m_samplerHeap.Get() };
 			D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps)); // All Heaps for each PSO are to be set only once per draw call.
 			D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_resourceParameterIndex, ppHeaps[0]->GetGPUDescriptorHandleForHeapStart()));
-			//D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_samplerParameterIndex, ppHeaps[1]->GetGPUDescriptorHandleForHeapStart()));
+			D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootDescriptorTable(m_samplerParameterIndex, ppHeaps[1]->GetGPUDescriptorHandleForHeapStart()));
 		}
 		else if (m_cbvSrvUavCount)
 		{

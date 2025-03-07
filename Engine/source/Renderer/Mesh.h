@@ -16,8 +16,10 @@ namespace Renderer
 		void Submit(size_t channel, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG);
 
 	private:
+		UINT m_meshIdx;
 		VertexLayout m_vtxLayout;
 		mutable XMFLOAT4X4 m_transform;
+		mutable MeshConstants m_meshConstants;
 		mutable Transforms m_transforms;
 	};
 }

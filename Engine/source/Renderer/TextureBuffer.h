@@ -7,7 +7,7 @@
 
 namespace Renderer
 {
-	class MeshTextureBuffer : public TextureResource, public Bindable
+	class MeshTextureBuffer : public D3D12Resource, public Bindable
 	{
 	public:
 		MeshTextureBuffer(D3D12RHI& gfx, std::string filename);
@@ -25,7 +25,7 @@ namespace Renderer
 		ComPtr<ID3D12Resource> m_texureUploadBuffer;
 	};
 
-	class CubeMapTextureBuffer : public TextureResource, public Bindable
+	class CubeMapTextureBuffer : public D3D12Resource, public Bindable
 	{
 	public:
 		CubeMapTextureBuffer(D3D12RHI& gfx, const WCHAR* foldername);
@@ -39,7 +39,7 @@ namespace Renderer
 		ComPtr<ID3D12Resource> m_texureUploadBuffer;
 	};
 
-	class DepthCubeMapTextureBuffer : public TextureResource, public Bindable
+	class DepthCubeMapTextureBuffer : public D3D12Resource, public Bindable
 	{
 	public:
 		DepthCubeMapTextureBuffer(D3D12RHI& gfx, UINT size);

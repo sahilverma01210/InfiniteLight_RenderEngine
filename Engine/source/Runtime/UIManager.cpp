@@ -73,9 +73,7 @@ namespace Runtime
         // Start the Dear ImGui frame
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
-
-        m_gfx.GetCommandList()->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
+        ImGui::NewFrame();        
     }
 
     void UIManager::UpdateUIFrame()
@@ -84,6 +82,7 @@ namespace Runtime
 
     void UIManager::EndUIFrame()
     {
+        m_gfx.GetCommandList()->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
         // Rendering
         ImGui::Render();
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_gfx.GetCommandList());

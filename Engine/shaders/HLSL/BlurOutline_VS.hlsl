@@ -1,3 +1,5 @@
+#include "CommonResources.hlsl"
+
 struct VSOut
 {
     float2 uv : Texcoord;

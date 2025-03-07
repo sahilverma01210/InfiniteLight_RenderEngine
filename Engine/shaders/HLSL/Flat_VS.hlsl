@@ -1,6 +1,4 @@
-#include "VertexShaderUtils.hlsl"
-
-ConstantBuffer<MeshTransforms> meshTransforms : register(b0, space1);
+#include "CommonResources.hlsl"
 
 float4 main(float3 pos : Position) : SV_Position
 {

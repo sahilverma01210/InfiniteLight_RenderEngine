@@ -1,6 +1,4 @@
-#include "VertexShaderUtils.hlsl"
-
-ConstantBuffer<MeshTransforms> meshTransforms : register(b0, space1);
+#include "CommonResources.hlsl"
 
 struct VSOut
 {

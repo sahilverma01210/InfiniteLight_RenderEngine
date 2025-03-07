@@ -16,6 +16,9 @@ namespace Renderer
 	public:
 		bool m_imGUIwndOpen = true;
 	private:
+		UINT m_meshIdx;
 		IndexedTriangleList m_indexedList;
+		mutable Transforms m_transforms;
+		mutable MeshConstants m_meshConstants;
 	};
 }

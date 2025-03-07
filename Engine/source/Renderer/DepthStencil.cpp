@@ -14,7 +14,7 @@ namespace Renderer
     {
         INFOMAN(gfx);
 
-        m_texureBuffer = depthBuffer;
+        m_resourceBuffer = depthBuffer;
         m_width = depthBuffer->GetDesc().Width;
         m_height = depthBuffer->GetDesc().Height;
 
@@ -37,7 +37,7 @@ namespace Renderer
             descView.Texture2DArray.MipSlice = 0;
             descView.Texture2DArray.ArraySize = 1;
             descView.Texture2DArray.FirstArraySlice = face;
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_texureBuffer.Get(), &descView, m_depthStensilViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_resourceBuffer.Get(), &descView, m_depthStensilViewHandle));
         }
     }
 
@@ -74,7 +74,7 @@ namespace Renderer
                 &desc,
                 D3D12_RESOURCE_STATE_DEPTH_WRITE,
                 &clearValue,
-                IID_PPV_ARGS(&m_texureBuffer)));
+                IID_PPV_ARGS(&m_resourceBuffer)));
 
             m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -83,7 +83,7 @@ namespace Renderer
             descView.Flags = D3D12_DSV_FLAG_NONE;
             descView.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
             descView.Texture2D.MipSlice = 0;
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_texureBuffer.Get(), &descView, m_depthStensilViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_resourceBuffer.Get(), &descView, m_depthStensilViewHandle));
         }
 	}
 

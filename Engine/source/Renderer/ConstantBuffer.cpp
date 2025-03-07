@@ -42,14 +42,14 @@ namespace Renderer
                     D3D12_HEAP_FLAG_NONE,
                     &resourceDesc,
                     D3D12_RESOURCE_STATE_COPY_DEST,
-                    nullptr, IID_PPV_ARGS(&m_constantBuffer)
+                    nullptr, IID_PPV_ARGS(&m_resourceBuffer)
                 ));
             }
 
             // copy Upload Buffer to Index Buffer 
-            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get()));
+            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_resourceBuffer.Get(), m_constantUploadBuffer.Get()));
 
-            gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         }
 	}
 
@@ -68,11 +68,11 @@ namespace Renderer
 
         // Copy Data to GPU Memory
         {
-            gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+            gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
 
-            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_constantBuffer.Get(), m_constantUploadBuffer.Get()));
+            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->CopyResource(m_resourceBuffer.Get(), m_constantUploadBuffer.Get()));
 
-            gfx.TransitionResource(m_constantBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         }
     }
 
@@ -84,11 +84,6 @@ namespace Renderer
             m_selected = false;
         }
 	}
-
-    ID3D12Resource* ConstantBuffer::GetBuffer() const noexcept(!IS_DEBUG)
-    {
-        return m_constantBuffer.Get();
-    }
 
     Buffer ConstantBuffer::GetDynamicBuffer() const noexcept(!IS_DEBUG)
     {

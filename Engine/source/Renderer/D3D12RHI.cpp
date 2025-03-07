@@ -2,25 +2,6 @@
 
 namespace Renderer
 {
-    TextureHandle TextureManager::LoadTexture(std::shared_ptr<TextureResource> textureBuffer)
-    {
-        m_textureHandle++;
-
-        m_textureMap[m_textureHandle] = std::move(textureBuffer);
-
-        return m_textureHandle;
-    }
-
-    TextureResource& TextureManager::GetTexture(TextureHandle handle)
-    {
-        return *m_textureMap[handle];
-    }
-
-    std::shared_ptr<TextureResource> TextureManager::GetTexturePtr(TextureHandle handle)
-    {
-        return m_textureMap[handle];
-    }
-
     // PUBLIC - D3D12RHI METHODS
 
     D3D12RHI::D3D12RHI(HWND hWnd) :
@@ -35,18 +16,18 @@ namespace Renderer
         D3D12RHI_THROW_INFO(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
 
 #ifdef _DEBUG // Disable Debug Layer while using Nsight Tools
-        //// Enable D3D12 CPU & GPU Debug Layers.
-        //{
-        //    ComPtr<ID3D12Debug> debugController;
-        //    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-        //        debugController->EnableDebugLayer();
-        //    }
-        //
-        //    ComPtr<ID3D12Debug1> debugController1;
-        //    if (SUCCEEDED(debugController.As(&debugController1))) {
-        //        debugController1->SetEnableGPUBasedValidation(TRUE);
-        //    }
-        //}
+        // Enable D3D12 CPU & GPU Debug Layers.
+        {
+            ComPtr<ID3D12Debug> debugController;
+            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+                debugController->EnableDebugLayer();
+            }
+        
+            ComPtr<ID3D12Debug1> debugController1;
+            if (SUCCEEDED(debugController.As(&debugController1))) {
+                debugController1->SetEnableGPUBasedValidation(TRUE);
+            }
+        }
 #endif
 
         // Create D3D Device.
@@ -163,6 +144,15 @@ namespace Renderer
             m_viewport.Width = m_width;
             m_viewport.Height = m_height;
         }
+
+        // Create Common Descriptor Heap
+        {
+            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            srvHeapDesc.NumDescriptors = 1024;
+            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            D3D12RHI_THROW_INFO(m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_descriptorHeap)));
+        }
     }
 
     D3D12RHI::~D3D12RHI()
@@ -257,6 +247,97 @@ namespace Renderer
     std::vector<ComPtr<ID3D12Resource>> D3D12RHI::GetTargetBuffers()
     {
         return m_backBuffers;
+    }
+
+    // PUBLIC - RESOURCE MANAGER METHODS
+
+    ResourceHandle D3D12RHI::LoadResource(std::shared_ptr<D3D12Resource> resourceBuffer, ResourceType resourceType)
+    {
+        switch (resourceType)
+        {
+        case ResourceType::Constant:
+            AddConstantBufferView(resourceBuffer->GetBuffer());
+            break;
+        case ResourceType::Texture:
+            AddShaderResourceView(resourceBuffer->GetBuffer());
+            break;
+        case ResourceType::CubeMapTexture:
+            AddShaderResourceView(resourceBuffer->GetBuffer(), true);
+            break;
+        }
+
+        m_resourceMap[m_resourceHandle] = std::move(resourceBuffer);
+
+        return m_resourceHandle++;
+    }
+
+    void D3D12RHI::AddConstantBufferView(ID3D12Resource* constantBuffer)
+    {
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+        cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
+        cbvDesc.SizeInBytes = constantBuffer->GetDesc().Width; // Not Sure.
+
+        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+
+        D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&cbvDesc, CPUHandle));
+    }
+
+    void D3D12RHI::AddShaderResourceView(ID3D12Resource* textureBuffer, bool isCubeMap)
+    {
+        DXGI_FORMAT targetTextureFormat;
+
+        switch (textureBuffer->GetDesc().Format)
+        {
+        case DXGI_FORMAT_R24G8_TYPELESS:
+            targetTextureFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+            break;
+        case DXGI_FORMAT_R32_TYPELESS:
+            targetTextureFormat = DXGI_FORMAT_R32_FLOAT;
+            break;
+        default:
+            targetTextureFormat = textureBuffer->GetDesc().Format;
+            break;
+        }
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Format = targetTextureFormat;
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+        if (isCubeMap)
+        {
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+            srvDesc.TextureCube.MostDetailedMip = 0;
+            srvDesc.TextureCube.MipLevels = textureBuffer->GetDesc().MipLevels;
+            srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+        }
+        else
+        {
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Texture2D.MipLevels = textureBuffer->GetDesc().MipLevels;
+        }
+
+        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+
+        D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(textureBuffer, &srvDesc, CPUHandle));
+    }
+
+    D3D12Resource& D3D12RHI::GetResource(ResourceHandle resourceHandle)
+    {
+        return *m_resourceMap[resourceHandle];
+    }
+
+    std::shared_ptr<D3D12Resource> D3D12RHI::GetResourcePtr(ResourceHandle resourceHandle)
+    {
+        return m_resourceMap[resourceHandle];
+    }
+
+    void D3D12RHI::SetGPUResources()
+    {
+        // Set Common Descriptor Heap
+        ID3D12DescriptorHeap* ppHeaps[] = { m_descriptorHeap.Get() };
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps));
     }
 
     // PUBLIC - RENDER FRAME METHODS

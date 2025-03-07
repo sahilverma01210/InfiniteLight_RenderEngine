@@ -1,7 +1,21 @@
-#include "VertexShaderUtils.hlsl"
+#include "CommonResources.hlsl"
 
-ConstantBuffer<MeshTransforms> meshTransforms : register(b0, space1);
-ConstantBuffer<ShadowTransforms> shadowTransforms : register(b0);
+struct PhongCB
+{
+    int shadowConstIdx;
+    int lightConstIdx;
+    int texConstIdx;
+    int shadowTexIdx;
+    int diffTexIdx;
+    int normTexIdx;
+    int specTexIdx;
+    int solidConstIdx;
+};
+
+struct ShadowTransforms
+{
+    matrix shadowPos;
+};
 
 struct VSOut
 {
@@ -16,6 +30,9 @@ struct VSOut
 
 VSOut main(float3 pos : Position, float3 n : Normal, float2 texUV : Texcoord, float3 tan : Tangent, float3 bitan : Bitangent)
 {
+    ConstantBuffer<PhongCB> phongCB = ResourceDescriptorHeap[meshConstants.materialIdx];
+    ConstantBuffer<ShadowTransforms> shadowTransforms = ResourceDescriptorHeap[phongCB.shadowConstIdx];
+    
     VSOut vso;
     vso.viewPos = (float3) mul(float4(pos, 1.0f), meshTransforms.meshView);
     vso.viewNormal = mul(n, (float3x3) meshTransforms.meshView);

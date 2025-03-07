@@ -1,8 +1,15 @@
+#include "CommonResources.hlsl"
+
+struct SkyboxCB
+{
+    int cubeMapTexIdx;
+};
+
 SamplerState samplerState : register(s0);
-TextureCube tex : register(t0);
 
 float4 main(float3 worldPos : Position) : SV_TARGET
 {
-    //TextureCube tex = ResourceDescriptorHeap[0];
+    ConstantBuffer<SkyboxCB> skyboxCB = ResourceDescriptorHeap[meshConstants.materialIdx];
+    TextureCube<float4> tex = ResourceDescriptorHeap[skyboxCB.cubeMapTexIdx];
     return tex.Sample(samplerState, worldPos);
 }

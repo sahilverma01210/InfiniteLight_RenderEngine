@@ -23,6 +23,8 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+
 				CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
 				// define static sampler 
 				CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
@@ -36,10 +38,8 @@ namespace Renderer
 				samplers[0] = staticSampler;
 
 				PipelineDescription skyboxPipelineDesc{};
-
-				skyboxPipelineDesc.numConstants = 1;
-				skyboxPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-				skyboxPipelineDesc.numShaderResourceViews = 1;
+				skyboxPipelineDesc.numConstants = 2;
+				skyboxPipelineDesc.num32BitConstants = num32BitConstants;
 				skyboxPipelineDesc.numStaticSamplers = 1;
 				skyboxPipelineDesc.staticSamplers = samplers;
 				skyboxPipelineDesc.depthStencilMode = Mode::DepthFirst;
@@ -52,11 +52,11 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, skyboxPipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.m_textureManager.GetTexturePtr(3));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.m_textureManager.GetTexturePtr(gfx.GetCurrentBackBufferIndex() + 1));
+			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex()));
 			RenderPass::Execute(gfx);
 		}
 

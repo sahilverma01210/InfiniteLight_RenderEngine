@@ -1,3 +1,12 @@
+#include "CommonResources.hlsl"
+
+struct PostProcessCB
+{
+    int kernelConstIdx;
+    int frameBufferIdx1;
+    int frameBufferIdx2;
+};
+
 struct Kernel
 {
     uint nTaps;
@@ -6,26 +15,27 @@ struct Kernel
 
 SamplerState samplerState : register(s0);
 
-ConstantBuffer<Kernel> kernel : register(b0);
-bool horizontal : register(b1);
-
-Texture2D tex : register(t0);
-
 float4 main(float2 uv : Texcoord) : SV_Target
 {
+    ConstantBuffer<PostProcessCB> postProcessCB = ResourceDescriptorHeap[meshConstants.materialIdx];
+    
     float width, height;
+#if defined(HORIZONTAL_BLUR)
+    Texture2D<float4> tex = ResourceDescriptorHeap[postProcessCB.frameBufferIdx1];
+#else
+    Texture2D<float4> tex = ResourceDescriptorHeap[postProcessCB.frameBufferIdx2];
+#endif
     tex.GetDimensions(width, height);
     float dx, dy;
-    if (horizontal)
-    {
-        dx = 1.0f / width;
-        dy = 0.0f;
-    }
-    else
-    {
-        dx = 0.0f;
-        dy = 1.0f / height;
-    }
+#if defined(HORIZONTAL_BLUR)
+    dx = 1.0f / width;
+    dy = 0.0f;
+#else
+    dx = 0.0f;
+    dy = 1.0f / height;
+#endif
+    ConstantBuffer<Kernel> kernel = ResourceDescriptorHeap[postProcessCB.kernelConstIdx];
+    
     const int r = kernel.nTaps / 2;
     
     float accAlpha = 0.0f;

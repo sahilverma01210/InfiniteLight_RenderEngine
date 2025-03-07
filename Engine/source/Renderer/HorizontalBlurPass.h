@@ -21,6 +21,8 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+
 				CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
 				// define static sampler 
 				CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
@@ -33,28 +35,33 @@ namespace Renderer
 				staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
 				samplers[0] = staticSampler;
 
+				std::vector<SHADER_MACRO> ps_macros;
+				ps_macros.push_back({ L"HORIZONTAL_BLUR", L"1" });
+
 				PipelineDescription pipelineDesc{};
-				pipelineDesc.numConstantBufferViews = 2;
-				pipelineDesc.numShaderResourceViews = 1;
+				pipelineDesc.numConstants = 2;
+				pipelineDesc.num32BitConstants = num32BitConstants;
 				pipelineDesc.numStaticSamplers = 1;
 				pipelineDesc.staticSamplers = samplers;
 				pipelineDesc.backFaceCulling = true;
 				pipelineDesc.numElements = vec.size();
 				pipelineDesc.inputElementDescs = inputElementDescs;
 				pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"BlurOutline_VS.hlsl" };
-				pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"BlurOutline_PS.hlsl" };
+				pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"BlurOutline_PS.hlsl", ps_macros };
 
 				m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
 			}
 
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
+
 			m_renderTarget = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
-			gfx.m_textureManager.LoadTexture(m_renderTarget);
+			gfx.LoadResource(m_renderTarget, ResourceType::Texture);
 		}
 
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			ID3D12Resource* blurTargetBuffer = gfx.m_textureManager.GetTexture(5).GetBuffer();
+			ID3D12Resource* blurTargetBuffer = gfx.GetResource(4).GetBuffer();
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
 			RenderPass::Execute(gfx);

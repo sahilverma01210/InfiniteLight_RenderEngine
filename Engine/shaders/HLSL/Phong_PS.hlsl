@@ -1,5 +1,18 @@
+#include "CommonResources.hlsl"
 #include "PixelShaderUtils.hlsl"
 #include "LightShadowUtils.hlsl"
+
+struct PhongCB
+{
+    int shadowConstIdx;
+    int lightConstIdx;
+    int texConstIdx;
+    int shadowTexIdx;
+    int diffTexIdx;
+    int normTexIdx;
+    int specTexIdx;
+    int solidConstIdx;
+};
 
 struct SurfaceProps
 {
@@ -24,17 +37,21 @@ struct VSIn
     float4 shadowPos : ShadowPosition;
 };
 
-ConstantBuffer<PointLightProps> pointLightCB : register(b1); // Can use StructuredBuffer instead.
-ConstantBuffer<SurfaceProps> surfaceProps : register(b2);
-
 SamplerComparisonState samplerCompareState : register(s0);
 SamplerState samplerState : register(s1);
 
-TextureCube smap : register(t0);
-Texture2D tex[] : register(t1);
+// Can use StructuredBuffer instead.
 
-float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
+float4 CalculatePixels(VSIn vsIn)
 {
+    ConstantBuffer<PhongCB> phongCB = ResourceDescriptorHeap[meshConstants.materialIdx];
+    
+    ConstantBuffer<PointLightProps> pointLightCB = ResourceDescriptorHeap[phongCB.lightConstIdx];
+    ConstantBuffer<SurfaceProps> surfaceProps = ResourceDescriptorHeap[phongCB.texConstIdx];
+    
+    TextureCube smap = ResourceDescriptorHeap[phongCB.shadowTexIdx];
+    
+    int temp = meshConstants.materialIdx;
     int texIndex = 0;
     
     float3 diffuse;
@@ -42,14 +59,14 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
     float3 specular;
     
     // sample diffuse texture if defined
-    float4 dtex = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    float4 dtex = float4(1.0f, 1.0f, temp, 1.0f);
     if (surfaceProps.useDiffuseMap)
     {        
-        //Texture2D<float4> diffTex = ResourceDescriptorHeap[texIndex++];
-        dtex = tex[texIndex++].Sample(samplerState, vsIn.texUV);
+        Texture2D<float4> diffTex = ResourceDescriptorHeap[phongCB.diffTexIdx];
+        dtex = diffTex.Sample(samplerState, vsIn.texUV);
     }
     
-    if (ObjectCBuf.useDiffuseAlpha)
+    if (surfaceProps.useDiffuseAlpha)
     {
         // bail if highly translucent
         clip(dtex.a < 0.1f ? -1 : 1);
@@ -70,25 +87,25 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
         // replace normal with mapped if normal mapping enabled
         if (surfaceProps.useNormalMap)
         {
-            //Texture2D<float4> normTex = ResourceDescriptorHeap[texIndex++];
-            const float3 mappedNormal = MapNormal(normalize(vsIn.viewTan), normalize(vsIn.viewBitan), vsIn.viewNormal, vsIn.texUV, tex[texIndex++], samplerState);
-            vsIn.viewNormal = lerp(vsIn.viewNormal, mappedNormal, ObjectCBuf.normalMapWeight);            
+            Texture2D<float4> normTex = ResourceDescriptorHeap[phongCB.normTexIdx];
+            const float3 mappedNormal = MapNormal(normalize(vsIn.viewTan), normalize(vsIn.viewBitan), vsIn.viewNormal, vsIn.texUV, normTex, samplerState);
+            vsIn.viewNormal = lerp(vsIn.viewNormal, mappedNormal, surfaceProps.normalMapWeight);
         }
 
         // fragment to light vector data
         const LightVector lv = CalculateLightVector(pointLightCB.viewLightPos, vsIn.viewFragPos);
         
         // specular parameter determination (mapped or uniform)
-        float3 specularReflectionColor = ObjectCBuf.specularColor;
-        float specularPower = ObjectCBuf.specularGloss;
+        float3 specularReflectionColor = surfaceProps.specularColor;
+        float specularPower = surfaceProps.specularGloss;
         
         if(surfaceProps.useSpecularMap)
         {
-            //Texture2D<float4> specTex = ResourceDescriptorHeap[texIndex++];
-            const float4 specularSample = tex[texIndex++].Sample(samplerState, vsIn.texUV);
+            Texture2D<float4> specTex = ResourceDescriptorHeap[phongCB.specTexIdx];
+            const float4 specularSample = specTex.Sample(samplerState, vsIn.texUV);
             specularReflectionColor = specularSample.rgb;
                     
-            if (ObjectCBuf.useGlossAlpha)
+            if (surfaceProps.useGlossAlpha)
             {
                 specularPower = pow(2.0f, specularSample.a * 13.0f);
             }            
@@ -102,7 +119,7 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
         
         // specular reflected
         specularReflected = Speculate(
-            pointLightCB.diffuseColor * pointLightCB.diffuseIntensity * specularReflectionColor, ObjectCBuf.specularWeight, vsIn.viewNormal,
+            pointLightCB.diffuseColor * pointLightCB.diffuseIntensity * specularReflectionColor, surfaceProps.specularWeight, vsIn.viewNormal,
             lv.vToL, vsIn.viewFragPos, att, specularPower
         );
         
@@ -119,11 +136,10 @@ float4 CalculatePixels(VSIn vsIn, SurfaceProps ObjectCBuf)
     if (surfaceProps.useDiffuseMap)
         return float4(saturate((diffuse + pointLightCB.ambient) * dtex.rgb + specularReflected), 1.0f);
     else
-        return float4(saturate((diffuse + pointLightCB.ambient) * ObjectCBuf.materialColor + specularReflected), 1.0f);
+        return float4(saturate((diffuse + pointLightCB.ambient) * surfaceProps.materialColor + specularReflected), 1.0f);
 }
 
 float4 main(VSIn vsIn) : SV_Target
 {
-    SurfaceProps props = surfaceProps;
-    return CalculatePixels(vsIn, props);
+    return CalculatePixels(vsIn);
 }

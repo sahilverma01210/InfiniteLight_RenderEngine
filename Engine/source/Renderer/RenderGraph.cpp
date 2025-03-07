@@ -7,10 +7,10 @@ namespace Renderer
 		for (UINT n = 0; n < gfx.GetTargetBuffers().size(); n++)
 		{
 			RenderTarget* rt = new RenderTarget(gfx, gfx.GetTargetBuffers()[n].Get());
-			gfx.m_textureManager.LoadTexture(std::shared_ptr<RenderTarget>(rt));
+			gfx.LoadResource(std::shared_ptr<RenderTarget>(rt), ResourceType::Texture);
 		}
 
-		gfx.m_textureManager.LoadTexture(std::make_shared<DepthStencil>(gfx));
+		gfx.LoadResource(std::make_shared<DepthStencil>(gfx), ResourceType::Texture);
 	}
 
 	RenderGraph::~RenderGraph()

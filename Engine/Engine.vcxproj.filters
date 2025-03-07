@@ -662,6 +662,9 @@
     <CustomBuild Include="shaders\HLSL\VertexShaderUtils.hlsl">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\CommonResources.hlsl">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="config\packages.config" />

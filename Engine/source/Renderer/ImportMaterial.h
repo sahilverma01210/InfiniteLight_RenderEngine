@@ -9,6 +9,18 @@ namespace Renderer
 	{
 		friend class PointLight;
 
+		__declspec(align(256u)) struct ImportMatHandles
+		{
+			ResourceHandle phongLightShadowIdx;
+			ResourceHandle phongLightConstIdx;
+			ResourceHandle phongTexConstIdx;
+			ResourceHandle phongShadowTexIdx;
+			ResourceHandle phongDiffTexIdx;
+			ResourceHandle phongNormTexIdx;
+			ResourceHandle phongSpecTexIdx;
+			ResourceHandle solidConstIdx;
+		};
+
 		__declspec(align(256u)) struct PhongCB
 		{
 			alignas(16) XMFLOAT3 materialColor = XMFLOAT3();
@@ -51,8 +63,6 @@ namespace Renderer
 				{
 					UINT numSRVDescriptors = 0;
 
-					TextureHandle diffTexHandle{}, normTexHandle{}, specTexHandle{};
-
 					const auto rootPath = path.parent_path().string() + "\\";
 
 					// common (pre)
@@ -62,6 +72,10 @@ namespace Renderer
 					{
 						//std::lock_guard<std::mutex> guard(mutex);
 
+						// shadow
+						{
+							m_importMatHandles.phongShadowTexIdx = 3;
+						}
 						// diffuse
 						{
 							if (aiString diffFileName; material.GetTexture(aiTextureType_DIFFUSE, 0, &diffFileName) == aiReturn_SUCCESS)
@@ -69,7 +83,7 @@ namespace Renderer
 								m_phongData.useDiffuseMap = true;
 
 								std::string diffPath = rootPath + diffFileName.C_Str();
-								diffTexHandle = gfx.m_textureManager.LoadTexture(MeshTextureBuffer::Resolve(gfx, diffPath));
+								m_importMatHandles.phongDiffTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, diffPath), ResourceType::Texture);
 
 								macros.push_back({ L"USE_DIFFUSE_MAP", L"1" });
 								numSRVDescriptors++;
@@ -88,7 +102,7 @@ namespace Renderer
 								m_phongData.useNormalMap = true;
 
 								std::string normPath = rootPath + normFileName.C_Str();
-								normTexHandle = gfx.m_textureManager.LoadTexture(MeshTextureBuffer::Resolve(gfx, normPath));
+								m_importMatHandles.phongNormTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, normPath), ResourceType::Texture);
 
 								macros.push_back({ L"USE_NORMAL_MAP", L"1" });
 								numSRVDescriptors++;
@@ -111,7 +125,7 @@ namespace Renderer
 								m_phongData.useSpecularMap = true;
 
 								std::string specPath = rootPath + specFileName.C_Str();
-								specTexHandle = gfx.m_textureManager.LoadTexture(MeshTextureBuffer::Resolve(gfx, specPath));
+								m_importMatHandles.phongSpecTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, specPath), ResourceType::Texture);
 
 								macros.push_back({ L"USE_SPECULAR_MAP", L"1" });
 								numSRVDescriptors++;
@@ -119,41 +133,18 @@ namespace Renderer
 						}
 					}
 
-					// Add Resources & Samplers
+					// Add Resources
 					{
-						DescriptorTable::TableParams params;
-						params.resourceParameterIndex = 1;
-						params.numCbvSrvUavDescriptors = numSRVDescriptors + 3;
-
-						std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, params);
-
 						// Add Constants
 						{
-							if (diffTexHandle) m_phongData.useDiffuseAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.m_textureManager.GetTexture(diffTexHandle)).HasAlpha();
-							if (normTexHandle) m_phongData.normalMapWeight = 1.0f;
-							if (specTexHandle) m_phongData.useGlossAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.m_textureManager.GetTexture(specTexHandle)).HasAlpha();
+							if (m_importMatHandles.phongDiffTexIdx) m_phongData.useDiffuseAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.phongDiffTexIdx)).HasAlpha();
+							if (m_importMatHandles.phongNormTexIdx) m_phongData.normalMapWeight = 1.0f;
+							if (m_importMatHandles.phongSpecTexIdx) m_phongData.useGlossAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.phongSpecTexIdx)).HasAlpha();
 
-							std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData);
-
-							descriptorTable->AddConstantBufferView(gfx, m_lightShadowBindable->GetBuffer());
-							step.AddBindable(m_lightShadowBindable);
-							descriptorTable->AddConstantBufferView(gfx, m_lightBindable->GetBuffer());
-							step.AddBindable(m_lightBindable);
-							descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-							step.AddBindable(std::move(constBuffer));
+							m_importMatHandles.phongLightShadowIdx = gfx.LoadResource(m_lightShadowBindable, ResourceType::Constant);
+							m_importMatHandles.phongLightConstIdx = gfx.LoadResource(m_lightBindable, ResourceType::Constant);
+							m_importMatHandles.phongTexConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData), ResourceType::Constant);
 						}
-
-						// Add Textures
-						{
-							// Link Shadow Texture;
-							descriptorTable->AddShaderResourceView(gfx, 4, false, true);
-
-							if (diffTexHandle) descriptorTable->AddShaderResourceView(gfx, diffTexHandle);
-							if (normTexHandle) descriptorTable->AddShaderResourceView(gfx, normTexHandle);
-							if (specTexHandle) descriptorTable->AddShaderResourceView(gfx, specTexHandle);
-						}
-
-						step.AddBindable(std::move(descriptorTable));
 					}
 				}
 				phong.AddStep(std::move(step));
@@ -174,34 +165,30 @@ namespace Renderer
 					// 2. Outline Draw Step
 					Step draw("outlineDraw");
 					{
-						// Add Resources & Samplers
+						// Add Resources
 						{
-							DescriptorTable::TableParams params;
-							params.resourceParameterIndex = 1;
-							params.numCbvSrvUavDescriptors = 1;
-
-							std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
-
 							// Add Constants
 							{
 								SolidCB data = { XMFLOAT3{ 1.0f,0.4f,0.4f } };							
-								std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
-								descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-								draw.AddBindable(std::move(constBuffer));
+								m_importMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data)), ResourceType::Constant);
 							}
-
-							draw.AddBindable(std::move(descriptorTable));
 						}
 					}
 					outline.AddStep(std::move(draw));
 				}
 				m_techniques.push_back(std::move(outline));
+
+				m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_importMatHandles), static_cast<const void*>(&m_importMatHandles)), ResourceType::Constant);
 			}
+		}
+		UINT getID() const override {
+			return getTypeID<ImportMaterial>();
 		}
 
 	private:
 		PhongCB m_phongData;
 		static std::shared_ptr<ConstantBuffer> m_lightBindable;
 		static std::shared_ptr<ConstantBuffer> m_lightShadowBindable;
+		ImportMatHandles m_importMatHandles{};
 	};
 }

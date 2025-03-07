@@ -4,7 +4,7 @@
 
 namespace Renderer
 {
-	class DepthStencil : public TextureResource, public Bindable, public RenderGraphResource
+	class DepthStencil : public D3D12Resource, public Bindable, public RenderGraphResource
 	{
 		friend class RenderTarget;
 

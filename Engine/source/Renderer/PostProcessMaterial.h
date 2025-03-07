@@ -7,7 +7,6 @@ namespace Renderer
 {
 	class PostProcessMaterial : public ILMaterial
 	{
-	private:
 		enum class KernelType
 		{
 			Gauss,
@@ -19,17 +18,17 @@ namespace Renderer
 			float value;
 		};
 
-		__declspec(align(256u)) struct Kernel
+		__declspec(align(256u)) struct PostProcessMatHandles
 		{
-
-
-			alignas(16) UINT numTaps;
-			Coefficient coefficients[15];
+			ResourceHandle kernelConstIdx;
+			ResourceHandle frameBufferIdx1;
+			ResourceHandle frameBufferIdx2;
 		};
 
-		__declspec(align(256u)) struct Direction
+		__declspec(align(256u)) struct Kernel
 		{
-			bool horizontal;
+			alignas(16) UINT numTaps;
+			Coefficient coefficients[15];
 		};
 
 	public:
@@ -39,73 +38,43 @@ namespace Renderer
 			{
 				Step horizontalBlur("horizontal");
 				{
-					// Add Resources & Samplers
+					// Add Resources
 					{
-						DescriptorTable::TableParams params;
-						params.resourceParameterIndex = 0;
-						params.numCbvSrvUavDescriptors = 3;
-
-						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
-
 						// Add Constants
 						{
 							SetKernelGauss(m_radius, m_sigma);
-
-							std::shared_ptr<ConstantBuffer> kernelConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
-							descriptorTable->AddConstantBufferView(gfx, kernelConstBuffer->GetBuffer());
-							horizontalBlur.AddBindable(std::move(kernelConstBuffer));
-							m_direction.horizontal = true;
-
-							std::shared_ptr<ConstantBuffer> directionConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
-							descriptorTable->AddConstantBufferView(gfx, directionConstBuffer->GetBuffer());
-							horizontalBlur.AddBindable(std::move(directionConstBuffer));
+							m_postProcessMatHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel)), ResourceType::Constant);
 						}
 
 						// Add Textures
 						{
-							descriptorTable->AddShaderResourceView(gfx, 5);
+							m_postProcessMatHandles.frameBufferIdx1 = 4;
 						}
-
-						horizontalBlur.AddBindable(std::move(descriptorTable));
 					}
 				}
 				postProcess.AddStep(horizontalBlur);
 
 				Step verticalBlur("vertical");
 				{
-					// Add Resources & Samplers
+					// Add Resources
 					{
-						DescriptorTable::TableParams params;
-						params.resourceParameterIndex = 0;
-						params.numCbvSrvUavDescriptors = 3;
-
-						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_shared<DescriptorTable>(gfx, params));
-
 						// Add Constants
 						{
 							SetKernelGauss(m_radius, m_sigma);
-
-							std::shared_ptr<ConstantBuffer> kernelConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel));
-							descriptorTable->AddConstantBufferView(gfx, kernelConstBuffer->GetBuffer());
-							verticalBlur.AddBindable(std::move(kernelConstBuffer));
-							m_direction.horizontal = false;
-
-							std::shared_ptr<ConstantBuffer> directionConstBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(m_direction), static_cast<const void*>(&m_direction));
-							descriptorTable->AddConstantBufferView(gfx, directionConstBuffer->GetBuffer());
-							verticalBlur.AddBindable(std::move(directionConstBuffer));
+							m_postProcessMatHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel)), ResourceType::Constant);
 						}
 
 						// Add Textures
 						{
-							descriptorTable->AddShaderResourceView(gfx, 6);
+							m_postProcessMatHandles.frameBufferIdx2 = 5;
 						}
-
-						verticalBlur.AddBindable(std::move(descriptorTable));
 					}
 				}
 				postProcess.AddStep(verticalBlur);
 			}
 			m_techniques.push_back(std::move(postProcess));
+
+			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_postProcessMatHandles), static_cast<const void*>(&m_postProcessMatHandles)), ResourceType::Constant);
 		}
 		void SetKernelBox(int radius) noexcept(!IS_DEBUG)
 		{
@@ -186,6 +155,9 @@ namespace Renderer
 			}
 			ImGui::End();
 		}
+		UINT getID() const override {
+			return getTypeID<PostProcessMaterial>();
+		}
 
 	private:
 		static constexpr int m_maxRadius = 7;
@@ -193,6 +165,6 @@ namespace Renderer
 		float m_sigma = 4.0f;
 		KernelType m_kernelType = KernelType::Gauss;
 		Kernel m_kernel = {};
-		Direction m_direction = { true };
+		PostProcessMatHandles m_postProcessMatHandles{};
 	};
 }

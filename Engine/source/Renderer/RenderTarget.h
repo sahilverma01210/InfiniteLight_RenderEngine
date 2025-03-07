@@ -5,7 +5,7 @@
 
 namespace Renderer
 {
-	class RenderTarget : public TextureResource, public Bindable, public RenderGraphResource
+	class RenderTarget : public D3D12Resource, public Bindable, public RenderGraphResource
 	{
 		friend D3D12RHI;
 

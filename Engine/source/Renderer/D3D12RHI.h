@@ -8,6 +8,15 @@
 
 namespace Renderer
 {
+    using ResourceHandle = std::uint32_t;
+    using ResourceName = std::string;
+
+    enum class ResourceType
+    {
+        Constant,
+        Texture,
+        CubeMapTexture
+    };
     enum class Mode
     {
         Off,
@@ -28,7 +37,7 @@ namespace Renderer
     {
         // Root Signature
         UINT numConstants = 0;
-        UINT num32BitConstants = 0;
+        UINT* num32BitConstants = nullptr;
         UINT numConstantBufferViews = 0;
         UINT numShaderResourceViews = 0;
         UINT numSamplers = 0;
@@ -48,30 +57,14 @@ namespace Renderer
         DepthUsage depthUsage = DepthUsage::DepthStencil;
     };
 
-    class TextureResource
+    class D3D12Resource
     {
     public:
-        virtual ~TextureResource() = default;
-        ID3D12Resource* GetBuffer() const { return m_texureBuffer.Get(); };
+        virtual ~D3D12Resource() = default;
+        ID3D12Resource* GetBuffer() const { return m_resourceBuffer.Get(); };
 
     protected:
-        ComPtr<ID3D12Resource> m_texureBuffer;
-    };
-
-    using TextureHandle = std::uint32_t;
-    using TextureName = std::string;
-
-    class TextureManager
-    {
-    public:
-        TextureHandle LoadTexture(std::shared_ptr<TextureResource> textureBuffer);
-        TextureResource& GetTexture(TextureHandle handle);
-        std::shared_ptr<TextureResource> GetTexturePtr(TextureHandle handle);
-
-    private:
-        TextureHandle m_textureHandle = 0;
-        std::unordered_map<TextureName, TextureHandle> m_loadedTextures;
-        std::unordered_map<TextureHandle, std::shared_ptr<TextureResource>> m_textureMap;
+        ComPtr<ID3D12Resource> m_resourceBuffer;
     };
 
     class D3D12RHI
@@ -95,6 +88,13 @@ namespace Renderer
         void InsertFence();
         void Info(HRESULT hresult);
         std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
+        // RESOURCE MANAGER METHODS
+        ResourceHandle LoadResource(std::shared_ptr<D3D12Resource> resourceBuffer, ResourceType resourceType);
+        void AddConstantBufferView(ID3D12Resource* constantBuffer);
+        void AddShaderResourceView(ID3D12Resource* textureBuffer, bool isCubeMap = false);
+        D3D12Resource& GetResource(ResourceHandle handle);
+        std::shared_ptr<D3D12Resource> GetResourcePtr(ResourceHandle resourceHandle);
+		void SetGPUResources();
         // RENDER FRAME METHODS
         void ResizeScreenSpace(UINT width, UINT height);
         void StartFrame();
@@ -111,8 +111,6 @@ namespace Renderer
             _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
             bool requestHighPerformanceAdapter = false);
 
-    public:
-        TextureManager m_textureManager{};
     private:
         HRESULT hResult;
         HWND m_hWnd;
@@ -142,5 +140,10 @@ namespace Renderer
         std::vector<ComPtr<ID3D12Resource>> m_targetBuffers;
         ComPtr<ID3D12Resource> m_currentDepthBuffer = nullptr;
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
+        UINT m_descriptorCount = 0;
+        ComPtr<ID3D12DescriptorHeap> m_descriptorHeap;
+        ResourceHandle m_resourceHandle = 0;
+        std::unordered_map<ResourceName, ResourceHandle> m_loadedResources;
+        std::unordered_map<ResourceHandle, std::shared_ptr<D3D12Resource>> m_resourceMap;
     };
 }

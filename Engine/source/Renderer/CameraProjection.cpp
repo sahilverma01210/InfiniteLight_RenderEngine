@@ -4,9 +4,11 @@ namespace Renderer
 {
 	CameraProjection::CameraProjection(D3D12RHI& gfx, Projection projection)
 	{
+		m_meshIdx = ++m_meshCount;
 		m_indexedList = Frustum::Make(projection.width, projection.height, projection.nearZ, projection.farZ);
 
 		auto material = std::make_shared<LineWireMaterial>(gfx, m_indexedList.vertices.GetLayout());
+		m_materialTypeId = material->getID();
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material->GetTopology());
 		ApplyMaterial(gfx, material.get());
@@ -47,6 +49,9 @@ namespace Renderer
 			)
 		};
 
+		m_meshConstants = { m_materialTypeId, m_materialIdx };
+
 		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
+		gfx.Set32BitRootConstants(1, 2, &m_meshConstants);
 	}
 }

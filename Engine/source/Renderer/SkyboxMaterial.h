@@ -5,6 +5,11 @@ namespace Renderer
 {
 	class SkyboxMaterial : public ILMaterial
 	{
+		__declspec(align(256u)) struct SkyboxMatHandles
+		{
+			ResourceHandle cubeMapTexIdx;
+		};
+
 	public:
 		SkyboxMaterial(D3D12RHI& gfx, VertexLayout layout) noexcept(!IS_DEBUG)
 		{
@@ -12,26 +17,25 @@ namespace Renderer
 			{
 				Step only("skybox");
 				{
-					// Add Resources & Samplers
+					// Add Resources
 					{
-						DescriptorTable::TableParams params;
-						params.resourceParameterIndex = 1;
-						params.numCbvSrvUavDescriptors = 1;
-
-						std::shared_ptr<DescriptorTable> descriptorTable = std::make_shared<DescriptorTable>(gfx, params);
-
 						// Add Textures
 						{
-							TextureHandle textureHandle = gfx.m_textureManager.LoadTexture(std::make_shared<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox"));
-							descriptorTable->AddShaderResourceView(gfx, textureHandle, false, true);
+							m_skyboxMatHandles.cubeMapTexIdx = gfx.LoadResource(std::make_shared<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox"), ResourceType::CubeMapTexture);
 						}
-
-						only.AddBindable(std::move(descriptorTable));
 					}
 				}
 				skybox.AddStep(std::move(only));
 			}
 			m_techniques.push_back(std::move(skybox));
+
+			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_skyboxMatHandles), static_cast<const void*>(&m_skyboxMatHandles)), ResourceType::Constant);
 		}
+		UINT getID() const override {
+			return getTypeID<SkyboxMaterial>();
+		}
+
+	private:
+		SkyboxMatHandles m_skyboxMatHandles{};
 	};
 }

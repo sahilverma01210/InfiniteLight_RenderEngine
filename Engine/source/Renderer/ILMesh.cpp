@@ -13,6 +13,8 @@ namespace Renderer
 
 	void ILMesh::ApplyMaterial(D3D12RHI& gfx, ILMaterial* material, bool enableLighting) noexcept(!IS_DEBUG)
 	{
+		m_materialIdx = material->GetMaterialHandle();
+
 		m_enableLighting = enableLighting;
 
 		for (auto& technique : material->GetTechniques())

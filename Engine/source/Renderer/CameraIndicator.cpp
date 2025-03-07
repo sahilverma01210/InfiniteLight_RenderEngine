@@ -4,9 +4,11 @@ namespace Renderer
 {
 	CameraIndicator::CameraIndicator(D3D12RHI& gfx)
 	{
+		m_meshIdx = ++m_meshCount;
 		m_indexedList = Pyramid::Make();
 
 		auto material = std::make_shared<LineMaterial>(gfx, m_indexedList.vertices.GetLayout());
+		m_materialTypeId = material->getID();
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material->GetTopology());
 		ApplyMaterial(gfx, material.get());
@@ -40,6 +42,9 @@ namespace Renderer
 			)
 		};
 
+		m_meshConstants = { m_materialTypeId, m_materialIdx };
+
 		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
+		gfx.Set32BitRootConstants(1, 2, &m_meshConstants);
 	}
 }

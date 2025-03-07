@@ -21,6 +21,8 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+
 				CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
 				// define static sampler 
 				CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
@@ -34,8 +36,8 @@ namespace Renderer
 				samplers[0] = staticSampler;
 
 				PipelineDescription pipelineDesc{};
-				pipelineDesc.numConstantBufferViews = 2;
-				pipelineDesc.numShaderResourceViews = 1;
+				pipelineDesc.numConstants = 2;
+				pipelineDesc.num32BitConstants = num32BitConstants;
 				pipelineDesc.numStaticSamplers = 1;
 				pipelineDesc.staticSamplers = samplers;
 				pipelineDesc.backFaceCulling = true;
@@ -50,14 +52,14 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.m_textureManager.GetTexturePtr(3));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
 		}
 
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.m_textureManager.GetTexturePtr(gfx.GetCurrentBackBufferIndex() + 1));
+			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex()));
 
-			ID3D12Resource* blurTargetBuffer = gfx.m_textureManager.GetTexture(6).GetBuffer();
+			ID3D12Resource* blurTargetBuffer = gfx.GetResource(5).GetBuffer();
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
 			RenderPass::Execute(gfx);

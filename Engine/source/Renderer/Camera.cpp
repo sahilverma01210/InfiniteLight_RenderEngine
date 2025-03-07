@@ -2,6 +2,7 @@
 
 namespace Renderer
 {
+	UINT ILMesh::m_meshCount;
 	XMMATRIX ILMesh::m_cameraMatrix;
 	XMMATRIX ILMesh::m_projectionMatrix;
 

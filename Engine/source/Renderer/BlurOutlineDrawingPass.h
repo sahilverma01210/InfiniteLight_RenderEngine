@@ -21,10 +21,11 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+
 				PipelineDescription drawPipelineDesc{};
-				drawPipelineDesc.numConstants = 1;
-				drawPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-				drawPipelineDesc.numConstantBufferViews = 1;
+				drawPipelineDesc.numConstants = 2;
+				drawPipelineDesc.num32BitConstants = num32BitConstants;
 				drawPipelineDesc.backFaceCulling = true;
 				drawPipelineDesc.numElements = vec.size();
 				drawPipelineDesc.inputElementDescs = inputElementDescs;
@@ -37,7 +38,7 @@ namespace Renderer
 			}
 
 			m_renderTarget = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
-			gfx.m_textureManager.LoadTexture(m_renderTarget);
+			gfx.LoadResource(m_renderTarget, ResourceType::Texture);
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{

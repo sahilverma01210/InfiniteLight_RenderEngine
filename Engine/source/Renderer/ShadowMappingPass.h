@@ -24,9 +24,11 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2};
+
 				PipelineDescription shadowMapPipelineDesc{};
-				shadowMapPipelineDesc.numConstants = 1;
-				shadowMapPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
+				shadowMapPipelineDesc.numConstants = 2;
+				shadowMapPipelineDesc.num32BitConstants = num32BitConstants;
 				shadowMapPipelineDesc.shadowMapping = true;
 				shadowMapPipelineDesc.numElements = vec.size();
 				shadowMapPipelineDesc.inputElementDescs = inputElementDescs;
@@ -38,7 +40,7 @@ namespace Renderer
 			}
 
 			m_pDepthCube = std::make_shared<DepthCubeMapTextureBuffer>(gfx, m_size);
-			gfx.m_textureManager.LoadTexture(m_pDepthCube);
+			gfx.LoadResource(m_pDepthCube, ResourceType::CubeMapTexture);
 			RegisterSource(DirectBindableSource<DepthCubeMapTextureBuffer>::Make("map", m_pDepthCube));
 
 			m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(0));
@@ -65,7 +67,7 @@ namespace Renderer
 		}
 
 	private:
-		TextureHandle m_depthCubeHandle;
+		ResourceHandle m_depthCubeHandle;
 		VertexLayout m_vtxLayout;
 		static constexpr UINT m_size = 1000;
 		CameraContainer& m_cameraContainer;

@@ -25,6 +25,7 @@ namespace Renderer
 	void RenderPass::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		BindRenderGraphResources(gfx);
+		gfx.SetGPUResources();
 
 		for (const auto& job : m_jobs)
 		{

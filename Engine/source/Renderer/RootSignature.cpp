@@ -9,7 +9,7 @@ namespace Renderer
         m_numRootParameters += pipelineDesc.numConstants;
 
         if (pipelineDesc.numConstantBufferViews || pipelineDesc.numShaderResourceViews) m_numRootParameters++;
-        //if (pipelineDesc.numSamplers) m_numRootParameters++;
+        if (pipelineDesc.numSamplers) m_numRootParameters++;
 
         m_rootParameters = new CD3DX12_ROOT_PARAMETER[m_numRootParameters];
 
@@ -17,7 +17,7 @@ namespace Renderer
 
         for (int i = 0; i < pipelineDesc.numConstants; i++)
         {
-            m_rootParameters[index].InitAsConstants(pipelineDesc.num32BitConstants, i, 1, D3D12_SHADER_VISIBILITY_VERTEX); // Here Shader Register can be different from Root Paramerer Index.
+            m_rootParameters[index].InitAsConstants(pipelineDesc.num32BitConstants[i], i, 1, D3D12_SHADER_VISIBILITY_ALL); // Here Shader Register can be different from Root Paramerer Index.
             index++;
         }
 
@@ -44,13 +44,13 @@ namespace Renderer
             index++;
         }
 
-        //if (pipelineDesc.numSamplers)
-        //{
-        //    CD3DX12_DESCRIPTOR_RANGE descRanges[1];
-        //    descRanges[0] = CD3DX12_DESCRIPTOR_RANGE{ D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, pipelineDesc.numSamplers , 0 };
-        //    m_rootParameters[index].InitAsDescriptorTable(_countof(descRanges), descRanges, D3D12_SHADER_VISIBILITY_ALL);
-        //    index++;
-        //}
+        if (pipelineDesc.numSamplers)
+        {
+            CD3DX12_DESCRIPTOR_RANGE descRanges[1];
+            descRanges[0] = CD3DX12_DESCRIPTOR_RANGE{ D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, pipelineDesc.numSamplers , 0 };
+            m_rootParameters[index].InitAsDescriptorTable(_countof(descRanges), descRanges, D3D12_SHADER_VISIBILITY_ALL);
+            index++;
+        }
 
         // Allow input layout and vertex shader and deny unnecessary access to certain pipeline stages.
         const D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =

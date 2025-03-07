@@ -23,10 +23,11 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+
 				PipelineDescription phongPipelineDesc{};
-				phongPipelineDesc.numConstants = 1;
-				phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-				phongPipelineDesc.numConstantBufferViews = 1;
+				phongPipelineDesc.numConstants = 2;
+				phongPipelineDesc.num32BitConstants = num32BitConstants;
 				phongPipelineDesc.numElements = vec.size();
 				phongPipelineDesc.inputElementDescs = inputElementDescs;
 				phongPipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Flat_VS.hlsl" };
@@ -36,13 +37,13 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, phongPipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.m_textureManager.GetTexturePtr(3));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			m_cameraContainer.GetActiveCamera().Update();
 
-			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.m_textureManager.GetTexturePtr(gfx.GetCurrentBackBufferIndex() + 1));
+			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex()));
 			RenderPass::Execute(gfx);
 		}
 

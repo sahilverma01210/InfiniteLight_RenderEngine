@@ -4,10 +4,13 @@ namespace Renderer
 {
 	PointLightIndicator::PointLightIndicator(D3D12RHI& gfx, float radius)
 	{
+		m_meshIdx = ++m_meshCount;
+
 		m_indexedList = Sphere::Make();		
 		m_indexedList.Transform(XMMatrixScaling(radius, radius, radius)); // deform vertices of model by linear transformation
 
 		auto material = std::make_shared<SolidMaterial>(gfx, m_indexedList.vertices.GetLayout());
+		m_materialTypeId = material->getID();
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
 		ApplyMaterial(gfx, material.get());
@@ -36,6 +39,9 @@ namespace Renderer
 			)
 		};
 
+		m_meshConstants = { m_materialTypeId, m_materialIdx };
+
 		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
+		gfx.Set32BitRootConstants(1, 2, &m_meshConstants);
 	}
 }

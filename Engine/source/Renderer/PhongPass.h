@@ -27,6 +27,8 @@ namespace Renderer
 					inputElementDescs[i] = vec[i];
 				}
 
+				UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+
 				CD3DX12_STATIC_SAMPLER_DESC* staticSamplers = new CD3DX12_STATIC_SAMPLER_DESC[2];
 				
 				CD3DX12_STATIC_SAMPLER_DESC sampler1{ 0 };
@@ -47,10 +49,8 @@ namespace Renderer
 				staticSamplers[1] = sampler2;
 
 				PipelineDescription phongPipelineDesc{};
-				phongPipelineDesc.numConstants = 1;
-				phongPipelineDesc.num32BitConstants = (sizeof(XMMATRIX) / 4) * 3;
-				phongPipelineDesc.numConstantBufferViews = 3;
-				phongPipelineDesc.numShaderResourceViews = 4;
+				phongPipelineDesc.numConstants = 2;
+				phongPipelineDesc.num32BitConstants = num32BitConstants;
 				phongPipelineDesc.numStaticSamplers = 2; // One extra Sampler for Shadow Texture.
 				phongPipelineDesc.staticSamplers = staticSamplers;
 				phongPipelineDesc.backFaceCulling = true;
@@ -63,15 +63,15 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, phongPipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.m_textureManager.GetTexturePtr(3));
-			m_pShadowMap = std::dynamic_pointer_cast<DepthCubeMapTextureBuffer>(gfx.m_textureManager.GetTexturePtr(4));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
+			m_pShadowMap = std::dynamic_pointer_cast<DepthCubeMapTextureBuffer>(gfx.GetResourcePtr(3));
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			m_cameraContainer.GetActiveCamera().Update();
 
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.m_textureManager.GetTexturePtr(gfx.GetCurrentBackBufferIndex() + 1));
+			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex()));
 			RenderPass::Execute(gfx);
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}

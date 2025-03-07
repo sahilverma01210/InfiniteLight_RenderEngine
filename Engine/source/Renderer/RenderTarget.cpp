@@ -18,7 +18,7 @@ namespace Renderer
             D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
                 &desc,
                 D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
-                IID_PPV_ARGS(&m_texureBuffer)
+                IID_PPV_ARGS(&m_resourceBuffer)
             ));
         }
 
@@ -41,7 +41,7 @@ namespace Renderer
             m_renderTargetViewHandle = rtvHandle;
             rtvHandle.ptr += m_rtvDescriptorSize;
 
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(m_texureBuffer.Get(), nullptr, m_renderTargetViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(m_resourceBuffer.Get(), nullptr, m_renderTargetViewHandle));
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
 	}
@@ -50,7 +50,7 @@ namespace Renderer
     {
         INFOMAN(gfx);
 
-        m_texureBuffer = pTexture;
+        m_resourceBuffer = pTexture;
 
         // Describe and create a RTV descriptor heap.
         {

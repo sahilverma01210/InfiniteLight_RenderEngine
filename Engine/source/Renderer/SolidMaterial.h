@@ -5,6 +5,11 @@ namespace Renderer
 {
 	class SolidMaterial : public ILMaterial
 	{
+		__declspec(align(256u)) struct SolidMatHandles
+		{
+			ResourceHandle solidConstIdx;
+		};
+
 		__declspec(align(256u)) struct SolidCB
 		{
 			XMFLOAT3 materialColor;
@@ -17,28 +22,26 @@ namespace Renderer
 			{
 				Step only("flat_shading");
 				{
-					// Add Resources & Samplers
+					// Add Resources
 					{
-						DescriptorTable::TableParams params;
-						params.resourceParameterIndex = 1;
-						params.numCbvSrvUavDescriptors = 1;
-
-						std::shared_ptr<DescriptorTable> descriptorTable = std::move(std::make_unique<DescriptorTable>(gfx, params));
-
 						// Add Constants
 						{
 							SolidCB data = { XMFLOAT3{ 1.0f,1.0f,1.0f } };
-							std::shared_ptr<ConstantBuffer> constBuffer = std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data));
-							descriptorTable->AddConstantBufferView(gfx, constBuffer->GetBuffer());
-							only.AddBindable(std::move(constBuffer));
+							m_solidMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data)), ResourceType::Constant);
 						}
-
-						only.AddBindable(std::move(descriptorTable));
 					}
 				}
 				solid.AddStep(std::move(only));
 			}
 			m_techniques.push_back(std::move(solid));
+
+			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_solidMatHandles), static_cast<const void*>(&m_solidMatHandles)), ResourceType::Constant);
 		}
+		UINT getID() const override {
+			return getTypeID<SolidMaterial>();
+		}
+
+	private:
+		SolidMatHandles m_solidMatHandles{};
 	};
 }

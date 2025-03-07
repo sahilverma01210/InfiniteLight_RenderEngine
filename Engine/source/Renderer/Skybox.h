@@ -11,6 +11,8 @@ namespace Renderer
 		void SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG) override;
 
 	private:
+		UINT m_meshIdx;
+		mutable MeshConstants m_meshConstants;
 		mutable Transforms m_transforms;
 		IndexedTriangleList m_indexedList;
 	};
