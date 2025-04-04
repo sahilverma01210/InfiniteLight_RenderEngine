@@ -43,7 +43,8 @@ namespace Renderer
 #endif
             L"-E", entryPoint.c_str(),
 			L"-T", targetProfile.c_str(),
-			L"-I", assetsPath.c_str()
+			L"-I", assetsPath.c_str(),
+            L"-no-warnings"
         };
 
         for (const auto& macro : macros) {

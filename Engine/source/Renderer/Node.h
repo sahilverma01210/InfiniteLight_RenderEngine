@@ -30,7 +30,7 @@ namespace Renderer
 
 	public:
 		Node(int id, const std::string& name, std::vector<std::shared_ptr<Mesh>> meshPtrs, const XMMATRIX& transform) noexcept(!IS_DEBUG);
-		void Submit(size_t channel, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
+		void Submit(FXMMATRIX accumulatedTransform, RenderGraph& renderGraph) const noexcept(!IS_DEBUG);
 		void SetAppliedTransform(FXMMATRIX transform) noexcept(!IS_DEBUG);
 		const XMFLOAT4X4& GetAppliedTransform() const noexcept(!IS_DEBUG);
 		int GetId() const noexcept(!IS_DEBUG);

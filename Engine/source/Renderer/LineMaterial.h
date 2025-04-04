@@ -20,24 +20,12 @@ namespace Renderer
 		{
 			m_topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 
-			Technique line{ "line", Channel::main};
-			{
-				Step only("flat_shading");
-				{
-					// Add Resources
-					{
-						// Add Constants
-						{
-							SolidCB data = { XMFLOAT3{ 0.2f,0.2f,0.6f } };
-
-							m_lineMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data)), ResourceType::Constant);
-						}
-					}
-				}
-				line.AddStep(std::move(only));
-			}
+			Technique line{ "line" };
+			line.passNames.push_back("flat_shading");
 			m_techniques.push_back(std::move(line));
 
+			SolidCB data = { XMFLOAT3{ 0.2f,0.2f,0.6f } };
+			m_lineMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data)), ResourceType::Constant);
 			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_lineMatHandles), static_cast<const void*>(&m_lineMatHandles)), ResourceType::Constant);
 		}
 		UINT getID() const override {

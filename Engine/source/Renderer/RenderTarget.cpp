@@ -38,10 +38,10 @@ namespace Renderer
 
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
-            m_renderTargetViewHandle = rtvHandle;
+            m_descHandle = rtvHandle;
             rtvHandle.ptr += m_rtvDescriptorSize;
 
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(m_resourceBuffer.Get(), nullptr, m_renderTargetViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(m_resourceBuffer.Get(), nullptr, m_descHandle));
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
 	}
@@ -84,30 +84,18 @@ namespace Renderer
 
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
-            m_renderTargetViewHandle = rtvHandle;
+            m_descHandle = rtvHandle;
             rtvHandle.ptr += m_rtvDescriptorSize;
 
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(pTexture, &rtvDesc, m_renderTargetViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(pTexture, &rtvDesc, m_descHandle));
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
     }
 
-    void RenderTarget::BindAsBuffer(D3D12RHI& gfx, RenderGraphResource* RenderGraphResource) noexcept(!IS_DEBUG)
-    {
-        INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(1, &m_renderTargetViewHandle, FALSE, RenderGraphResource ? &(static_cast<DepthStencil*>(RenderGraphResource)->m_depthStensilViewHandle) : nullptr));
-    }
-
-    void RenderTarget::Clear(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+    void RenderTarget::Clear(D3D12RHI& gfx)
     {
         const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
         INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->ClearRenderTargetView(m_renderTargetViewHandle, clear_color_with_alpha, 0, nullptr));
-    }
-
-    void RenderTarget::Clear(D3D12RHI& gfx, const std::array<float, 4>& color) const noexcept(!IS_DEBUG)
-    {
-        INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->ClearRenderTargetView(m_renderTargetViewHandle, color.data(), 0, nullptr));
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->ClearRenderTargetView(m_descHandle, clear_color_with_alpha, 0, nullptr));
     }
 }

@@ -2,6 +2,8 @@
 #include "Drawable.h"
 #include "ILMaterial.h"
 #include "Shapes.h"
+#include "TechniqueProbe.h"
+#include "RenderGraph.h"
 
 namespace Renderer
 {
@@ -26,13 +28,14 @@ namespace Renderer
 	public:
 		void ApplyMesh(D3D12RHI& gfx, VertexRawBuffer vertices, std::vector<USHORT> indices, D3D12_PRIMITIVE_TOPOLOGY topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		void ApplyMaterial(D3D12RHI& gfx, ILMaterial* material, bool enableLighting = false) noexcept(!IS_DEBUG);
-		void Submit(size_t channel) const noexcept(!IS_DEBUG);
+		void AddTechnique(Technique tech_in) noexcept(!IS_DEBUG);
+		void Submit(RenderGraph& renderGraph) const noexcept(!IS_DEBUG);
+		void Accept(TechniqueProbe& probe);
 
 	protected:
 		UINT m_materialTypeId;
 		ResourceHandle m_materialIdx;
 		static UINT m_meshCount;
-		static XMMATRIX m_cameraMatrix;
-		static XMMATRIX m_projectionMatrix;
+		std::vector<Technique> m_techniques;
 	};
 }

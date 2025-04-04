@@ -66,9 +66,9 @@ namespace Renderer
 		m_pRoot->SetAppliedTransform(XMMatrixTranslation(transform.x, transform.y, transform.z));
 	}
 
-	void Model::Submit(size_t channel) const noexcept(!IS_DEBUG)
+	void Model::Submit(RenderGraph& renderGraph) const noexcept(!IS_DEBUG)
 	{
-		m_pRoot->Submit(channel, XMMatrixIdentity());
+		m_pRoot->Submit(XMMatrixIdentity(), renderGraph);
 	}
 
 	std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept(!IS_DEBUG)
@@ -97,13 +97,5 @@ namespace Renderer
 	void Model::Accept(ModelProbe& probe)
 	{
 		m_pRoot->Accept(probe);
-	}
-
-	void Model::LinkTechniques(RenderGraph& rg)
-	{
-		for (auto& pMesh : m_meshPtrs)
-		{
-			pMesh->LinkTechniques(rg);
-		}
 	}
 }

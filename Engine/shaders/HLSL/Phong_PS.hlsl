@@ -4,7 +4,6 @@
 
 struct PhongCB
 {
-    int shadowConstIdx;
     int lightConstIdx;
     int texConstIdx;
     int shadowTexIdx;
@@ -27,6 +26,7 @@ struct SurfaceProps
     bool useNormalMap;
     bool useSpecularMap;
 };
+
 struct VSIn
 {
     float3 viewFragPos : Position;
@@ -37,33 +37,41 @@ struct VSIn
     float4 shadowPos : ShadowPosition;
 };
 
+struct PSOut
+{
+    float4 pixels : SV_Target0;
+    float4 shadow : SV_Target1;
+    float4 diffuse : SV_Target2;
+    float4 normal : SV_Target3;
+    float4 specular : SV_Target4;
+};
+
 SamplerComparisonState samplerCompareState : register(s0);
 SamplerState samplerState : register(s1);
 
 // Can use StructuredBuffer instead.
 
-float4 CalculatePixels(VSIn vsIn)
+PSOut CalculatePixels(VSIn vsIn)
 {
-    ConstantBuffer<PhongCB> phongCB = ResourceDescriptorHeap[meshConstants.materialIdx];
+    PSOut pso;
     
+    ConstantBuffer<PhongCB> phongCB = ResourceDescriptorHeap[meshConstants.materialIdx];    
     ConstantBuffer<PointLightProps> pointLightCB = ResourceDescriptorHeap[phongCB.lightConstIdx];
     ConstantBuffer<SurfaceProps> surfaceProps = ResourceDescriptorHeap[phongCB.texConstIdx];
     
     TextureCube smap = ResourceDescriptorHeap[phongCB.shadowTexIdx];
-    
-    int temp = meshConstants.materialIdx;
-    int texIndex = 0;
     
     float3 diffuse;
     float3 specularReflected;
     float3 specular;
     
     // sample diffuse texture if defined
-    float4 dtex = float4(1.0f, 1.0f, temp, 1.0f);
+    float4 dtex = float4(1.0f, 1.0f, 1.0f, 1.0f);
     if (surfaceProps.useDiffuseMap)
     {        
         Texture2D<float4> diffTex = ResourceDescriptorHeap[phongCB.diffTexIdx];
         dtex = diffTex.Sample(samplerState, vsIn.texUV);
+        pso.diffuse = dtex;
     }
     
     if (surfaceProps.useDiffuseAlpha)
@@ -88,12 +96,14 @@ float4 CalculatePixels(VSIn vsIn)
         if (surfaceProps.useNormalMap)
         {
             Texture2D<float4> normTex = ResourceDescriptorHeap[phongCB.normTexIdx];
+            const float4 normSample = normTex.Sample(samplerState, vsIn.texUV);
+            pso.normal = normSample;
             const float3 mappedNormal = MapNormal(normalize(vsIn.viewTan), normalize(vsIn.viewBitan), vsIn.viewNormal, vsIn.texUV, normTex, samplerState);
             vsIn.viewNormal = lerp(vsIn.viewNormal, mappedNormal, surfaceProps.normalMapWeight);
         }
 
         // fragment to light vector data
-        const LightVector lv = CalculateLightVector(pointLightCB.viewLightPos, vsIn.viewFragPos);
+        const LightVector lv = CalculateLightVector(pointLightCB.viewPos, vsIn.viewFragPos);
         
         // specular parameter determination (mapped or uniform)
         float3 specularReflectionColor = surfaceProps.specularColor;
@@ -103,6 +113,7 @@ float4 CalculatePixels(VSIn vsIn)
         {
             Texture2D<float4> specTex = ResourceDescriptorHeap[phongCB.specTexIdx];
             const float4 specularSample = specTex.Sample(samplerState, vsIn.texUV);
+            pso.specular = specularSample;
             specularReflectionColor = specularSample.rgb;
                     
             if (surfaceProps.useGlossAlpha)
@@ -112,15 +123,15 @@ float4 CalculatePixels(VSIn vsIn)
         }
 
         // attenuation
-        const float att = Attenuate(pointLightCB.attConst, pointLightCB.attLin, pointLightCB.attQuad, lv.distToL);
+        const float attenuation = 1.0f / (pointLightCB.attConst + pointLightCB.attLin * lv.distToL + pointLightCB.attQuad * (lv.distToL * lv.distToL));
         
         // diffuse light
-        diffuse = Diffuse(pointLightCB.diffuseColor, pointLightCB.diffuseIntensity, att, lv.dirToL, vsIn.viewNormal);
+        diffuse = pointLightCB.diffuseColor * pointLightCB.diffuseIntensity * attenuation * max(0.0f, dot(lv.dirToL, vsIn.viewNormal));
         
         // specular reflected
         specularReflected = Speculate(
             pointLightCB.diffuseColor * pointLightCB.diffuseIntensity * specularReflectionColor, surfaceProps.specularWeight, vsIn.viewNormal,
-            lv.vToL, vsIn.viewFragPos, att, specularPower
+            lv.vToL, vsIn.viewFragPos, attenuation, specularPower
         );
         
         // scale by shadow level
@@ -134,12 +145,14 @@ float4 CalculatePixels(VSIn vsIn)
 
     // final color = attenuate diffuse & ambient by diffuse texture color and add specular reflected
     if (surfaceProps.useDiffuseMap)
-        return float4(saturate((diffuse + pointLightCB.ambient) * dtex.rgb + specularReflected), 1.0f);
+        pso.pixels = float4(saturate((diffuse + pointLightCB.ambient) * dtex.rgb + specularReflected), 1.0f);
     else
-        return float4(saturate((diffuse + pointLightCB.ambient) * surfaceProps.materialColor + specularReflected), 1.0f);
+        pso.pixels = float4(saturate((diffuse + pointLightCB.ambient) * surfaceProps.materialColor + specularReflected), 1.0f);
+    
+    return pso;
 }
 
-float4 main(VSIn vsIn) : SV_Target
+PSOut main(VSIn vsIn) : SV_Target
 {
     return CalculatePixels(vsIn);
 }

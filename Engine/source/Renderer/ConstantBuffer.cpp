@@ -76,15 +76,6 @@ namespace Renderer
         }
     }
 
-	void ConstantBuffer::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
-	{
-        if (m_selected)
-        {
-            Update(gfx, m_dataBuffer.value().GetData());
-            m_selected = false;
-        }
-	}
-
     Buffer ConstantBuffer::GetDynamicBuffer() const noexcept(!IS_DEBUG)
     {
         return m_dataBuffer.value();

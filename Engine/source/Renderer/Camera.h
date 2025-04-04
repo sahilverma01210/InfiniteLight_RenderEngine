@@ -30,8 +30,7 @@ namespace Renderer
 		XMFLOAT3 GetPos() const noexcept(!IS_DEBUG);
 		void SetPos(const XMFLOAT3& pos) noexcept(!IS_DEBUG);
 		const std::string& GetName() const noexcept(!IS_DEBUG);
-		void LinkTechniques(RenderGraph& rg);
-		void Submit(size_t channel) const;
+		void Submit(RenderGraph& renderGraph) const;
 
 	private:
 		bool m_tethered;

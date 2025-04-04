@@ -20,7 +20,7 @@ namespace Renderer
 	{		
 	}
 
-	void PostProcessFilter::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
+	void PostProcessFilter::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		m_transforms = {
 			XMMatrixIdentity(),

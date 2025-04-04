@@ -23,7 +23,7 @@ namespace Renderer
 				AppendPass(std::move(pass));
 			}
 			{
-				auto pass = std::make_unique<ShadowMappingPass>(gfx, "shadowMap", cameraContainer);
+				auto pass = std::make_unique<ShadowMappingPass>(gfx, "shadowMap");
 				AppendPass(std::move(pass));
 			}
 			{
@@ -31,7 +31,7 @@ namespace Renderer
 				AppendPass(std::move(pass));
 			}
 			{
-				auto pass = std::make_unique<PhongPass>(gfx, "phong_shading", cameraContainer);
+				auto pass = std::make_unique<PhongPass>(gfx, "phong_shading", cameraContainer, gfx.GetWidth(), gfx.GetHeight());
 				AppendPass(std::move(pass));
 			}
 			{

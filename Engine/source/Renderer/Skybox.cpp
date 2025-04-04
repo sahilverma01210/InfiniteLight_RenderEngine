@@ -16,7 +16,7 @@ namespace Renderer
 		ApplyMaterial(gfx, material.get());
 	}
 
-	void Skybox::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
+	void Skybox::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		m_transforms = {
 			XMMatrixIdentity(),

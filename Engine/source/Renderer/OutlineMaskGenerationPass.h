@@ -35,7 +35,7 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, maskPipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
 			m_depthOnlyPass = true;
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override

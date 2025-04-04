@@ -3,7 +3,6 @@
 
 #include "TechniqueProbe.h"
 #include "ModelProbe.h"
-#include "Technique.h"
 #include "DynamicConstant.h"
 #include "Model.h"
 #include "Node.h"
@@ -17,10 +16,10 @@ namespace Renderer
 		void OnSetTechnique() override
 		{
 			using namespace std::string_literals;
-			ImGui::TextColored({ 0.4f,1.0f,0.6f,1.0f }, m_pTech->GetName().c_str());
-			bool active = m_pTech->GetActiveState();
+			ImGui::TextColored({ 0.4f,1.0f,0.6f,1.0f }, m_pTech->name.c_str());
+			bool active = m_pTech->active;
 			ImGui::Checkbox(("Tech Active##"s + std::to_string(m_techIdx)).c_str(), &active);
-			m_pTech->SetActiveState(active);
+			m_pTech->active = active;
 		}
 		bool OnVisitBuffer(Buffer& buf) override
 		{
@@ -148,9 +147,9 @@ namespace Renderer
 				{
 					virtual void OnSetTechnique()
 					{
-						if (m_pTech->GetName() == "Outline")
+						if (m_pTech->name == "Outline")
 						{
-							m_pTech->SetActiveState(highlighted);
+							m_pTech->active = highlighted;
 						}
 					}
 					bool highlighted = false;

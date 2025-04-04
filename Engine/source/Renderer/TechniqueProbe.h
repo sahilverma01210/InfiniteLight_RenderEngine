@@ -4,8 +4,7 @@
 namespace Renderer
 {
 	class Buffer;
-	class Technique;
-	class Step;
+	struct Technique;
 
 	class TechniqueProbe
 	{
@@ -16,11 +15,6 @@ namespace Renderer
 			m_pTech = pTech_in;
 			m_techIdx++;
 			OnSetTechnique();
-		}
-		void SetStep(Step* pStep_in)
-		{
-			m_pStep = pStep_in;
-			m_stepIdx++;
 		}
 		bool VisitBuffer(Buffer& buf)
 		{
@@ -36,7 +30,6 @@ namespace Renderer
 
 	protected:
 		Technique* m_pTech = nullptr;
-		Step* m_pStep = nullptr;
 		size_t m_techIdx;
 		size_t m_stepIdx;
 		size_t m_bufIdx;

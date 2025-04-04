@@ -37,13 +37,14 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, phongPipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
+			m_renderTargets.resize(1);
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			m_cameraContainer.GetActiveCamera().Update();
 
-			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex()));
+			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
 			RenderPass::Execute(gfx);
 		}
 

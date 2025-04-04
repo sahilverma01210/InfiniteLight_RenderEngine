@@ -48,26 +48,13 @@ namespace Renderer
 		m_cameras.push_back(std::move(pCam));
 	}
 
-	void CameraContainer::AddLightingCamera(std::shared_ptr<Camera> pCam)
-	{
-		m_lightingCamera = pCam;
-	}
-
-	void CameraContainer::LinkTechniques(RenderGraph& rg)
-	{
-		for (auto& pcam : m_cameras)
-		{
-			pcam->LinkTechniques(rg);
-		}
-	}
-
-	void CameraContainer::Submit(size_t channel) const
+	void CameraContainer::Submit(RenderGraph& renderGraph) const
 	{
 		for (size_t i = 0; i < m_cameras.size(); i++)
 		{
 			if (i != m_active)
 			{
-				m_cameras[i]->Submit(channel);
+				m_cameras[i]->Submit(renderGraph);
 			}
 		}
 	}
@@ -75,11 +62,6 @@ namespace Renderer
 	Camera& CameraContainer::GetActiveCamera()
 	{
 		return *m_cameras[m_active];
-	}
-
-	Camera& CameraContainer::GetLightingCamera()
-	{
-		return *m_lightingCamera;
 	}
 
 	Camera& CameraContainer::GetControlledCamera()

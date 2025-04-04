@@ -53,15 +53,16 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
+			m_renderTargets.resize(1);
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
 
-			m_renderTarget = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
-			gfx.LoadResource(m_renderTarget, ResourceType::Texture);
+			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
+			RenderGraph::m_renderTargetHandles["Horizontal_Blur"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
 		}
 
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			ID3D12Resource* blurTargetBuffer = gfx.GetResource(4).GetBuffer();
+			ID3D12Resource* blurTargetBuffer = gfx.GetResource(RenderGraph::m_renderTargetHandles["Outline_Draw"]).GetBuffer();
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
 			RenderPass::Execute(gfx);

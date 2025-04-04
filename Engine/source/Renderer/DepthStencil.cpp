@@ -28,7 +28,7 @@ namespace Renderer
 
         // Create Depth Buffer - Depth Stensil View (DSV).
         {
-            m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+            m_descHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
             D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
             descView.Format = DXGI_FORMAT_D32_FLOAT;
@@ -37,7 +37,7 @@ namespace Renderer
             descView.Texture2DArray.MipSlice = 0;
             descView.Texture2DArray.ArraySize = 1;
             descView.Texture2DArray.FirstArraySlice = face;
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_resourceBuffer.Get(), &descView, m_depthStensilViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_resourceBuffer.Get(), &descView, m_descHandle));
         }
     }
 
@@ -76,34 +76,21 @@ namespace Renderer
                 &clearValue,
                 IID_PPV_ARGS(&m_resourceBuffer)));
 
-            m_depthStensilViewHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+            m_descHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
             D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
             descView.Format = MapUsageTyped(usage);
             descView.Flags = D3D12_DSV_FLAG_NONE;
             descView.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
             descView.Texture2D.MipSlice = 0;
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_resourceBuffer.Get(), &descView, m_depthStensilViewHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateDepthStencilView(m_resourceBuffer.Get(), &descView, m_descHandle));
         }
 	}
 
-    void DepthStencil::BindAsBuffer(D3D12RHI& gfx, RenderGraphResource* RenderGraphResource) noexcept(!IS_DEBUG)
-    {
-        if (RenderGraphResource)
-        {
-            static_cast<RenderTarget*>(RenderGraphResource)->BindAsBuffer(gfx, this);
-        }
-        else
-        {
-            INFOMAN_NOHR(gfx);
-            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->OMSetRenderTargets(0, nullptr, FALSE, &m_depthStensilViewHandle));
-        }
-    }
-
-    void DepthStencil::Clear(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+    void DepthStencil::Clear(D3D12RHI& gfx)
     {
         INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->ClearDepthStencilView(m_depthStensilViewHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->ClearDepthStencilView(m_descHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
     }
 
     unsigned int DepthStencil::GetWidth() const

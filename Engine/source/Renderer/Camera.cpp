@@ -3,8 +3,6 @@
 namespace Renderer
 {
 	UINT ILMesh::m_meshCount;
-	XMMATRIX ILMesh::m_cameraMatrix;
-	XMMATRIX ILMesh::m_projectionMatrix;
 
 	Camera::Camera(D3D12RHI& gfx, std::string name, Transform transform, bool tethered) noexcept(!IS_DEBUG)
 		:
@@ -26,8 +24,8 @@ namespace Renderer
 
 	void Camera::Update(bool has360View, UINT direction) const noexcept(!IS_DEBUG)
 	{
-		ILMesh::m_cameraMatrix = has360View ? Get360CameraMatrix(direction) : GetCameraMatrix();
-		ILMesh::m_projectionMatrix = has360View ? Get360ProjectionMatrix() : GetProjectionMatrix();
+		Drawable::m_cameraMatrix = has360View ? Get360CameraMatrix(direction) : GetCameraMatrix();
+		Drawable::m_projectionMatrix = has360View ? Get360ProjectionMatrix() : GetProjectionMatrix();
 	}
 
 	XMMATRIX Camera::GetCameraMatrix() const noexcept(!IS_DEBUG)
@@ -191,21 +189,15 @@ namespace Renderer
 		return m_name;
 	}
 
-	void Camera::LinkTechniques(RenderGraph& rg)
-	{
-		m_cameraIndicator.LinkTechniques(rg);
-		m_cameraProjection.LinkTechniques(rg);
-	}
-
-	void Camera::Submit(size_t channel) const
+	void Camera::Submit(RenderGraph& renderGraph) const
 	{
 		if (m_enableCameraIndicator)
 		{
-			m_cameraIndicator.Submit(channel);
+			m_cameraIndicator.Submit(renderGraph);
 		}
 		if (m_enableCameraProjection)
 		{
-			m_cameraProjection.Submit(channel);
+			m_cameraProjection.Submit(renderGraph);
 		}
 	}
 }

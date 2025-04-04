@@ -1,6 +1,5 @@
 #pragma once
 #include "BindableCodex.h"
-#include "Resource.h"
 #include "DepthStencil.h"
 #include "RenderTarget.h"
 #include "DescriptorTable.h"

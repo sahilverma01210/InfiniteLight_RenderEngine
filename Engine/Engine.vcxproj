@@ -30,7 +30,6 @@
     <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h" />
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h" />
     <ClInclude Include="source\Renderer\BufferClearPass.h" />
-    <ClInclude Include="source\Renderer\Resource.h" />
     <ClInclude Include="source\Renderer\CameraContainer.h" />
     <ClInclude Include="source\Renderer\CameraIndicator.h" />
     <ClInclude Include="source\Renderer\CommonBindables.h" />
@@ -48,7 +47,6 @@
     <ClInclude Include="source\Renderer\ILMesh.h" />
     <ClInclude Include="source\Renderer\IndexBuffer.h" />
     <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
-    <ClInclude Include="source\Renderer\Job.h" />
     <ClInclude Include="source\Renderer\PhongPass.h" />
     <ClInclude Include="source\Renderer\LineMaterial.h" />
     <ClInclude Include="source\Renderer\LineWireMaterial.h" />
@@ -85,12 +83,9 @@
     <ClInclude Include="source\Renderer\PointLightIndicator.h" />
     <ClInclude Include="source\Renderer\FlatPass.h" />
     <ClInclude Include="source\Renderer\Source.h" />
-    <ClInclude Include="source\Renderer\Step.h" />
-    <ClInclude Include="source\Renderer\Technique.h" />
     <ClInclude Include="source\Renderer\TechniqueProbe.h" />
     <ClInclude Include="source\Renderer\TestModelProbe.h" />
     <ClInclude Include="source\Renderer\TextureBuffer.h" />
-    <ClInclude Include="source\Renderer\TextureManager.h" />
     <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\VertexBuffer.h" />
     <ClInclude Include="source\Renderer\Vertex.h" />
@@ -130,7 +125,6 @@
     <ClCompile Include="source\Renderer\GraphicsResource.cpp" />
     <ClCompile Include="source\Renderer\ILMesh.cpp" />
     <ClCompile Include="source\Renderer\IndexBuffer.cpp" />
-    <ClCompile Include="source\Renderer\Job.cpp" />
     <ClCompile Include="source\Renderer\Mesh.cpp" />
     <ClCompile Include="source\Renderer\Model.cpp" />
     <ClCompile Include="source\Renderer\ModelException.cpp" />
@@ -152,10 +146,7 @@
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
     <ClCompile Include="source\Renderer\DescriptorTable.cpp" />
     <ClCompile Include="source\Renderer\PointLightIndicator.cpp" />
-    <ClCompile Include="source\Renderer\Step.cpp" />
-    <ClCompile Include="source\Renderer\Technique.cpp" />
     <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
-    <ClCompile Include="source\Renderer\TextureManager.cpp" />
     <ClCompile Include="source\Renderer\Topology.cpp" />
     <ClCompile Include="source\Renderer\Vertex.cpp" />
     <ClCompile Include="source\Renderer\VertexBuffer.cpp" />
@@ -482,6 +473,7 @@ xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mtd.dll $(Ou
       <PrecompiledHeaderFile />
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

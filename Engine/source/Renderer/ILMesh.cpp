@@ -15,15 +15,36 @@ namespace Renderer
 	{
 		m_materialIdx = material->GetMaterialHandle();
 
-		m_enableLighting = enableLighting;
-
 		for (auto& technique : material->GetTechniques())
 		{
 			AddTechnique(std::move(technique));
 		}
 	}
-	void ILMesh::Submit(size_t channel) const noexcept(!IS_DEBUG)
+
+	void ILMesh::AddTechnique(Technique tech_in) noexcept(!IS_DEBUG)
 	{
-		Drawable::Submit(channel);
+		m_techniques.push_back(std::move(tech_in));
+	}
+
+	void ILMesh::Submit(RenderGraph& renderGraph) const noexcept(!IS_DEBUG)
+	{
+		for (const auto& technique : m_techniques)
+		{
+			if (technique.active)
+			{
+				for (auto& passName : technique.passNames)
+				{
+					renderGraph.GetRenderQueue(passName).Accept(*this);
+				}
+			}
+		}
+	}
+
+	void ILMesh::Accept(TechniqueProbe& probe)
+	{
+		for (auto& technique : m_techniques)
+		{
+			probe.SetTechnique(&technique);
+		}
 	}
 }

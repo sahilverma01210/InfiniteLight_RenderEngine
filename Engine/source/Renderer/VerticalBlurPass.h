@@ -52,14 +52,15 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
+			m_renderTargets.resize(1);
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
 		}
 
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex()));
+			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
 
-			ID3D12Resource* blurTargetBuffer = gfx.GetResource(5).GetBuffer();
+			ID3D12Resource* blurTargetBuffer = gfx.GetResource(RenderGraph::m_renderTargetHandles["Horizontal_Blur"]).GetBuffer();
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
 			RenderPass::Execute(gfx);

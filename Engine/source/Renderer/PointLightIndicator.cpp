@@ -21,7 +21,7 @@ namespace Renderer
 		this->m_pos = pos;
 	}
 
-	void PointLightIndicator::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
+	void PointLightIndicator::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		const auto model = XMMatrixTranslation(m_pos.x, m_pos.y, m_pos.z);
 		const auto modelView = model * m_cameraMatrix;

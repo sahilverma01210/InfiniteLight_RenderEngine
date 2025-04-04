@@ -34,46 +34,15 @@ namespace Renderer
 	public:
 		PostProcessMaterial(D3D12RHI& gfx, VertexLayout layout) noexcept(!IS_DEBUG)
 		{
-			Technique postProcess{ "post_process", Channel::main, true};
-			{
-				Step horizontalBlur("horizontal");
-				{
-					// Add Resources
-					{
-						// Add Constants
-						{
-							SetKernelGauss(m_radius, m_sigma);
-							m_postProcessMatHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel)), ResourceType::Constant);
-						}
-
-						// Add Textures
-						{
-							m_postProcessMatHandles.frameBufferIdx1 = 4;
-						}
-					}
-				}
-				postProcess.AddStep(horizontalBlur);
-
-				Step verticalBlur("vertical");
-				{
-					// Add Resources
-					{
-						// Add Constants
-						{
-							SetKernelGauss(m_radius, m_sigma);
-							m_postProcessMatHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel)), ResourceType::Constant);
-						}
-
-						// Add Textures
-						{
-							m_postProcessMatHandles.frameBufferIdx2 = 5;
-						}
-					}
-				}
-				postProcess.AddStep(verticalBlur);
-			}
+			Technique postProcess{ "post_process", true};
+			postProcess.passNames.push_back("horizontal");
+			postProcess.passNames.push_back("vertical");
 			m_techniques.push_back(std::move(postProcess));
 
+			SetKernelGauss(m_radius, m_sigma);
+			m_postProcessMatHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel)), ResourceType::Constant);
+			m_postProcessMatHandles.frameBufferIdx1 = RenderGraph::m_renderTargetHandles["Outline_Draw"];
+			m_postProcessMatHandles.frameBufferIdx2 = RenderGraph::m_renderTargetHandles["Horizontal_Blur"];
 			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_postProcessMatHandles), static_cast<const void*>(&m_postProcessMatHandles)), ResourceType::Constant);
 		}
 		void SetKernelBox(int radius) noexcept(!IS_DEBUG)

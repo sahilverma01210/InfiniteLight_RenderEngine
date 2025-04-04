@@ -15,7 +15,9 @@ namespace Renderer
     {
         Constant,
         Texture,
-        CubeMapTexture
+        CubeMapTexture,
+        RenderTarget,
+        DepthStencil
     };
     enum class Mode
     {
@@ -62,9 +64,11 @@ namespace Renderer
     public:
         virtual ~D3D12Resource() = default;
         ID3D12Resource* GetBuffer() const { return m_resourceBuffer.Get(); };
+        D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor() { return &m_descHandle; };
 
     protected:
         ComPtr<ID3D12Resource> m_resourceBuffer;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_descHandle;
     };
 
     class D3D12RHI
@@ -82,6 +86,7 @@ namespace Renderer
         void ResetCommandList();
         void ExecuteCommandList();
         void Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data);
+        void SetRenderTargets(std::vector<std::shared_ptr<D3D12Resource>> renderTargets, std::shared_ptr<D3D12Resource> depthStencil);
         void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
         void CreateBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
         void FlushBarrier();
@@ -93,7 +98,9 @@ namespace Renderer
         void AddConstantBufferView(ID3D12Resource* constantBuffer);
         void AddShaderResourceView(ID3D12Resource* textureBuffer, bool isCubeMap = false);
         D3D12Resource& GetResource(ResourceHandle handle);
+        ResourceHandle GetResourceHandle(ResourceName resourceName);
         std::shared_ptr<D3D12Resource> GetResourcePtr(ResourceHandle resourceHandle);
+        void ClearResource(ResourceHandle resourceHandle, ResourceType resourceType);
 		void SetGPUResources();
         // RENDER FRAME METHODS
         void ResizeScreenSpace(UINT width, UINT height);

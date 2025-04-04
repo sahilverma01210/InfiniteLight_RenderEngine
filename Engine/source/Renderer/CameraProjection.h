@@ -22,7 +22,7 @@ namespace Renderer
 		void SetVertices(D3D12RHI& gfx, Projection projection);
 		void SetPos(XMFLOAT3);
 		void SetRotation(XMFLOAT3);
-		void SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG) override;
+		void SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
 		UINT m_meshIdx;

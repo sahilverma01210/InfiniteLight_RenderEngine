@@ -31,7 +31,7 @@ namespace Renderer
 		this->m_rot = rot;
 	}
 
-	void CameraProjection::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
+	void CameraProjection::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		const auto model = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&m_rot)) * XMMatrixTranslationFromVector(XMLoadFloat3(&m_pos));
 		const auto modelView = model * m_cameraMatrix;

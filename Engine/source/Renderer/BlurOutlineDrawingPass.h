@@ -37,12 +37,13 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, drawPipelineDesc));
 			}
 
-			m_renderTarget = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
-			gfx.LoadResource(m_renderTarget, ResourceType::Texture);
+			m_renderTargets.resize(1);
+			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
+			RenderGraph::m_renderTargetHandles["Outline_Draw"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			m_renderTarget->Clear(gfx);
+			gfx.ClearResource(RenderGraph::m_renderTargetHandles["Outline_Draw"], ResourceType::RenderTarget);
 			RenderPass::Execute(gfx);
 		}
 

@@ -7,7 +7,7 @@ namespace Renderer
 	class PhongPass : public RenderPass
 	{
 	public:
-		PhongPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
+		PhongPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer, unsigned int fullWidth, unsigned int fullHeight)
 			:
 			RenderPass(std::move(name)),
 			m_cameraContainer(cameraContainer)
@@ -63,15 +63,24 @@ namespace Renderer
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, phongPipelineDesc));
 			}
 
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(2));
-			m_pShadowMap = std::dynamic_pointer_cast<DepthCubeMapTextureBuffer>(gfx.GetResourcePtr(3));
+			m_renderTargets.resize(5);
+			m_renderTargets[1] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
+			m_renderTargets[2] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
+			m_renderTargets[3] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
+			m_renderTargets[4] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
+			gfx.LoadResource(m_renderTargets[1], ResourceType::RenderTarget);
+			gfx.LoadResource(m_renderTargets[2], ResourceType::RenderTarget);
+			gfx.LoadResource(m_renderTargets[3], ResourceType::RenderTarget);
+			gfx.LoadResource(m_renderTargets[4], ResourceType::RenderTarget);
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
+			m_pShadowMap = std::dynamic_pointer_cast<DepthCubeMapTextureBuffer>(gfx.GetResourcePtr(RenderGraph::m_shadowDepth360Handle));
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			m_cameraContainer.GetActiveCamera().Update();
 
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			m_renderTarget = std::dynamic_pointer_cast<RenderTarget>(gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex()));
+			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
 			RenderPass::Execute(gfx);
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}

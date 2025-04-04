@@ -8,10 +8,9 @@ namespace Renderer
 	class ShadowMappingPass : public RenderPass
 	{
 	public:
-		ShadowMappingPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
+		ShadowMappingPass(D3D12RHI& gfx, std::string name)
 			:
-			RenderPass(std::move(name)),
-			m_cameraContainer(cameraContainer)
+			RenderPass(std::move(name))
 		{
 			{
 				m_vtxLayout.Append(VertexLayout::Position3D);
@@ -40,12 +39,45 @@ namespace Renderer
 			}
 
 			m_pDepthCube = std::make_shared<DepthCubeMapTextureBuffer>(gfx, m_size);
-			gfx.LoadResource(m_pDepthCube, ResourceType::CubeMapTexture);
+			RenderGraph::m_shadowDepth360Handle = gfx.LoadResource(m_pDepthCube, ResourceType::CubeMapTexture);
 			RegisterSource(DirectBindableSource<DepthCubeMapTextureBuffer>::Make("map", m_pDepthCube));
 
 			m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(0));
 
 			m_depthOnlyPass = true;
+		}
+		XMMATRIX Get360CameraMatrix(UINT directionIndex, XMFLOAT3& position) const noexcept(!IS_DEBUG)
+		{
+			const auto cameraPosition = XMLoadFloat3(&position);
+
+			switch (directionIndex)
+			{
+			case 0: // +x			
+				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+				break;
+			case 1: // -x			
+				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+				break;
+			case 2: // +y			
+				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f));
+				break;
+			case 3: // -y			
+				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f));
+				break;
+			case 4: // +z			
+				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+				break;
+			case 5: // -z			
+				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+				break;
+			default:
+				return XMMATRIX();
+				break;
+			}
+		}
+		XMMATRIX Get360ProjectionMatrix() const noexcept(!IS_DEBUG)
+		{
+			return XMMatrixPerspectiveFovLH(PI / 2.0f, 1.0f, 0.5f, 100.0f);
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
@@ -59,7 +91,8 @@ namespace Renderer
 				m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(i));
 				m_depthStencil->Clear(gfx);
 
-				m_cameraContainer.GetLightingCamera().Update(true, i);
+				Drawable::m_cameraMatrix = Get360CameraMatrix(i, ILMaterial::m_lightPosition);
+				Drawable::m_projectionMatrix = Get360ProjectionMatrix();
 
 				RenderPass::Execute(gfx);
 			}
@@ -70,7 +103,6 @@ namespace Renderer
 		ResourceHandle m_depthCubeHandle;
 		VertexLayout m_vtxLayout;
 		static constexpr UINT m_size = 1000;
-		CameraContainer& m_cameraContainer;
 		std::shared_ptr<DepthCubeMapTextureBuffer> m_pDepthCube;
 	};
 }

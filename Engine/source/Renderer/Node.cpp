@@ -12,7 +12,7 @@ namespace Renderer
 		XMStoreFloat4x4(&m_appliedTransform, XMMatrixIdentity());
 	}
 
-	void Node::Submit(size_t channel, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
+	void Node::Submit(FXMMATRIX accumulatedTransform, RenderGraph& renderGraph) const noexcept(!IS_DEBUG)
 	{
 		const auto built =
 			XMLoadFloat4x4(&m_appliedTransform) *
@@ -20,11 +20,11 @@ namespace Renderer
 			accumulatedTransform;
 		for (const auto& pm : m_meshPtrs)
 		{
-			pm->Submit(channel, built);
+			pm->Submit(built, renderGraph);
 		}
 		for (const auto& pc : m_childPtrs)
 		{
-			pc->Submit(channel, built);
+			pc->Submit(built, renderGraph);
 		}
 	}
 

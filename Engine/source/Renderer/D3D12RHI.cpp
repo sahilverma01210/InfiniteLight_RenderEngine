@@ -16,18 +16,18 @@ namespace Renderer
         D3D12RHI_THROW_INFO(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
 
 #ifdef _DEBUG // Disable Debug Layer while using Nsight Tools
-        // Enable D3D12 CPU & GPU Debug Layers.
-        {
-            ComPtr<ID3D12Debug> debugController;
-            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-                debugController->EnableDebugLayer();
-            }
-        
-            ComPtr<ID3D12Debug1> debugController1;
-            if (SUCCEEDED(debugController.As(&debugController1))) {
-                debugController1->SetEnableGPUBasedValidation(TRUE);
-            }
-        }
+        //// Enable D3D12 CPU & GPU Debug Layers.
+        //{
+        //    ComPtr<ID3D12Debug> debugController;
+        //    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+        //        debugController->EnableDebugLayer();
+        //    }
+        //
+        //    ComPtr<ID3D12Debug1> debugController1;
+        //    if (SUCCEEDED(debugController.As(&debugController1))) {
+        //        debugController1->SetEnableGPUBasedValidation(TRUE);
+        //    }
+        //}
 #endif
 
         // Create D3D Device.
@@ -145,13 +145,13 @@ namespace Renderer
             m_viewport.Height = m_height;
         }
 
-        // Create Common Descriptor Heap
+        // Create Common Descriptor Heaps
         {
-            D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-            srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-            srvHeapDesc.NumDescriptors = 1024;
-            srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            D3D12RHI_THROW_INFO(m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_descriptorHeap)));
+            D3D12_DESCRIPTOR_HEAP_DESC CBV_SRV_UAV_HeapDesc = {};
+            CBV_SRV_UAV_HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            CBV_SRV_UAV_HeapDesc.NumDescriptors = 1024;
+            CBV_SRV_UAV_HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            D3D12RHI_THROW_INFO(m_device->CreateDescriptorHeap(&CBV_SRV_UAV_HeapDesc, IID_PPV_ARGS(&m_descriptorHeap)));
         }
     }
 
@@ -215,6 +215,18 @@ namespace Renderer
         D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->SetGraphicsRoot32BitConstants(rootParameterIndex, num32BitValues, data, 0));
     }
 
+    void D3D12RHI::SetRenderTargets(std::vector<std::shared_ptr<D3D12Resource>> renderTargets, std::shared_ptr<D3D12Resource> depthStencil)
+    {
+        D3D12_CPU_DESCRIPTOR_HANDLE* rt = new D3D12_CPU_DESCRIPTOR_HANDLE[renderTargets.size()];
+
+        for (size_t i = 0; i < renderTargets.size(); i++)
+        {
+            rt[i] = *renderTargets[i]->GetDescriptor();
+        }
+
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->OMSetRenderTargets(renderTargets.size(), rt, FALSE, depthStencil ? depthStencil->GetDescriptor() : nullptr));
+    }
+
     void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
     {
         CreateBarrier(resource, beforeState, afterState);
@@ -264,9 +276,14 @@ namespace Renderer
         case ResourceType::CubeMapTexture:
             AddShaderResourceView(resourceBuffer->GetBuffer(), true);
             break;
+        case ResourceType::RenderTarget:
+            break;
+        case ResourceType::DepthStencil:
+            break;
         }
 
         m_resourceMap[m_resourceHandle] = std::move(resourceBuffer);
+        //m_loadedResources[resourceName] = m_resourceHandle;
 
         return m_resourceHandle++;
     }
@@ -328,9 +345,38 @@ namespace Renderer
         return *m_resourceMap[resourceHandle];
     }
 
+    ResourceHandle D3D12RHI::GetResourceHandle(ResourceName resourceName)
+    {
+        return m_loadedResources[resourceName];
+    }
+
     std::shared_ptr<D3D12Resource> D3D12RHI::GetResourcePtr(ResourceHandle resourceHandle)
     {
         return m_resourceMap[resourceHandle];
+    }
+
+    void D3D12RHI::ClearResource(ResourceHandle resourceHandle, ResourceType resourceType)
+    {
+        switch (resourceType)
+        {
+            case ResourceType::Constant:
+                break;
+            case ResourceType::Texture:
+                break;
+            case ResourceType::CubeMapTexture:
+                break;
+            case ResourceType::RenderTarget:
+            {
+                const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearRenderTargetView(*GetResourcePtr(resourceHandle)->GetDescriptor(), clear_color_with_alpha, 0, nullptr));
+                break;
+            }
+            case ResourceType::DepthStencil:
+            {
+                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearDepthStencilView(*GetResourcePtr(resourceHandle)->GetDescriptor(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
+                break;
+            }   
+        }
     }
 
     void D3D12RHI::SetGPUResources()

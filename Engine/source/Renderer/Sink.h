@@ -3,7 +3,6 @@
 
 #include "Source.h"
 #include "CommonBindables.h"
-#include "Resource.h"
 
 namespace Renderer
 {

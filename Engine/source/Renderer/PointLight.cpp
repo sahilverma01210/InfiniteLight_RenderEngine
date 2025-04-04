@@ -2,28 +2,17 @@
 
 namespace Renderer
 {
-	std::shared_ptr<ConstantBuffer> ImportMaterial::m_lightBindable;
-	std::shared_ptr<ConstantBuffer> ImportMaterial::m_lightShadowBindable;
-
-	PointLight::PointLight(D3D12RHI& gfx, XMFLOAT3 pos, float radius)
+	PointLight::PointLight(D3D12RHI& gfx, PointLightCBuf& home, CameraContainer& cameraContainer, float radius)
 		:
+		m_gfx(gfx),
+		m_home(home),
+		m_cameraContainer(cameraContainer),
 		m_indicator(gfx, radius)
 	{
-		m_home = {
-			pos,
-			{ 0.05f,0.05f,0.05f },
-			{ 1.0f,1.0f,1.0f },
-			1.0f,
-			1.0f,
-			0.025f,
-			0.0030f,
-		};
+		m_cbData = m_home;
 
-		Reset();
-		m_pCamera = std::make_shared<Camera>(gfx, "Light", Camera::Transform{ m_cbData.pos, XMFLOAT3{ 0.0f, PI / 2.0f, 0.0f } }, true);
-
-		ImportMaterial::m_lightShadowBindable = std::move(std::make_unique<ConstantBuffer>(gfx, sizeof(m_shadowData), static_cast<const void*>(&m_shadowData)));
-		ImportMaterial::m_lightBindable = std::move(std::make_unique<ConstantBuffer>(gfx, sizeof(m_cbData), static_cast<const void*>(&m_cbData)));
+		m_lightConstants = std::make_shared<ConstantBuffer>(gfx, sizeof(m_cbData), static_cast<const void*>(&m_cbData));
+		ILMaterial::m_lightHandle = gfx.LoadResource(m_lightConstants, ResourceType::Constant);
 	}
 
 	bool PointLight::SpawnWindow() noexcept(!IS_DEBUG)
@@ -37,10 +26,6 @@ namespace Renderer
 			d(ImGui::SliderFloat("X", &m_cbData.pos.x, -60.0f, 60.0f, "%.1f"));
 			d(ImGui::SliderFloat("Y", &m_cbData.pos.y, -60.0f, 60.0f, "%.1f"));
 			d(ImGui::SliderFloat("Z", &m_cbData.pos.z, -60.0f, 60.0f, "%.1f"));
-			if (dirtyPos)
-			{
-				m_pCamera->SetPos(m_cbData.pos);
-			}
 			ImGui::Text("Intensity/Color");
 			ImGui::SliderFloat("Intensity", &m_cbData.diffuseIntensity, 0.01f, 2.0f, "%.2f");
 			ImGui::ColorEdit3("Diffuse Color", &m_cbData.diffuseColor.x);
@@ -66,36 +51,20 @@ namespace Renderer
 		m_cbData = m_home;
 	}
 
-	void PointLight::Submit(size_t channel) const noexcept(!IS_DEBUG)
+	void PointLight::Submit(RenderGraph& renderGraph) const noexcept(!IS_DEBUG)
 	{
 		m_indicator.SetPos(m_cbData.pos);
-		m_indicator.Submit(channel);
+		m_indicator.Submit(renderGraph);
 	}
 
-	void PointLight::Update(D3D12RHI& gfx, FXMMATRIX view) const noexcept(!IS_DEBUG)
+	void PointLight::Update(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
+		ILMaterial::m_lightPosition = m_cbData.pos;
+
 		auto dataCopy = m_cbData;
 		const auto pos = XMLoadFloat3(&m_cbData.pos);
-		XMStoreFloat3(&dataCopy.pos, XMVector3Transform(pos, view));
+		XMStoreFloat3(&dataCopy.viewPos, XMVector3Transform(pos, m_cameraContainer.GetActiveCamera().GetCameraMatrix()));
 
-		auto shadowDataCopy = m_shadowData;
-		const auto cameraPos = m_pCamera->GetPos();
-		const auto ViewProj = XMMatrixTranspose(
-			XMMatrixTranslation(-cameraPos.x, -cameraPos.y, -cameraPos.z)
-		);
-		shadowDataCopy.ViewProj = ViewProj;
-
-		ImportMaterial::m_lightShadowBindable->Update(gfx, &shadowDataCopy);
-		ImportMaterial::m_lightBindable->Update(gfx, &dataCopy);
-	}
-
-	void PointLight::LinkTechniques(RenderGraph& rg)
-	{
-		m_indicator.LinkTechniques(rg);
-	}
-
-	std::shared_ptr<Camera> PointLight::ShareCamera() const noexcept(!IS_DEBUG)
-	{
-		return m_pCamera;
+		m_lightConstants->Update(gfx, &dataCopy);
 	}
 }

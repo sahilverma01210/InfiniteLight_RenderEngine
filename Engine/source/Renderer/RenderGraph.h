@@ -26,6 +26,10 @@ namespace Renderer
 		void LinkSinks(Pass& pass);
 		void LinkGlobalSinks();
 
+	public:
+		static inline ResourceHandle m_shadowDepth360Handle = 0;
+		static inline ResourceHandle m_depthStencilHandle = 0;
+		static inline std::unordered_map<std::string, ResourceHandle> m_renderTargetHandles;
 	private:
 		std::vector<std::unique_ptr<Pass>> m_passes;
 		std::vector<std::unique_ptr<Source>> m_globalSources;

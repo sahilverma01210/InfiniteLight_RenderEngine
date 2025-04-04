@@ -37,6 +37,20 @@
                 "y": 5.0,
                 "z": 0.0
             },
+            "ambient": {
+                "r": 0.05,
+                "g": 0.05,
+                "b": 0.05
+            },
+            "diffuse": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0
+            },
+            "diffuseIntensity": 1.0,
+            "constantAttenuation": 1.0,
+            "linearAttenuation": 0.025,
+            "quadraticAttenuation": 0.003,
             "type": "Point Light"
         }
     ],

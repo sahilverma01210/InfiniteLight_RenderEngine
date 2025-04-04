@@ -1,11 +1,17 @@
 #pragma once
 #include "CommonBindables.h"
-#include "Technique.h"
 #include "Vertex.h"
 #include "DynamicConstant.h"
 				
 namespace Renderer
 {
+	struct Technique
+	{
+		std::string name;
+		bool active = true;
+		std::vector<std::string> passNames;
+	};
+
 	class ILMaterial
 	{
 	public:
@@ -33,13 +39,16 @@ namespace Renderer
 			return typeID;
 		}
 
-	private:
-		static inline UINT m_materialTypeID = 0;
+	public:
+		static inline ResourceHandle m_lightHandle = 0;
+		static inline XMFLOAT3 m_lightPosition{};
 	protected:
 		ResourceHandle m_materialHandle = 1;
 		D3D12_PRIMITIVE_TOPOLOGY m_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		std::vector<Technique> m_techniques;
 		bool m_postProcessEnabled = true;
 		bool m_wireframeEnabled = true;
+	private:
+		static inline UINT m_materialTypeID = 0;
 	};
 }

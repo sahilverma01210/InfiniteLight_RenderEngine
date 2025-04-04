@@ -51,13 +51,13 @@ namespace Renderer
 		return indices;
 	}
 
-	void Mesh::Submit(size_t channel, FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG)
+	void Mesh::Submit(FXMMATRIX accumulatedTranform, RenderGraph& renderGraph) const noexcept(!IS_DEBUG)
 	{
 		XMStoreFloat4x4(&m_transform, accumulatedTranform);
-		ILMesh::Submit(channel);
+		ILMesh::Submit(renderGraph);
 	}
 
-	void Mesh::SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG)
+	void Mesh::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
 		const auto model = XMLoadFloat4x4(&m_transform);
 		const auto modelView = model * m_cameraMatrix;

@@ -29,17 +29,29 @@ namespace Renderer
 			for (size_t i = 0; i < scene["lights"].size(); i++)
 			{
 				json jsonPosition = scene["lights"][i]["position"];
+				json jsonAmbient = scene["lights"][i]["ambient"];
+				json jsonDiffuse = scene["lights"][i]["diffuse"];
+				json jsonDiffuseIntensity = scene["lights"][i]["diffuseIntensity"];
+				json jsonConstAtt = scene["lights"][i]["constantAttenuation"];
+				json jsonLinearAtt = scene["lights"][i]["linearAttenuation"];
+				json jsonQuadAtt = scene["lights"][i]["quadraticAttenuation"];
 
-				XMFLOAT3 position = XMFLOAT3{ jsonPosition["x"].get<float>(), jsonPosition["y"].get<float>() , jsonPosition["z"].get<float>() };
+				PointLightCBuf lightData{};
+				lightData.pos = XMFLOAT3{ jsonPosition["x"].get<float>(), jsonPosition["y"].get<float>() , jsonPosition["z"].get<float>() };
+				lightData.viewPos = XMFLOAT3{ jsonPosition["x"].get<float>(), jsonPosition["y"].get<float>() , jsonPosition["z"].get<float>() };
+				lightData.ambient = XMFLOAT3{ jsonAmbient["r"].get<float>(), jsonAmbient["g"].get<float>() , jsonAmbient["b"].get<float>() };
+				lightData.diffuseColor = XMFLOAT3{ jsonDiffuse["r"].get<float>(), jsonDiffuse["g"].get<float>() , jsonDiffuse["b"].get<float>() };
+				lightData.diffuseIntensity = jsonDiffuseIntensity.get<float>();
+				lightData.attConst = jsonConstAtt.get<float>();
+				lightData.attLin = jsonLinearAtt.get<float>();
+				lightData.attQuad = jsonQuadAtt.get<float>();
 
-				m_light = std::move(std::make_unique<PointLight>(*m_pRHI, XMFLOAT3{ 10.0f,5.0f,0.0f }));
+				m_light = std::move(std::make_unique<PointLight>(*m_pRHI, lightData, m_cameraContainer));
 			}
 		}		
 
 		// Add Cameras
 		{
-			m_cameraContainer.AddLightingCamera(m_light->ShareCamera());
-
 			for (size_t i = 0; i < scene["cameras"].size(); i++)
 			{
 				json camera = scene["cameras"][i];
@@ -73,14 +85,8 @@ namespace Renderer
 		// Add Post Processing Filter
 		if (m_postProcessingEnabled)
 		{
-			m_postProcessFilter = std::move(std::make_unique<PostProcessFilter>(*m_pRHI));		
-			m_postProcessFilter->LinkTechniques(*m_renderGraph);
+			m_postProcessFilter = std::move(std::make_unique<PostProcessFilter>(*m_pRHI));
 		}
-
-		m_skybox->LinkTechniques(*m_renderGraph);
-		m_light->LinkTechniques(*m_renderGraph);
-		for(size_t i = 0; i < m_models.size(); i++) m_models[i]->LinkTechniques(*m_renderGraph);
-		m_cameraContainer.LinkTechniques(*m_renderGraph);
 
 		m_pRHI->ExecuteCommandList();
 		m_pRHI->InsertFence();
@@ -99,19 +105,18 @@ namespace Renderer
 
 	void ILRenderer::RenderWorld()
 	{
-		if (m_postProcessingEnabled) m_postProcessFilter->Submit(Channel::main);
+		if (m_postProcessingEnabled) m_postProcessFilter->Submit(*m_renderGraph);
 
-		m_skybox->Submit(Channel::main);
-		m_light->Submit(Channel::main);
-		m_cameraContainer.Submit(Channel::main);
+		m_skybox->Submit(*m_renderGraph);
+		m_light->Submit(*m_renderGraph);
+		m_cameraContainer.Submit(*m_renderGraph);
 
 		for (size_t i = 0; i < m_models.size(); i++)
 		{
-			m_models[i]->Submit(Channel::main);
-			m_models[i]->Submit(Channel::shadow);
+			m_models[i]->Submit(*m_renderGraph);
 		}
 
-		m_light->Update(*m_pRHI, m_cameraContainer.GetActiveCamera().GetCameraMatrix());
+		m_light->Update(*m_pRHI);
 
 		m_renderGraph->Execute(*m_pRHI);
 	}

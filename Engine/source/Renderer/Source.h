@@ -2,11 +2,16 @@
 #include "../_External/common.h"
 
 #include "Bindable.h"
-#include "Resource.h"
 #include "RenderGraphException.h"
 
 namespace Renderer
 {
+	class RenderGraphResource
+	{
+	public:
+		virtual ~RenderGraphResource() = default;
+	};
+
 	class Source
 	{
 	public:

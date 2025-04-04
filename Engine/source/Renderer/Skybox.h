@@ -8,7 +8,7 @@ namespace Renderer
 	{
 	public:
 		Skybox(D3D12RHI& gfx);
-		void SetTransform(D3D12RHI& gfx, std::string targetPass) const noexcept(!IS_DEBUG) override;
+		void SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG) override;
 
 	private:
 		UINT m_meshIdx;

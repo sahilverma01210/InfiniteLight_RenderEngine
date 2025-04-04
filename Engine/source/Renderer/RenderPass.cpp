@@ -8,15 +8,15 @@ namespace Renderer
 	{
 	}
 
-	void RenderPass::Accept(Job job) noexcept(!IS_DEBUG)
+	void RenderPass::Accept(const Drawable& drawable) noexcept(!IS_DEBUG)
 	{
-		m_jobs.push_back(job);
+		m_drawables.push_back(drawable);
 	}
 
 	void RenderPass::Finalize()
 	{
 		Pass::Finalize();
-		if (!m_renderTarget && !m_depthStencil)
+		if (!m_renderTargets.size() && !m_depthStencil)
 		{
 			throw RG_EXCEPTION("Render Pass [" + GetName() + "] needs at least one of a renderTarget or depthStencil");
 		}
@@ -24,32 +24,21 @@ namespace Renderer
 
 	void RenderPass::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
-		BindRenderGraphResources(gfx);
+		gfx.SetRenderTargets(m_renderTargets, m_depthStencil);
 		gfx.SetGPUResources();
 
-		for (const auto& job : m_jobs)
+		for (const auto& drawable : m_drawables)
 		{
 			m_rootSignature->Bind(gfx);
 			m_pipelineStateObject->Bind(gfx);
 
-			job.Execute(gfx);
+			drawable.get().Bind(gfx);
+			drawable.get().Draw(gfx);
 		}
 	}
 
 	void RenderPass::Reset() noexcept(!IS_DEBUG)
 	{
-		m_jobs.clear();
-	}
-
-	void RenderPass::BindRenderGraphResources(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
-	{
-		if (!m_depthOnlyPass)
-		{
-			m_renderTarget->BindAsBuffer(gfx, m_depthStencil.get());
-		}
-		else
-		{
-			m_depthStencil->BindAsBuffer(gfx, nullptr);
-		}
+		m_drawables.clear();
 	}
 }

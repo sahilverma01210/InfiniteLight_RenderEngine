@@ -232,15 +232,6 @@
     <ClInclude Include="source\Renderer\DynamicConstant.h">
       <Filter>Source\Renderer\Public\Common</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Job.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Step.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Technique.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\ModelException.h">
       <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
@@ -257,9 +248,6 @@
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Sink.h">
-      <Filter>Source\Renderer\Public\RenderGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Resource.h">
       <Filter>Source\Renderer\Public\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Source.h">
@@ -364,12 +352,6 @@
     <ClInclude Include="source\_External\dx12\directX12.h">
       <Filter>Source\_External\Public\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\DepthStencil.h">
-      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\RenderTarget.h">
-      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Common\ILPerfLog.h">
       <Filter>Source\Common\Public</Filter>
     </ClInclude>
@@ -439,7 +421,10 @@
     <ClInclude Include="source\Renderer\FlatPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\TextureManager.h">
+    <ClInclude Include="source\Renderer\RenderTarget.h">
+      <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\DepthStencil.h">
       <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -491,15 +476,6 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\DynamicConstant.cpp">
       <Filter>Source\Renderer\Private\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Job.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Step.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Technique.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\ModelException.cpp">
       <Filter>Source\Renderer\Private\Model</Filter>
@@ -573,12 +549,6 @@
     <ClCompile Include="source\Renderer\Renderer.cpp">
       <Filter>Source\Renderer\Private</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\DepthStencil.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\RenderTarget.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\Viewport.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
@@ -618,8 +588,11 @@
     <ClCompile Include="source\Renderer\D3D12Shader.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\RHI</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\TextureManager.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="source\Renderer\RenderTarget.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\DepthStencil.cpp">
+      <Filter>Source\Renderer\Private\RenderGraph\RHI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
