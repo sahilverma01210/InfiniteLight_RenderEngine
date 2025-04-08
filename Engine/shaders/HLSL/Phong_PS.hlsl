@@ -1,8 +1,8 @@
-#include "CommonResources.hlsl"
-#include "PixelShaderUtils.hlsl"
-#include "LightShadowUtils.hlsl"
+#include "CommonResources.hlsli"
+#include "PixelShaderUtils.hlsli"
+#include "LightShadowUtils.hlsli"
 
-struct PhongCB
+struct ImportMatCB
 {
     int lightConstIdx;
     int texConstIdx;
@@ -55,11 +55,11 @@ PSOut CalculatePixels(VSIn vsIn)
 {
     PSOut pso;
     
-    ConstantBuffer<PhongCB> phongCB = ResourceDescriptorHeap[meshConstants.materialIdx];    
-    ConstantBuffer<PointLightProps> pointLightCB = ResourceDescriptorHeap[phongCB.lightConstIdx];
-    ConstantBuffer<SurfaceProps> surfaceProps = ResourceDescriptorHeap[phongCB.texConstIdx];
+    ConstantBuffer<ImportMatCB> importCB = ResourceDescriptorHeap[meshConstants.materialIdx];
+    ConstantBuffer<PointLightProps> pointLightCB = ResourceDescriptorHeap[importCB.lightConstIdx];
+    ConstantBuffer<SurfaceProps> surfaceProps = ResourceDescriptorHeap[importCB.texConstIdx];
     
-    TextureCube smap = ResourceDescriptorHeap[phongCB.shadowTexIdx];
+    TextureCube smap = ResourceDescriptorHeap[importCB.shadowTexIdx];
     
     float3 diffuse;
     float3 specularReflected;
@@ -69,7 +69,7 @@ PSOut CalculatePixels(VSIn vsIn)
     float4 dtex = float4(1.0f, 1.0f, 1.0f, 1.0f);
     if (surfaceProps.useDiffuseMap)
     {        
-        Texture2D<float4> diffTex = ResourceDescriptorHeap[phongCB.diffTexIdx];
+        Texture2D<float4> diffTex = ResourceDescriptorHeap[importCB.diffTexIdx];
         dtex = diffTex.Sample(samplerState, vsIn.texUV);
         pso.diffuse = dtex;
     }
@@ -95,7 +95,7 @@ PSOut CalculatePixels(VSIn vsIn)
         // replace normal with mapped if normal mapping enabled
         if (surfaceProps.useNormalMap)
         {
-            Texture2D<float4> normTex = ResourceDescriptorHeap[phongCB.normTexIdx];
+            Texture2D<float4> normTex = ResourceDescriptorHeap[importCB.normTexIdx];
             const float4 normSample = normTex.Sample(samplerState, vsIn.texUV);
             pso.normal = normSample;
             const float3 mappedNormal = MapNormal(normalize(vsIn.viewTan), normalize(vsIn.viewBitan), vsIn.viewNormal, vsIn.texUV, normTex, samplerState);
@@ -111,10 +111,10 @@ PSOut CalculatePixels(VSIn vsIn)
         
         if(surfaceProps.useSpecularMap)
         {
-            Texture2D<float4> specTex = ResourceDescriptorHeap[phongCB.specTexIdx];
+            Texture2D<float4> specTex = ResourceDescriptorHeap[importCB.specTexIdx];
             const float4 specularSample = specTex.Sample(samplerState, vsIn.texUV);
             pso.specular = specularSample;
-            specularReflectionColor = specularSample.rgb;
+            //specularReflectionColor = specularSample.rgb;
                     
             if (surfaceProps.useGlossAlpha)
             {

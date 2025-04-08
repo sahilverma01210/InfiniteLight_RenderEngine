@@ -17,7 +17,23 @@ namespace Renderer
 
 	// To be implemented.
 	void PostProcessFilter::SpawnWindow(D3D12RHI& gfx)
-	{		
+	{
+		if (m_postProcessEnabled)
+		{
+			struct PostProcessProbe : public TechniqueProbe
+			{
+				virtual void OnSetTechnique()
+				{
+					if (m_pTech->name == "post_process")
+					{
+						m_pTech->active = highlighted;
+					}
+				}
+				bool highlighted = false;
+			} probe;
+			probe.highlighted = true;
+			Accept(probe);
+		}
 	}
 
 	void PostProcessFilter::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)

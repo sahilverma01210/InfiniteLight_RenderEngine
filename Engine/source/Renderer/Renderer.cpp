@@ -127,7 +127,7 @@ namespace Renderer
 		if (modelProbe.m_imGUIwndOpen && m_models.size()) modelProbe.SpawnWindow(*m_models[0]);
 		if (m_cameraContainer.m_imGUIwndOpen) m_cameraContainer.SpawnWindow(*m_pRHI);
 		if (m_light->m_imGUIwndOpen) m_light->SpawnWindow();
-		//if (m_postProcessingEnabled && m_postProcessFilter->m_imGUIwndOpen) m_postProcessFilter->SpawnWindow(*m_pRHI); // To be implemented.
+		if (m_postProcessingEnabled && m_postProcessFilter->m_imGUIwndOpen) m_postProcessFilter->SpawnWindow(*m_pRHI);
 	}
 
 	void ILRenderer::EndFrame()

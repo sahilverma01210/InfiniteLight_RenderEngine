@@ -55,8 +55,8 @@ namespace Renderer
             depthStencilDesc.DepthEnable = FALSE;
             depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
             break;
-        case Mode::DepthReversed:
-            depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
+        case Mode::DepthAlways:
+            depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
             break;
         case Mode::DepthFirst:
             depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;

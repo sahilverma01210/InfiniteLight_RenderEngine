@@ -153,7 +153,7 @@ namespace Renderer
 			assert(latDiv >= 3);
 			assert(longDiv >= 3);
 
-			constexpr float radius = 1.0f;
+			constexpr float radius = 0.5f;
 			const auto base = XMVectorSet(0.0f, 0.0f, radius, 0.0f);
 			const float lattitudeAngle = PI / latDiv;
 			const float longitudeAngle = 2.0f * PI / longDiv;
@@ -280,29 +280,26 @@ namespace Renderer
 			std::vector<unsigned short> indices;
 			{
 				indices.push_back(0);
+				indices.push_back(2);
 				indices.push_back(1);
+				indices.push_back(0);
+				indices.push_back(3);
+				indices.push_back(2);
+				indices.push_back(0);
+				indices.push_back(1);
+				indices.push_back(4);
 				indices.push_back(1);
 				indices.push_back(2);
+				indices.push_back(4);
 				indices.push_back(2);
 				indices.push_back(3);
+				indices.push_back(4);
 				indices.push_back(3);
 				indices.push_back(0);
-				indices.push_back(0);
 				indices.push_back(4);
-				indices.push_back(1);
-				indices.push_back(4);
-				indices.push_back(2);
-				indices.push_back(4);
-				indices.push_back(3);
-				indices.push_back(4);
-				indices.push_back(2);
-				indices.push_back(3);
 				//indices.push_back(5);
 				//indices.push_back(6);
-				//indices.push_back(6);
 				//indices.push_back(7);
-				//indices.push_back(7);
-				//indices.push_back(5);
 			}
 
 			return { std::move(vertices),std::move(indices) };

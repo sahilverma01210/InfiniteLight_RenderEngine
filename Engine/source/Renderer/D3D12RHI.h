@@ -25,7 +25,7 @@ namespace Renderer
         Write,
         Mask,
         DepthOff,
-        DepthReversed,
+        DepthAlways,
         DepthFirst // for skybox render
     };
     enum class DepthUsage

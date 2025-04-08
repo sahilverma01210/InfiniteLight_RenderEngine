@@ -33,6 +33,7 @@ namespace Renderer
 		void Accept(TechniqueProbe& probe);
 
 	protected:
+		static inline bool m_postProcessEnabled = false;
 		UINT m_materialTypeId;
 		ResourceHandle m_materialIdx;
 		static UINT m_meshCount;

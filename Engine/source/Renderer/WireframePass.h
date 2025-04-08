@@ -30,7 +30,7 @@ namespace Renderer
 				phongPipelineDesc.inputElementDescs = inputElementDescs;
 				phongPipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Flat_VS.hlsl" };
 				phongPipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Flat_PS.hlsl" };
-				phongPipelineDesc.depthStencilMode = Mode::DepthReversed;
+				phongPipelineDesc.depthStencilMode = Mode::DepthAlways;
 
 				m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, phongPipelineDesc));
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, phongPipelineDesc));

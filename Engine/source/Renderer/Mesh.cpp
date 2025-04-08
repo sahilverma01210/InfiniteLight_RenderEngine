@@ -2,7 +2,8 @@
 
 namespace Renderer
 {
-	Mesh::Mesh(D3D12RHI& gfx, ImportMaterial* material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
+	Mesh::Mesh(D3D12RHI& gfx, std::shared_ptr<ImportMaterial> material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
+		: m_material(material)
 	{
 		m_meshIdx = ++m_meshCount;
 
@@ -12,10 +13,10 @@ namespace Renderer
 		m_vtxLayout.Append(VertexLayout::Tangent);
 		m_vtxLayout.Append(VertexLayout::Bitangent);
 
-		m_materialTypeId = material->getID();
+		m_materialTypeId = m_material->getID();
 
 		ApplyMesh(gfx, MakeVertices(gfx, mesh, scale), MakeIndices(gfx, mesh));
-		ApplyMaterial(gfx, material, true);
+		ApplyMaterial(gfx, m_material.get(), true);
 	}
 
 	VertexRawBuffer Mesh::MakeVertices(D3D12RHI& gfx, const aiMesh& mesh, float scale) const noexcept(!IS_DEBUG)
@@ -55,6 +56,11 @@ namespace Renderer
 	{
 		XMStoreFloat4x4(&m_transform, accumulatedTranform);
 		ILMesh::Submit(renderGraph);
+	}
+
+	void Mesh::ToggleEffect(std::string name, bool enabled) noexcept(!IS_DEBUG)
+	{
+		m_material->ToggleEffect(name, enabled);
 	}
 
 	void Mesh::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)

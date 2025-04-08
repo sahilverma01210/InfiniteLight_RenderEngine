@@ -7,7 +7,7 @@ namespace Renderer
 		m_meshIdx = ++m_meshCount;
 		m_indexedList = Frustum::Make(projection.width, projection.height, projection.nearZ, projection.farZ);
 
-		auto material = std::make_shared<LineWireMaterial>(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<WireframeMaterial>(gfx, m_indexedList.vertices.GetLayout(), XMFLOAT3{ 0.6f,0.2f,0.2f });
 		m_materialTypeId = material->getID();
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material->GetTopology());

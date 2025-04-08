@@ -3,10 +3,10 @@
 
 namespace Renderer
 {
-	class HorizontalBlurPass : public RenderPass
+	class BlurPass : public RenderPass
 	{
 	public:
-		HorizontalBlurPass(D3D12RHI& gfx, std::string name, unsigned int fullWidth, unsigned int fullHeight)
+		BlurPass(D3D12RHI& gfx, std::string name)
 			:
 			RenderPass(std::move(name))
 		{
@@ -26,7 +26,7 @@ namespace Renderer
 				CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
 				// define static sampler 
 				CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-				staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+				staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 				staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 				staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 				staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
@@ -34,9 +34,6 @@ namespace Renderer
 				staticSampler.MinLOD = 0.0f;
 				staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
 				samplers[0] = staticSampler;
-
-				std::vector<SHADER_MACRO> ps_macros;
-				ps_macros.push_back({ L"HORIZONTAL_BLUR", L"1" });
 
 				PipelineDescription pipelineDesc{};
 				pipelineDesc.numConstants = 2;
@@ -46,8 +43,10 @@ namespace Renderer
 				pipelineDesc.backFaceCulling = true;
 				pipelineDesc.numElements = vec.size();
 				pipelineDesc.inputElementDescs = inputElementDescs;
-				pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"BlurOutline_VS.hlsl" };
-				pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"BlurOutline_PS.hlsl", ps_macros };
+				pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader,  L"Blur_VS.hlsl" };
+				pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Blur_PS.hlsl" };
+				pipelineDesc.blending = true;
+				pipelineDesc.depthStencilMode = Mode::Mask;
 
 				m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -55,13 +54,12 @@ namespace Renderer
 
 			m_renderTargets.resize(1);
 			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
-
-			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
-			RenderGraph::m_renderTargetHandles["Horizontal_Blur"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
 		}
 
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
+			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
+
 			ID3D12Resource* blurTargetBuffer = gfx.GetResource(RenderGraph::m_renderTargetHandles["Outline_Draw"]).GetBuffer();
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 

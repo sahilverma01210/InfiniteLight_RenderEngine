@@ -22,10 +22,10 @@ namespace Renderer
 		m_projection = m_homeProjection;
 	}
 
-	void Camera::Update(bool has360View, UINT direction) const noexcept(!IS_DEBUG)
+	void Camera::Update() const noexcept(!IS_DEBUG)
 	{
-		Drawable::m_cameraMatrix = has360View ? Get360CameraMatrix(direction) : GetCameraMatrix();
-		Drawable::m_projectionMatrix = has360View ? Get360ProjectionMatrix() : GetProjectionMatrix();
+		Drawable::m_cameraMatrix = GetCameraMatrix();
+		Drawable::m_projectionMatrix = GetProjectionMatrix();
 	}
 
 	XMMATRIX Camera::GetCameraMatrix() const noexcept(!IS_DEBUG)
@@ -85,6 +85,18 @@ namespace Renderer
 
 	void Camera::SpawnControlWidgets(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
+		struct CameraProbe : public TechniqueProbe
+		{
+			virtual void OnSetTechnique()
+			{
+				if (m_pTech->name == "line_wire")
+				{
+					m_pTech->active = highlighted;
+				}
+			}
+			bool highlighted = false;
+		} probe;
+
 		bool rotDirty = false;
 		bool posDirty = false;
 		bool projDirty = false;
@@ -123,6 +135,18 @@ namespace Renderer
 		if (projDirty)
 		{
 			m_cameraProjection.SetVertices(gfx, m_projection);
+		}
+
+		if (m_enableCameraIndicator)
+		{
+			probe.highlighted = true;
+			m_cameraIndicator.Accept(probe);
+		}
+
+		if (m_enableCameraProjection)
+		{
+			probe.highlighted = true;
+			m_cameraProjection.Accept(probe);
 		}
 	}
 

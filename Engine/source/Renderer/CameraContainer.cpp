@@ -29,7 +29,7 @@ namespace Renderer
 				{
 					const bool isSelected = i == m_controlled;
 					if (ImGui::Selectable(m_cameras[i]->GetName().c_str(), isSelected))
-					{
+					{						
 						m_controlled = i;
 					}
 				}

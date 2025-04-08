@@ -1,5 +1,5 @@
-#include "CommonResources.hlsl"
-#include "LightShadowUtils.hlsl"
+#include "CommonResources.hlsli"
+#include "LightShadowUtils.hlsli"
 
 struct PhongCB
 {

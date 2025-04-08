@@ -11,24 +11,6 @@ namespace Renderer
 		friend class Model;
 
 	public:
-		struct PSMaterialConstantFullmonte
-		{
-			BOOL  normalMapEnabled = TRUE;
-			BOOL  specularMapEnabled = TRUE;
-			BOOL  hasGlossMap = FALSE;
-			float specularPower = 3.1f;
-			XMFLOAT3 specularColor = { 0.75f,0.75f,0.75f };
-			float specularMapWeight = 0.671f;
-		};
-		struct PSMaterialConstantNotex
-		{
-			XMFLOAT4 materialColor = { 0.447970f,0.327254f,0.176283f,1.0f };
-			XMFLOAT4 specularColor = { 0.65f,0.65f,0.65f,1.0f };
-			float specularPower = 120.0f;
-			float padding[3];
-		};
-
-	public:
 		Node(int id, const std::string& name, std::vector<std::shared_ptr<Mesh>> meshPtrs, const XMMATRIX& transform) noexcept(!IS_DEBUG);
 		void Submit(FXMMATRIX accumulatedTransform, RenderGraph& renderGraph) const noexcept(!IS_DEBUG);
 		void SetAppliedTransform(FXMMATRIX transform) noexcept(!IS_DEBUG);
@@ -44,6 +26,7 @@ namespace Renderer
 		{
 			return m_name;
 		}
+		void ToggleEffect(std::string name, bool enabled) noexcept(!IS_DEBUG);
 	private:
 		void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);
 

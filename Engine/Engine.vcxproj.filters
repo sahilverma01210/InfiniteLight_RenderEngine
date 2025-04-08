@@ -101,9 +101,6 @@
     <Filter Include="Source\Renderer\Public\Common\Primitives">
       <UniqueIdentifier>{73024be1-12b6-4696-aba9-9bc426d31b36}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\HLSL\Phong Shading">
-      <UniqueIdentifier>{726d7eea-fe1b-4274-b12b-77efd66004c0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\HLSL\Skybox">
       <UniqueIdentifier>{a18352d6-aaf6-44b0-b563-013fd0bd8410}</UniqueIdentifier>
     </Filter>
@@ -160,6 +157,12 @@
     </Filter>
     <Filter Include="Shaders\HLSL\Common">
       <UniqueIdentifier>{95eed843-1cdc-433b-bf77-8adb470e37d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Outline Draw">
+      <UniqueIdentifier>{ad2114e5-9ce5-4ef4-9b64-5e20d3faa30a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Phong Shading">
+      <UniqueIdentifier>{726d7eea-fe1b-4274-b12b-77efd66004c0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -304,19 +307,13 @@
     <ClInclude Include="source\Renderer\Viewport.h">
       <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h">
+    <ClInclude Include="source\Renderer\OutlineDrawPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BufferClearPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\HorizontalBlurPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\PhongPass.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ShadowMappingPass.h">
@@ -328,7 +325,7 @@
     <ClInclude Include="source\Renderer\WireframePass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\VerticalBlurPass.h">
+    <ClInclude Include="source\Renderer\BlurPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h">
@@ -364,10 +361,7 @@
     <ClInclude Include="source\Renderer\SolidMaterial.h">
       <Filter>Source\Renderer\Public\Materials</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\LineMaterial.h">
-      <Filter>Source\Renderer\Public\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\LineWireMaterial.h">
+    <ClInclude Include="source\Renderer\WireframeMaterial.h">
       <Filter>Source\Renderer\Public\Materials</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\PointLightIndicator.h">
@@ -608,10 +602,10 @@
     <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
       <Filter>Shaders\HLSL\Skybox</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\BlurOutline_PS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\BlurOutline_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Blur_VS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Flat_PS.hlsl">
@@ -626,17 +620,23 @@
     <CustomBuild Include="shaders\HLSL\Shadow_VS.hlsl">
       <Filter>Shaders\HLSL\Shadow Mapping</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\LightShadowUtils.hlsl">
+    <CustomBuild Include="shaders\HLSL\LightShadowUtils.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PixelShaderUtils.hlsl">
+    <CustomBuild Include="shaders\HLSL\PixelShaderUtils.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\VertexShaderUtils.hlsl">
+    <CustomBuild Include="shaders\HLSL\VertexShaderUtils.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\CommonResources.hlsl">
+    <CustomBuild Include="shaders\HLSL\CommonResources.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Outline_PS.hlsl">
+      <Filter>Shaders\HLSL\Outline Draw</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Outline_VS.hlsl">
+      <Filter>Shaders\HLSL\Outline Draw</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

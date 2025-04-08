@@ -22,20 +22,20 @@ namespace Renderer
 
 		// parse materials
 		std::vector<std::shared_ptr<ImportMaterial>> materials;
-		materials.resize(pScene->mNumMaterials - 1);
+		materials.resize(pScene->mNumMaterials);
 		{
 			std::vector<std::thread> threads;
-			for (size_t i = 1; i < pScene->mNumMaterials; i++)
+			for (size_t i = 0; i < pScene->mNumMaterials; i++)
 			{
 				threads.emplace_back([&materials, &gfx, pScene, i, pathString]() {
 					std::lock_guard<std::mutex> guard(mutex);
-					materials[i - 1] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString, mutex);
+					materials[i] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString, mutex);
 					});
 
 				// Assigning Name to each Threads.
 				const char* matNamePtr = pScene->mMaterials[i]->GetName().C_Str();
 				const std::wstring& matName = std::wstring(matNamePtr, matNamePtr + std::strlen(matNamePtr));
-				SetThreadDescription(threads[i - 1].native_handle(), matName.c_str());
+				SetThreadDescription(threads[i].native_handle(), matName.c_str());
 			}
 		
 			for (auto& thread : threads)
@@ -53,13 +53,30 @@ namespace Renderer
 		//	materials.push_back(std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString));
 		//}
 
+		//bool hasRootNode = false;
+
+		//if (!(hasRootNode = pScene->mRootNode->mNumChildren))
+		//{
+		//	throw MDL_EXCEPTION("No root node found in the model.");
+		//}
+
+		aiNode** childNodes = new aiNode*[pScene->mNumMeshes];
+
 		// parse mesh and apply materials
-		for (size_t i = 0; i < pScene->mNumMeshes; i++)
+		for (unsigned int i = 0; i < pScene->mNumMeshes; i++)
 		{
 			const auto& mesh = *pScene->mMeshes[i];
+			childNodes[i] = new aiNode();
+			childNodes[i]->mName = mesh.mName;
+			childNodes[i]->mParent = pScene->mRootNode;
+			childNodes[i]->mNumMeshes = 1;
+			childNodes[i]->mMeshes = new unsigned int[1] {i};
 			//std::string name = mesh.mName.C_Str();
-			m_meshPtrs.push_back(std::make_shared<Mesh>(gfx, materials[mesh.mMaterialIndex - 1].get(), mesh, scale));
+			m_meshPtrs.push_back(std::make_shared<Mesh>(gfx, materials[mesh.mMaterialIndex], mesh, scale));
 		}
+
+		pScene->mRootNode->mNumChildren = pScene->mNumMeshes;
+		pScene->mRootNode->mChildren = childNodes;
 
 		int nextId = 0;
 		m_pRoot = ParseNode(nextId, *pScene->mRootNode, scale);
@@ -88,6 +105,8 @@ namespace Renderer
 		auto pNode = std::make_unique<Node>(nextId++, node.mName.C_Str(), std::move(curMeshPtrs), transform);
 		for (size_t i = 0; i < node.mNumChildren; i++)
 		{
+			auto temp = node.mChildren[i];
+
 			pNode->AddChild(ParseNode(nextId, *node.mChildren[i], scale));
 		}
 

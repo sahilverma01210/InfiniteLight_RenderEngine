@@ -3,10 +3,10 @@
 
 namespace Renderer
 {
-	class BlurOutlineDrawingPass : public RenderPass
+	class OutlineDrawPass : public RenderPass
 	{
 	public:
-		BlurOutlineDrawingPass(D3D12RHI& gfx, std::string name, unsigned int fullWidth, unsigned int fullHeight)
+		OutlineDrawPass(D3D12RHI& gfx, std::string name, unsigned int fullWidth, unsigned int fullHeight)
 			:
 			RenderPass(std::move(name))
 		{
@@ -26,12 +26,12 @@ namespace Renderer
 				PipelineDescription drawPipelineDesc{};
 				drawPipelineDesc.numConstants = 2;
 				drawPipelineDesc.num32BitConstants = num32BitConstants;
+				drawPipelineDesc.depthStencilMode = Mode::Write;
 				drawPipelineDesc.backFaceCulling = true;
 				drawPipelineDesc.numElements = vec.size();
 				drawPipelineDesc.inputElementDescs = inputElementDescs;
-				drawPipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Flat_VS.hlsl" };
-				drawPipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Flat_PS.hlsl" };
-				drawPipelineDesc.depthUsage = DepthUsage::None;
+				drawPipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Outline_VS.hlsl" };
+				drawPipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Outline_PS.hlsl" };
 
 				m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, drawPipelineDesc));
 				m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, drawPipelineDesc));
@@ -40,6 +40,7 @@ namespace Renderer
 			m_renderTargets.resize(1);
 			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, fullWidth, fullHeight);
 			RenderGraph::m_renderTargetHandles["Outline_Draw"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{

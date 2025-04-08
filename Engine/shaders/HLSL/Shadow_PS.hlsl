@@ -1,4 +1,4 @@
-#include "CommonResources.hlsl"
+#include "CommonResources.hlsli"
 
 float main(float4 pos : SV_Position, float4 viewPos : Position) : SV_TARGET
 {

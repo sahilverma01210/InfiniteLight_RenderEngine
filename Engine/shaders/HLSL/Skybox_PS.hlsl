@@ -1,4 +1,4 @@
-#include "CommonResources.hlsl"
+#include "CommonResources.hlsli"
 
 struct SkyboxCB
 {

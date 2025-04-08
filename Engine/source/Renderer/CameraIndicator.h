@@ -1,6 +1,6 @@
 #pragma once
 #include "ILMesh.h"
-#include "LineMaterial.h"
+#include "SolidMaterial.h"
 
 namespace Renderer
 {

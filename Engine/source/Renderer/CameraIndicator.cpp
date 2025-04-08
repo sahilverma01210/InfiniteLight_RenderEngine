@@ -7,7 +7,7 @@ namespace Renderer
 		m_meshIdx = ++m_meshCount;
 		m_indexedList = Pyramid::Make();
 
-		auto material = std::make_shared<LineMaterial>(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<SolidMaterial>(gfx, m_indexedList.vertices.GetLayout(), XMFLOAT3{ 0.0f,0.0f,1.0f });
 		m_materialTypeId = material->getID();
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices, material->GetTopology());

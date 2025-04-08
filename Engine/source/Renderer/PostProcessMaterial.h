@@ -13,16 +13,15 @@ namespace Renderer
 			Box,
 		};
 
-		struct alignas(16) Coefficient
-		{
-			float value;
-		};
-
 		__declspec(align(256u)) struct PostProcessMatHandles
 		{
 			ResourceHandle kernelConstIdx;
-			ResourceHandle frameBufferIdx1;
-			ResourceHandle frameBufferIdx2;
+			ResourceHandle frameBufferIdx;
+		};
+
+		struct alignas(16) Coefficient
+		{
+			float value;
 		};
 
 		__declspec(align(256u)) struct Kernel
@@ -34,15 +33,13 @@ namespace Renderer
 	public:
 		PostProcessMaterial(D3D12RHI& gfx, VertexLayout layout) noexcept(!IS_DEBUG)
 		{
-			Technique postProcess{ "post_process", true};
-			postProcess.passNames.push_back("horizontal");
-			postProcess.passNames.push_back("vertical");
+			Technique postProcess{ "post_process", false };
+			postProcess.passNames.push_back("blur");
 			m_techniques.push_back(std::move(postProcess));
 
 			SetKernelGauss(m_radius, m_sigma);
 			m_postProcessMatHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), static_cast<const void*>(&m_kernel)), ResourceType::Constant);
-			m_postProcessMatHandles.frameBufferIdx1 = RenderGraph::m_renderTargetHandles["Outline_Draw"];
-			m_postProcessMatHandles.frameBufferIdx2 = RenderGraph::m_renderTargetHandles["Horizontal_Blur"];
+			m_postProcessMatHandles.frameBufferIdx = RenderGraph::m_renderTargetHandles["Outline_Draw"];
 			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_postProcessMatHandles), static_cast<const void*>(&m_postProcessMatHandles)), ResourceType::Constant);
 		}
 		void SetKernelBox(int radius) noexcept(!IS_DEBUG)
@@ -131,7 +128,7 @@ namespace Renderer
 	private:
 		static constexpr int m_maxRadius = 7;
 		int m_radius = 5;
-		float m_sigma = 4.0f;
+		float m_sigma = 8.0f;
 		KernelType m_kernelType = KernelType::Gauss;
 		Kernel m_kernel = {};
 		PostProcessMatHandles m_postProcessMatHandles{};

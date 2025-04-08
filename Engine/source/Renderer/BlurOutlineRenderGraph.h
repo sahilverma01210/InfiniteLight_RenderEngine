@@ -8,10 +8,8 @@
 #include "FlatPass.h"
 #include "PhongPass.h"
 #include "SkyboxPass.h"
-#include "OutlineMaskGenerationPass.h"
-#include "BlurOutlineDrawingPass.h"
-#include "HorizontalBlurPass.h"
-#include "VerticalBlurPass.h"
+#include "OutlineDrawPass.h"
+#include "BlurPass.h"
 #include "WireframePass.h"
 
 namespace Renderer
@@ -44,19 +42,11 @@ namespace Renderer
 				AppendPass(std::move(pass));
 			}
 			{
-				auto pass = std::make_unique<OutlineMaskGenerationPass>(gfx, "outlineMask");
+				auto pass = std::make_unique<OutlineDrawPass>(gfx, "outlineDraw", gfx.GetWidth(), gfx.GetHeight());
 				AppendPass(std::move(pass));
 			}
 			{
-				auto pass = std::make_unique<BlurOutlineDrawingPass>(gfx, "outlineDraw", gfx.GetWidth(), gfx.GetHeight());
-				AppendPass(std::move(pass));
-			}
-			{
-				auto pass = std::make_unique<HorizontalBlurPass>(gfx, "horizontal", gfx.GetWidth(), gfx.GetHeight());
-				AppendPass(std::move(pass));
-			}
-			{
-				auto pass = std::make_unique<VerticalBlurPass>(gfx, "vertical");
+				auto pass = std::make_unique<BlurPass>(gfx, "blur");
 				AppendPass(std::move(pass));
 			}
 			{

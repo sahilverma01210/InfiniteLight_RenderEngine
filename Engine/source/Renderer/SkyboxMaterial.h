@@ -13,7 +13,7 @@ namespace Renderer
 	public:
 		SkyboxMaterial(D3D12RHI& gfx, VertexLayout layout) noexcept(!IS_DEBUG)
 		{
-			Technique skybox{ "skybox" };
+			Technique skybox{ "skybox", true };
 			skybox.passNames.push_back("skybox");
 			m_techniques.push_back(std::move(skybox));
 

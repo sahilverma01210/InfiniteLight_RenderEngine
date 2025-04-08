@@ -18,7 +18,7 @@ namespace Renderer
 
 	public:
 		Camera(D3D12RHI& gfx, std::string name, Transform transform, bool tethered = false) noexcept(!IS_DEBUG);
-		void Update(bool has360View = false, UINT direction = 0) const noexcept(!IS_DEBUG);
+		void Update() const noexcept(!IS_DEBUG);
 		XMMATRIX GetCameraMatrix() const noexcept(!IS_DEBUG);
 		XMMATRIX GetProjectionMatrix() const noexcept(!IS_DEBUG);
 		XMMATRIX Get360CameraMatrix(UINT directionIndex) const noexcept(!IS_DEBUG);

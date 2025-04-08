@@ -9,6 +9,7 @@ namespace Renderer
 	{
 		friend class PointLight;
 
+	public:
 		__declspec(align(256u)) struct ImportMatHandles
 		{
 			ResourceHandle phongLightConstIdx;
@@ -20,9 +21,10 @@ namespace Renderer
 			ResourceHandle solidConstIdx;
 		};
 
+	private:
 		__declspec(align(256u)) struct PhongCB
 		{
-			alignas(16) XMFLOAT3 materialColor = XMFLOAT3();
+			alignas(16) XMFLOAT3 materialColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			alignas(16) XMFLOAT3 specularColor = XMFLOAT3();
 			float specularGloss = 0.0f;
 			float specularWeight = 0.0f;
@@ -42,6 +44,7 @@ namespace Renderer
 	public:
 		ImportMaterial() = default;
 		ImportMaterial(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path, std::mutex &mutex) noexcept(!IS_DEBUG)
+			: m_gfx(gfx)
 		{
 			// shadow map technique
 			Technique map{ "ShadowMap", true };
@@ -49,7 +52,7 @@ namespace Renderer
 			m_techniques.push_back(std::move(map));
 
 			// phong technique
-			Technique phong{ "Phong" };
+			Technique phong{ "Phong", true };
 			phong.passNames.push_back("phong_shading");
 			m_techniques.push_back(std::move(phong));
 
@@ -57,7 +60,6 @@ namespace Renderer
 			{
 				// outline technique
 				Technique outline{ "Outline", false };
-				outline.passNames.push_back("outlineMask");
 				outline.passNames.push_back("outlineDraw");
 				m_techniques.push_back(std::move(outline));
 			}
@@ -120,24 +122,36 @@ namespace Renderer
 
 			// Load Constant Buffers
 			{
-				SolidCB data = { XMFLOAT3{ 1.0f,0.4f,0.4f } };
+				m_data.materialColor = XMFLOAT3{ 1.0f,0.4f,0.4f };
 				if (m_importMatHandles.phongDiffTexIdx) m_phongData.useDiffuseAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.phongDiffTexIdx)).HasAlpha();
 				if (m_importMatHandles.phongNormTexIdx) m_phongData.normalMapWeight = 1.0f;
 				if (m_importMatHandles.phongSpecTexIdx) m_phongData.useGlossAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.phongSpecTexIdx)).HasAlpha();
 
+				m_pPhongCBuf = std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData);
+				m_pSolidCBuf = std::make_shared<ConstantBuffer>(gfx, sizeof(m_data), &m_data);
+
 				m_importMatHandles.phongLightConstIdx = ILMaterial::m_lightHandle;
-				m_importMatHandles.phongTexConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData), ResourceType::Constant);
-				m_importMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(data), static_cast<const void*>(&data)), ResourceType::Constant);
+				m_importMatHandles.phongTexConstIdx = gfx.LoadResource(m_pPhongCBuf, ResourceType::Constant);
+				m_importMatHandles.solidConstIdx = gfx.LoadResource(m_pSolidCBuf, ResourceType::Constant);
 			}
 
-			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_importMatHandles), static_cast<const void*>(&m_importMatHandles)), ResourceType::Constant);
+			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_importMatHandles), &m_importMatHandles), ResourceType::Constant);
 		}
 		UINT getID() const override {
 			return getTypeID<ImportMaterial>();
 		}
+		void ToggleEffect(std::string name, bool enabled)
+		{
+			m_phongData.materialColor = XMFLOAT3{ 1.0f,0.4f,0.4f };
+			m_pPhongCBuf->Update(m_gfx, &m_phongData);
+		}
 
 	private:
+		D3D12RHI& m_gfx;
 		PhongCB m_phongData;
+		SolidCB m_data;
 		ImportMatHandles m_importMatHandles{};
+		std::shared_ptr<ConstantBuffer> m_pPhongCBuf;
+		std::shared_ptr<ConstantBuffer> m_pSolidCBuf;
 	};
 }

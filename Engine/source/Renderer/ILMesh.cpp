@@ -46,5 +46,6 @@ namespace Renderer
 		{
 			probe.SetTechnique(&technique);
 		}
+		m_postProcessEnabled = true;
 	}
 }

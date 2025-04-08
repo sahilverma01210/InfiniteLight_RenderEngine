@@ -13,10 +13,8 @@ namespace Renderer
 		~CameraContainer();
 		bool SpawnWindow(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
-		void AddLightingCamera(std::shared_ptr<Camera> pCam);
 		void Submit(RenderGraph& renderGraph) const;
 		Camera& GetActiveCamera();
-		Camera& GetLightingCamera();
 	private:
 		Camera& GetControlledCamera();
 

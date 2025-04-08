@@ -27,7 +27,7 @@
     <ClInclude Include="source\Common\ImGUI_Includes.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
     <ClInclude Include="source\Renderer\BindableCodex.h" />
-    <ClInclude Include="source\Renderer\BlurOutlineDrawingPass.h" />
+    <ClInclude Include="source\Renderer\OutlineDrawPass.h" />
     <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h" />
     <ClInclude Include="source\Renderer\BufferClearPass.h" />
     <ClInclude Include="source\Renderer\CameraContainer.h" />
@@ -42,21 +42,18 @@
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\DynamicConstant.h" />
     <ClInclude Include="source\Renderer\GraphicsResource.h" />
-    <ClInclude Include="source\Renderer\HorizontalBlurPass.h" />
     <ClInclude Include="source\Renderer\ILMaterial.h" />
     <ClInclude Include="source\Renderer\ILMesh.h" />
     <ClInclude Include="source\Renderer\IndexBuffer.h" />
     <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
     <ClInclude Include="source\Renderer\PhongPass.h" />
-    <ClInclude Include="source\Renderer\LineMaterial.h" />
-    <ClInclude Include="source\Renderer\LineWireMaterial.h" />
+    <ClInclude Include="source\Renderer\WireframeMaterial.h" />
     <ClInclude Include="source\Renderer\ImportMaterial.h" />
     <ClInclude Include="source\Renderer\Mesh.h" />
     <ClInclude Include="source\Renderer\Model.h" />
     <ClInclude Include="source\Renderer\ModelException.h" />
     <ClInclude Include="source\Renderer\ModelProbe.h" />
     <ClInclude Include="source\Renderer\Node.h" />
-    <ClInclude Include="source\Renderer\OutlineMaskGenerationPass.h" />
     <ClInclude Include="source\Renderer\Pass.h" />
     <ClInclude Include="source\Renderer\CameraProjection.h" />
     <ClInclude Include="source\Renderer\PostProcessFilter.h" />
@@ -89,7 +86,7 @@
     <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\VertexBuffer.h" />
     <ClInclude Include="source\Renderer\Vertex.h" />
-    <ClInclude Include="source\Renderer\VerticalBlurPass.h" />
+    <ClInclude Include="source\Renderer\BlurPass.h" />
     <ClInclude Include="source\Renderer\Viewport.h" />
     <ClInclude Include="source\Renderer\WireframePass.h" />
     <ClInclude Include="source\Runtime\Application.h" />
@@ -166,7 +163,7 @@
     <ClCompile Include="source\_External\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\BlurOutline_PS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
@@ -175,7 +172,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\BlurOutline_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Blur_VS.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
@@ -202,7 +199,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PixelShaderUtils.hlsl">
+    <CustomBuild Include="shaders\HLSL\PixelShaderUtils.hlsli">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
@@ -229,7 +226,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\VertexShaderUtils.hlsl">
+    <CustomBuild Include="shaders\HLSL\VertexShaderUtils.hlsli">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
@@ -243,7 +240,7 @@
     <None Include="config\packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\LightShadowUtils.hlsl">
+    <CustomBuild Include="shaders\HLSL\LightShadowUtils.hlsli">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -316,7 +313,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\CommonResources.hlsl">
+    <CustomBuild Include="shaders\HLSL\CommonResources.hlsli">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -331,6 +328,34 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shaders\HLSL\Outline_PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Outline_VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
   </ItemGroup>

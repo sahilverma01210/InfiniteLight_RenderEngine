@@ -28,6 +28,14 @@ namespace Renderer
 		}
 	}
 
+	void Node::ToggleEffect(std::string name, bool enabled) noexcept(!IS_DEBUG)
+	{
+		for (auto& mp : m_meshPtrs)
+		{
+			mp->ToggleEffect(name, enabled);
+		}
+	}
+
 	void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
 	{
 		assert(pChild);

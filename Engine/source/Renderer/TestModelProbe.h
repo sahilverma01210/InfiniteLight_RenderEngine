@@ -158,10 +158,12 @@ namespace Renderer
 				if (m_pSelectedNode != nullptr)
 				{
 					m_pSelectedNode->Accept(probe);
+					m_pSelectedNode->ToggleEffect("Outline", false);
 				}
 				// add highlight to newly-selected node
 				probe.highlighted = true;
 				node.Accept(probe);
+				node.ToggleEffect("Outline", true);
 				m_pSelectedNode = &node;
 			}
 			// signal if children should also be recursed

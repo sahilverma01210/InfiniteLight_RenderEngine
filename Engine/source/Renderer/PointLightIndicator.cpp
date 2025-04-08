@@ -9,7 +9,7 @@ namespace Renderer
 		m_indexedList = Sphere::Make();		
 		m_indexedList.Transform(XMMatrixScaling(radius, radius, radius)); // deform vertices of model by linear transformation
 
-		auto material = std::make_shared<SolidMaterial>(gfx, m_indexedList.vertices.GetLayout());
+		auto material = std::make_shared<SolidMaterial>(gfx, m_indexedList.vertices.GetLayout(), XMFLOAT3{ 1.0f,1.0f,1.0f });
 		m_materialTypeId = material->getID();
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);

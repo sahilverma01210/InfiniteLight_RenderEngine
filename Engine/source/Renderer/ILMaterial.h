@@ -8,7 +8,7 @@ namespace Renderer
 	struct Technique
 	{
 		std::string name;
-		bool active = true;
+		bool active = false;
 		std::vector<std::string> passNames;
 	};
 

@@ -2,7 +2,7 @@
 #include "../Common/ImGUI_Includes.h"
 
 #include "ILMesh.h"
-#include "LineWireMaterial.h"
+#include "WireframeMaterial.h"
 
 namespace Renderer
 {
