@@ -27,8 +27,8 @@
     <ClInclude Include="source\Common\ImGUI_Includes.h" />
     <ClInclude Include="source\Renderer\Bindable.h" />
     <ClInclude Include="source\Renderer\BindableCodex.h" />
+    <ClInclude Include="source\Renderer\BlurPass.h" />
     <ClInclude Include="source\Renderer\OutlineDrawPass.h" />
-    <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h" />
     <ClInclude Include="source\Renderer\BufferClearPass.h" />
     <ClInclude Include="source\Renderer\CameraContainer.h" />
     <ClInclude Include="source\Renderer\CameraIndicator.h" />
@@ -37,7 +37,6 @@
     <ClInclude Include="source\Renderer\ConstantBuffer.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
     <ClInclude Include="source\Renderer\D3D12RHIException.h" />
-    <ClInclude Include="source\Renderer\DefaultRenderGraph.h" />
     <ClInclude Include="source\Renderer\DepthStencil.h" />
     <ClInclude Include="source\Renderer\Drawable.h" />
     <ClInclude Include="source\Renderer\DynamicConstant.h" />
@@ -86,7 +85,7 @@
     <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\VertexBuffer.h" />
     <ClInclude Include="source\Renderer\Vertex.h" />
-    <ClInclude Include="source\Renderer\BlurPass.h" />
+    <ClInclude Include="source\Renderer\PostProcessPass.h" />
     <ClInclude Include="source\Renderer\Viewport.h" />
     <ClInclude Include="source\Renderer\WireframePass.h" />
     <ClInclude Include="source\Runtime\Application.h" />
@@ -163,7 +162,7 @@
     <ClCompile Include="source\_External\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
+    <CustomBuild Include="shaders\HLSL\PostProcess_PS.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
@@ -172,7 +171,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Blur_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\PostProcess_VS.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
@@ -350,6 +349,25 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shaders\HLSL\Blur_CS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>

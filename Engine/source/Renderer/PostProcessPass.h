@@ -1,14 +1,12 @@
 #pragma once
 #include "RenderPass.h"
-#include "Camera.h"
-#include "Shapes.h"
 
 namespace Renderer
 {
-	class SkyboxPass : public RenderPass
+	class PostProcessPass : public RenderPass
 	{
 	public:
-		SkyboxPass(D3D12RHI& gfx, std::string name)
+		PostProcessPass(D3D12RHI& gfx, std::string name)
 			:
 			RenderPass(std::move(name))
 		{
@@ -19,7 +17,7 @@ namespace Renderer
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
-			m_vtxLayout.Append(VertexLayout::Position3D);
+			m_vtxLayout.Append(VertexLayout::Position2D);
 
 			// Define the vertex input layout.
 			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
@@ -38,8 +36,8 @@ namespace Renderer
 			// define static sampler 
 			CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
 			staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-			staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+			staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 			staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
 			staticSampler.MipLODBias = 0.0f;
 			staticSampler.MinLOD = 0.0f;
@@ -53,11 +51,13 @@ namespace Renderer
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.numStaticSamplers = 1;
 			pipelineDesc.staticSamplers = samplers;
-			pipelineDesc.depthStencilMode = Mode::DepthFirst;
+			pipelineDesc.backFaceCulling = true;
 			pipelineDesc.numElements = vec.size();
 			pipelineDesc.inputElementDescs = inputElementDescs;
-			pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader,  L"Skybox_VS.hlsl" };
-			pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Skybox_PS.hlsl" };
+			pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader,  L"PostProcess_VS.hlsl" };
+			pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"PostProcess_PS.hlsl" };
+			pipelineDesc.blending = true;
+			pipelineDesc.depthStencilMode = Mode::Mask;
 
 			m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 			m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -65,7 +65,13 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
+
+			ID3D12Resource* outlineBuffer = gfx.GetResource(RenderGraph::m_renderTargetHandles["Outline_Draw"]).GetBuffer();
+			gfx.TransitionResource(outlineBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
 			RenderPass::Execute(gfx);
+
+			gfx.TransitionResource(outlineBuffer, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
 
 	private:

@@ -46,4 +46,9 @@ namespace Common
 		const auto ss = sq(sigma);
 		return ((T)1.0 / sqrt((T)2.0 * (T)PI_D * ss)) * exp(-sq(x) / ((T)2.0 * ss));
 	}
+
+	constexpr inline std::uint32_t DivideAndRoundUp(std::uint32_t nominator, std::uint32_t denominator)
+	{
+		return (nominator + denominator - 1) / denominator;
+	}
 }

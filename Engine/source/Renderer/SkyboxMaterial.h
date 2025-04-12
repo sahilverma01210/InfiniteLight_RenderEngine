@@ -18,7 +18,7 @@ namespace Renderer
 			m_techniques.push_back(std::move(skybox));
 
 			m_skyboxMatHandles.cubeMapTexIdx = gfx.LoadResource(std::make_shared<CubeMapTextureBuffer>(gfx, L"data\\textures\\SpaceBox"), ResourceType::CubeMapTexture);
-			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_skyboxMatHandles), static_cast<const void*>(&m_skyboxMatHandles)), ResourceType::Constant);
+			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_skyboxMatHandles), &m_skyboxMatHandles), ResourceType::Constant);
 		}
 		UINT getID() const override {
 			return getTypeID<SkyboxMaterial>();

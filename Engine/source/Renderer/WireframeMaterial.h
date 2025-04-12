@@ -21,12 +21,12 @@ namespace Renderer
 			m_topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 
 			Technique lineWire{ "line_wire", false };
-			if (m_wireframeEnabled) lineWire.passNames.push_back("wireframe");
+			lineWire.passNames.push_back("wireframe");
 			m_techniques.push_back(std::move(lineWire));
 
 			SolidCB solidCB = { color };
-			m_lineWireMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(solidCB), static_cast<const void*>(&solidCB)), ResourceType::Constant);
-			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_lineWireMatHandles), static_cast<const void*>(&m_lineWireMatHandles)), ResourceType::Constant);
+			m_lineWireMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(solidCB), &solidCB), ResourceType::Constant);
+			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_lineWireMatHandles), &m_lineWireMatHandles), ResourceType::Constant);
 		}
 		UINT getID() const override {
 			return getTypeID<WireframeMaterial>();

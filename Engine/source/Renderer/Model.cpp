@@ -4,7 +4,7 @@ namespace Renderer
 {
 	std::mutex mutex;
 
-	Model::Model(D3D12RHI& gfx, const std::string& pathString, XMFLOAT3 transform, float scale)
+	Model::Model(D3D12RHI& gfx, const std::string& pathString, XMFLOAT3 transform, bool enablePostProcessing, float scale)
 	{
 		Assimp::Importer imp;
 		const auto pScene = imp.ReadFile(pathString.c_str(),
@@ -27,9 +27,9 @@ namespace Renderer
 			std::vector<std::thread> threads;
 			for (size_t i = 0; i < pScene->mNumMaterials; i++)
 			{
-				threads.emplace_back([&materials, &gfx, pScene, i, pathString]() {
+				threads.emplace_back([&materials, &gfx, pScene, i, enablePostProcessing, pathString]() {
 					std::lock_guard<std::mutex> guard(mutex);
-					materials[i] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString, mutex);
+					materials[i] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString, enablePostProcessing, mutex);
 					});
 
 				// Assigning Name to each Threads.

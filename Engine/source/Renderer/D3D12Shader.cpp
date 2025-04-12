@@ -33,6 +33,7 @@ namespace Renderer
 
 		if (shaderType == ShaderType::VertexShader) targetProfile = L"vs_6_6"; // Vertex Shader Model 6.6
 		else if (shaderType == ShaderType::PixelShader) targetProfile = L"ps_6_6"; // Pixel Shader Model 6.6
+		else if (shaderType == ShaderType::ComputeShader) targetProfile = L"cs_6_6"; // Compute Shader Model 6.6
 
 		std::wstring assetsPath = Common::GetAssetsPath(Common::AssetType::Shader);
 

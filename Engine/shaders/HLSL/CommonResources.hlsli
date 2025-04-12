@@ -11,5 +11,5 @@ struct MeshConstants
     int materialIdx;
 };
 
-ConstantBuffer<MeshTransforms> meshTransforms : register(b0, space1);
-ConstantBuffer<MeshConstants> meshConstants : register(b1, space1);
+ConstantBuffer<MeshTransforms> meshTransforms : register(b0);
+ConstantBuffer<MeshConstants> meshConstants : register(b1);

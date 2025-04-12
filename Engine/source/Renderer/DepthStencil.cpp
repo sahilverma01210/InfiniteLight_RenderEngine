@@ -29,6 +29,7 @@ namespace Renderer
         // Create Depth Buffer - Depth Stensil View (DSV).
         {
             m_descHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+			m_gpuDescHandle = m_dsvHeap->GetGPUDescriptorHandleForHeapStart();
 
             D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
             descView.Format = DXGI_FORMAT_D32_FLOAT;
@@ -77,6 +78,7 @@ namespace Renderer
                 IID_PPV_ARGS(&m_resourceBuffer)));
 
             m_descHandle = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+			m_gpuDescHandle = m_dsvHeap->GetGPUDescriptorHandleForHeapStart();
 
             D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
             descView.Format = MapUsageTyped(usage);

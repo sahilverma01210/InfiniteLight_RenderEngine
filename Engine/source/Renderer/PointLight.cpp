@@ -11,7 +11,7 @@ namespace Renderer
 	{
 		m_cbData = m_home;
 
-		m_lightConstants = std::make_shared<ConstantBuffer>(gfx, sizeof(m_cbData), static_cast<const void*>(&m_cbData));
+		m_lightConstants = std::make_shared<ConstantBuffer>(gfx, sizeof(m_cbData), &m_cbData);
 		ILMaterial::m_lightHandle = gfx.LoadResource(m_lightConstants, ResourceType::Constant);
 	}
 

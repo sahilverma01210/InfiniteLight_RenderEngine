@@ -19,7 +19,7 @@ namespace Renderer
         }
         else
         {
-            m_mipChain.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, 512, 512, 1, 1);
+            m_mipChain.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, gfx.GetWidth(), gfx.GetHeight(), 1, 1);
         }
 
         // collect subresource data
@@ -50,7 +50,7 @@ namespace Renderer
             resourceDesc.Format = chainBase.format;
             resourceDesc.SampleDesc = { .Count = 1 };
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-            resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+            resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
             D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,

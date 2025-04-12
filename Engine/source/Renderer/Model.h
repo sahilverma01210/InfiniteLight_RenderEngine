@@ -10,7 +10,7 @@ namespace Renderer
 	class Model
 	{
 	public:
-		Model(D3D12RHI& gfx, const std::string& pathString, XMFLOAT3 transform,  float fscale = 1.0f);
+		Model(D3D12RHI& gfx, const std::string& pathString, XMFLOAT3 transform, bool enablePostProcessing,  float fscale = 1.0f);
 		void Submit(RenderGraph& renderGraph) const noexcept(!IS_DEBUG);
 		void Accept(class ModelProbe& probe);
 	private:

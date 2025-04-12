@@ -14,6 +14,7 @@ namespace Renderer
 
 	private:
 		ComPtr<ID3D12PipelineState> m_pipelineState;
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC m_psoDescription;
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC m_graphicsPsoDescription;
+		D3D12_COMPUTE_PIPELINE_STATE_DESC m_computePsoDescription;
 	};
 }

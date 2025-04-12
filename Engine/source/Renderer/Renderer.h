@@ -7,9 +7,18 @@
 #include "Model.h"
 #include "Skybox.h"
 #include "PostProcessFilter.h"
-#include "DefaultRenderGraph.h"
-#include "BlurOutlineRenderGraph.h"
 #include "TestModelProbe.h"
+
+// Passes Used in this Render Graph.
+#include "BufferClearPass.h"
+#include "ShadowMappingPass.h"
+#include "FlatPass.h"
+#include "PhongPass.h"
+#include "SkyboxPass.h"
+#include "OutlineDrawPass.h"
+#include "BlurPass.h"
+#include "PostProcessPass.h"
+#include "WireframePass.h"
 
 using namespace Common;
 

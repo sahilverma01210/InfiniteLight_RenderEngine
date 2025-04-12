@@ -16,18 +16,18 @@ namespace Renderer
         D3D12RHI_THROW_INFO(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
 
 #ifdef _DEBUG // Disable Debug Layer while using Nsight Tools
-        //// Enable D3D12 CPU & GPU Debug Layers.
-        //{
-        //    ComPtr<ID3D12Debug> debugController;
-        //    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-        //        debugController->EnableDebugLayer();
-        //    }
-        //
-        //    ComPtr<ID3D12Debug1> debugController1;
-        //    if (SUCCEEDED(debugController.As(&debugController1))) {
-        //        debugController1->SetEnableGPUBasedValidation(TRUE);
-        //    }
-        //}
+        // Enable D3D12 CPU & GPU Debug Layers.
+        {
+            ComPtr<ID3D12Debug> debugController;
+            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+                debugController->EnableDebugLayer();
+            }
+        
+            ComPtr<ID3D12Debug1> debugController1;
+            if (SUCCEEDED(debugController.As(&debugController1))) {
+                debugController1->SetEnableGPUBasedValidation(TRUE);
+            }
+        }
 #endif
 
         // Create D3D Device.
@@ -210,9 +210,19 @@ namespace Renderer
         D3D12RHI_THROW_INFO_ONLY(m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists));
     }
 
-    void D3D12RHI::Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data)
+    void D3D12RHI::Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data, PipelineType pipelineType)
     {
-        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->SetGraphicsRoot32BitConstants(rootParameterIndex, num32BitValues, data, 0));
+        switch (pipelineType)
+        {
+        case Renderer::PipelineType::Graphics:
+            D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->SetGraphicsRoot32BitConstants(rootParameterIndex, num32BitValues, data, 0));
+            break;
+        case Renderer::PipelineType::Compute:
+			D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->SetComputeRoot32BitConstants(rootParameterIndex, num32BitValues, data, 0));
+            break;
+        default:
+            break;
+        }
     }
 
     void D3D12RHI::SetRenderTargets(std::vector<std::shared_ptr<D3D12Resource>> renderTargets, std::shared_ptr<D3D12Resource> depthStencil)
@@ -268,13 +278,16 @@ namespace Renderer
         switch (resourceType)
         {
         case ResourceType::Constant:
-            AddConstantBufferView(resourceBuffer->GetBuffer());
+            AddConstantBufferView(resourceBuffer);
             break;
         case ResourceType::Texture:
-            AddShaderResourceView(resourceBuffer->GetBuffer());
+            AddShaderResourceView(resourceBuffer);
             break;
+        case ResourceType::ReadWriteTexture:
+            AddUnorderedAccessView(resourceBuffer);
+			break;
         case ResourceType::CubeMapTexture:
-            AddShaderResourceView(resourceBuffer->GetBuffer(), true);
+            AddShaderResourceView(resourceBuffer, true);
             break;
         case ResourceType::RenderTarget:
             break;
@@ -288,20 +301,29 @@ namespace Renderer
         return m_resourceHandle++;
     }
 
-    void D3D12RHI::AddConstantBufferView(ID3D12Resource* constantBuffer)
+    void D3D12RHI::AddConstantBufferView(std::shared_ptr<D3D12Resource> resourceBuffer)
     {
+		ID3D12Resource* constantBuffer = resourceBuffer->GetBuffer();
+
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
         cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = constantBuffer->GetDesc().Width; // Not Sure.
 
         D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
         CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+		GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
 
         D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&cbvDesc, CPUHandle));
+
+        if (!resourceBuffer->GetDescriptor()) resourceBuffer->SetDescriptor(CPUHandle);
+        if (!resourceBuffer->GetGPUDescriptor()) resourceBuffer->SetGPUDescriptor(GPUHandle);
     }
 
-    void D3D12RHI::AddShaderResourceView(ID3D12Resource* textureBuffer, bool isCubeMap)
+    void D3D12RHI::AddShaderResourceView(std::shared_ptr<D3D12Resource> resourceBuffer, bool isCubeMap)
     {
+        ID3D12Resource* textureBuffer = resourceBuffer->GetBuffer();
+
         DXGI_FORMAT targetTextureFormat;
 
         switch (textureBuffer->GetDesc().Format)
@@ -335,9 +357,34 @@ namespace Renderer
         }
 
         D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+        D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
         CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+        GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
 
         D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(textureBuffer, &srvDesc, CPUHandle));
+
+        if (!resourceBuffer->GetDescriptor()) resourceBuffer->SetDescriptor(CPUHandle);
+        if (!resourceBuffer->GetGPUDescriptor()) resourceBuffer->SetGPUDescriptor(GPUHandle);
+    }
+
+    void D3D12RHI::AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resourceBuffer)
+    {
+        ID3D12Resource* textureBuffer = resourceBuffer->GetBuffer();
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+
+        uavDesc.Format = textureBuffer->GetDesc().Format;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+
+        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+        D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+        GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+
+        D3D12RHI_THROW_INFO_ONLY(m_device->CreateUnorderedAccessView(textureBuffer, nullptr, & uavDesc, CPUHandle));
+
+        if(!resourceBuffer->GetDescriptor()) resourceBuffer->SetDescriptor(CPUHandle);
+        if(!resourceBuffer->GetGPUDescriptor()) resourceBuffer->SetGPUDescriptor(GPUHandle);
     }
 
     D3D12Resource& D3D12RHI::GetResource(ResourceHandle resourceHandle)
@@ -363,6 +410,12 @@ namespace Renderer
                 break;
             case ResourceType::Texture:
                 break;
+			case ResourceType::ReadWriteTexture:
+            {
+                const UINT clear_color_with_alpha[4] = { 0, 0, 0, 0 };
+                m_currentCommandList->ClearUnorderedAccessViewUint(*GetResourcePtr(resourceHandle)->GetGPUDescriptor(), *GetResourcePtr(resourceHandle)->GetDescriptor(), GetResourcePtr(resourceHandle)->GetBuffer(), clear_color_with_alpha, 0, nullptr);
+                break;
+            }                
             case ResourceType::CubeMapTexture:
                 break;
             case ResourceType::RenderTarget:
@@ -377,6 +430,11 @@ namespace Renderer
                 break;
             }   
         }
+    }
+
+    void D3D12RHI::CopyResource(ID3D12Resource* dstResource, ID3D12Resource* srcResource)
+    {
+		m_currentCommandList->CopyResource(dstResource, srcResource);
     }
 
     void D3D12RHI::SetGPUResources()
@@ -429,6 +487,11 @@ namespace Renderer
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)
     {
         D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0));
+    }
+
+    void D3D12RHI::Dispatch(UINT group_count_x, UINT group_count_y, UINT group_count_z)
+    {
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->Dispatch(group_count_x, group_count_y, group_count_z));
     }
 
     void D3D12RHI::EndFrame()

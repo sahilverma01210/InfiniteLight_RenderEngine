@@ -43,7 +43,7 @@ namespace Renderer
 
 	public:
 		ImportMaterial() = default;
-		ImportMaterial(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path, std::mutex &mutex) noexcept(!IS_DEBUG)
+		ImportMaterial(D3D12RHI& gfx, const aiMaterial& material, const std::filesystem::path& path, bool enablePostProcessing, std::mutex &mutex) noexcept(!IS_DEBUG)
 			: m_gfx(gfx)
 		{
 			// shadow map technique
@@ -53,10 +53,10 @@ namespace Renderer
 
 			// phong technique
 			Technique phong{ "Phong", true };
-			phong.passNames.push_back("phong_shading");
+			phong.passNames.push_back("phongShading");
 			m_techniques.push_back(std::move(phong));
 
-			if (m_postProcessEnabled)
+			if (enablePostProcessing)
 			{
 				// outline technique
 				Technique outline{ "Outline", false };

@@ -8,7 +8,8 @@ namespace Renderer
 	enum ShaderType
 	{
 		VertexShader,
-		PixelShader
+		PixelShader,
+		ComputeShader,
 	};
 
 	struct SHADER_MACRO

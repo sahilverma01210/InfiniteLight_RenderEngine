@@ -11,10 +11,17 @@ namespace Renderer
     using ResourceHandle = std::uint32_t;
     using ResourceName = std::string;
 
+	enum class PipelineType
+	{
+		Graphics,
+		Compute
+	};
+
     enum class ResourceType
     {
         Constant,
         Texture,
+		ReadWriteTexture,
         CubeMapTexture,
         RenderTarget,
         DepthStencil
@@ -37,6 +44,8 @@ namespace Renderer
 
     struct PipelineDescription
     {
+		PipelineType type = PipelineType::Graphics;
+
         // Root Signature
         UINT numConstants = 0;
         UINT* num32BitConstants = nullptr;
@@ -52,10 +61,13 @@ namespace Renderer
         bool shadowMapping = false;
         Mode depthStencilMode = {};
         UINT numElements = 0;
+		UINT numRenderTargets = 0;
+		DXGI_FORMAT* renderTargetFormats = nullptr;
         D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
         ID3D12RootSignature* rootSignature = nullptr;
         D3D12Shader vertexShader{};
         D3D12Shader pixelShader{};
+        D3D12Shader computeShader{};
         DepthUsage depthUsage = DepthUsage::DepthStencil;
     };
 
@@ -64,11 +76,15 @@ namespace Renderer
     public:
         virtual ~D3D12Resource() = default;
         ID3D12Resource* GetBuffer() const { return m_resourceBuffer.Get(); };
+		void SetDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE descHandle) { m_descHandle = descHandle; };
+		void SetGPUDescriptor(D3D12_GPU_DESCRIPTOR_HANDLE gpuDescHandle) { m_gpuDescHandle = gpuDescHandle; };
         D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor() { return &m_descHandle; };
+        D3D12_GPU_DESCRIPTOR_HANDLE* GetGPUDescriptor() { return &m_gpuDescHandle; };
 
     protected:
         ComPtr<ID3D12Resource> m_resourceBuffer;
         D3D12_CPU_DESCRIPTOR_HANDLE m_descHandle;
+		D3D12_GPU_DESCRIPTOR_HANDLE m_gpuDescHandle;
     };
 
     class D3D12RHI
@@ -85,7 +101,7 @@ namespace Renderer
         RECT GetScreenRect();
         void ResetCommandList();
         void ExecuteCommandList();
-        void Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data);
+        void Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data, PipelineType pipelineType = PipelineType::Graphics);
         void SetRenderTargets(std::vector<std::shared_ptr<D3D12Resource>> renderTargets, std::shared_ptr<D3D12Resource> depthStencil);
         void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
         void CreateBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
@@ -95,17 +111,20 @@ namespace Renderer
         std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
         // RESOURCE MANAGER METHODS
         ResourceHandle LoadResource(std::shared_ptr<D3D12Resource> resourceBuffer, ResourceType resourceType);
-        void AddConstantBufferView(ID3D12Resource* constantBuffer);
-        void AddShaderResourceView(ID3D12Resource* textureBuffer, bool isCubeMap = false);
+        void AddConstantBufferView(std::shared_ptr<D3D12Resource> resourceBuffer);
+        void AddShaderResourceView(std::shared_ptr<D3D12Resource> resourceBuffer, bool isCubeMap = false);
+		void AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resourceBuffer);
         D3D12Resource& GetResource(ResourceHandle handle);
         ResourceHandle GetResourceHandle(ResourceName resourceName);
         std::shared_ptr<D3D12Resource> GetResourcePtr(ResourceHandle resourceHandle);
         void ClearResource(ResourceHandle resourceHandle, ResourceType resourceType);
+        void CopyResource(ID3D12Resource* dstResource, ID3D12Resource* srcResource);
 		void SetGPUResources();
         // RENDER FRAME METHODS
         void ResizeScreenSpace(UINT width, UINT height);
         void StartFrame();
         void DrawIndexed(UINT indexCountPerInstance);
+		void Dispatch(UINT group_count_x, UINT group_count_y, UINT group_count_z);
         void EndFrame();
         // ACESS RHI INTERFACE
         ID3D12Device* GetDevice() { return m_device.Get(); }

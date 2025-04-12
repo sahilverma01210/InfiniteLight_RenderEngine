@@ -15,7 +15,6 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		void Reset() noexcept(!IS_DEBUG);
 		RenderPass& GetRenderQueue(const std::string& passName);
-	protected:
 		void SetSinkTarget(const std::string& sinkName, const std::string& target);
 		void AddGlobalSource(std::unique_ptr<Source>);
 		void AddGlobalSink(std::unique_ptr<Sink>);

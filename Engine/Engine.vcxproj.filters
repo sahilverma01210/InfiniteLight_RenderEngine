@@ -86,9 +86,6 @@
     <Filter Include="Source\Renderer\Public\RenderGraph\Passes">
       <UniqueIdentifier>{93ecefa4-eabd-407d-b0e0-1eff9e7a8337}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Public\RenderGraph\Graphs">
-      <UniqueIdentifier>{87f3a57c-42a0-461d-a1c9-01dd58ab1be6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer\Public\RenderGraph\Probes">
       <UniqueIdentifier>{b0ca8af6-409a-4814-8383-5179285b664d}</UniqueIdentifier>
     </Filter>
@@ -325,11 +322,8 @@
     <ClInclude Include="source\Renderer\WireframePass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\BlurPass.h">
+    <ClInclude Include="source\Renderer\PostProcessPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\BlurOutlineRenderGraph.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\TestModelProbe.h">
       <Filter>Source\Renderer\Public\RenderGraph\Probes</Filter>
@@ -406,9 +400,6 @@
     <ClInclude Include="source\Runtime\IOManager.h">
       <Filter>Source\Runtime\Public\IO</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\DefaultRenderGraph.h">
-      <Filter>Source\Renderer\Public\RenderGraph\Graphs</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\D3D12Shader.h">
       <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
@@ -420,6 +411,9 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\DepthStencil.h">
       <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\BlurPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -602,10 +596,10 @@
     <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
       <Filter>Shaders\HLSL\Skybox</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Blur_PS.hlsl">
+    <CustomBuild Include="shaders\HLSL\PostProcess_PS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Blur_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\PostProcess_VS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Flat_PS.hlsl">
@@ -637,6 +631,9 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Outline_VS.hlsl">
       <Filter>Shaders\HLSL\Outline Draw</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Blur_CS.hlsl">
+      <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

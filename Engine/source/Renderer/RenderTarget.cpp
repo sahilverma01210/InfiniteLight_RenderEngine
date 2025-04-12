@@ -11,7 +11,7 @@ namespace Renderer
         const D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM,
             static_cast<UINT64>(width),
             static_cast<UINT>(height),
-            1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+            1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
         {
             D3D12_CLEAR_VALUE clearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 0.0f} };
@@ -36,9 +36,11 @@ namespace Renderer
         {
             UINT m_rtvDescriptorSize = GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
+            m_descHandle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
+			m_gpuDescHandle = m_rtvHeap->GetGPUDescriptorHandleForHeapStart();
+
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
-            m_descHandle = rtvHandle;
             rtvHandle.ptr += m_rtvDescriptorSize;
 
             D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(m_resourceBuffer.Get(), nullptr, m_descHandle));
@@ -82,9 +84,11 @@ namespace Renderer
 
             UINT m_rtvDescriptorSize = GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
+            m_descHandle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
+			m_gpuDescHandle = m_rtvHeap->GetGPUDescriptorHandleForHeapStart();
+
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
-            m_descHandle = rtvHandle;
             rtvHandle.ptr += m_rtvDescriptorSize;
 
             D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(pTexture, &rtvDesc, m_descHandle));

@@ -10,17 +10,30 @@ namespace Renderer
 		std::ifstream sceneFile("data\\scenes\\sponza_scene.json");
 		json scene = json::parse(sceneFile);
 
-		//m_postProcessingEnabled = scene["config"]["post-processing"].get<bool>();
-		m_postProcessingEnabled = true;
-
-		//ILMaterial::TogglePostProcessing(m_postProcessingEnabled);
+		m_postProcessingEnabled = scene["config"]["post-processing"].get<bool>();
 
 		m_pRHI->ResetCommandList();
 
 		// Create Render Graph
 		{
-			if (m_postProcessingEnabled) m_renderGraph = std::move(std::make_unique<BlurOutlineRenderGraph>(*m_pRHI, m_cameraContainer));
-			else m_renderGraph = std::move(std::make_unique<DefaultRenderGraph>(*m_pRHI, m_cameraContainer));
+			m_renderGraph = std::move(std::make_unique<RenderGraph>(*m_pRHI));
+
+			m_renderGraph->AppendPass(std::move(std::make_unique<BufferClearPass>(*m_pRHI, "clear")));
+			m_renderGraph->AppendPass(std::move(std::make_unique<ShadowMappingPass>(*m_pRHI, "shadowMap")));
+			m_renderGraph->AppendPass(std::move(std::make_unique<FlatPass>(*m_pRHI, "flatShading", m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<PhongPass>(*m_pRHI, "phongShading", m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<SkyboxPass>(*m_pRHI, "skybox")));
+
+			if (m_postProcessingEnabled)
+			{
+				m_renderGraph->AppendPass(std::move(std::make_unique<OutlineDrawPass>(*m_pRHI, "outlineDraw")));
+				m_renderGraph->AppendPass(std::move(std::make_unique<BlurPass>(*m_pRHI, "blur")));
+				m_renderGraph->AppendPass(std::move(std::make_unique<PostProcessPass>(*m_pRHI, "blurOutlineApply")));
+			}
+
+			m_renderGraph->AppendPass(std::move(std::make_unique<WireframePass>(*m_pRHI, "wireframe")));
+
+			m_renderGraph->Finalize();
 		}
 
 		// Add Lights
@@ -76,7 +89,7 @@ namespace Renderer
 				json jsonTransform = model["transform"];
 				XMFLOAT3 transform = XMFLOAT3{ jsonTransform["x"].get<float>(), jsonTransform["y"].get<float>() , jsonTransform["z"].get<float>() };
 
-				m_models.push_back(std::move(std::make_unique<Model>(*m_pRHI, model["path"].get<std::string>(), transform, model["scale"].get<float>())));
+				m_models.push_back(std::move(std::make_unique<Model>(*m_pRHI, model["path"].get<std::string>(), transform, m_postProcessingEnabled, model["scale"].get<float>())));
 			}
 		}
 

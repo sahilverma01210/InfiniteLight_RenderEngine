@@ -3,6 +3,8 @@
 namespace Renderer
 {
     RootSignature::RootSignature(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
+        :
+		m_pipelineDesc(pipelineDesc)
     {
         INFOMAN(gfx);
 
@@ -17,7 +19,7 @@ namespace Renderer
 
         for (int i = 0; i < pipelineDesc.numConstants; i++)
         {
-            m_rootParameters[index].InitAsConstants(pipelineDesc.num32BitConstants[i], i, 1, D3D12_SHADER_VISIBILITY_ALL); // Here Shader Register can be different from Root Paramerer Index.
+            m_rootParameters[index].InitAsConstants(pipelineDesc.num32BitConstants[i], i, 0, D3D12_SHADER_VISIBILITY_ALL); // Here Shader Register can be different from Root Paramerer Index.
             index++;
         }
 
@@ -87,6 +89,16 @@ namespace Renderer
     void RootSignature::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
     {
         INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootSignature(m_rootSignature.Get()));
+        switch (m_pipelineDesc.type)
+        {
+        case PipelineType::Graphics:
+            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootSignature(m_rootSignature.Get()));
+            break;
+		case PipelineType::Compute:
+			D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetComputeRootSignature(m_rootSignature.Get()));
+			break;
+        default:
+            break;
+        }
     }
 }

@@ -27,10 +27,6 @@ namespace Renderer
 		{
 			return m_topology;
 		}
-		void TogglePostProcessing(bool postProcessEnabled)
-		{
-			m_postProcessEnabled = postProcessEnabled;
-		}
 		virtual UINT getID() const = 0;
 	protected:
 		template <typename T>
@@ -46,8 +42,6 @@ namespace Renderer
 		ResourceHandle m_materialHandle = 1;
 		D3D12_PRIMITIVE_TOPOLOGY m_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		std::vector<Technique> m_techniques;
-		bool m_postProcessEnabled = true;
-		bool m_wireframeEnabled = true;
 	private:
 		static inline UINT m_materialTypeID = 0;
 	};
