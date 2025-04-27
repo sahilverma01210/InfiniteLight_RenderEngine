@@ -2,9 +2,7 @@
 
 struct ImportMatCB
 {
-    int lightConstIdx;
     int texConstIdx;
-    int shadowTexIdx;
     int diffTexIdx;
     int normTexIdx;
     int specTexIdx;

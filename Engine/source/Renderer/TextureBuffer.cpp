@@ -19,7 +19,7 @@ namespace Renderer
         }
         else
         {
-            m_mipChain.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, gfx.GetWidth(), gfx.GetHeight(), 1, 1);
+            m_mipChain.Initialize2D(m_format = DXGI_FORMAT_R8G8B8A8_UNORM, gfx.GetWidth(), gfx.GetHeight(), 1, 1);
         }
 
         // collect subresource data
@@ -94,35 +94,6 @@ namespace Renderer
     bool MeshTextureBuffer::HasAlpha() const noexcept(!IS_DEBUG)
     {
         return m_hasAlpha;
-    }
-
-    bool MeshTextureBuffer::HasAlphaChannel(const Image& image) {
-        switch (image.format) {
-            // Common formats with alpha channel
-        case DXGI_FORMAT_R32G32B32A32_FLOAT:
-        case DXGI_FORMAT_R32G32B32A32_UINT:
-        case DXGI_FORMAT_R32G32B32A32_SINT:
-        case DXGI_FORMAT_R16G16B16A16_FLOAT:
-        case DXGI_FORMAT_R16G16B16A16_UNORM:
-        case DXGI_FORMAT_R16G16B16A16_UINT:
-        case DXGI_FORMAT_R16G16B16A16_SNORM:
-        case DXGI_FORMAT_R16G16B16A16_SINT:
-        case DXGI_FORMAT_R10G10B10A2_UNORM:
-        case DXGI_FORMAT_R10G10B10A2_UINT:
-        case DXGI_FORMAT_B8G8R8A8_UNORM:
-        case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
-        case DXGI_FORMAT_R8G8B8A8_UNORM:
-        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-        case DXGI_FORMAT_R8G8B8A8_UINT:
-        case DXGI_FORMAT_R8G8B8A8_SNORM:
-        case DXGI_FORMAT_R8G8B8A8_SINT:
-        case DXGI_FORMAT_A8_UNORM:
-            return true;
-
-            // Formats without alpha channel
-        default:
-            return false;
-        }
     }
 
     std::shared_ptr<MeshTextureBuffer> MeshTextureBuffer::Resolve(D3D12RHI& gfx, std::string filename)
@@ -253,7 +224,7 @@ namespace Renderer
             resourceDesc.Height = (UINT)size;
             resourceDesc.DepthOrArraySize = 6;
             resourceDesc.MipLevels = 1;
-            resourceDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+            resourceDesc.Format = m_format = DXGI_FORMAT_R32_TYPELESS;
             resourceDesc.SampleDesc = { .Count = 1 };
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;

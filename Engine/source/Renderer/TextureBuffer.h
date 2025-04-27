@@ -12,7 +12,6 @@ namespace Renderer
 		MeshTextureBuffer(D3D12RHI& gfx, std::string filename);
 		~MeshTextureBuffer() = default;
 		bool HasAlpha() const noexcept(!IS_DEBUG);
-		bool HasAlphaChannel(const Image& image);
 		static std::shared_ptr<MeshTextureBuffer> Resolve(D3D12RHI& gfx, std::string filename);
 		static std::string GenerateUID(std::string filename);
 		std::string GetUID() const noexcept(!IS_DEBUG) override;

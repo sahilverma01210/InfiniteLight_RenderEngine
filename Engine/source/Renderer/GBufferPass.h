@@ -4,27 +4,27 @@
 
 namespace Renderer
 {
-	class PhongPass : public RenderPass
+	class GBufferPass : public RenderPass
 	{
 	public:
-		PhongPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
+		GBufferPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
 			:
 			RenderPass(std::move(name)),
 			m_cameraContainer(cameraContainer)
 		{
-			CreatePSO(gfx);
-
-			m_renderTargets.resize(5);
-			m_renderTargets[1] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight());
-			m_renderTargets[2] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight());
-			m_renderTargets[3] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight());
-			m_renderTargets[4] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight());
-			gfx.LoadResource(m_renderTargets[1], ResourceType::RenderTarget);
-			gfx.LoadResource(m_renderTargets[2], ResourceType::RenderTarget);
-			gfx.LoadResource(m_renderTargets[3], ResourceType::RenderTarget);
-			gfx.LoadResource(m_renderTargets[4], ResourceType::RenderTarget);
+			m_renderTargets.resize(4);
+			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+			m_renderTargets[1] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+			m_renderTargets[2] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+			m_renderTargets[3] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+			RenderGraph::m_renderTargetHandles["Position"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
+			RenderGraph::m_renderTargetHandles["Diffuse"] = gfx.LoadResource(m_renderTargets[1], ResourceType::Texture);
+			RenderGraph::m_renderTargetHandles["Normal"] = gfx.LoadResource(m_renderTargets[2], ResourceType::Texture);
+			RenderGraph::m_renderTargetHandles["Specular"] = gfx.LoadResource(m_renderTargets[3], ResourceType::Texture);
 			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
 			m_pShadowMap = std::dynamic_pointer_cast<DepthCubeMapTextureBuffer>(gfx.GetResourcePtr(RenderGraph::m_shadowDepth360Handle));
+
+			CreatePSO(gfx);
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
@@ -42,12 +42,11 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			DXGI_FORMAT* renderTargetFormats = new DXGI_FORMAT[5];
-			renderTargetFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-			renderTargetFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
-			renderTargetFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
-			renderTargetFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;
-			renderTargetFormats[4] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			DXGI_FORMAT* renderTargetFormats = new DXGI_FORMAT[m_renderTargets.size()];
+
+			for (size_t i = 0; i < m_renderTargets.size(); i++) {
+				renderTargetFormats[i] = m_renderTargets[i]->GetFormat();
+			}
 
 			UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
 
@@ -71,7 +70,7 @@ namespace Renderer
 			staticSamplers[1] = sampler2;
 
 			PipelineDescription pipelineDesc{};
-			pipelineDesc.numRenderTargets = 5;
+			pipelineDesc.numRenderTargets = m_renderTargets.size();
 			pipelineDesc.renderTargetFormats = renderTargetFormats;
 			pipelineDesc.numConstants = 2;
 			pipelineDesc.num32BitConstants = num32BitConstants;
@@ -80,8 +79,8 @@ namespace Renderer
 			pipelineDesc.backFaceCulling = true;
 			pipelineDesc.numElements = vec.size();
 			pipelineDesc.inputElementDescs = inputElementDescs;
-			pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Phong_VS.hlsl" };
-			pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Phong_PS.hlsl" };
+			pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"GBuffer_VS.hlsl" };
+			pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"GBuffer_PS.hlsl" };
 
 			m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 			m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -91,7 +90,10 @@ namespace Renderer
 			m_cameraContainer.GetActiveCamera().Update();
 
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
+			gfx.ClearResource(RenderGraph::m_renderTargetHandles["Position"], ResourceType::RenderTarget);
+			gfx.ClearResource(RenderGraph::m_renderTargetHandles["Diffuse"], ResourceType::RenderTarget);
+			gfx.ClearResource(RenderGraph::m_renderTargetHandles["Normal"], ResourceType::RenderTarget);
+			gfx.ClearResource(RenderGraph::m_renderTargetHandles["Specular"], ResourceType::RenderTarget);
 			RenderPass::Execute(gfx);
 			gfx.TransitionResource(m_pShadowMap->GetBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}

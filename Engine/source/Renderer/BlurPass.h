@@ -39,8 +39,6 @@ namespace Renderer
 			:
 			RenderPass(std::move(name), RenderPassType::Compute)
 		{
-			CreatePSO(gfx);
-
 			m_frameCBuffer.renderResolution = XMFLOAT2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
 			SetKernelGauss(m_radius, m_sigma);
 
@@ -50,6 +48,8 @@ namespace Renderer
 			m_blurResourceHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), &m_kernel), ResourceType::Constant);
 
 			matHandle.blurResourceHandlesIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_blurResourceHandles), &m_blurResourceHandles), ResourceType::Constant);
+
+			CreatePSO(gfx);
 		}
 		void SetKernelBox(int radius) noexcept(!IS_DEBUG)
 		{

@@ -80,8 +80,10 @@ namespace Renderer
 		void SetGPUDescriptor(D3D12_GPU_DESCRIPTOR_HANDLE gpuDescHandle) { m_gpuDescHandle = gpuDescHandle; };
         D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor() { return &m_descHandle; };
         D3D12_GPU_DESCRIPTOR_HANDLE* GetGPUDescriptor() { return &m_gpuDescHandle; };
+		DXGI_FORMAT GetFormat() const { return m_format; };
 
     protected:
+		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
         ComPtr<ID3D12Resource> m_resourceBuffer;
         D3D12_CPU_DESCRIPTOR_HANDLE m_descHandle;
 		D3D12_GPU_DESCRIPTOR_HANDLE m_gpuDescHandle;

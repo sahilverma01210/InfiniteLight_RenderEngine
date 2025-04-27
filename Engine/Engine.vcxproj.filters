@@ -158,7 +158,10 @@
     <Filter Include="Shaders\HLSL\Outline Draw">
       <UniqueIdentifier>{ad2114e5-9ce5-4ef4-9b64-5e20d3faa30a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\HLSL\Phong Shading">
+    <Filter Include="Shaders\HLSL\Lighting">
+      <UniqueIdentifier>{0acfd8f6-079b-47a6-90e5-d3a6fc71b303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\GBuffer">
       <UniqueIdentifier>{726d7eea-fe1b-4274-b12b-77efd66004c0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -310,7 +313,7 @@
     <ClInclude Include="source\Renderer\BufferClearPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\PhongPass.h">
+    <ClInclude Include="source\Renderer\GBufferPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\ShadowMappingPass.h">
@@ -413,6 +416,9 @@
       <Filter>Source\Renderer\Public\RenderGraph\RHI</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BlurPass.h">
+      <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LightingPass.h">
       <Filter>Source\Renderer\Public\RenderGraph\Passes</Filter>
     </ClInclude>
   </ItemGroup>
@@ -584,11 +590,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\Phong_PS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    <CustomBuild Include="shaders\HLSL\GBuffer_PS.hlsl">
+      <Filter>Shaders\HLSL\GBuffer</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Phong_VS.hlsl">
-      <Filter>Shaders\HLSL\Phong Shading</Filter>
+    <CustomBuild Include="shaders\HLSL\GBuffer_VS.hlsl">
+      <Filter>Shaders\HLSL\GBuffer</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Skybox_PS.hlsl">
       <Filter>Shaders\HLSL\Skybox</Filter>
@@ -614,15 +620,6 @@
     <CustomBuild Include="shaders\HLSL\Shadow_VS.hlsl">
       <Filter>Shaders\HLSL\Shadow Mapping</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\LightShadowUtils.hlsli">
-      <Filter>Shaders\HLSL\Common</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PixelShaderUtils.hlsli">
-      <Filter>Shaders\HLSL\Common</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\VertexShaderUtils.hlsli">
-      <Filter>Shaders\HLSL\Common</Filter>
-    </CustomBuild>
     <CustomBuild Include="shaders\HLSL\CommonResources.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
@@ -634,6 +631,9 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Blur_CS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Lighting_CS.hlsl">
+      <Filter>Shaders\HLSL\Lighting</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

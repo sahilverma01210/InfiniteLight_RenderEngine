@@ -65,20 +65,10 @@ namespace Renderer
 
 	void Mesh::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		const auto model = XMLoadFloat4x4(&m_transform);
-		const auto modelView = model * m_cameraMatrix;
-
-		/*
-		* Convert all XMMATRIX or XMFLOAT4X4 which are Row - major into Column - major matrix which is used by HLSL by default.
-		* Use XMMatrixTranspose() to achieve this.
-		*/
 		m_transforms = {
-			XMMatrixTranspose(model),
-			XMMatrixTranspose(modelView),
-			XMMatrixTranspose(
-				modelView *
-				m_projectionMatrix
-			)
+			XMLoadFloat4x4(&m_transform),
+			m_cameraMatrix,
+			m_projectionMatrix
 		};
 
 		m_meshConstants = { m_materialTypeId, m_materialIdx };

@@ -12,22 +12,19 @@ namespace Renderer
 	public:
 		__declspec(align(256u)) struct ImportMatHandles
 		{
-			ResourceHandle phongLightConstIdx;
-			ResourceHandle phongTexConstIdx;
-			ResourceHandle phongShadowTexIdx;
-			ResourceHandle phongDiffTexIdx;
-			ResourceHandle phongNormTexIdx;
-			ResourceHandle phongSpecTexIdx;
+			ResourceHandle texConstIdx;
+			ResourceHandle diffTexIdx;
+			ResourceHandle normTexIdx;
+			ResourceHandle specTexIdx;
 			ResourceHandle solidConstIdx;
 		};
 
 	private:
-		__declspec(align(256u)) struct PhongCB
+		__declspec(align(256u)) struct SurfaceProps
 		{
 			alignas(16) XMFLOAT3 materialColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			alignas(16) XMFLOAT3 specularColor = XMFLOAT3();
 			float specularGloss = 0.0f;
-			float specularWeight = 0.0f;
 			float normalMapWeight = 0.0f;
 			bool useDiffuseAlpha = false;
 			bool useGlossAlpha = false;
@@ -51,10 +48,10 @@ namespace Renderer
 			map.passNames.push_back("shadowMap");
 			m_techniques.push_back(std::move(map));
 
-			// phong technique
-			Technique phong{ "Phong", true };
-			phong.passNames.push_back("phongShading");
-			m_techniques.push_back(std::move(phong));
+			// gbuffer creation technique
+			Technique gbuffer{ "GBuffer", true };
+			gbuffer.passNames.push_back("gbuffer");
+			m_techniques.push_back(std::move(gbuffer));
 
 			if (enablePostProcessing)
 			{
@@ -68,34 +65,30 @@ namespace Renderer
 			{
 				const auto rootPath = path.parent_path().string() + "\\";
 
-				// shadow
-				{
-					m_importMatHandles.phongShadowTexIdx = RenderGraph::m_shadowDepth360Handle;
-				}
 				// diffuse
 				{
 					if (aiString diffFileName; material.GetTexture(aiTextureType_DIFFUSE, 0, &diffFileName) == aiReturn_SUCCESS)
 					{
-						m_phongData.useDiffuseMap = true;
+						m_surfaceProps.useDiffuseMap = true;
 
 						std::string diffPath = rootPath + diffFileName.C_Str();
-						m_importMatHandles.phongDiffTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, diffPath), ResourceType::Texture);
+						m_importMatHandles.diffTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, diffPath), ResourceType::Texture);
 					}
 					else
 					{
 						aiColor3D color = { 0.45f,0.45f,0.85f };
 						material.Get(AI_MATKEY_COLOR_DIFFUSE, color);
-						m_phongData.materialColor = reinterpret_cast<XMFLOAT3&>(color);
+						m_surfaceProps.materialColor = reinterpret_cast<XMFLOAT3&>(color);
 					}
 				}
 				// normal
 				{
 					if (aiString normFileName; material.GetTexture(aiTextureType_NORMALS, 0, &normFileName) == aiReturn_SUCCESS)
 					{
-						m_phongData.useNormalMap = true;
+						m_surfaceProps.useNormalMap = true;
 
 						std::string normPath = rootPath + normFileName.C_Str();
-						m_importMatHandles.phongNormTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, normPath), ResourceType::Texture);
+						m_importMatHandles.normTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, normPath), ResourceType::Texture);
 					}
 				}
 				// specular
@@ -106,16 +99,15 @@ namespace Renderer
 					float gloss = 8.0f;
 					material.Get(AI_MATKEY_SHININESS, gloss);
 
-					m_phongData.specularColor = reinterpret_cast<XMFLOAT3&>(color);
-					m_phongData.specularGloss = gloss;
-					m_phongData.specularWeight = 1.0f;
+					m_surfaceProps.specularColor = reinterpret_cast<XMFLOAT3&>(color);
+					m_surfaceProps.specularGloss = gloss;
 
 					if (aiString specFileName; material.GetTexture(aiTextureType_SPECULAR, 0, &specFileName) == aiReturn_SUCCESS)
 					{
-						m_phongData.useSpecularMap = true;
+						m_surfaceProps.useSpecularMap = true;
 
 						std::string specPath = rootPath + specFileName.C_Str();
-						m_importMatHandles.phongSpecTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, specPath), ResourceType::Texture);
+						m_importMatHandles.specTexIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, specPath), ResourceType::Texture);
 					}
 				}
 			}
@@ -123,15 +115,14 @@ namespace Renderer
 			// Load Constant Buffers
 			{
 				m_data.materialColor = XMFLOAT3{ 1.0f,0.4f,0.4f };
-				if (m_importMatHandles.phongDiffTexIdx) m_phongData.useDiffuseAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.phongDiffTexIdx)).HasAlpha();
-				if (m_importMatHandles.phongNormTexIdx) m_phongData.normalMapWeight = 1.0f;
-				if (m_importMatHandles.phongSpecTexIdx) m_phongData.useGlossAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.phongSpecTexIdx)).HasAlpha();
+				if (m_importMatHandles.diffTexIdx) m_surfaceProps.useDiffuseAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.diffTexIdx)).HasAlpha();
+				if (m_importMatHandles.normTexIdx) m_surfaceProps.normalMapWeight = 1.0f;
+				if (m_importMatHandles.specTexIdx) m_surfaceProps.useGlossAlpha = dynamic_cast<MeshTextureBuffer&>(gfx.GetResource(m_importMatHandles.specTexIdx)).HasAlpha();
 
-				m_pPhongCBuf = std::make_shared<ConstantBuffer>(gfx, sizeof(m_phongData), &m_phongData);
+				m_surfacePropsCB = std::make_shared<ConstantBuffer>(gfx, sizeof(m_surfaceProps), &m_surfaceProps);
 				m_pSolidCBuf = std::make_shared<ConstantBuffer>(gfx, sizeof(m_data), &m_data);
 
-				m_importMatHandles.phongLightConstIdx = ILMaterial::m_lightHandle;
-				m_importMatHandles.phongTexConstIdx = gfx.LoadResource(m_pPhongCBuf, ResourceType::Constant);
+				m_importMatHandles.texConstIdx = gfx.LoadResource(m_surfacePropsCB, ResourceType::Constant);
 				m_importMatHandles.solidConstIdx = gfx.LoadResource(m_pSolidCBuf, ResourceType::Constant);
 			}
 
@@ -142,16 +133,16 @@ namespace Renderer
 		}
 		void ToggleEffect(std::string name, bool enabled)
 		{
-			m_phongData.materialColor = XMFLOAT3{ 1.0f,0.4f,0.4f };
-			m_pPhongCBuf->Update(m_gfx, &m_phongData);
+			m_surfaceProps.materialColor = XMFLOAT3{ 1.0f,0.4f,0.4f };
+			m_surfacePropsCB->Update(m_gfx, &m_surfaceProps);
 		}
 
 	private:
 		D3D12RHI& m_gfx;
-		PhongCB m_phongData;
+		SurfaceProps m_surfaceProps;
 		SolidCB m_data;
 		ImportMatHandles m_importMatHandles{};
-		std::shared_ptr<ConstantBuffer> m_pPhongCBuf;
+		std::shared_ptr<ConstantBuffer> m_surfacePropsCB;
 		std::shared_ptr<ConstantBuffer> m_pSolidCBuf;
 	};
 }

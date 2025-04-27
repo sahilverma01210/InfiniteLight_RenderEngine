@@ -14,27 +14,7 @@ namespace Renderer
 
 		m_pRHI->ResetCommandList();
 
-		// Create Render Graph
-		{
-			m_renderGraph = std::move(std::make_unique<RenderGraph>(*m_pRHI));
-
-			m_renderGraph->AppendPass(std::move(std::make_unique<BufferClearPass>(*m_pRHI, "clear")));
-			m_renderGraph->AppendPass(std::move(std::make_unique<ShadowMappingPass>(*m_pRHI, "shadowMap")));
-			m_renderGraph->AppendPass(std::move(std::make_unique<FlatPass>(*m_pRHI, "flatShading", m_cameraContainer)));
-			m_renderGraph->AppendPass(std::move(std::make_unique<PhongPass>(*m_pRHI, "phongShading", m_cameraContainer)));
-			m_renderGraph->AppendPass(std::move(std::make_unique<SkyboxPass>(*m_pRHI, "skybox")));
-
-			if (m_postProcessingEnabled)
-			{
-				m_renderGraph->AppendPass(std::move(std::make_unique<OutlineDrawPass>(*m_pRHI, "outlineDraw")));
-				m_renderGraph->AppendPass(std::move(std::make_unique<BlurPass>(*m_pRHI, "blur")));
-				m_renderGraph->AppendPass(std::move(std::make_unique<PostProcessPass>(*m_pRHI, "blurOutlineApply")));
-			}
-
-			m_renderGraph->AppendPass(std::move(std::make_unique<WireframePass>(*m_pRHI, "wireframe")));
-
-			m_renderGraph->Finalize();
-		}
+		m_renderGraph = std::move(std::make_unique<RenderGraph>(*m_pRHI));
 
 		// Add Lights
 		{
@@ -77,6 +57,27 @@ namespace Renderer
 
 				m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, camera["name"].get<std::string>(), transform));
 			}
+		}
+
+		// Create Render Passes
+		{
+			m_renderGraph->AppendPass(std::move(std::make_unique<BufferClearPass>(*m_pRHI, "clear")));
+			m_renderGraph->AppendPass(std::move(std::make_unique<ShadowMappingPass>(*m_pRHI, "shadowMap")));
+			m_renderGraph->AppendPass(std::move(std::make_unique<GBufferPass>(*m_pRHI, "gbuffer", m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<LightingPass>(*m_pRHI, "lighting", m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<SkyboxPass>(*m_pRHI, "skybox")));
+
+			if (m_postProcessingEnabled)
+			{
+				m_renderGraph->AppendPass(std::move(std::make_unique<OutlineDrawPass>(*m_pRHI, "outlineDraw")));
+				m_renderGraph->AppendPass(std::move(std::make_unique<BlurPass>(*m_pRHI, "blur")));
+				m_renderGraph->AppendPass(std::move(std::make_unique<PostProcessPass>(*m_pRHI, "blurOutlineApply")));
+			}
+
+			m_renderGraph->AppendPass(std::move(std::make_unique<FlatPass>(*m_pRHI, "flatShading", m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<WireframePass>(*m_pRHI, "wireframe")));
+
+			m_renderGraph->Finalize();
 		}
 
 		// Add Models

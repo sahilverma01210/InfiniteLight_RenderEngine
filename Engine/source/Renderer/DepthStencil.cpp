@@ -32,7 +32,7 @@ namespace Renderer
 			m_gpuDescHandle = m_dsvHeap->GetGPUDescriptorHandleForHeapStart();
 
             D3D12_DEPTH_STENCIL_VIEW_DESC descView = {};
-            descView.Format = DXGI_FORMAT_D32_FLOAT;
+            descView.Format = m_format = DXGI_FORMAT_D32_FLOAT;
             descView.Flags = D3D12_DSV_FLAG_NONE;
             descView.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
             descView.Texture2DArray.MipSlice = 0;

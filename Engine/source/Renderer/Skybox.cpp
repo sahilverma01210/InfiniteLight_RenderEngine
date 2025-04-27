@@ -20,8 +20,8 @@ namespace Renderer
 	{
 		m_transforms = {
 			XMMatrixIdentity(),
-			XMMatrixIdentity(),
-			XMMatrixTranspose(m_cameraMatrix * m_projectionMatrix)
+			m_cameraMatrix,
+			m_projectionMatrix
 		};
 
 		m_meshConstants = { m_materialTypeId, m_materialIdx };

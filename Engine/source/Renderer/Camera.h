@@ -16,10 +16,16 @@ namespace Renderer
 			XMFLOAT3 rotation = { 0.0f,0.0f,0.0f }; // Pitch, Yaw, Roll
 		};
 
+		struct CameraCBuf
+		{
+			XMMATRIX cameraMat;
+		};
+
 	public:
 		Camera(D3D12RHI& gfx, std::string name, Transform transform, bool tethered = false) noexcept(!IS_DEBUG);
 		void Update() const noexcept(!IS_DEBUG);
 		XMMATRIX GetCameraMatrix() const noexcept(!IS_DEBUG);
+		CameraCBuf GetCameraProps() const noexcept(!IS_DEBUG);
 		XMMATRIX GetProjectionMatrix() const noexcept(!IS_DEBUG);
 		XMMATRIX Get360CameraMatrix(UINT directionIndex) const noexcept(!IS_DEBUG);
 		XMMATRIX Get360ProjectionMatrix() const noexcept(!IS_DEBUG);

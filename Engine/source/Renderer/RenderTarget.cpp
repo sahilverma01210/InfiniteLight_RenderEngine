@@ -2,19 +2,21 @@
 
 namespace Renderer
 {
-	RenderTarget::RenderTarget(D3D12RHI& gfx, UINT width, UINT height)
+	RenderTarget::RenderTarget(D3D12RHI& gfx, UINT width, UINT height, DXGI_FORMAT format)
 	{
         INFOMAN(gfx);
 
+		m_format = format;
+
         auto const heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
-        const D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM,
+        const D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(m_format,
             static_cast<UINT64>(width),
             static_cast<UINT>(height),
             1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
         {
-            D3D12_CLEAR_VALUE clearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 0.0f} };
+            D3D12_CLEAR_VALUE clearValue = { m_format, {0.0f, 0.0f, 0.0f, 0.0f} };
             D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
                 &desc,
                 D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
@@ -68,7 +70,7 @@ namespace Renderer
         {
             // create the target view on the texture
             D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-            rtvDesc.Format = pTexture->GetDesc().Format;
+            rtvDesc.Format = m_format = pTexture->GetDesc().Format;
             if (face.has_value())
             {
                 rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;

@@ -12,14 +12,14 @@ namespace Renderer
 			:
 			RenderPass(std::move(name))
 		{
-			CreatePSO(gfx);
-
 			m_pDepthCube = std::make_shared<DepthCubeMapTextureBuffer>(gfx, m_size);
 			RenderGraph::m_shadowDepth360Handle = gfx.LoadResource(m_pDepthCube, ResourceType::CubeMapTexture);
 
 			m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(0));
 
 			m_depthOnlyPass = true;
+
+			CreatePSO(gfx);
 		}
 		XMMATRIX Get360CameraMatrix(UINT directionIndex, XMFLOAT3& position) const noexcept(!IS_DEBUG)
 		{
@@ -66,14 +66,9 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			DXGI_FORMAT* renderTargetFormats = new DXGI_FORMAT[1];
-			renderTargetFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-
 			UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
 
 			PipelineDescription pipelineDesc{};
-			pipelineDesc.numRenderTargets = 1;
-			pipelineDesc.renderTargetFormats = renderTargetFormats;
 			pipelineDesc.numConstants = 2;
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.shadowMapping = true;

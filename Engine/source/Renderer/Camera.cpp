@@ -43,6 +43,11 @@ namespace Renderer
 		return XMMatrixLookAtLH(camPosition, camTarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	}
 
+	Camera::CameraCBuf Camera::GetCameraProps() const noexcept(!IS_DEBUG)
+	{
+		return CameraCBuf{ GetCameraMatrix() };
+	}
+
 	XMMATRIX Camera::GetProjectionMatrix() const noexcept(!IS_DEBUG)
 	{
 		return XMMatrixPerspectiveLH(m_projection.width, m_projection.height, m_projection.nearZ, m_projection.farZ);

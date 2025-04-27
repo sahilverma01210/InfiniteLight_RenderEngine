@@ -10,10 +10,11 @@ namespace Renderer
 			:
 			RenderPass(std::move(name))
 		{
-			CreatePSO(gfx);
-
 			m_renderTargets.resize(1);
+			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
 			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
+
+			CreatePSO(gfx);
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
@@ -27,8 +28,11 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			DXGI_FORMAT* renderTargetFormats = new DXGI_FORMAT[1];
-			renderTargetFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			DXGI_FORMAT* renderTargetFormats = new DXGI_FORMAT[m_renderTargets.size()];
+
+			for (size_t i = 0; i < m_renderTargets.size(); i++) {
+				renderTargetFormats[i] = m_renderTargets[i]->GetFormat();
+			}
 
 			UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
 
@@ -45,7 +49,7 @@ namespace Renderer
 			samplers[0] = staticSampler;
 
 			PipelineDescription pipelineDesc{};
-			pipelineDesc.numRenderTargets = 1;
+			pipelineDesc.numRenderTargets = m_renderTargets.size();
 			pipelineDesc.renderTargetFormats = renderTargetFormats;
 			pipelineDesc.numConstants = 2;
 			pipelineDesc.num32BitConstants = num32BitConstants;
