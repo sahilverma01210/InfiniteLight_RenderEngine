@@ -12,7 +12,7 @@ namespace Renderer
         {
             // load image data from disk 
             ScratchImage image;
-            D3D12RHI_THROW_INFO(LoadFromWICFile(std::wstring(filename.begin(), filename.end()).c_str(), WIC_FLAGS_IGNORE_SRGB, nullptr, image));
+            D3D12RHI_THROW_INFO(LoadFromWICFile(std::wstring(filename.begin(), filename.end()).c_str(), WIC_FLAGS_NONE, nullptr, image));
 
             D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, m_mipChain));
             m_hasAlpha = !m_mipChain.IsAlphaAllOpaque();

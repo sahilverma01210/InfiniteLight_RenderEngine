@@ -8,14 +8,14 @@ namespace Renderer
 		friend class RenderTarget;
 
 	public:
-		DepthStencil(D3D12RHI& gfx);
-		DepthStencil(D3D12RHI& gfx, ID3D12Resource* depthBuffer, UINT face);
-		DepthStencil(D3D12RHI& gfx, UINT width, UINT height, DepthUsage usage);
+		DepthStencil(D3D12RHI& gfx, DepthUsage usage = DepthUsage::DepthStencil);
+		DepthStencil(D3D12RHI& gfx, UINT width, UINT height, DepthUsage usage = DepthUsage::DepthStencil);
+        DepthStencil(D3D12RHI& gfx, ID3D12Resource* depthBuffer, UINT face);
 		~DepthStencil() = default;
 		void Clear(D3D12RHI& gfx);
 		unsigned int GetWidth() const;
 		unsigned int GetHeight() const;
-        static DXGI_FORMAT MapUsageTypeless(DepthUsage usage)
+        static DXGI_FORMAT MapUsageResource(DepthUsage usage)
         {
             switch (usage)
             {
@@ -26,7 +26,7 @@ namespace Renderer
             }
             throw std::runtime_error{ "Base usage for Typeless format map in DepthStencil." };
         }
-        static DXGI_FORMAT MapUsageTyped(DepthUsage usage)
+        static DXGI_FORMAT MapUsageClear(DepthUsage usage)
         {
             switch (usage)
             {
@@ -39,16 +39,18 @@ namespace Renderer
             }
             throw std::runtime_error{ "Base usage for Typed format map in DepthStencil." };
         }
-        static DXGI_FORMAT MapUsageColored(DepthUsage usage)
+        static DXGI_FORMAT MapUsageView(DepthUsage usage)
         {
             switch (usage)
             {
+            case DepthUsage::None:
+                return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
             case DepthUsage::DepthStencil:
-                return DXGI_FORMAT::DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+                return DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
             case DepthUsage::ShadowDepth:
-                return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+                return DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
             }
-            throw std::runtime_error{ "Base usage for Colored format map in DepthStencil." };
+            throw std::runtime_error{ "Base usage for Typed format map in DepthStencil." };
         }
 
 	protected:

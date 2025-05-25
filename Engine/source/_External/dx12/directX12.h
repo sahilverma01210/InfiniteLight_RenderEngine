@@ -20,5 +20,7 @@
 #include <D3Dcompiler.h> // Legacy DirectX Compiler
 #include <DirectXMath.h>
 #include <DirectXTex.h>
+#include <SimpleMath/SimpleMath.h>
 
 using namespace DirectX;
+using namespace DirectX::SimpleMath;

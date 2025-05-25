@@ -12,7 +12,7 @@ namespace Renderer
 		m_cbData = m_home;
 
 		m_lightConstants = std::make_shared<ConstantBuffer>(gfx, sizeof(m_cbData), &m_cbData);
-		ILMaterial::m_lightHandle = gfx.LoadResource(m_lightConstants, ResourceType::Constant);
+		RenderGraph::m_lightDataHandles.push_back(gfx.LoadResource(m_lightConstants, ResourceType::Constant));
 	}
 
 	bool PointLight::SpawnWindow() noexcept(!IS_DEBUG)
@@ -30,11 +30,6 @@ namespace Renderer
 			ImGui::SliderFloat("Intensity", &m_cbData.diffuseIntensity, 0.01f, 2.0f, "%.2f");
 			ImGui::ColorEdit3("Diffuse Color", &m_cbData.diffuseColor.x);
 			ImGui::ColorEdit3("Ambient", &m_cbData.ambient.x);
-
-			ImGui::Text("Falloff");
-			ImGui::SliderFloat("Constant", &m_cbData.attConst, 0.05f, 10.0f, "%.2f");
-			ImGui::SliderFloat("Linear", &m_cbData.attLin, 0.0001f, 4.0f, "%.4f");
-			ImGui::SliderFloat("Quadratic", &m_cbData.attQuad, 0.0000001f, 10.0f, "%.7f");
 
 			if (ImGui::Button("Reset"))
 			{
@@ -59,12 +54,11 @@ namespace Renderer
 
 	void PointLight::Update(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		ILMaterial::m_lightPosition = m_cbData.pos;
+		RenderGraph::m_lightPosition = m_cbData.pos;
 
-		auto dataCopy = m_cbData;
-		const auto pos = XMLoadFloat3(&m_cbData.pos);
-		XMStoreFloat3(&dataCopy.viewPos, XMVector3Transform(pos, m_cameraContainer.GetActiveCamera().GetCameraMatrix()));
+		XMStoreFloat3(&m_cbData.viewPos, XMVector3Transform(XMLoadFloat3(&m_cbData.pos), m_cameraContainer.GetActiveCamera().GetViewMatrix()));
+		m_cbData.shadowDepthIdx = RenderGraph::m_frameResourceHandles["Shadow_Depth"];
 
-		m_lightConstants->Update(gfx, &dataCopy);
+		m_lightConstants->Update(gfx, &m_cbData);
 	}
 }

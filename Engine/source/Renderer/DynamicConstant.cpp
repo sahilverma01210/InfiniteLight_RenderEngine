@@ -24,9 +24,9 @@ namespace Renderer
 #define X(el) case el: return Map<el>::code;
 			LEAF_ELEMENT_TYPES
 #undef X
-		case Struct:
+		case Struct_DC:
 			return GetSignatureForStruct();
-		case Array:
+		case Array_DC:
 			return GetSignatureForArray();
 		default:
 			assert("Bad type in signature generation" && false);
@@ -35,18 +35,18 @@ namespace Renderer
 	}
 	bool LayoutElement::Exists() const noexcept(!IS_DEBUG)
 	{
-		return type != Empty;
+		return type != Empty_DC;
 	}
 	std::pair<size_t, const LayoutElement*> LayoutElement::CalculateIndexingOffset(size_t offset, size_t index) const 
 	{
-		assert("Indexing into non-array" && type == Array);
+		assert("Indexing into non-array" && type == Array_DC);
 		const auto& data = static_cast<ExtraData::Array&>(*pExtraData);
 		assert(index < data.size);
 		return { offset + data.element_size * index,&*data.layoutElement };
 	}
 	LayoutElement& LayoutElement::operator[](const std::string& key) 
 	{
-		assert("Keying into non-struct" && type == Struct);
+		assert("Keying into non-struct" && type == Struct_DC);
 		for (auto& mem : static_cast<ExtraData::Struct&>(*pExtraData).layoutElements)
 		{
 			if (mem.first == key)
@@ -62,7 +62,7 @@ namespace Renderer
 	}
 	LayoutElement& LayoutElement::T() 
 	{
-		assert("Accessing T of non-array" && type == Array);
+		assert("Accessing T of non-array" && type == Array_DC);
 		return *static_cast<ExtraData::Array&>(*pExtraData).layoutElement;
 	}
 	const LayoutElement& LayoutElement::T() const 
@@ -80,12 +80,12 @@ namespace Renderer
 #define X(el) case el: return *offset + Map<el>::hlslSize;
 			LEAF_ELEMENT_TYPES
 #undef X
-		case Struct:
+		case Struct_DC:
 			{
 				const auto& data = static_cast<ExtraData::Struct&>(*pExtraData);
 				return AdvanceToBoundary(data.layoutElements.back().second.GetOffsetEnd());
 			}
-		case Array:
+		case Array_DC:
 		{
 			const auto& data = static_cast<ExtraData::Array&>(*pExtraData);
 			return *offset + AdvanceToBoundary(data.layoutElement->GetSizeInBytes()) * data.size;
@@ -101,7 +101,7 @@ namespace Renderer
 	}
 	LayoutElement& LayoutElement::Add(Type addedType, std::string name) 
 	{
-		assert("Add to non-struct in layout" && type == Struct);
+		assert("Add to non-struct in layout" && type == Struct_DC);
 		assert("invalid symbol name in Struct" && ValidateSymbolName(name));
 		auto& structData = static_cast<ExtraData::Struct&>(*pExtraData);
 		for (auto& mem : structData.layoutElements)
@@ -116,7 +116,7 @@ namespace Renderer
 	}
 	LayoutElement& LayoutElement::Set(Type addedType, size_t size) 
 	{
-		assert("Set on non-array in layout" && type == Array);
+		assert("Set on non-array in layout" && type == Array_DC);
 		assert(size != 0u);
 		auto& arrayData = static_cast<ExtraData::Array&>(*pExtraData);
 		arrayData.layoutElement = { addedType };
@@ -127,12 +127,12 @@ namespace Renderer
 		:
 	type{ typeIn }
 	{
-		assert(typeIn != Empty);
-		if (typeIn == Struct)
+		assert(typeIn != Empty_DC);
+		if (typeIn == Struct_DC)
 		{
 			pExtraData = std::unique_ptr<ExtraData::Struct>{ new ExtraData::Struct() };
 		}
-		else if (typeIn == Array)
+		else if (typeIn == Array_DC)
 		{
 			pExtraData = std::unique_ptr<ExtraData::Array>{ new ExtraData::Array() };
 		}
@@ -144,9 +144,9 @@ namespace Renderer
 #define X(el) case el: offset = AdvanceIfCrossesBoundary( offsetIn,Map<el>::hlslSize ); return *offset + Map<el>::hlslSize;
 			LEAF_ELEMENT_TYPES
 #undef X
-		case Struct:
+		case Struct_DC:
 			return FinalizeForStruct(offsetIn);
-		case Array:
+		case Array_DC:
 			return FinalizeForArray(offsetIn);
 		default:
 			assert("Bad type in size computation" && false);
@@ -231,7 +231,7 @@ namespace Renderer
 
 	RawLayout::RawLayout() noexcept(!IS_DEBUG)
 		:
-		Layout{ std::shared_ptr<LayoutElement>{ new LayoutElement(Struct) } }
+		Layout{ std::shared_ptr<LayoutElement>{ new LayoutElement(Struct_DC) } }
 	{}
 	LayoutElement& RawLayout::operator[](const std::string& key) 
 	{

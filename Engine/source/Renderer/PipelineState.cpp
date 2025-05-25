@@ -27,14 +27,6 @@ namespace Renderer
             D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
             rasterizerDesc.CullMode = pipelineDesc.backFaceCulling ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 
-            // Hardcoded Values ()
-            if (pipelineDesc.shadowMapping)
-            {
-                rasterizerDesc.DepthBias = 50;
-                rasterizerDesc.SlopeScaledDepthBias = 2.0f;
-                rasterizerDesc.DepthBiasClamp = 0.1f;
-            }
-
             D3D12_DEPTH_STENCIL_DESC depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
             switch (pipelineDesc.depthStencilMode)
@@ -68,6 +60,19 @@ namespace Renderer
                 break;
             }
 
+            if (pipelineDesc.shadowMapping)
+            {
+                rasterizerDesc.CullMode = D3D12_CULL_MODE_FRONT;
+                rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+                rasterizerDesc.DepthBias = 7500;
+                rasterizerDesc.DepthBiasClamp = 0.0f;
+                rasterizerDesc.SlopeScaledDepthBias = 1.0f;
+
+                depthStencilDesc.DepthEnable = TRUE;
+                depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+                depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+            }
+
             m_graphicsPsoDescription.InputLayout = { pipelineDesc.inputElementDescs , pipelineDesc.numElements };
             m_graphicsPsoDescription.pRootSignature = pipelineDesc.rootSignature;
             m_graphicsPsoDescription.VS = pipelineDesc.vertexShader.GetShaderByteCode();
@@ -75,13 +80,13 @@ namespace Renderer
             m_graphicsPsoDescription.RasterizerState = rasterizerDesc;
             m_graphicsPsoDescription.BlendState = blenderDesc;
             m_graphicsPsoDescription.SampleMask = UINT_MAX;
-            m_graphicsPsoDescription.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+            m_graphicsPsoDescription.PrimitiveTopologyType = m_topologyType = pipelineDesc.topologyType;
             m_graphicsPsoDescription.NumRenderTargets = pipelineDesc.numRenderTargets;
             for (size_t i = 0; i < pipelineDesc.numRenderTargets; i++)
             {
                 m_graphicsPsoDescription.RTVFormats[i] = pipelineDesc.renderTargetFormats[i];
             }            
-            m_graphicsPsoDescription.DSVFormat = DepthStencil::MapUsageTyped(pipelineDesc.depthUsage);
+            m_graphicsPsoDescription.DSVFormat = DepthStencil::MapUsageView(pipelineDesc.depthUsage);
             m_graphicsPsoDescription.DepthStencilState = depthStencilDesc;
             m_graphicsPsoDescription.SampleDesc.Count = 1;
             D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateGraphicsPipelineState(&m_graphicsPsoDescription, IID_PPV_ARGS(&m_pipelineState)));
@@ -96,7 +101,12 @@ namespace Renderer
 		}
 	}
 
-	void PipelineState::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+    D3D12_PRIMITIVE_TOPOLOGY_TYPE PipelineState::GetTopologyType()
+    {
+        return m_topologyType;
+    }
+
+    void PipelineState::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
         INFOMAN_NOHR(gfx);
         D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get()));

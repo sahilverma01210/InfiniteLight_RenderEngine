@@ -14,13 +14,13 @@ namespace Renderer
                 auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
                 auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(m_constantBufferSize) };
 
-                D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
+                GetDevice(gfx)->CreateCommittedResource(
                     &heapProperties,
                     D3D12_HEAP_FLAG_NONE,
                     &resourceDesc,
                     D3D12_RESOURCE_STATE_GENERIC_READ,
                     nullptr,
-                    IID_PPV_ARGS(&m_constantUploadBuffer)));
+                    IID_PPV_ARGS(&m_constantUploadBuffer));
             }
 
             // Copy the data to buffer.
@@ -76,25 +76,14 @@ namespace Renderer
         }
     }
 
-    Buffer ConstantBuffer::GetDynamicBuffer() const noexcept(!IS_DEBUG)
-    {
-        return m_dataBuffer.value();
-    }
-
-    void ConstantBuffer::SetBuffer(const Buffer& buf_in)
-    {
-        m_dataBuffer.value().CopyFrom(buf_in);
-        m_selected = true;
-    }
-
     void ConstantBuffer::Accept(TechniqueProbe& probe)
     {
-        if (m_dataBuffer.has_value())
-        {
-            //if (probe.VisitBuffer(m_dataBuffer.value()))
-            //{
-            //    m_selected = true;
-            //}
-        }
+        //if (m_dataBuffer.has_value())
+        //{
+        //    if (probe.VisitBuffer(m_dataBuffer.value()))
+        //    {
+        //        m_selected = true;
+        //    }
+        //}
     }
 }

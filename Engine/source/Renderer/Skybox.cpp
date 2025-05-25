@@ -10,7 +10,6 @@ namespace Renderer
 		m_indexedList.Transform(XMMatrixScaling(3.0f, 3.0f, 3.0f));
 
 		auto material = std::make_shared<SkyboxMaterial>(gfx, m_indexedList.vertices.GetLayout());
-		m_materialTypeId = material->getID();
 
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
 		ApplyMaterial(gfx, material.get());
@@ -18,15 +17,11 @@ namespace Renderer
 
 	void Skybox::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		m_transforms = {
-			XMMatrixIdentity(),
-			m_cameraMatrix,
-			m_projectionMatrix
-		};
+		Transforms transforms{};
+		transforms.meshMat = XMMatrixIdentity();
+		transforms.meshInvMat = XMMatrixInverse(nullptr, transforms.meshMat);
 
-		m_meshConstants = { m_materialTypeId, m_materialIdx };
-
-		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
-		gfx.Set32BitRootConstants(1, 2, &m_meshConstants);
+		gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
+		gfx.Set32BitRootConstants(2, 1, &m_materialIdx);
 	}
 }

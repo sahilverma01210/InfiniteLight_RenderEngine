@@ -10,14 +10,12 @@ namespace Renderer
 		ConstantBuffer(D3D12RHI& gfx, UINT dataSize, const void* pData);
 		~ConstantBuffer() = default;
 		void Update(D3D12RHI& gfx, const void* pData) noexcept(!IS_DEBUG) override;
-		Buffer GetDynamicBuffer() const noexcept(!IS_DEBUG);
-		void SetBuffer(const Buffer& buf_in);
 		void Accept(TechniqueProbe& probe) override;
 
 	private:
 		bool m_selected = false;
 		UINT m_constantBufferSize;
-		std::optional<Buffer> m_dataBuffer = std::nullopt;
+		//std::optional<Buffer> m_dataBuffer = std::nullopt;
 		ComPtr<ID3D12Resource> m_constantUploadBuffer;
 	};
 }

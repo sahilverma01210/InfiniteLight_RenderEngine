@@ -12,8 +12,8 @@ namespace Renderer
 		{
 			m_renderTargets.resize(1);
 			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight());
-			RenderGraph::m_renderTargetHandles["Outline_Draw"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
+			RenderGraph::m_frameResourceHandles["Outline_Draw"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
 
 			CreatePSO(gfx);
 		}
@@ -35,12 +35,12 @@ namespace Renderer
 				renderTargetFormats[i] = m_renderTargets[i]->GetFormat();
 			}
 
-			UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+			UINT num32BitConstants[3] = { 1, 2 * sizeof(XMMATRIX) / 4 , 1 };
 
 			PipelineDescription pipelineDesc{};
 			pipelineDesc.numRenderTargets = m_renderTargets.size();
 			pipelineDesc.renderTargetFormats = renderTargetFormats;
-			pipelineDesc.numConstants = 2;
+			pipelineDesc.numConstants = 3;
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.backFaceCulling = true;
 			pipelineDesc.numElements = vec.size();
@@ -54,7 +54,11 @@ namespace Renderer
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			gfx.ClearResource(RenderGraph::m_renderTargetHandles["Outline_Draw"], ResourceType::RenderTarget);
+			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Outline_Draw"], ResourceType::RenderTarget);
+
+			m_rootSignature->Bind(gfx);
+			m_pipelineStateObject->Bind(gfx);
+
 			RenderPass::Execute(gfx);
 		}
 

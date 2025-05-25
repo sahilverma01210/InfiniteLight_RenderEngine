@@ -2,8 +2,10 @@
 
 namespace Renderer
 {
-	CameraContainer::~CameraContainer()
+	CameraContainer::CameraContainer(D3D12RHI& gfx)
 	{
+		m_CameraConstants = std::make_shared<ConstantBuffer>(gfx, sizeof(m_cameraCBuf), &m_cameraCBuf);
+		RenderPass::m_cameraDataHandle = gfx.LoadResource(m_CameraConstants, ResourceType::Constant);
 	}
 
 	bool CameraContainer::SpawnWindow(D3D12RHI& gfx)
@@ -46,6 +48,19 @@ namespace Renderer
 	void CameraContainer::AddCamera(std::shared_ptr<Camera> pCam)
 	{
 		m_cameras.push_back(std::move(pCam));
+	}
+
+	void CameraContainer::UpdateCamera(D3D12RHI& gfx, CameraCBuf* cameraCBuf)
+	{
+		GetActiveCamera().SetViewMatrix();
+		GetActiveCamera().SetProjectionMatrix();
+
+		m_cameraCBuf.viewMat = GetActiveCamera().GetViewMatrix();
+		m_cameraCBuf.projectionMat = GetActiveCamera().GetProjectionMatrix();
+		m_cameraCBuf.inverseViewMat = m_cameraCBuf.viewMat.Invert();
+		m_cameraCBuf.inverseProjectionMat = m_cameraCBuf.projectionMat.Invert();
+
+		m_CameraConstants->Update(gfx, cameraCBuf ? cameraCBuf : &m_cameraCBuf);
 	}
 
 	void CameraContainer::Submit(RenderGraph& renderGraph) const

@@ -13,8 +13,6 @@ namespace Renderer
 		m_vtxLayout.Append(VertexLayout::Tangent);
 		m_vtxLayout.Append(VertexLayout::Bitangent);
 
-		m_materialTypeId = m_material->getID();
-
 		ApplyMesh(gfx, MakeVertices(gfx, mesh, scale), MakeIndices(gfx, mesh));
 		ApplyMaterial(gfx, m_material.get(), true);
 	}
@@ -65,15 +63,11 @@ namespace Renderer
 
 	void Mesh::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
 	{
-		m_transforms = {
-			XMLoadFloat4x4(&m_transform),
-			m_cameraMatrix,
-			m_projectionMatrix
-		};
+		Transforms transforms{};
+		transforms.meshMat = XMLoadFloat4x4(&m_transform);
+		transforms.meshInvMat = XMMatrixInverse(nullptr, transforms.meshMat);
 
-		m_meshConstants = { m_materialTypeId, m_materialIdx };
-
-		gfx.Set32BitRootConstants(0, sizeof(m_transforms) / 4, &m_transforms);
-		gfx.Set32BitRootConstants(1, 2, &m_meshConstants);
+		gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
+		gfx.Set32BitRootConstants(2, 1, &m_materialIdx);
 	}
 }

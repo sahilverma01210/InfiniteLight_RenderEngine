@@ -8,51 +8,20 @@ namespace Renderer
 	class ShadowMappingPass : public RenderPass
 	{
 	public:
-		ShadowMappingPass(D3D12RHI& gfx, std::string name)
+		ShadowMappingPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
 			:
-			RenderPass(std::move(name))
+			RenderPass(std::move(name)),
+			m_cameraContainer(cameraContainer)
 		{
-			m_pDepthCube = std::make_shared<DepthCubeMapTextureBuffer>(gfx, m_size);
-			RenderGraph::m_shadowDepth360Handle = gfx.LoadResource(m_pDepthCube, ResourceType::CubeMapTexture);
+			for (size_t i = 0; i < 6; i++)
+			{
+				ResourceHandle handle = gfx.LoadResource(std::make_shared<DepthStencil>(gfx, 2048, 2048, DepthUsage::ShadowDepth), ResourceType::Texture);
+				if (!i) RenderGraph::m_frameResourceHandles["Shadow_Depth"] = handle;
+			}
 
-			m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(0));
-
-			m_depthOnlyPass = true;
+			m_depthStencil = std::make_shared<DepthStencil>(gfx, 2048, 2048, DepthUsage::ShadowDepth);
 
 			CreatePSO(gfx);
-		}
-		XMMATRIX Get360CameraMatrix(UINT directionIndex, XMFLOAT3& position) const noexcept(!IS_DEBUG)
-		{
-			const auto cameraPosition = XMLoadFloat3(&position);
-
-			switch (directionIndex)
-			{
-			case 0: // +x			
-				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-				break;
-			case 1: // -x			
-				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-				break;
-			case 2: // +y			
-				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f));
-				break;
-			case 3: // -y			
-				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f));
-				break;
-			case 4: // +z			
-				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-				break;
-			case 5: // -z			
-				return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-				break;
-			default:
-				return XMMATRIX();
-				break;
-			}
-		}
-		XMMATRIX Get360ProjectionMatrix() const noexcept(!IS_DEBUG)
-		{
-			return XMMatrixPerspectiveFovLH(PI / 2.0f, 1.0f, 0.5f, 100.0f);
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
@@ -66,10 +35,10 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+			UINT num32BitConstants[5] = { 1, 2 * sizeof(XMMATRIX) / 4, 1, 1, sizeof(XMFLOAT3) / 4};
 
 			PipelineDescription pipelineDesc{};
-			pipelineDesc.numConstants = 2;
+			pipelineDesc.numConstants = 5;
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.shadowMapping = true;
 			pipelineDesc.numElements = vec.size();
@@ -89,21 +58,32 @@ namespace Renderer
 
 			for (size_t i = 0; i < 6; i++)
 			{
-				m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(i));
+				//m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(i));
 				m_depthStencil->Clear(gfx);
 
-				Drawable::m_cameraMatrix = Get360CameraMatrix(i, ILMaterial::m_lightPosition);
-				Drawable::m_projectionMatrix = Get360ProjectionMatrix();
+				m_rootSignature->Bind(gfx);
+				m_pipelineStateObject->Bind(gfx);
 
+				gfx.Set32BitRootConstants(3, 1, &i);
+				gfx.Set32BitRootConstants(4, sizeof(RenderGraph::m_lightPosition) / 4, &RenderGraph::m_lightPosition);
+				
 				RenderPass::Execute(gfx);
+
+				ID3D12Resource* depthStencilBuffer = m_depthStencil->GetBuffer();
+				ID3D12Resource* depthTargetBuffer = gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Shadow_Depth"] + i)->GetBuffer();
+
+				gfx.TransitionResource(depthStencilBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_SOURCE);
+				gfx.TransitionResource(depthTargetBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_DEST);
+				gfx.CopyResource(depthTargetBuffer, depthStencilBuffer);
+				gfx.TransitionResource(depthStencilBuffer, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+				gfx.TransitionResource(depthTargetBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 			}
 			gfx.ResizeScreenSpace(initWidth, initHeight);
 		}
 
 	private:
-		ResourceHandle m_depthCubeHandle;
 		VertexLayout m_vtxLayout;
-		static constexpr UINT m_size = 1000;
-		std::shared_ptr<DepthCubeMapTextureBuffer> m_pDepthCube;
+		static constexpr UINT m_size = 2048;
+		CameraContainer& m_cameraContainer;
 	};
 }

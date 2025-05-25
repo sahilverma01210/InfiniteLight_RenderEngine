@@ -1,4 +1,5 @@
-#include "CommonResources.hlsli"
+#include "Common.hlsli"
+#include "Scene.hlsli"
 
 struct MaterialCB
 {

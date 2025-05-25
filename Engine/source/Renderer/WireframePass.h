@@ -12,7 +12,7 @@ namespace Renderer
 		{
 			m_renderTargets.resize(1);
 			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_depthStencilHandle));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
 
 			CreatePSO(gfx);
 		}
@@ -34,15 +34,16 @@ namespace Renderer
 				renderTargetFormats[i] = m_renderTargets[i]->GetFormat();
 			}
 
-			UINT num32BitConstants[2] = { (sizeof(XMMATRIX) / 4) * 3 , 2 };
+			UINT num32BitConstants[3] = { 1, 2 * sizeof(XMMATRIX) / 4 , 1 };
 
 			PipelineDescription pipelineDesc{};
 			pipelineDesc.numRenderTargets = m_renderTargets.size();
 			pipelineDesc.renderTargetFormats = renderTargetFormats;
-			pipelineDesc.numConstants = 2;
+			pipelineDesc.numConstants = 3;
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.numElements = vec.size();
 			pipelineDesc.inputElementDescs = inputElementDescs;
+			pipelineDesc.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 			pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Flat_VS.hlsl" };
 			pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Flat_PS.hlsl" };
 			pipelineDesc.depthStencilMode = Mode::DepthAlways;
@@ -53,6 +54,10 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
+
+			m_rootSignature->Bind(gfx);
+			m_pipelineStateObject->Bind(gfx);
+
 			RenderPass::Execute(gfx);
 		}
 

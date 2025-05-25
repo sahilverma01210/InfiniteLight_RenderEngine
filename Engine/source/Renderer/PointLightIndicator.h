@@ -15,7 +15,5 @@ namespace Renderer
 		UINT m_meshIdx;
 		XMFLOAT3 m_pos = { 1.0f,1.0f,1.0f };
 		IndexedTriangleList m_indexedList;
-		mutable Transforms m_transforms;
-		mutable MeshConstants m_meshConstants;
 	};
 }

@@ -175,9 +175,6 @@
     <ClInclude Include="source\Renderer\IndexBuffer.h">
       <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Topology.h">
-      <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\ConstantBuffer.h">
       <Filter>Source\Renderer\Public\RenderGraph\RHI\Bindables</Filter>
     </ClInclude>
@@ -429,9 +426,6 @@
     <ClCompile Include="source\Renderer\VertexBuffer.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Topology.cpp">
-      <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\TextureBuffer.cpp">
       <Filter>Source\Renderer\Private\RenderGraph\RHI\Bindables</Filter>
     </ClCompile>
@@ -614,13 +608,10 @@
     <CustomBuild Include="shaders\HLSL\Flat_VS.hlsl">
       <Filter>Shaders\HLSL\Flat Shading</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Shadow_PS.hlsl">
-      <Filter>Shaders\HLSL\Shadow Mapping</Filter>
-    </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Shadow_VS.hlsl">
       <Filter>Shaders\HLSL\Shadow Mapping</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\CommonResources.hlsli">
+    <CustomBuild Include="shaders\HLSL\Common.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Outline_PS.hlsl">
@@ -634,6 +625,21 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Lighting_CS.hlsl">
       <Filter>Shaders\HLSL\Lighting</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Packing.hlsli">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Scene.hlsli">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\BRDF.hlsli">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Constants.hlsli">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Lighting.hlsli">
+      <Filter>Shaders\HLSL\Common</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

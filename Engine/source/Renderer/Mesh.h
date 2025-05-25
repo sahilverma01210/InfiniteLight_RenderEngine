@@ -21,7 +21,5 @@ namespace Renderer
 		VertexLayout m_vtxLayout;
 		std::shared_ptr<ImportMaterial> m_material;
 		mutable XMFLOAT4X4 m_transform;
-		mutable MeshConstants m_meshConstants;
-		mutable Transforms m_transforms;
 	};
 }

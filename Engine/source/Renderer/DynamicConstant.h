@@ -4,13 +4,13 @@
 
 // master list of leaf types that generates enum elements and various switches etc.
 #define LEAF_ELEMENT_TYPES \
-	X( Float ) \
-	X( Float2 ) \
-	X( Float3 ) \
-	X( Float4 ) \
-	X( Matrix ) \
-	X( Bool ) \
-	X( Integer )
+	X( Float_DC ) \
+	X( Float2_DC ) \
+	X( Float3_DC ) \
+	X( Float4_DC ) \
+	X( Matrix_DC ) \
+	X( Bool_DC ) \
+	X( Integer_DC )
 
 namespace Renderer
 {
@@ -19,9 +19,9 @@ namespace Renderer
 #define X(el) el,
 		LEAF_ELEMENT_TYPES
 #undef X
-		Struct,
-		Array,
-		Empty,
+		Struct_DC,
+		Array_DC,
+		Empty_DC,
 	};
 
 	// static map of attributes of each leaf type
@@ -30,49 +30,49 @@ namespace Renderer
 	{
 		static constexpr bool valid = false;
 	};
-	template<> struct Map<Float>
+	template<> struct Map<Float_DC>
 	{
 		using SysType = float; // type used in the CPU side
 		static constexpr size_t hlslSize = sizeof(SysType); // size of type on GPU side
 		static constexpr const char* code = "F1"; // code used for generating signature of layout
 		static constexpr bool valid = true; // metaprogramming flag to check validity of Map <param>
 	};
-	template<> struct Map<Float2>
+	template<> struct Map<Float2_DC>
 	{
 		using SysType = XMFLOAT2;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "F2";
 		static constexpr bool valid = true;
 	};
-	template<> struct Map<Float3>
+	template<> struct Map<Float3_DC>
 	{
 		using SysType = XMFLOAT3;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "F3";
 		static constexpr bool valid = true;
 	};
-	template<> struct Map<Float4>
+	template<> struct Map<Float4_DC>
 	{
 		using SysType = XMFLOAT4;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "F4";
 		static constexpr bool valid = true;
 	};
-	template<> struct Map<Matrix>
+	template<> struct Map<Matrix_DC>
 	{
 		using SysType = XMFLOAT4X4;
 		static constexpr size_t hlslSize = sizeof(SysType);
 		static constexpr const char* code = "M4";
 		static constexpr bool valid = true;
 	};
-	template<> struct Map<Bool>
+	template<> struct Map<Bool_DC>
 	{
 		using SysType = bool;
 		static constexpr size_t hlslSize = 4u;
 		static constexpr const char* code = "BL";
 		static constexpr bool valid = true;
 	};
-	template<> struct Map<Integer>
+	template<> struct Map<Integer_DC>
 	{
 		using SysType = int;
 		static constexpr size_t hlslSize = sizeof(SysType);
@@ -199,7 +199,7 @@ namespace Renderer
 		// each element stores its own offset. this makes lookup to find its position in the byte buffer
 		// fast. Special handling is required for situations where arrays are involved
 		std::optional<size_t> offset;
-		Type type = Empty;
+		Type type = Empty_DC;
 		std::unique_ptr<ExtraDataBase> pExtraData;
 	};
 

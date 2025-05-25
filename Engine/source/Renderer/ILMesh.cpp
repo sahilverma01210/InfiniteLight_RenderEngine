@@ -2,9 +2,8 @@
 
 namespace Renderer
 {
-	void ILMesh::ApplyMesh(D3D12RHI& gfx, VertexRawBuffer vertices, std::vector<USHORT> indices, D3D12_PRIMITIVE_TOPOLOGY topology)
+	void ILMesh::ApplyMesh(D3D12RHI& gfx, VertexRawBuffer vertices, std::vector<USHORT> indices)
 	{
-		m_topologyBindable = std::move(std::make_shared<Topology>(gfx, topology));
 		m_vertexBufferBindable = std::move(std::make_shared<VertexBuffer>(gfx, vertices.GetData(), UINT(vertices.SizeBytes()), (UINT)vertices.GetLayout().Size()));
 		m_indexBufferBindable = std::move(std::make_shared<IndexBuffer>(gfx, indices));
 

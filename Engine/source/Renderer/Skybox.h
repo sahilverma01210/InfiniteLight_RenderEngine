@@ -12,8 +12,6 @@ namespace Renderer
 
 	private:
 		UINT m_meshIdx;
-		mutable MeshConstants m_meshConstants;
-		mutable Transforms m_transforms;
 		IndexedTriangleList m_indexedList;
 	};
 }

@@ -261,6 +261,29 @@ namespace Renderer
         D3D12RHI_THROW_INFO_ONLY(WaitForSingleObject(m_fenceEvent, INFINITE));
     }
 
+    void D3D12RHI::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType)
+    {
+		D3D12_PRIMITIVE_TOPOLOGY topology;
+
+		switch (topologyType)
+		{
+		case D3D12_PRIMITIVE_TOPOLOGY_TYPE::D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE:
+			topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			break;
+		case D3D12_PRIMITIVE_TOPOLOGY_TYPE::D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE:
+			topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+			break;
+		case D3D12_PRIMITIVE_TOPOLOGY_TYPE::D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT:
+			topology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+			break;
+		default:
+            topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			break;
+		}
+
+		D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->IASetPrimitiveTopology(topology));
+    }
+
     void D3D12RHI::Info(HRESULT hr)
     {
         D3D12RHI_THROW_INFO(hr);
@@ -273,21 +296,21 @@ namespace Renderer
 
     // PUBLIC - RESOURCE MANAGER METHODS
 
-    ResourceHandle D3D12RHI::LoadResource(std::shared_ptr<D3D12Resource> resourceBuffer, ResourceType resourceType)
+    ResourceHandle D3D12RHI::LoadResource(std::shared_ptr<D3D12Resource> resource, ResourceType resourceType, bool isSRGB)
     {
         switch (resourceType)
         {
         case ResourceType::Constant:
-            AddConstantBufferView(resourceBuffer);
+            AddConstantBufferView(resource, CreateCBVDesc(resource));
             break;
         case ResourceType::Texture:
-            AddShaderResourceView(resourceBuffer);
+            AddShaderResourceView(resource, CreateSRVDesc(resource, isSRGB));
             break;
         case ResourceType::ReadWriteTexture:
-            AddUnorderedAccessView(resourceBuffer);
+            AddUnorderedAccessView(resource, CreateUAVDesc(resource));
 			break;
         case ResourceType::CubeMapTexture:
-            AddShaderResourceView(resourceBuffer, true);
+            AddShaderResourceView(resource, CreateSRVDesc(resource, isSRGB, true));
             break;
         case ResourceType::RenderTarget:
             break;
@@ -295,47 +318,45 @@ namespace Renderer
             break;
         }
 
-        m_resourceMap[m_resourceHandle] = std::move(resourceBuffer);
+        m_resourceMap[m_resourceHandle] = std::move(resource);
         //m_loadedResources[resourceName] = m_resourceHandle;
 
         return m_resourceHandle++;
     }
 
-    void D3D12RHI::AddConstantBufferView(std::shared_ptr<D3D12Resource> resourceBuffer)
+    D3D12_CONSTANT_BUFFER_VIEW_DESC D3D12RHI::CreateCBVDesc(std::shared_ptr<D3D12Resource> resource)
     {
-		ID3D12Resource* constantBuffer = resourceBuffer->GetBuffer();
+        ID3D12Resource* resourceBuffer = resource->GetBuffer();
 
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-        cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
-        cbvDesc.SizeInBytes = constantBuffer->GetDesc().Width; // Not Sure.
+        cbvDesc.BufferLocation = resourceBuffer->GetGPUVirtualAddress();
+        cbvDesc.SizeInBytes = resourceBuffer->GetDesc().Width; // Not Sure.
 
-        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
-        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-		GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-
-        D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&cbvDesc, CPUHandle));
-
-        if (!resourceBuffer->GetDescriptor()) resourceBuffer->SetDescriptor(CPUHandle);
-        if (!resourceBuffer->GetGPUDescriptor()) resourceBuffer->SetGPUDescriptor(GPUHandle);
+        return cbvDesc;
     }
 
-    void D3D12RHI::AddShaderResourceView(std::shared_ptr<D3D12Resource> resourceBuffer, bool isCubeMap)
+    D3D12_SHADER_RESOURCE_VIEW_DESC D3D12RHI::CreateSRVDesc(std::shared_ptr<D3D12Resource> resource, bool isSRGB, bool isCubeMap)
     {
-        ID3D12Resource* textureBuffer = resourceBuffer->GetBuffer();
+        ID3D12Resource* resourceBuffer = resource->GetBuffer();
 
         DXGI_FORMAT targetTextureFormat;
 
-        switch (textureBuffer->GetDesc().Format)
+        switch (resourceBuffer->GetDesc().Format)
         {
         case DXGI_FORMAT_R24G8_TYPELESS:
             targetTextureFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
             break;
         case DXGI_FORMAT_R32_TYPELESS:
             targetTextureFormat = DXGI_FORMAT_R32_FLOAT;
+			break;
+        case DXGI_FORMAT_B8G8R8A8_UNORM:
+            targetTextureFormat = isSRGB ? DXGI_FORMAT_B8G8R8A8_UNORM_SRGB : resourceBuffer->GetDesc().Format;
+            break;
+        case DXGI_FORMAT_R8G8B8A8_UNORM:
+            targetTextureFormat = isSRGB ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : resourceBuffer->GetDesc().Format;
             break;
         default:
-            targetTextureFormat = textureBuffer->GetDesc().Format;
+            targetTextureFormat = resourceBuffer->GetDesc().Format;
             break;
         }
 
@@ -347,44 +368,67 @@ namespace Renderer
         {
             srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
             srvDesc.TextureCube.MostDetailedMip = 0;
-            srvDesc.TextureCube.MipLevels = textureBuffer->GetDesc().MipLevels;
+            srvDesc.TextureCube.MipLevels = resourceBuffer->GetDesc().MipLevels;
             srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
         }
         else
         {
             srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-            srvDesc.Texture2D.MipLevels = textureBuffer->GetDesc().MipLevels;
+            srvDesc.Texture2D.MipLevels = resourceBuffer->GetDesc().MipLevels;
         }
 
-        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
-        D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
-        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-        GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-
-        D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(textureBuffer, &srvDesc, CPUHandle));
-
-        if (!resourceBuffer->GetDescriptor()) resourceBuffer->SetDescriptor(CPUHandle);
-        if (!resourceBuffer->GetGPUDescriptor()) resourceBuffer->SetGPUDescriptor(GPUHandle);
+		return srvDesc;
     }
 
-    void D3D12RHI::AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resourceBuffer)
+    D3D12_UNORDERED_ACCESS_VIEW_DESC D3D12RHI::CreateUAVDesc(std::shared_ptr<D3D12Resource> resource)
     {
-        ID3D12Resource* textureBuffer = resourceBuffer->GetBuffer();
+        ID3D12Resource* resourceBuffer = resource->GetBuffer();
 
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 
-        uavDesc.Format = textureBuffer->GetDesc().Format;
-		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+        uavDesc.Format = resourceBuffer->GetDesc().Format;
+        uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 
+		return uavDesc;
+    }
+
+    void D3D12RHI::AddConstantBufferView(std::shared_ptr<D3D12Resource> resource, D3D12_CONSTANT_BUFFER_VIEW_DESC desc)
+    {
+        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+		GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+
+        D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&desc, CPUHandle));
+
+        if (!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
+        if (!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
+    }
+
+    void D3D12RHI::AddShaderResourceView(std::shared_ptr<D3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC desc)
+    {        
         D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
         D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
         CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
         GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
 
-        D3D12RHI_THROW_INFO_ONLY(m_device->CreateUnorderedAccessView(textureBuffer, nullptr, & uavDesc, CPUHandle));
+        D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(resource->GetBuffer(), &desc, CPUHandle));
 
-        if(!resourceBuffer->GetDescriptor()) resourceBuffer->SetDescriptor(CPUHandle);
-        if(!resourceBuffer->GetGPUDescriptor()) resourceBuffer->SetGPUDescriptor(GPUHandle);
+        if (!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
+        if (!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
+    }
+
+    void D3D12RHI::AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resource, D3D12_UNORDERED_ACCESS_VIEW_DESC desc)
+    {
+        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+        D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+        GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
+
+        D3D12RHI_THROW_INFO_ONLY(m_device->CreateUnorderedAccessView(resource->GetBuffer(), nullptr, &desc, CPUHandle));
+
+        if(!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
+        if(!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
     }
 
     D3D12Resource& D3D12RHI::GetResource(ResourceHandle resourceHandle)

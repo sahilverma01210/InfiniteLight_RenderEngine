@@ -28,11 +28,9 @@ namespace Renderer
 		if (m_renderPassType == RenderPassType::Graphics)
 		{
 			gfx.SetGPUResources();
-
-			m_rootSignature->Bind(gfx);
-			m_pipelineStateObject->Bind(gfx);
-
 			gfx.SetRenderTargets(m_renderTargets, m_depthStencil);
+			gfx.Set32BitRootConstants(0, 1, &m_cameraDataHandle);
+			gfx.SetPrimitiveTopology(m_pipelineStateObject->GetTopologyType());
 
 			for (const auto& drawable : m_drawables)
 			{

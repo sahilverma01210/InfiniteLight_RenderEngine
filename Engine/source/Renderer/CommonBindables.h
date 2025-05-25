@@ -3,7 +3,6 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "TextureBuffer.h"
-#include "Topology.h"
 #include "PipelineState.h"
 #include "DescriptorTable.h"
 #include "Viewport.h"

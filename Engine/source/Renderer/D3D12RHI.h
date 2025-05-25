@@ -8,7 +8,7 @@
 
 namespace Renderer
 {
-    using ResourceHandle = std::uint32_t;
+    using ResourceHandle = std::int32_t;
     using ResourceName = std::string;
 
 	enum class PipelineType
@@ -53,7 +53,6 @@ namespace Renderer
         UINT numShaderResourceViews = 0;
         UINT numSamplers = 0;
         UINT numStaticSamplers = 0;
-        CD3DX12_STATIC_SAMPLER_DESC* staticSamplers = nullptr;
 
         // Pipeline State
         bool blending = false;
@@ -63,6 +62,7 @@ namespace Renderer
         UINT numElements = 0;
 		UINT numRenderTargets = 0;
 		DXGI_FORMAT* renderTargetFormats = nullptr;
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
         ID3D12RootSignature* rootSignature = nullptr;
         D3D12Shader vertexShader{};
@@ -109,13 +109,17 @@ namespace Renderer
         void CreateBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState);
         void FlushBarrier();
         void InsertFence();
+		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType);
         void Info(HRESULT hresult);
         std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
         // RESOURCE MANAGER METHODS
-        ResourceHandle LoadResource(std::shared_ptr<D3D12Resource> resourceBuffer, ResourceType resourceType);
-        void AddConstantBufferView(std::shared_ptr<D3D12Resource> resourceBuffer);
-        void AddShaderResourceView(std::shared_ptr<D3D12Resource> resourceBuffer, bool isCubeMap = false);
-		void AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resourceBuffer);
+        ResourceHandle LoadResource(std::shared_ptr<D3D12Resource> resource, ResourceType resourceType, bool isSRGB = false);
+		D3D12_CONSTANT_BUFFER_VIEW_DESC CreateCBVDesc(std::shared_ptr<D3D12Resource> resource);
+		D3D12_SHADER_RESOURCE_VIEW_DESC CreateSRVDesc(std::shared_ptr<D3D12Resource> resource, bool isSRGB = false, bool isCubeMap = false);
+		D3D12_UNORDERED_ACCESS_VIEW_DESC CreateUAVDesc(std::shared_ptr<D3D12Resource> resource);
+        void AddConstantBufferView(std::shared_ptr<D3D12Resource> resource, D3D12_CONSTANT_BUFFER_VIEW_DESC desc);
+        void AddShaderResourceView(std::shared_ptr<D3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC desc);
+		void AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resource, D3D12_UNORDERED_ACCESS_VIEW_DESC desc);
         D3D12Resource& GetResource(ResourceHandle handle);
         ResourceHandle GetResourceHandle(ResourceName resourceName);
         std::shared_ptr<D3D12Resource> GetResourcePtr(ResourceHandle resourceHandle);

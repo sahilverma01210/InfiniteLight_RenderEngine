@@ -1,4 +1,4 @@
-#include "CommonResources.hlsli"
+#include "Common.hlsli"
 
 struct VSOut
 {

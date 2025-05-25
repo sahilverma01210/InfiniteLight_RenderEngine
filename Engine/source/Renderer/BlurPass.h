@@ -5,11 +5,6 @@ namespace Renderer
 {
 	class BlurPass : public RenderPass
 	{
-		struct MaterialHandle
-		{
-			int blurResourceHandlesIdx;
-		};
-
 		__declspec(align(256u)) struct BlurResourceHandles
 		{
 			int blurTargetIdx;
@@ -42,12 +37,12 @@ namespace Renderer
 			m_frameCBuffer.renderResolution = XMFLOAT2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
 			SetKernelGauss(m_radius, m_sigma);
 
-			m_blurResourceHandles.blurTargetIdx = RenderGraph::m_renderTargetHandles["Outline_Draw"];
+			m_blurResourceHandles.blurTargetIdx = RenderGraph::m_frameResourceHandles["Outline_Draw"];
 			m_blurResourceHandles.renderTargetIdx = gfx.LoadResource(std::make_shared<MeshTextureBuffer>(gfx, "NULL_TEX"), ResourceType::ReadWriteTexture);
 			m_blurResourceHandles.frameConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_frameCBuffer), &m_frameCBuffer), ResourceType::Constant);
 			m_blurResourceHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), &m_kernel), ResourceType::Constant);
 
-			matHandle.blurResourceHandlesIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_blurResourceHandles), &m_blurResourceHandles), ResourceType::Constant);
+			blurResourceHandlesIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_blurResourceHandles), &m_blurResourceHandles), ResourceType::Constant);
 
 			CreatePSO(gfx);
 		}
@@ -82,26 +77,13 @@ namespace Renderer
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
-			UINT num32BitConstants[1] = { 1 };
-
-			CD3DX12_STATIC_SAMPLER_DESC* samplers = new CD3DX12_STATIC_SAMPLER_DESC[1];
-			// define static sampler 
-			CD3DX12_STATIC_SAMPLER_DESC staticSampler{ 0, D3D12_FILTER_MIN_MAG_MIP_LINEAR };
-			staticSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-			staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-			staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-			staticSampler.MaxAnisotropy = D3D12_REQ_MAXANISOTROPY;
-			staticSampler.MipLODBias = 0.0f;
-			staticSampler.MinLOD = 0.0f;
-			staticSampler.MaxLOD = D3D12_FLOAT32_MAX;
-			samplers[0] = staticSampler;
+			UINT num32BitConstants[2] = { 1, 1 };
 
 			PipelineDescription pipelineDesc{};
 			pipelineDesc.type = PipelineType::Compute;
-			pipelineDesc.numConstants = 1;
+			pipelineDesc.numConstants = 2;
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.numStaticSamplers = 1;
-			pipelineDesc.staticSamplers = samplers;
 			pipelineDesc.computeShader = D3D12Shader{ ShaderType::ComputeShader,  L"Blur_CS.hlsl" };
 
 			m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
@@ -121,7 +103,8 @@ namespace Renderer
 			m_rootSignature->Bind(gfx);
 			m_pipelineStateObject->Bind(gfx);
 
-			gfx.Set32BitRootConstants(0, 1, &matHandle, PipelineType::Compute);
+			gfx.Set32BitRootConstants(0, 1, &RenderPass::m_cameraDataHandle, PipelineType::Compute);
+			gfx.Set32BitRootConstants(1, 1, &blurResourceHandlesIdx, PipelineType::Compute);
 
 			RenderPass::Execute(gfx);
 
@@ -144,6 +127,6 @@ namespace Renderer
 		BlurResourceHandles m_blurResourceHandles{};
 		FrameCBuffer m_frameCBuffer{};
 		Kernel m_kernel = {};
-		MaterialHandle matHandle{};
+		ResourceHandle blurResourceHandlesIdx = -1;
 	};
 }

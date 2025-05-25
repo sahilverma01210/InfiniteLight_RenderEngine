@@ -1,127 +1,79 @@
-#include "CommonResources.hlsli"
+#include "Common.hlsli"
+#include "Scene.hlsli"
 
 struct ImportMatCB
 {
-    int texConstIdx;
-    int diffTexIdx;
-    int normTexIdx;
-    int specTexIdx;
+    int diffuseIdx;
+    int normalIdx;
+    int roughnessMetallicIdx;
+    int materialConstIdx;
     int solidConstIdx;
 };
 
-struct SurfaceProps
+struct MaterialConstants
 {
-    float3 materialColor;
-    float3 specularColor;
-    float specularGloss;
-    float normalMapWeight;
-    bool useDiffuseAlpha;
-    bool useGlossAlpha;
-    bool useDiffuseMap;
-    bool useNormalMap;
-    bool useSpecularMap;
+    float3 pbrBaseColorFactor;
+    float pbrMetallicFactor;
+    float pbrRoughnessFactor;
+    float gltfAlphaCutoff;
 };
 
-struct VSIn
+struct VSOut
 {
     float2 texUV : Texcoord;
-    float4 posWS : PositionWorld;
-    float3 posVS : PositionView;
+    float3 normalWS : Normal;
+    float3 tanWS : Tangent;
+    float3 bitanWS : Bitangent;
     float4 posCS : SV_Position;
-    float3 normalVS : Normal;
-    float3 tanVS : Tangent;
-    float3 bitanVS : Bitangent;
 };
 
 struct PSOut
 {
-    float4 position : SV_Target0;
-    float4 diffuse : SV_Target1;
-    float4 normal : SV_Target2;
-    float4 specular : SV_Target3;
+    float4 diffuse : SV_Target0;
+    float4 normal : SV_Target1;
+    float4 metallicRough : SV_Target2;
 };
-
-SamplerComparisonState samplerCompareState : register(s0);
-SamplerState samplerState : register(s1);
 
 // Can use StructuredBuffer instead.
 
-PSOut CalculatePixels(VSIn vsIn)
+PSOut CalculatePixels(VSOut vsIn)
 {
     PSOut pso;
     
     ConstantBuffer<ImportMatCB> importCB = ResourceDescriptorHeap[meshConstants.materialIdx];
-    ConstantBuffer<SurfaceProps> surfaceProps = ResourceDescriptorHeap[importCB.texConstIdx];
+    ConstantBuffer<MaterialConstants> materialConstants = ResourceDescriptorHeap[importCB.materialConstIdx];
     
-    // sample diffuse texture if defined
-    float4 diffColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    if (surfaceProps.useDiffuseMap)
-    {
-        Texture2D<float4> diffTex = ResourceDescriptorHeap[importCB.diffTexIdx];
-        diffColor = diffTex.Sample(samplerState, vsIn.texUV);
-    }
+    Texture2D<float4> diffTex = ResourceDescriptorHeap[importCB.diffuseIdx];
+    Texture2D<float4> normTex = ResourceDescriptorHeap[importCB.normalIdx];
+    Texture2D<float4> roughMetallicTex = ResourceDescriptorHeap[importCB.roughnessMetallicIdx];
+        
+    float4 albedoColor = diffTex.Sample(LinearWrapSampler, vsIn.texUV) * float4(materialConstants.pbrBaseColorFactor, 1.0f);;
+    if (albedoColor.a < materialConstants.gltfAlphaCutoff)
+        discard;
     
-    if (surfaceProps.useDiffuseAlpha)
-    {
-        // bail if highly translucent
-        clip(diffColor.a < 0.1f ? -1 : 1);
-        // flip normal when backface
-        if (dot(vsIn.normalVS, vsIn.posVS) >= 0.0f)
-        {
-            vsIn.normalVS = -vsIn.normalVS;
-        }
-    }
+    float4x4 meshView = mul(GetMeshMat(), GetViewMat());
     
-    // normalize the mesh normal
-    vsIn.normalVS = normalize(vsIn.normalVS);
-    
-    // replace normal with mapped if normal mapping enabled
-    if (surfaceProps.useNormalMap)
-    {
-        Texture2D<float4> normTex = ResourceDescriptorHeap[importCB.normTexIdx];
-        const float4 normSample = normTex.Sample(samplerState, vsIn.texUV);
-    
-        // build the tranform (rotation) into same space as tan/bitan/normal (target space)
-        const float3x3 tanToTarget = float3x3(normalize(vsIn.tanVS), normalize(vsIn.bitanVS), vsIn.normalVS);
-        // sample and unpack the normal from texture into target space   
-        const float3 normalSample = normTex.Sample(samplerState, vsIn.texUV).xyz;
-        const float3 tanNormal = normalSample * 2.0f - 1.0f;
-        // bring normal from tanspace into target space
-        const float3 mappedNormal = normalize(mul(tanNormal, tanToTarget));
-    
-        vsIn.normalVS = lerp(vsIn.normalVS, mappedNormal, surfaceProps.normalMapWeight);
-    }
-    
-    // specular parameter determination (mapped or uniform)
-    float4 specColor = float4(surfaceProps.specularColor, 0.0f);
-    specColor.a = surfaceProps.specularGloss;
-    
-    if (surfaceProps.useSpecularMap)
-    {
-        Texture2D<float4> specTex = ResourceDescriptorHeap[importCB.specTexIdx];
-        const float4 specularSample = specTex.Sample(samplerState, vsIn.texUV);
-        //specColor.rgb = specularSample.rgb;
-             
-        if (surfaceProps.useGlossAlpha)
-        {
-            specColor.a = pow(2.0f, specularSample.a * 13.0f);
-        }
-    }
-    
-    if (!surfaceProps.useDiffuseMap)
-    {
-        diffColor.rgb = surfaceProps.materialColor;
-    }   
-    
-    pso.position = float4(vsIn.posWS.xyz, 1.0f);
-    pso.diffuse = float4(diffColor.rgb, 1.0f);
-    pso.normal = float4(vsIn.normalVS, 1.0f);
-    pso.specular = specColor;
+    float3 normal = normalize(vsIn.normalWS);
+    float3 tangent = normalize(vsIn.tanWS);
+    float3 bitangent = normalize(vsIn.bitanWS);
+    float3 normalTS = normalize(normTex.Sample(LinearWrapSampler, vsIn.texUV).xyz * 2.0f - 1.0f);
+    float3x3 TBN = float3x3(tangent, bitangent, normal);
+    normal = normalize(mul(normalTS, TBN));
+
+    float3 aoRoughnessMetallic = roughMetallicTex.Sample(LinearWrapSampler, vsIn.texUV).rgb;
+    float3 viewNormal = normalize(mul(normal, (float3x3) meshView));
+    float roughness = aoRoughnessMetallic.g * materialConstants.pbrRoughnessFactor;
+    float metallic = aoRoughnessMetallic.b * materialConstants.pbrMetallicFactor;
+    uint shadingExtension = 0;
+	
+    pso.normal = EncodeGBufferNormalRT(viewNormal, metallic, shadingExtension);
+    pso.diffuse = float4(albedoColor.xyz * materialConstants.pbrBaseColorFactor, roughness);
+    pso.metallicRough = roughMetallicTex.Sample(LinearWrapSampler, vsIn.texUV);
     
     return pso;
 }
 
-PSOut main(VSIn vsIn) : SV_Target
+PSOut main(VSOut vsIn) : SV_Target
 {
     return CalculatePixels(vsIn);
 }

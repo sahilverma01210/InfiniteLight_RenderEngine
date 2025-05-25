@@ -1,11 +1,12 @@
-#include "CommonResources.hlsli"
+#include "Common.hlsli"
+#include "Scene.hlsli"
 
 struct ImportMatCB
 {
-    int texConstIdx;
-    int diffTexIdx;
-    int normTexIdx;
-    int specTexIdx;
+    int diffuseIdx;
+    int normalIdx;
+    int roughnessMetallicIdx;
+    int materialConstIdx;
     int solidConstIdx;
 };
 

@@ -83,7 +83,6 @@
     <ClInclude Include="source\Renderer\TechniqueProbe.h" />
     <ClInclude Include="source\Renderer\TestModelProbe.h" />
     <ClInclude Include="source\Renderer\TextureBuffer.h" />
-    <ClInclude Include="source\Renderer\Topology.h" />
     <ClInclude Include="source\Renderer\VertexBuffer.h" />
     <ClInclude Include="source\Renderer\Vertex.h" />
     <ClInclude Include="source\Renderer\PostProcessPass.h" />
@@ -144,7 +143,6 @@
     <ClCompile Include="source\Renderer\DescriptorTable.cpp" />
     <ClCompile Include="source\Renderer\PointLightIndicator.cpp" />
     <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
-    <ClCompile Include="source\Renderer\Topology.cpp" />
     <ClCompile Include="source\Renderer\Vertex.cpp" />
     <ClCompile Include="source\Renderer\VertexBuffer.cpp" />
     <ClCompile Include="source\Renderer\Viewport.cpp" />
@@ -220,6 +218,51 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config\packages.config" />
+    <CustomBuild Include="shaders\HLSL\Packing.hlsli">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Scene.hlsli">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\BRDF.hlsli">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Constants.hlsli">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Lighting.hlsli">
+      <FileType>Document</FileType>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\HLSL\Skybox_PS.hlsl">
@@ -265,22 +308,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\Shadow_PS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\%(Identity)</Outputs>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\%(Identity)</Outputs>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="shaders\HLSL\CommonResources.hlsli">
+    <CustomBuild Include="shaders\HLSL\Common.hlsli">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -472,14 +500,14 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\assimp\lib\x64;$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;dxcompiler.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mtd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxcompiler.lib;d3dcompiler.lib;dxgi.lib;assimp-vc143-mtd.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
       <EnableUAC>true</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist $(OutDir)\assimp-vc141-mtd.dll (
-xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mtd.dll $(OutDir)
+      <Command>if not exist $(OutDir)\assimp-vc143-mtd.dll (
+xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc143-mtd.dll $(OutDir)
 )</Command>
       <Message>
       </Message>
@@ -511,12 +539,12 @@ xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mtd.dll $(Ou
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\external\Libraries\assimp\lib\x64;$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;dxcompiler.lib;d3dcompiler.lib;dxgi.lib;assimp-vc141-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;dxcompiler.lib;d3dcompiler.lib;dxgi.lib;assimp-vc143-mt.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist $(OutDir)\assimp-vc141-mt.dll ( xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc141-mt.dll $(OutDir) )</Command>
+      <Command>if not exist $(OutDir)\assimp-vc143-mt.dll ( xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc143-mt.dll $(OutDir) )</Command>
       <Message>
       </Message>
     </PostBuildEvent>

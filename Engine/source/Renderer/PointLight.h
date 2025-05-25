@@ -15,9 +15,7 @@ namespace Renderer
 		alignas(16) XMFLOAT3 ambient;
 		alignas(16) XMFLOAT3 diffuseColor;
 		float diffuseIntensity;
-		float attConst;
-		float attLin;
-		float attQuad;
+		ResourceHandle shadowDepthIdx = -1;
 	};
 
 	class PointLight
@@ -34,7 +32,7 @@ namespace Renderer
 	private:
 		D3D12RHI& m_gfx;
 		PointLightCBuf m_home;
-		PointLightCBuf m_cbData;
+		mutable PointLightCBuf m_cbData;
 		CameraContainer& m_cameraContainer;
 		mutable PointLightIndicator m_indicator;
 		std::shared_ptr<ConstantBuffer> m_lightConstants;

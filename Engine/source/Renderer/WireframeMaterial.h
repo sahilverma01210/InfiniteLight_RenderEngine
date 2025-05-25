@@ -18,8 +18,6 @@ namespace Renderer
 	public:
 		WireframeMaterial(D3D12RHI& gfx, VertexLayout layout, XMFLOAT3 color) noexcept(!IS_DEBUG)
 		{
-			m_topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
-
 			Technique lineWire{ "line_wire", false };
 			lineWire.passNames.push_back("wireframe");
 			m_techniques.push_back(std::move(lineWire));

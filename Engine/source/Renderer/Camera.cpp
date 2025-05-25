@@ -10,7 +10,7 @@ namespace Renderer
 		m_homeTransform(transform),
 		m_transform(transform),
 		m_tethered(tethered),
-		m_homeProjection(CameraProjection::Projection{ 1.0f, 9.0f / 16.0f, 0.5f, 400.0f }),
+		m_homeProjection(CameraProjection::Projection{ 1.0f, 9.0f / 16.0f , 0.5f, 400.0f}),
 		m_cameraProjection(gfx, m_homeProjection),
 		m_cameraIndicator(gfx)
 	{
@@ -22,13 +22,17 @@ namespace Renderer
 		m_projection = m_homeProjection;
 	}
 
-	void Camera::Update() const noexcept(!IS_DEBUG)
-	{
-		Drawable::m_cameraMatrix = GetCameraMatrix();
-		Drawable::m_projectionMatrix = GetProjectionMatrix();
+	Matrix Camera::GetViewMatrix() const noexcept(!IS_DEBUG)
+	{		
+		return m_viewMatrix;
 	}
 
-	XMMATRIX Camera::GetCameraMatrix() const noexcept(!IS_DEBUG)
+	Matrix Camera::GetProjectionMatrix() const noexcept(!IS_DEBUG)
+	{
+		return m_projectionMatrix;
+	}
+
+	void Camera::SetViewMatrix() noexcept(!IS_DEBUG)
 	{
 		const XMVECTOR forwardBaseVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 		// apply the camera rotations to a base vector
@@ -40,52 +44,12 @@ namespace Renderer
 		// camera "top" always faces towards +Y (cannot do a barrel roll)
 		const auto camPosition = XMLoadFloat3(&m_transform.position);
 		const auto camTarget = camPosition + lookVector;
-		return XMMatrixLookAtLH(camPosition, camTarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+		m_viewMatrix = XMMatrixLookAtLH(camPosition, camTarget, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 	}
 
-	Camera::CameraCBuf Camera::GetCameraProps() const noexcept(!IS_DEBUG)
+	void Camera::SetProjectionMatrix() noexcept(!IS_DEBUG)
 	{
-		return CameraCBuf{ GetCameraMatrix() };
-	}
-
-	XMMATRIX Camera::GetProjectionMatrix() const noexcept(!IS_DEBUG)
-	{
-		return XMMatrixPerspectiveLH(m_projection.width, m_projection.height, m_projection.nearZ, m_projection.farZ);
-	}
-
-	XMMATRIX Camera::Get360CameraMatrix(UINT directionIndex) const noexcept(!IS_DEBUG)
-	{
-		const auto cameraPosition = XMLoadFloat3(&m_transform.position);
-
-		switch (directionIndex)
-		{
-		case 0: // +x			
-			return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-			break;
-		case 1: // -x			
-			return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-			break;
-		case 2: // +y			
-			return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f));
-			break;
-		case 3: // -y			
-			return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f), XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f));
-			break;
-		case 4: // +z			
-			return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-			break;
-		case 5: // -z			
-			return XMMatrixLookAtLH(cameraPosition, cameraPosition + XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-			break;
-		default:
-			return XMMATRIX();
-			break;
-		}
-	}
-
-	XMMATRIX Camera::Get360ProjectionMatrix() const noexcept(!IS_DEBUG)
-	{
-		return XMMatrixPerspectiveFovLH(PI / 2.0f, 1.0f, 0.5f, 100.0f);
+		m_projectionMatrix = XMMatrixPerspectiveFovLH(m_fov, m_projection.width / m_projection.height, m_projection.nearZ, m_projection.farZ);
 	}
 
 	void Camera::SpawnControlWidgets(D3D12RHI& gfx) noexcept(!IS_DEBUG)
@@ -101,7 +65,7 @@ namespace Renderer
 			}
 			bool highlighted = false;
 		} probe;
-
+		
 		bool rotDirty = false;
 		bool posDirty = false;
 		bool projDirty = false;
@@ -141,18 +105,21 @@ namespace Renderer
 		{
 			m_cameraProjection.SetVertices(gfx, m_projection);
 		}
-
+		
 		if (m_enableCameraIndicator)
 		{
 			probe.highlighted = true;
 			m_cameraIndicator.Accept(probe);
 		}
-
+		
 		if (m_enableCameraProjection)
 		{
 			probe.highlighted = true;
 			m_cameraProjection.Accept(probe);
 		}
+
+		SetViewMatrix();
+		SetProjectionMatrix();
 	}
 
 	void Camera::Reset(D3D12RHI& gfx) noexcept(!IS_DEBUG)
@@ -182,10 +149,12 @@ namespace Renderer
 		m_cameraProjection.SetRotation(m_transform.rotation);
 	}
 
-	void Camera::Translate(XMFLOAT3 translation) noexcept(!IS_DEBUG)
+	void Camera::Translate(Vector3 translation, float dt) noexcept(!IS_DEBUG)
 	{
 		if (!m_tethered)
 		{
+			translation *= dt;
+
 			XMStoreFloat3(&translation, XMVector3Transform(
 				XMLoadFloat3(&translation),
 				XMMatrixRotationRollPitchYaw(m_transform.rotation.x, m_transform.rotation.y, m_transform.rotation.z) *
@@ -201,12 +170,12 @@ namespace Renderer
 		}
 	}
 
-	XMFLOAT3 Camera::GetPos() const noexcept(!IS_DEBUG)
+	Vector3 Camera::GetPos() const noexcept(!IS_DEBUG)
 	{
 		return m_transform.position;
 	}
 
-	void Camera::SetPos(const XMFLOAT3& pos) noexcept(!IS_DEBUG)
+	void Camera::SetPos(const Vector3& pos) noexcept(!IS_DEBUG)
 	{
 		this->m_transform.position = pos;
 		m_cameraIndicator.SetPos(pos);

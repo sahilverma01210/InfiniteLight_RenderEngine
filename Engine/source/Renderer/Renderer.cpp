@@ -3,9 +3,9 @@
 namespace Renderer
 {
 	ILRenderer::ILRenderer(HWND hWnd, HINSTANCE hInstance, bool useWarpDevice)
+		:
+		m_pRHI(std::move(std::make_unique<D3D12RHI>(hWnd)))
 	{
-		m_pRHI = std::move(std::make_unique<D3D12RHI>(hWnd));
-
 		// Retieve Scene data from JSON file.
 		std::ifstream sceneFile("data\\scenes\\sponza_scene.json");
 		json scene = json::parse(sceneFile);
@@ -15,6 +15,7 @@ namespace Renderer
 		m_pRHI->ResetCommandList();
 
 		m_renderGraph = std::move(std::make_unique<RenderGraph>(*m_pRHI));
+		m_cameraContainer = std::move(std::make_unique<CameraContainer>(*m_pRHI));
 
 		// Add Lights
 		{
@@ -25,9 +26,6 @@ namespace Renderer
 				json jsonAmbient = scene["lights"][i]["ambient"];
 				json jsonDiffuse = scene["lights"][i]["diffuse"];
 				json jsonDiffuseIntensity = scene["lights"][i]["diffuseIntensity"];
-				json jsonConstAtt = scene["lights"][i]["constantAttenuation"];
-				json jsonLinearAtt = scene["lights"][i]["linearAttenuation"];
-				json jsonQuadAtt = scene["lights"][i]["quadraticAttenuation"];
 
 				PointLightCBuf lightData{};
 				lightData.pos = XMFLOAT3{ jsonPosition["x"].get<float>(), jsonPosition["y"].get<float>() , jsonPosition["z"].get<float>() };
@@ -35,11 +33,8 @@ namespace Renderer
 				lightData.ambient = XMFLOAT3{ jsonAmbient["r"].get<float>(), jsonAmbient["g"].get<float>() , jsonAmbient["b"].get<float>() };
 				lightData.diffuseColor = XMFLOAT3{ jsonDiffuse["r"].get<float>(), jsonDiffuse["g"].get<float>() , jsonDiffuse["b"].get<float>() };
 				lightData.diffuseIntensity = jsonDiffuseIntensity.get<float>();
-				lightData.attConst = jsonConstAtt.get<float>();
-				lightData.attLin = jsonLinearAtt.get<float>();
-				lightData.attQuad = jsonQuadAtt.get<float>();
 
-				m_light = std::move(std::make_unique<PointLight>(*m_pRHI, lightData, m_cameraContainer));
+				m_light = std::move(std::make_unique<PointLight>(*m_pRHI, lightData, *m_cameraContainer));
 			}
 		}		
 
@@ -52,19 +47,21 @@ namespace Renderer
 				Camera::Transform transform;
 				json position = camera["position"];
 				json rotation = camera["rotation"];
-				transform.position = XMFLOAT3{ position["x"].get<float>(), position["y"].get<float>() , position["z"].get<float>() };
-				transform.rotation = XMFLOAT3{ rotation["x"].get<float>(), rotation["y"].get<float>() , rotation["z"].get<float>() };
+				json lookAt = camera["lookAt"];
+				transform.position = Vector3{ position["x"].get<float>(), position["y"].get<float>() , position["z"].get<float>() };
+				transform.rotation = Vector3{ rotation["x"].get<float>(), rotation["y"].get<float>() , rotation["z"].get<float>() };
+				transform.lookAt = Vector3{ lookAt["x"].get<float>(), lookAt["y"].get<float>() , lookAt["z"].get<float>() };
 
-				m_cameraContainer.AddCamera(std::make_unique<Camera>(*m_pRHI, camera["name"].get<std::string>(), transform));
+				m_cameraContainer->AddCamera(std::make_unique<Camera>(*m_pRHI, camera["name"].get<std::string>(), transform));
 			}
 		}
 
 		// Create Render Passes
 		{
 			m_renderGraph->AppendPass(std::move(std::make_unique<BufferClearPass>(*m_pRHI, "clear")));
-			m_renderGraph->AppendPass(std::move(std::make_unique<ShadowMappingPass>(*m_pRHI, "shadowMap")));
-			m_renderGraph->AppendPass(std::move(std::make_unique<GBufferPass>(*m_pRHI, "gbuffer", m_cameraContainer)));
-			m_renderGraph->AppendPass(std::move(std::make_unique<LightingPass>(*m_pRHI, "lighting", m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<ShadowMappingPass>(*m_pRHI, "shadowMap", *m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<GBufferPass>(*m_pRHI, "gbuffer", *m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<LightingPass>(*m_pRHI, "lighting", *m_cameraContainer)));
 			m_renderGraph->AppendPass(std::move(std::make_unique<SkyboxPass>(*m_pRHI, "skybox")));
 
 			if (m_postProcessingEnabled)
@@ -74,7 +71,7 @@ namespace Renderer
 				m_renderGraph->AppendPass(std::move(std::make_unique<PostProcessPass>(*m_pRHI, "blurOutlineApply")));
 			}
 
-			m_renderGraph->AppendPass(std::move(std::make_unique<FlatPass>(*m_pRHI, "flatShading", m_cameraContainer)));
+			m_renderGraph->AppendPass(std::move(std::make_unique<FlatPass>(*m_pRHI, "flatShading", *m_cameraContainer)));
 			m_renderGraph->AppendPass(std::move(std::make_unique<WireframePass>(*m_pRHI, "wireframe")));
 
 			m_renderGraph->Finalize();
@@ -123,7 +120,7 @@ namespace Renderer
 
 		m_skybox->Submit(*m_renderGraph);
 		m_light->Submit(*m_renderGraph);
-		m_cameraContainer.Submit(*m_renderGraph);
+		m_cameraContainer->Submit(*m_renderGraph);
 
 		for (size_t i = 0; i < m_models.size(); i++)
 		{
@@ -139,7 +136,7 @@ namespace Renderer
 	{
 		static MP modelProbe{ "Model" };
 		if (modelProbe.m_imGUIwndOpen && m_models.size()) modelProbe.SpawnWindow(*m_models[0]);
-		if (m_cameraContainer.m_imGUIwndOpen) m_cameraContainer.SpawnWindow(*m_pRHI);
+		if (m_cameraContainer->m_imGUIwndOpen) m_cameraContainer->SpawnWindow(*m_pRHI);
 		if (m_light->m_imGUIwndOpen) m_light->SpawnWindow();
 		if (m_postProcessingEnabled && m_postProcessFilter->m_imGUIwndOpen) m_postProcessFilter->SpawnWindow(*m_pRHI);
 	}
@@ -153,12 +150,12 @@ namespace Renderer
 
 	void ILRenderer::Rotate(float dx, float dy)
 	{
-		m_cameraContainer.GetActiveCamera().Rotate(dx, dy);
+		m_cameraContainer->GetActiveCamera().Rotate(dx, dy);
 	}
 
-	void ILRenderer::Translate(XMFLOAT3 translation)
+	void ILRenderer::Translate(Vector3 translation, float dt)
 	{
-		m_cameraContainer.GetActiveCamera().Translate(translation);
+		m_cameraContainer->GetActiveCamera().Translate(translation, dt);
 	}
 
 	D3D12RHI& ILRenderer::GetRHI()

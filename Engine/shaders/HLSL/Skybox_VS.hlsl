@@ -1,4 +1,5 @@
-#include "CommonResources.hlsli"
+#include "Common.hlsli"
+#include "Scene.hlsli"
 
 struct VSOut
 {
@@ -8,7 +9,7 @@ struct VSOut
 
 VSOut main(float3 pos : Position)
 {
-    float4x4 meshViewProj = mul(mul(GetMeshMat(), GetCameraMat()), GetProjectionMat());
+    float4x4 meshViewProj = mul(mul(GetMeshMat(), GetViewMat()), GetProjectionMat());
     
     VSOut vso;
     vso.worldPos = pos;

@@ -19,7 +19,7 @@ namespace Renderer
 			postProcess.passNames.push_back("blurOutlineApply");
 			m_techniques.push_back(std::move(postProcess));
 
-			m_postProcessMatHandles.frameBufferIdx = RenderGraph::m_renderTargetHandles["Outline_Draw"];
+			m_postProcessMatHandles.frameBufferIdx = RenderGraph::m_frameResourceHandles["Outline_Draw"];
 
 			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_postProcessMatHandles), &m_postProcessMatHandles), ResourceType::Constant);
 		}

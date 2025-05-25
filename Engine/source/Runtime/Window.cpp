@@ -167,31 +167,31 @@ namespace Runtime
 
 			if (!CursorEnabled())
 			{
-				float angle = m_timer.Mark();
+				float dt = m_timer.Mark();
 
 				if (m_keyboard.KeyIsPressed('W'))
 				{
-					m_renderer->Translate({ 0.0f,0.0f,angle });
+					m_renderer->Translate({ 0.0f,0.0f,1.0f }, dt);
 				}
 				if (m_keyboard.KeyIsPressed('A'))
 				{
-					m_renderer->Translate({ -angle,0.0f,0.0f });
+					m_renderer->Translate({ -1.0,0.0f,0.0f }, dt);
 				}
 				if (m_keyboard.KeyIsPressed('S'))
 				{
-					m_renderer->Translate({ 0.0f,0.0f,-angle });
+					m_renderer->Translate({ 0.0f,0.0f,-1.0 }, dt);
 				}
 				if (m_keyboard.KeyIsPressed('D'))
 				{
-					m_renderer->Translate({ angle,0.0f,0.0f });
+					m_renderer->Translate({ 1.0f,0.0f,0.0f }, dt);
 				}
 				if (m_keyboard.KeyIsPressed('E'))
 				{
-					m_renderer->Translate({ 0.0f,angle,0.0f });
+					m_renderer->Translate({ 0.0f,1.0f,0.0f }, dt);
 				}
 				if (m_keyboard.KeyIsPressed('Q'))
 				{
-					m_renderer->Translate({ 0.0f,-angle,0.0f });
+					m_renderer->Translate({ 0.0f,-1.0f,0.0f }, dt);
 				}
 			}
 

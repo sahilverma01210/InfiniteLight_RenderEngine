@@ -1,7 +1,8 @@
 #pragma once
+#include "../Common/ILMath.h"
+
 #include "Pass.h"
 #include "Drawable.h"
-#include "../Common/ILMath.h"
 
 namespace Renderer
 {
@@ -20,10 +21,10 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
 		void Reset() noexcept(!IS_DEBUG) override;
 
+	public:
+		static inline ResourceHandle m_cameraDataHandle = 0;
 	protected:
 		RenderPassType m_renderPassType;
-		bool m_depthOnlyPass = false;
-		D3D12_PRIMITIVE_TOPOLOGY m_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		std::unique_ptr<RootSignature> m_rootSignature;
 		std::unique_ptr<PipelineState> m_pipelineStateObject;
 		std::vector<std::shared_ptr<D3D12Resource>> m_renderTargets;

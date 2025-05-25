@@ -35,13 +35,13 @@ namespace Renderer
 		void RenderUI();
 		void EndFrame();
 		void Rotate(float dx, float dy);
-		void Translate(XMFLOAT3 translation);
+		void Translate(Vector3 translation, float dt);
 		D3D12RHI& GetRHI();
 		RECT GetScreenRect();
 
 	private:
 		bool m_postProcessingEnabled;
-		CameraContainer m_cameraContainer;
+		std::shared_ptr<CameraContainer> m_cameraContainer;
 		std::unique_ptr<D3D12RHI> m_pRHI;
 		std::unique_ptr<RenderGraph> m_renderGraph;
 		std::vector<std::unique_ptr<Model>> m_models;

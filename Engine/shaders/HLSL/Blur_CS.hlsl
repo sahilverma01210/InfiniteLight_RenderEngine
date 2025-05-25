@@ -1,3 +1,5 @@
+#include "Common.hlsli"
+
 #define BLOCK_SIZE 16
 
 struct MaterialHandle
@@ -24,9 +26,7 @@ struct Kernel
     float coefficients[15];
 };
 
-SamplerState samplerState : register(s0);
-
-ConstantBuffer<MaterialHandle> matCB : register(b0);
+ConstantBuffer<MaterialHandle> matCB : register(b1);
 
 struct CSInput
 {
@@ -66,7 +66,7 @@ void main(CSInput input)
         for (int x = -r; x <= r; x++)
         {
             const float2 tc = uv + float2(dx * x, dy * y);
-            const float4 s = inTex.Sample(samplerState, tc).rgba;
+            const float4 s = inTex.Sample(LinearMirrorSampler, tc).rgba;
             const float coef = kernel.coefficients[abs(x)] * kernel.coefficients[abs(y)];
             accAlpha += s.a * coef;
             maxColor = max(s.rgb, maxColor);

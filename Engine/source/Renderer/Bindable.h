@@ -1,6 +1,6 @@
 #pragma once
 #include "GraphicsResource.h"
-#include "DynamicConstant.h"
+//#include "DynamicConstant.h"
 
 namespace Renderer
 {
