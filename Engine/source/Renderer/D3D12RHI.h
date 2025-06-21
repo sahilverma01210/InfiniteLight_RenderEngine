@@ -11,21 +11,23 @@ namespace Renderer
     using ResourceHandle = std::int32_t;
     using ResourceName = std::string;
 
+    enum class ResourceType
+    {
+		Default,
+        Texture2D,
+        Texture3D,
+        TextureCube,
+        TextureCubeArray,
+        Buffer,
+        StructuredBuffer,
+        ConstantBuffer,
+        AccelerationStructure
+	};
 	enum class PipelineType
 	{
 		Graphics,
 		Compute
 	};
-
-    enum class ResourceType
-    {
-        Constant,
-        Texture,
-		ReadWriteTexture,
-        CubeMapTexture,
-        RenderTarget,
-        DepthStencil
-    };
     enum class Mode
     {
         Off,
@@ -74,6 +76,17 @@ namespace Renderer
     class D3D12Resource
     {
     public:
+        enum class ViewType
+        {
+            CBV,
+            SRV,
+            UAV,
+            RTV,
+            DSV,
+            Default
+        };
+
+    public:
         virtual ~D3D12Resource() = default;
         ID3D12Resource* GetBuffer() const { return m_resourceBuffer.Get(); };
 		void SetDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE descHandle) { m_descHandle = descHandle; };
@@ -81,12 +94,21 @@ namespace Renderer
         D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor() { return &m_descHandle; };
         D3D12_GPU_DESCRIPTOR_HANDLE* GetGPUDescriptor() { return &m_gpuDescHandle; };
 		DXGI_FORMAT GetFormat() const { return m_format; };
+		D3D12_BUFFER_SRV GetBufferSRV() const { return m_bufferSRV; };
+        bool IsSRGB() const { return m_isSRGB; };
+        ViewType GetViewType() const { return m_viewType; };
+		ResourceType GetResourceType() const { return m_resourceType; };
+		void SetViewType(ViewType viewType) { m_viewType = viewType; };
 
     protected:
+		bool m_isSRGB = false;
+		ViewType m_viewType;
+        ResourceType m_resourceType = ResourceType::Default;
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
-        ComPtr<ID3D12Resource> m_resourceBuffer;
+		D3D12_BUFFER_SRV m_bufferSRV{};
         D3D12_CPU_DESCRIPTOR_HANDLE m_descHandle;
 		D3D12_GPU_DESCRIPTOR_HANDLE m_gpuDescHandle;
+        ComPtr<ID3D12Resource> m_resourceBuffer;
     };
 
     class D3D12RHI
@@ -110,20 +132,19 @@ namespace Renderer
         void FlushBarrier();
         void InsertFence();
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType);
+        void SetVertexBuffer(ID3D12Resource* vertexBuffer, UINT sizeInBytes, UINT strideInBytes, UINT startSlot = 0, UINT numViews = 1);
+        void SetIndexBuffer(ID3D12Resource* indexBuffer, UINT sizeInBytes);
         void Info(HRESULT hresult);
         std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
         // RESOURCE MANAGER METHODS
-        ResourceHandle LoadResource(std::shared_ptr<D3D12Resource> resource, ResourceType resourceType, bool isSRGB = false);
 		D3D12_CONSTANT_BUFFER_VIEW_DESC CreateCBVDesc(std::shared_ptr<D3D12Resource> resource);
-		D3D12_SHADER_RESOURCE_VIEW_DESC CreateSRVDesc(std::shared_ptr<D3D12Resource> resource, bool isSRGB = false, bool isCubeMap = false);
+		D3D12_SHADER_RESOURCE_VIEW_DESC CreateSRVDesc(std::shared_ptr<D3D12Resource> resource);
 		D3D12_UNORDERED_ACCESS_VIEW_DESC CreateUAVDesc(std::shared_ptr<D3D12Resource> resource);
-        void AddConstantBufferView(std::shared_ptr<D3D12Resource> resource, D3D12_CONSTANT_BUFFER_VIEW_DESC desc);
-        void AddShaderResourceView(std::shared_ptr<D3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC desc);
-		void AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resource, D3D12_UNORDERED_ACCESS_VIEW_DESC desc);
+        ResourceHandle LoadResource(std::shared_ptr<D3D12Resource> resource, D3D12Resource::ViewType type = D3D12Resource::ViewType::Default);
         D3D12Resource& GetResource(ResourceHandle handle);
         ResourceHandle GetResourceHandle(ResourceName resourceName);
         std::shared_ptr<D3D12Resource> GetResourcePtr(ResourceHandle resourceHandle);
-        void ClearResource(ResourceHandle resourceHandle, ResourceType resourceType);
+        void ClearResource(ResourceHandle resourceHandle);
         void CopyResource(ID3D12Resource* dstResource, ID3D12Resource* srcResource);
 		void SetGPUResources();
         // RENDER FRAME METHODS
@@ -164,6 +185,7 @@ namespace Renderer
         ComPtr<ID3D12CommandAllocator> m_commandAllocator;
         ComPtr<ID3D12GraphicsCommandList> m_currentCommandList;
         ComPtr<IDXGISwapChain4> m_swapChain;
+		ComPtr<Allocator> m_allocator;
 #ifndef NDEBUG
         DxgiInfoManager m_infoManager;
 #endif

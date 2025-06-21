@@ -1,12 +1,15 @@
-#include "TextureBuffer.h"
+#include "D3D12Texture.h"
 
 namespace Renderer
 {
-    MeshTextureBuffer::MeshTextureBuffer(D3D12RHI& gfx, std::string filename)
+    MeshTexture::MeshTexture(D3D12RHI& gfx, std::string filename, bool isSRGB)
         :
         m_filename(filename)
     {
         INFOMAN(gfx);
+
+        m_resourceType = ResourceType::Texture2D;
+		m_isSRGB = isSRGB;
 
         if (filename != "NULL_TEX")
         {
@@ -15,11 +18,14 @@ namespace Renderer
             D3D12RHI_THROW_INFO(LoadFromWICFile(std::wstring(filename.begin(), filename.end()).c_str(), WIC_FLAGS_NONE, nullptr, image));
 
             D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, m_mipChain));
-            m_hasAlpha = !m_mipChain.IsAlphaAllOpaque();
+
+			m_viewType = D3D12Resource::ViewType::SRV;
         }
         else
         {
             m_mipChain.Initialize2D(m_format = DXGI_FORMAT_R8G8B8A8_UNORM, gfx.GetWidth(), gfx.GetHeight(), 1, 1);
+
+            m_viewType = D3D12Resource::ViewType::UAV;
         }
 
         // collect subresource data
@@ -91,32 +97,14 @@ namespace Renderer
         gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 
-    bool MeshTextureBuffer::HasAlpha() const noexcept(!IS_DEBUG)
-    {
-        return m_hasAlpha;
-    }
-
-    std::shared_ptr<MeshTextureBuffer> MeshTextureBuffer::Resolve(D3D12RHI& gfx, std::string filename)
-    {
-        return Codex::Resolve<MeshTextureBuffer>(gfx, filename);
-    }
-
-    std::string MeshTextureBuffer::GenerateUID(std::string filename)
-    {
-        using namespace std::string_literals;
-        return typeid(MeshTextureBuffer).name() + "#"s + filename;
-    }
-
-    std::string MeshTextureBuffer::GetUID() const noexcept(!IS_DEBUG)
-    {
-        return GenerateUID(m_filename);
-    }
-
-    CubeMapTextureBuffer::CubeMapTextureBuffer(D3D12RHI& gfx, const WCHAR* foldername)
+    CubeMapTexture::CubeMapTexture(D3D12RHI& gfx, const WCHAR* foldername)
         :
         m_foldername(foldername)
     {
         INFOMAN(gfx);
+
+        m_resourceType = ResourceType::TextureCube;
+        m_viewType = D3D12Resource::ViewType::SRV;		
 
         // load image data from disk 
         ScratchImage images[6];
@@ -129,6 +117,8 @@ namespace Renderer
         // collect subresource data
         std::vector<D3D12_SUBRESOURCE_DATA> subresourceData;
         {
+            subresourceData.reserve(6);
+
             for (int i = 0; i < 6; ++i) {
                 const auto img = images[i].GetImage(0, 0, 0);
                 subresourceData.push_back(D3D12_SUBRESOURCE_DATA{
@@ -152,7 +142,7 @@ namespace Renderer
             resourceDesc.Format = image.format;
             resourceDesc.SampleDesc = { .Count = 1 };
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-            resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+            resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
             D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
                 &heapProperties,
@@ -191,63 +181,5 @@ namespace Renderer
         );
 
         gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    }
-
-    std::shared_ptr<CubeMapTextureBuffer> CubeMapTextureBuffer::Resolve(D3D12RHI& gfx, const WCHAR* filename)
-    {
-        return Codex::Resolve<CubeMapTextureBuffer>(gfx, filename);
-    }
-
-    std::string CubeMapTextureBuffer::GenerateUID(const WCHAR* filename)
-    {
-        std::wstring wstringFileName = std::wstring(filename);
-        std::string stringFileName = std::string(wstringFileName.begin(), wstringFileName.end());
-
-        using namespace std::string_literals;
-        return typeid(CubeMapTextureBuffer).name() + "#"s + stringFileName;
-    }
-
-    std::string CubeMapTextureBuffer::GetUID() const noexcept(!IS_DEBUG)
-    {
-        return GenerateUID(m_foldername);
-    }
-
-    DepthCubeMapTextureBuffer::DepthCubeMapTextureBuffer(D3D12RHI& gfx, UINT size)
-    {
-        INFOMAN(gfx);
-
-        {
-            auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT) };
-            auto resourceDesc = CD3DX12_RESOURCE_DESC{};
-            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-            resourceDesc.Width = (UINT)size;
-            resourceDesc.Height = (UINT)size;
-            resourceDesc.DepthOrArraySize = 6;
-            resourceDesc.MipLevels = 1;
-            resourceDesc.Format = m_format = DXGI_FORMAT_R32_TYPELESS;
-            resourceDesc.SampleDesc = { .Count = 1 };
-            resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-            resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
-                &heapProperties,
-                D3D12_HEAP_FLAG_NONE,
-                &resourceDesc,
-                D3D12_RESOURCE_STATE_DEPTH_WRITE,
-                nullptr,
-                IID_PPV_ARGS(&m_resourceBuffer)
-            ));
-        }
-
-        // make depth buffer resources for capturing shadow map
-        for (UINT face = 0; face < 6; face++)
-        {
-            m_depthBuffers.push_back(std::make_shared<DepthStencil>(gfx, m_resourceBuffer.Get(), face));
-        }
-    }
-
-    std::shared_ptr<DepthStencil> DepthCubeMapTextureBuffer::GetDepthBuffer(size_t index) const
-    {
-        return m_depthBuffers[index];
     }
 }

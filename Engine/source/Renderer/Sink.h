@@ -2,7 +2,6 @@
 #include "../Common/ILUtility.h"
 
 #include "Source.h"
-#include "CommonBindables.h"
 
 namespace Renderer
 {

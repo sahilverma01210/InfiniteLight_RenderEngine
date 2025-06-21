@@ -16,8 +16,8 @@ namespace Renderer
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
 			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
-			gfx.ClearResource(gfx.GetCurrentBackBufferIndex(), ResourceType::RenderTarget);
-			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Depth_Stencil"], ResourceType::DepthStencil);
+			gfx.ClearResource(gfx.GetCurrentBackBufferIndex());
+			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Depth_Stencil"]);
 		}
 	};
 }

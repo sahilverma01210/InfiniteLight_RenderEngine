@@ -15,7 +15,7 @@ namespace Renderer
 		{
 			for (size_t i = 0; i < 6; i++)
 			{
-				ResourceHandle handle = gfx.LoadResource(std::make_shared<DepthStencil>(gfx, 2048, 2048, DepthUsage::ShadowDepth), ResourceType::Texture);
+				ResourceHandle handle = gfx.LoadResource(std::make_shared<DepthStencil>(gfx, 2048, 2048, DepthUsage::ShadowDepth));
 				if (!i) RenderGraph::m_frameResourceHandles["Shadow_Depth"] = handle;
 			}
 

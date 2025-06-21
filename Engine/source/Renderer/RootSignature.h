@@ -1,15 +1,15 @@
 #pragma once
-#include "BindableCodex.h"
+#include "GraphicsResource.h"
 
 namespace Renderer
 {
-	class RootSignature : public Bindable
+	class RootSignature : public GraphicsResource
 	{
 	public:
 		RootSignature(D3D12RHI& gfx, PipelineDescription& pipelineDesc);
 		~RootSignature() = default;
 		ID3D12RootSignature* GetRootSignature();
-		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 
 	private:
 		PipelineDescription m_pipelineDesc;

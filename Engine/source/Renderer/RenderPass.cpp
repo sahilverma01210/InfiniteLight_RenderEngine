@@ -32,11 +32,7 @@ namespace Renderer
 			gfx.Set32BitRootConstants(0, 1, &m_cameraDataHandle);
 			gfx.SetPrimitiveTopology(m_pipelineStateObject->GetTopologyType());
 
-			for (const auto& drawable : m_drawables)
-			{
-				drawable.get().Bind(gfx);
-				drawable.get().Draw(gfx);
-			}
+			for (const auto& drawable : m_drawables) drawable.get().Draw(gfx);
 		}
 		else if (m_renderPassType == RenderPassType::Compute)
 		{

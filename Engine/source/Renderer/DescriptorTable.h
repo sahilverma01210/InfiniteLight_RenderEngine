@@ -1,9 +1,9 @@
 #pragma once
-#include "BindableCodex.h"
+#include "GraphicsResource.h"
 
 namespace Renderer
 {
-	class DescriptorTable : public Bindable
+	class DescriptorTable : public GraphicsResource
 	{
 	public:
 		struct TableParams
@@ -22,7 +22,7 @@ namespace Renderer
 		void AddConstantBufferView(D3D12RHI& gfx, ResourceHandle constantBufferHandle);
 		void AddShaderResourceView(D3D12RHI& gfx, ResourceHandle textureBufferHandle, bool isCubeMap = false);
 		void AddSampler(D3D12RHI& gfx, D3D12_SAMPLER_DESC* samplerDesc, bool overwrite = false);
-		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
+		void SetGPU(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 
 	protected:
 		UINT m_cbvSrvUavCount = 0;

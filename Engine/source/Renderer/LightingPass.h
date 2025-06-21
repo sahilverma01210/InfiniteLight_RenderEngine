@@ -37,15 +37,15 @@ namespace Renderer
 		{
 			m_frameCBuffer.renderResolution = XMFLOAT2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
 
-			m_lightResourceHandles.renderTargetIdx = gfx.LoadResource(std::make_shared<MeshTextureBuffer>(gfx, "NULL_TEX"), ResourceType::ReadWriteTexture);
-			m_lightResourceHandles.frameConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_frameCBuffer), &m_frameCBuffer), ResourceType::Constant);
+			m_lightResourceHandles.renderTargetIdx = gfx.LoadResource(std::make_shared<MeshTexture>(gfx, "NULL_TEX"));
+			m_lightResourceHandles.frameConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_frameCBuffer, sizeof(m_frameCBuffer)));
 			m_lightResourceHandles.lightConstIdx = RenderGraph::m_lightDataHandles[0];
 			m_lightResourceHandles.diffTexIdx = RenderGraph::m_frameResourceHandles["Diffuse"];
 			m_lightResourceHandles.normTexIdx = RenderGraph::m_frameResourceHandles["Normal"];
 			m_lightResourceHandles.metallicRoughTexIdx = RenderGraph::m_frameResourceHandles["MetallicRough"];
 			m_lightResourceHandles.depthTexIdx = RenderGraph::m_frameResourceHandles["Depth_Stencil"];
 
-			lightResourceHandlesIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_lightResourceHandles), &m_lightResourceHandles), ResourceType::Constant);
+			lightResourceHandlesIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_lightResourceHandles, sizeof(m_lightResourceHandles)));
 
 			CreatePSO(gfx);
 		}

@@ -21,7 +21,7 @@ namespace Renderer
 		CameraContainer(D3D12RHI& gfx);
 		bool SpawnWindow(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
-		void UpdateCamera(D3D12RHI& gfx, CameraCBuf* cameraCBuf = nullptr);
+		void UpdateCamera(D3D12RHI& gfx);
 		void Submit(RenderGraph& renderGraph) const;
 		Camera& GetActiveCamera();
 	private:
@@ -34,6 +34,6 @@ namespace Renderer
 		int m_controlled = 0;
 		CameraCBuf m_cameraCBuf{};
 		std::vector<std::shared_ptr<Camera>> m_cameras;
-		std::shared_ptr<ConstantBuffer> m_CameraConstants;
+		std::shared_ptr<D3D12Buffer> m_CameraConstants;
 	};
 }

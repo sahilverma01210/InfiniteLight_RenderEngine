@@ -4,10 +4,13 @@ namespace Renderer
 {
 	void ILMesh::ApplyMesh(D3D12RHI& gfx, VertexRawBuffer vertices, std::vector<USHORT> indices)
 	{
-		m_vertexBufferBindable = std::move(std::make_shared<VertexBuffer>(gfx, vertices.GetData(), UINT(vertices.SizeBytes()), (UINT)vertices.GetLayout().Size()));
-		m_indexBufferBindable = std::move(std::make_shared<IndexBuffer>(gfx, indices));
+		m_numIndices = indices.size();
+		m_vertexSizeInBytes = UINT(vertices.SizeBytes());
+		m_indexSizeInBytes = m_numIndices * sizeof(indices[0]);
+		m_vertexStrideInBytes = (UINT)vertices.GetLayout().Size();
 
-		m_numIndices = m_indexBufferBindable->GetNumOfIndices();
+		m_vertexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, vertices.GetData(), m_vertexSizeInBytes));
+		m_indexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, indices.data(), m_indexSizeInBytes));
 	}
 
 	void ILMesh::ApplyMaterial(D3D12RHI& gfx, ILMaterial* material, bool enableLighting) noexcept(!IS_DEBUG)

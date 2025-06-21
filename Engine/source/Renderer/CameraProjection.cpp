@@ -17,7 +17,7 @@ namespace Renderer
 	{
 		m_indexedList = Frustum::Make(projection.width, projection.height, projection.nearZ, projection.farZ);
 
-		m_vertexBufferBindable->Update(gfx, m_indexedList.vertices.GetData());
+		m_vertexBuffer->Update(gfx, m_indexedList.vertices.GetData(), UINT(m_indexedList.vertices.SizeBytes()), BufferType::Vertex);
 	}
 
 	void CameraProjection::SetPos(XMFLOAT3 pos)

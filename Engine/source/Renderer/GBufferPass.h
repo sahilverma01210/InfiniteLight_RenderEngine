@@ -16,9 +16,9 @@ namespace Renderer
 			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
 			m_renderTargets[1] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
 			m_renderTargets[2] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
-			RenderGraph::m_frameResourceHandles["Diffuse"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
-			RenderGraph::m_frameResourceHandles["Normal"] = gfx.LoadResource(m_renderTargets[1], ResourceType::Texture);
-			RenderGraph::m_frameResourceHandles["MetallicRough"] = gfx.LoadResource(m_renderTargets[2], ResourceType::Texture);
+			RenderGraph::m_frameResourceHandles["Diffuse"] = gfx.LoadResource(m_renderTargets[0], D3D12Resource::ViewType::SRV);
+			RenderGraph::m_frameResourceHandles["Normal"] = gfx.LoadResource(m_renderTargets[1], D3D12Resource::ViewType::SRV);
+			RenderGraph::m_frameResourceHandles["MetallicRough"] = gfx.LoadResource(m_renderTargets[2], D3D12Resource::ViewType::SRV);
 			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
 
 			CreatePSO(gfx);
@@ -66,9 +66,9 @@ namespace Renderer
 		{
 			m_cameraContainer.UpdateCamera(gfx);
 
-			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Diffuse"], ResourceType::RenderTarget);
-			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Normal"], ResourceType::RenderTarget);
-			gfx.ClearResource(RenderGraph::m_frameResourceHandles["MetallicRough"], ResourceType::RenderTarget);
+			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Diffuse"]);
+			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Normal"]);
+			gfx.ClearResource(RenderGraph::m_frameResourceHandles["MetallicRough"]);
 
 			m_depthStencil->Clear(gfx);
 

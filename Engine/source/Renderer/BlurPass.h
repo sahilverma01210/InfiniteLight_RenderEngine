@@ -38,11 +38,11 @@ namespace Renderer
 			SetKernelGauss(m_radius, m_sigma);
 
 			m_blurResourceHandles.blurTargetIdx = RenderGraph::m_frameResourceHandles["Outline_Draw"];
-			m_blurResourceHandles.renderTargetIdx = gfx.LoadResource(std::make_shared<MeshTextureBuffer>(gfx, "NULL_TEX"), ResourceType::ReadWriteTexture);
-			m_blurResourceHandles.frameConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_frameCBuffer), &m_frameCBuffer), ResourceType::Constant);
-			m_blurResourceHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_kernel), &m_kernel), ResourceType::Constant);
+			m_blurResourceHandles.renderTargetIdx = gfx.LoadResource(std::make_shared<MeshTexture>(gfx, "NULL_TEX"));
+			m_blurResourceHandles.frameConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_frameCBuffer, sizeof(m_frameCBuffer)));
+			m_blurResourceHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_kernel, sizeof(m_kernel)));
 
-			blurResourceHandlesIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_blurResourceHandles), &m_blurResourceHandles), ResourceType::Constant);
+			blurResourceHandlesIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_blurResourceHandles, sizeof(m_blurResourceHandles)));
 
 			CreatePSO(gfx);
 		}
@@ -94,7 +94,7 @@ namespace Renderer
 			ID3D12Resource* blurTargetBuffer = gfx.GetResource(m_blurResourceHandles.blurTargetIdx).GetBuffer();
 			ID3D12Resource* renderTargetBuffer = gfx.GetResourcePtr(m_blurResourceHandles.renderTargetIdx)->GetBuffer();
 
-			//gfx.ClearResource(m_frameHandles.renderTargetHandle, ResourceType::ReadWriteTexture);
+			//gfx.ClearResource(m_frameHandles.renderTargetHandle, D3D12Resource::ViewType::UAV);
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			gfx.TransitionResource(renderTargetBuffer, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 						

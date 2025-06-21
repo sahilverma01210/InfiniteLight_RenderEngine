@@ -24,3 +24,6 @@
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
+
+#include "d3d12ma/D3D12MemAlloc.h"
+using namespace D3D12MA; // DirectX 12 Memory Allocator

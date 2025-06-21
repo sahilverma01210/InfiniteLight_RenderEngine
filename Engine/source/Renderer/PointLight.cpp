@@ -11,8 +11,8 @@ namespace Renderer
 	{
 		m_cbData = m_home;
 
-		m_lightConstants = std::make_shared<ConstantBuffer>(gfx, sizeof(m_cbData), &m_cbData);
-		RenderGraph::m_lightDataHandles.push_back(gfx.LoadResource(m_lightConstants, ResourceType::Constant));
+		m_lightConstants = std::make_shared<D3D12Buffer>(gfx, &m_cbData, sizeof(m_cbData), sizeof(PointLightCBuf));
+		RenderGraph::m_lightDataHandles.push_back(gfx.LoadResource(m_lightConstants, D3D12Resource::ViewType::SRV));
 	}
 
 	bool PointLight::SpawnWindow() noexcept(!IS_DEBUG)
@@ -59,6 +59,6 @@ namespace Renderer
 		XMStoreFloat3(&m_cbData.viewPos, XMVector3Transform(XMLoadFloat3(&m_cbData.pos), m_cameraContainer.GetActiveCamera().GetViewMatrix()));
 		m_cbData.shadowDepthIdx = RenderGraph::m_frameResourceHandles["Shadow_Depth"];
 
-		m_lightConstants->Update(gfx, &m_cbData);
+		m_lightConstants->Update(gfx, &m_cbData, sizeof(m_cbData), BufferType::Constant);
 	}
 }

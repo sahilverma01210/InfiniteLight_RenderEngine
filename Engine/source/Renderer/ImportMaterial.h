@@ -66,26 +66,26 @@ namespace Renderer
 				// diffuse
 				{
 					aiDiffuse = material.GetTexture(aiTextureType_DIFFUSE, 0, &diffFileName);
-					m_importMatHandles.diffuseIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, aiDiffuse == aiReturn_SUCCESS ? rootPath + diffFileName.C_Str() : "NULL_TEX"), ResourceType::Texture, true);
+					m_importMatHandles.diffuseIdx = gfx.LoadResource(std::make_shared<MeshTexture>(gfx, aiDiffuse == aiReturn_SUCCESS ? rootPath + diffFileName.C_Str() : "NULL_TEX", true));
 				}
 				// normal
 				{
 					aiNormal = material.GetTexture(aiTextureType_NORMALS, 0, &normFileName);
-					m_importMatHandles.normalIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, aiNormal == aiReturn_SUCCESS ? rootPath + normFileName.C_Str() : "NULL_TEX"), ResourceType::Texture);
+					m_importMatHandles.normalIdx = gfx.LoadResource(std::make_shared<MeshTexture>(gfx, aiNormal == aiReturn_SUCCESS ? rootPath + normFileName.C_Str() : "NULL_TEX"));
 				}
 				// metallic roughness
 				{
 					aiMetallicRoughness = material.GetTexture(aiTextureType_GLTF_METALLIC_ROUGHNESS, 0, &metalRoughFileName);
-					m_importMatHandles.roughnessMetallicIdx = gfx.LoadResource(MeshTextureBuffer::Resolve(gfx, aiMetallicRoughness == aiReturn_SUCCESS ? rootPath + metalRoughFileName.C_Str() : "NULL_TEX"), ResourceType::Texture);
+					m_importMatHandles.roughnessMetallicIdx = gfx.LoadResource(std::make_shared<MeshTexture>(gfx, aiMetallicRoughness == aiReturn_SUCCESS ? rootPath + metalRoughFileName.C_Str() : "NULL_TEX"));
 				}
 			}
 
 			// Load Constant Buffers
 			{
 				m_data.materialColor = XMFLOAT3{ 1.0f,0.4f,0.4f };
-				m_pSolidCBuf = std::make_shared<ConstantBuffer>(gfx, sizeof(m_data), &m_data);
+				m_pSolidCBuf = std::make_shared<D3D12Buffer>(gfx, &m_data, sizeof(m_data));
 
-				m_importMatHandles.solidConstIdx = gfx.LoadResource(m_pSolidCBuf, ResourceType::Constant);
+				m_importMatHandles.solidConstIdx = gfx.LoadResource(m_pSolidCBuf);
 
 				aiColor4D baseColor(1, 1, 1, 1);
 
@@ -97,11 +97,11 @@ namespace Renderer
 				material.Get(AI_MATKEY_METALLIC_FACTOR, m_materialConstants.pbrMetallicFactor);
 				material.Get(AI_MATKEY_ROUGHNESS_FACTOR, m_materialConstants.pbrRoughnessFactor);
 
-				m_materialConstCB = std::make_shared<ConstantBuffer>(gfx, sizeof(m_materialConstants), &m_materialConstants);
-				m_importMatHandles.materialConstIdx = gfx.LoadResource(m_materialConstCB, ResourceType::Constant);
+				m_materialConstCB = std::make_shared<D3D12Buffer>(gfx, &m_materialConstants, sizeof(m_materialConstants));
+				m_importMatHandles.materialConstIdx = gfx.LoadResource(m_materialConstCB);
 			}
 
-			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_importMatHandles), &m_importMatHandles), ResourceType::Constant);
+			m_materialHandle = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_importMatHandles, sizeof(m_importMatHandles)));
 		}
 		UINT getID() const override {
 			return getTypeID<ImportMaterial>();
@@ -116,7 +116,7 @@ namespace Renderer
 		MaterialConstants m_materialConstants;
 		SolidCB m_data;
 		ImportMatHandles m_importMatHandles{};
-		std::shared_ptr<ConstantBuffer> m_materialConstCB;
-		std::shared_ptr<ConstantBuffer> m_pSolidCBuf;
+		std::shared_ptr<D3D12Buffer> m_materialConstCB;
+		std::shared_ptr<D3D12Buffer> m_pSolidCBuf;
 	};
 }

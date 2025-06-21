@@ -1,17 +1,15 @@
 #pragma once
-#include "BindableCodex.h"
-#include "CommonBindables.h"
-#include "RootSignature.h"
+#include "GraphicsResource.h"
 
 namespace Renderer
 {
-	class PipelineState : public Bindable
+	class PipelineState : public GraphicsResource
 	{
 	public:
 		PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc);
 		~PipelineState() = default;
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE GetTopologyType();
-		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG) override;
+		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 
 	private:
 		ComPtr<ID3D12PipelineState> m_pipelineState;

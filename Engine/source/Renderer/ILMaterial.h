@@ -1,6 +1,4 @@
 #pragma once
-#include "CommonBindables.h"
-#include "Vertex.h"
 				
 namespace Renderer
 {

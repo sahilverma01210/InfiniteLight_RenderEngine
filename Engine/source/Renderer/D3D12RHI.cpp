@@ -30,7 +30,7 @@ namespace Renderer
         }
 #endif
 
-        // Create D3D Device.
+        // Create D3D Device & Memory Allocator.
         {
             if (m_useWarpDevice)
             {
@@ -42,6 +42,12 @@ namespace Renderer
                     D3D_FEATURE_LEVEL_12_0,
                     IID_PPV_ARGS(&m_device)
                 ));
+
+                ALLOCATOR_DESC allocator_desc{};
+                allocator_desc.pDevice = m_device.Get();
+                allocator_desc.pAdapter = warpAdapter.Get();
+
+                CreateAllocator(&allocator_desc, &m_allocator);
             }
             else
             {
@@ -53,6 +59,12 @@ namespace Renderer
                     D3D_FEATURE_LEVEL_12_0,
                     IID_PPV_ARGS(&m_device)
                 ));
+
+                ALLOCATOR_DESC allocator_desc{};
+                allocator_desc.pDevice = m_device.Get();
+                allocator_desc.pAdapter = hardwareAdapter.Get();
+
+                CreateAllocator(&allocator_desc, &m_allocator);
             }
         }
 
@@ -284,6 +296,26 @@ namespace Renderer
 		D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->IASetPrimitiveTopology(topology));
     }
 
+    void D3D12RHI::SetVertexBuffer(ID3D12Resource* vertexBuffer, UINT sizeInBytes, UINT strideInBytes, UINT startSlot, UINT numViews)
+    {
+        D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+		vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
+		vertexBufferView.SizeInBytes = sizeInBytes;
+		vertexBufferView.StrideInBytes = strideInBytes;
+
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->IASetVertexBuffers(startSlot, numViews, &vertexBufferView));
+    }
+
+    void D3D12RHI::SetIndexBuffer(ID3D12Resource* indexBuffer, UINT sizeInBytes)
+    {
+        D3D12_INDEX_BUFFER_VIEW indexBufferView{};
+        indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+        indexBufferView.SizeInBytes = sizeInBytes;
+        indexBufferView.Format = DXGI_FORMAT_R16_UINT;
+
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->IASetIndexBuffer(&indexBufferView));
+    }
+
     void D3D12RHI::Info(HRESULT hr)
     {
         D3D12RHI_THROW_INFO(hr);
@@ -296,34 +328,6 @@ namespace Renderer
 
     // PUBLIC - RESOURCE MANAGER METHODS
 
-    ResourceHandle D3D12RHI::LoadResource(std::shared_ptr<D3D12Resource> resource, ResourceType resourceType, bool isSRGB)
-    {
-        switch (resourceType)
-        {
-        case ResourceType::Constant:
-            AddConstantBufferView(resource, CreateCBVDesc(resource));
-            break;
-        case ResourceType::Texture:
-            AddShaderResourceView(resource, CreateSRVDesc(resource, isSRGB));
-            break;
-        case ResourceType::ReadWriteTexture:
-            AddUnorderedAccessView(resource, CreateUAVDesc(resource));
-			break;
-        case ResourceType::CubeMapTexture:
-            AddShaderResourceView(resource, CreateSRVDesc(resource, isSRGB, true));
-            break;
-        case ResourceType::RenderTarget:
-            break;
-        case ResourceType::DepthStencil:
-            break;
-        }
-
-        m_resourceMap[m_resourceHandle] = std::move(resource);
-        //m_loadedResources[resourceName] = m_resourceHandle;
-
-        return m_resourceHandle++;
-    }
-
     D3D12_CONSTANT_BUFFER_VIEW_DESC D3D12RHI::CreateCBVDesc(std::shared_ptr<D3D12Resource> resource)
     {
         ID3D12Resource* resourceBuffer = resource->GetBuffer();
@@ -335,46 +339,53 @@ namespace Renderer
         return cbvDesc;
     }
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC D3D12RHI::CreateSRVDesc(std::shared_ptr<D3D12Resource> resource, bool isSRGB, bool isCubeMap)
+    D3D12_SHADER_RESOURCE_VIEW_DESC D3D12RHI::CreateSRVDesc(std::shared_ptr<D3D12Resource> resource)
     {
         ID3D12Resource* resourceBuffer = resource->GetBuffer();
 
-        DXGI_FORMAT targetTextureFormat;
+        DXGI_FORMAT resourceFormat;
 
         switch (resourceBuffer->GetDesc().Format)
         {
         case DXGI_FORMAT_R24G8_TYPELESS:
-            targetTextureFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+            resourceFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
             break;
         case DXGI_FORMAT_R32_TYPELESS:
-            targetTextureFormat = DXGI_FORMAT_R32_FLOAT;
+            resourceFormat = DXGI_FORMAT_R32_FLOAT;
 			break;
         case DXGI_FORMAT_B8G8R8A8_UNORM:
-            targetTextureFormat = isSRGB ? DXGI_FORMAT_B8G8R8A8_UNORM_SRGB : resourceBuffer->GetDesc().Format;
+            resourceFormat = resource->IsSRGB() ? DXGI_FORMAT_B8G8R8A8_UNORM_SRGB : resourceBuffer->GetDesc().Format;
             break;
         case DXGI_FORMAT_R8G8B8A8_UNORM:
-            targetTextureFormat = isSRGB ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : resourceBuffer->GetDesc().Format;
+            resourceFormat = resource->IsSRGB() ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : resourceBuffer->GetDesc().Format;
             break;
         default:
-            targetTextureFormat = resourceBuffer->GetDesc().Format;
+            resourceFormat = resourceBuffer->GetDesc().Format;
             break;
         }
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-        srvDesc.Format = targetTextureFormat;
+        srvDesc.Format = resourceFormat;
         srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-        if (isCubeMap)
+        switch (resource->GetResourceType())
         {
+        case ResourceType::Buffer:
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+            srvDesc.Buffer = resource->GetBufferSRV();
+			break;
+        case ResourceType::Texture2D:
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Texture2D.MipLevels = resourceBuffer->GetDesc().MipLevels;
+			break;
+        case ResourceType::TextureCube:
             srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
             srvDesc.TextureCube.MostDetailedMip = 0;
             srvDesc.TextureCube.MipLevels = resourceBuffer->GetDesc().MipLevels;
             srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-        }
-        else
-        {
-            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-            srvDesc.Texture2D.MipLevels = resourceBuffer->GetDesc().MipLevels;
+			break;
+        default:
+            break;
         }
 
 		return srvDesc;
@@ -392,43 +403,40 @@ namespace Renderer
 		return uavDesc;
     }
 
-    void D3D12RHI::AddConstantBufferView(std::shared_ptr<D3D12Resource> resource, D3D12_CONSTANT_BUFFER_VIEW_DESC desc)
-    {
-        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
-		D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
-        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-		GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-
-        D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&desc, CPUHandle));
-
-        if (!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
-        if (!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
-    }
-
-    void D3D12RHI::AddShaderResourceView(std::shared_ptr<D3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC desc)
-    {        
-        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
-        D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
-        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-        GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-
-        D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(resource->GetBuffer(), &desc, CPUHandle));
-
-        if (!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
-        if (!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
-    }
-
-    void D3D12RHI::AddUnorderedAccessView(std::shared_ptr<D3D12Resource> resource, D3D12_UNORDERED_ACCESS_VIEW_DESC desc)
+    ResourceHandle D3D12RHI::LoadResource(std::shared_ptr<D3D12Resource> resource, D3D12Resource::ViewType type)
     {
         D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
         D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
         CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
         GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
 
-        D3D12RHI_THROW_INFO_ONLY(m_device->CreateUnorderedAccessView(resource->GetBuffer(), nullptr, &desc, CPUHandle));
+        switch (type == D3D12Resource::ViewType::Default ? resource->GetViewType() : type)
+        {
+        case D3D12Resource::ViewType::CBV:
+            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = CreateCBVDesc(resource);
+            D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&cbvDesc, CPUHandle));
+            break;
+        case D3D12Resource::ViewType::SRV:
+            D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = CreateSRVDesc(resource);
+            D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(resource->GetBuffer(), &srvDesc, CPUHandle));
+            break;
+        case D3D12Resource::ViewType::UAV:
+            D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = CreateUAVDesc(resource);
+            D3D12RHI_THROW_INFO_ONLY(m_device->CreateUnorderedAccessView(resource->GetBuffer(), nullptr, &uavDesc, CPUHandle));
+            break;
+        case D3D12Resource::ViewType::RTV:
+            break;
+        case D3D12Resource::ViewType::DSV:
+            break;
+        }
 
-        if(!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
-        if(!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
+        m_resourceMap[m_resourceHandle] = std::move(resource);
+        //m_loadedResources[resourceName] = m_resourceHandle;
+
+        if (!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
+        if (!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
+
+        return m_resourceHandle++;
     }
 
     D3D12Resource& D3D12RHI::GetResource(ResourceHandle resourceHandle)
@@ -446,31 +454,31 @@ namespace Renderer
         return m_resourceMap[resourceHandle];
     }
 
-    void D3D12RHI::ClearResource(ResourceHandle resourceHandle, ResourceType resourceType)
+    void D3D12RHI::ClearResource(ResourceHandle resourceHandle)
     {
-        switch (resourceType)
+        auto resource = GetResourcePtr(resourceHandle);
+
+        switch (resource->GetViewType())
         {
-            case ResourceType::Constant:
+            case D3D12Resource::ViewType::CBV:
                 break;
-            case ResourceType::Texture:
+            case D3D12Resource::ViewType::SRV:
                 break;
-			case ResourceType::ReadWriteTexture:
+			case D3D12Resource::ViewType::UAV:
             {
                 const UINT clear_color_with_alpha[4] = { 0, 0, 0, 0 };
-                m_currentCommandList->ClearUnorderedAccessViewUint(*GetResourcePtr(resourceHandle)->GetGPUDescriptor(), *GetResourcePtr(resourceHandle)->GetDescriptor(), GetResourcePtr(resourceHandle)->GetBuffer(), clear_color_with_alpha, 0, nullptr);
+                m_currentCommandList->ClearUnorderedAccessViewUint(*resource->GetGPUDescriptor(), *resource->GetDescriptor(), resource->GetBuffer(), clear_color_with_alpha, 0, nullptr);
                 break;
-            }                
-            case ResourceType::CubeMapTexture:
-                break;
-            case ResourceType::RenderTarget:
+            } 
+            case D3D12Resource::ViewType::RTV:
             {
                 const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearRenderTargetView(*GetResourcePtr(resourceHandle)->GetDescriptor(), clear_color_with_alpha, 0, nullptr));
+                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearRenderTargetView(*resource->GetDescriptor(), clear_color_with_alpha, 0, nullptr));
                 break;
             }
-            case ResourceType::DepthStencil:
+            case D3D12Resource::ViewType::DSV:
             {
-                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearDepthStencilView(*GetResourcePtr(resourceHandle)->GetDescriptor(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
+                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearDepthStencilView(*resource->GetDescriptor(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
                 break;
             }   
         }

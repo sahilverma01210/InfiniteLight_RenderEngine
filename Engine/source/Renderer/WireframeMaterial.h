@@ -23,8 +23,8 @@ namespace Renderer
 			m_techniques.push_back(std::move(lineWire));
 
 			SolidCB solidCB = { color };
-			m_lineWireMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(solidCB), &solidCB), ResourceType::Constant);
-			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_lineWireMatHandles), &m_lineWireMatHandles), ResourceType::Constant);
+			m_lineWireMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &solidCB, sizeof(solidCB)));
+			m_materialHandle = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_lineWireMatHandles, sizeof(m_lineWireMatHandles)));
 		}
 		UINT getID() const override {
 			return getTypeID<WireframeMaterial>();

@@ -12,7 +12,7 @@ namespace Renderer
 		{
 			m_renderTargets.resize(1);
 			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight());
-			RenderGraph::m_frameResourceHandles["Outline_Draw"] = gfx.LoadResource(m_renderTargets[0], ResourceType::Texture);
+			RenderGraph::m_frameResourceHandles["Outline_Draw"] = gfx.LoadResource(m_renderTargets[0], D3D12Resource::ViewType::SRV);
 			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
 
 			CreatePSO(gfx);
@@ -54,7 +54,7 @@ namespace Renderer
 		}
 		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
 		{
-			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Outline_Draw"], ResourceType::RenderTarget);
+			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Outline_Draw"]);
 
 			m_rootSignature->Bind(gfx);
 			m_pipelineStateObject->Bind(gfx);

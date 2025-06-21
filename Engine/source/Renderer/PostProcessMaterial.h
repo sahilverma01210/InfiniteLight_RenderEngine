@@ -21,7 +21,7 @@ namespace Renderer
 
 			m_postProcessMatHandles.frameBufferIdx = RenderGraph::m_frameResourceHandles["Outline_Draw"];
 
-			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_postProcessMatHandles), &m_postProcessMatHandles), ResourceType::Constant);
+			m_materialHandle = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_postProcessMatHandles, sizeof(m_postProcessMatHandles)));
 		}
 		UINT getID() const override {
 			return getTypeID<PostProcessMaterial>();

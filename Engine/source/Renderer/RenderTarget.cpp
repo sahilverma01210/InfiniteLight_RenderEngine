@@ -7,6 +7,8 @@ namespace Renderer
         INFOMAN(gfx);
 
 		m_format = format;
+        m_resourceType = ResourceType::Texture2D;
+		m_viewType = D3D12Resource::ViewType::RTV;
 
         auto const heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -55,6 +57,8 @@ namespace Renderer
         INFOMAN(gfx);
 
         m_resourceBuffer = pTexture;
+        m_resourceType = ResourceType::Texture2D;
+        m_viewType = D3D12Resource::ViewType::RTV;
 
         // Describe and create a RTV descriptor heap.
         {

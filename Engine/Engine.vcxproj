@@ -33,9 +33,8 @@
     <ClInclude Include="source\Renderer\BufferClearPass.h" />
     <ClInclude Include="source\Renderer\CameraContainer.h" />
     <ClInclude Include="source\Renderer\CameraIndicator.h" />
-    <ClInclude Include="source\Renderer\CommonBindables.h" />
     <ClInclude Include="source\Renderer\Camera.h" />
-    <ClInclude Include="source\Renderer\ConstantBuffer.h" />
+    <ClInclude Include="source\Renderer\D3D12Buffer.h" />
     <ClInclude Include="source\Renderer\D3D12RHI.h" />
     <ClInclude Include="source\Renderer\D3D12RHIException.h" />
     <ClInclude Include="source\Renderer\DepthStencil.h" />
@@ -44,7 +43,6 @@
     <ClInclude Include="source\Renderer\GraphicsResource.h" />
     <ClInclude Include="source\Renderer\ILMaterial.h" />
     <ClInclude Include="source\Renderer\ILMesh.h" />
-    <ClInclude Include="source\Renderer\IndexBuffer.h" />
     <ClInclude Include="source\Renderer\IndexedTriangleList.h" />
     <ClInclude Include="source\Renderer\GBufferPass.h" />
     <ClInclude Include="source\Renderer\WireframeMaterial.h" />
@@ -82,11 +80,9 @@
     <ClInclude Include="source\Renderer\Source.h" />
     <ClInclude Include="source\Renderer\TechniqueProbe.h" />
     <ClInclude Include="source\Renderer\TestModelProbe.h" />
-    <ClInclude Include="source\Renderer\TextureBuffer.h" />
-    <ClInclude Include="source\Renderer\VertexBuffer.h" />
+    <ClInclude Include="source\Renderer\D3D12Texture.h" />
     <ClInclude Include="source\Renderer\Vertex.h" />
     <ClInclude Include="source\Renderer\PostProcessPass.h" />
-    <ClInclude Include="source\Renderer\Viewport.h" />
     <ClInclude Include="source\Renderer\WireframePass.h" />
     <ClInclude Include="source\Runtime\Application.h" />
     <ClInclude Include="source\Runtime\IOManager.h" />
@@ -95,6 +91,7 @@
     <ClInclude Include="source\Runtime\UIManager.h" />
     <ClInclude Include="source\Runtime\Window.h" />
     <ClInclude Include="source\_External\assimp\assimp.h" />
+    <ClInclude Include="source\_External\dx12\d3d12ma\D3D12MemAlloc.h" />
     <ClInclude Include="source\_External\dx12\d3dx12.h" />
     <ClInclude Include="source\_External\dx12\directX12.h" />
     <ClInclude Include="source\_External\common.h" />
@@ -112,7 +109,7 @@
     <ClCompile Include="source\Renderer\Camera.cpp" />
     <ClCompile Include="source\Renderer\CameraContainer.cpp" />
     <ClCompile Include="source\Renderer\CameraIndicator.cpp" />
-    <ClCompile Include="source\Renderer\ConstantBuffer.cpp" />
+    <ClCompile Include="source\Renderer\D3D12Buffer.cpp" />
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
     <ClCompile Include="source\Renderer\D3D12Shader.cpp" />
     <ClCompile Include="source\Renderer\DepthStencil.cpp" />
@@ -120,7 +117,6 @@
     <ClCompile Include="source\Renderer\DynamicConstant.cpp" />
     <ClCompile Include="source\Renderer\GraphicsResource.cpp" />
     <ClCompile Include="source\Renderer\ILMesh.cpp" />
-    <ClCompile Include="source\Renderer\IndexBuffer.cpp" />
     <ClCompile Include="source\Renderer\Mesh.cpp" />
     <ClCompile Include="source\Renderer\Model.cpp" />
     <ClCompile Include="source\Renderer\ModelException.cpp" />
@@ -128,6 +124,7 @@
     <ClCompile Include="source\Renderer\Pass.cpp" />
     <ClCompile Include="source\Renderer\CameraProjection.cpp" />
     <ClCompile Include="source\Renderer\PostProcessFilter.cpp" />
+    <ClCompile Include="source\Renderer\RHI.cpp" />
     <ClCompile Include="source\Renderer\Sink.cpp" />
     <ClCompile Include="source\Renderer\Skybox.cpp" />
     <ClCompile Include="source\Renderer\Source.cpp" />
@@ -142,16 +139,15 @@
     <ClCompile Include="source\Renderer\RootSignature.cpp" />
     <ClCompile Include="source\Renderer\DescriptorTable.cpp" />
     <ClCompile Include="source\Renderer\PointLightIndicator.cpp" />
-    <ClCompile Include="source\Renderer\TextureBuffer.cpp" />
+    <ClCompile Include="source\Renderer\D3D12Texture.cpp" />
     <ClCompile Include="source\Renderer\Vertex.cpp" />
-    <ClCompile Include="source\Renderer\VertexBuffer.cpp" />
-    <ClCompile Include="source\Renderer\Viewport.cpp" />
     <ClCompile Include="source\Runtime\Application.cpp" />
     <ClCompile Include="source\Runtime\IOManager.cpp" />
     <ClCompile Include="source\Runtime\Keyboard.cpp" />
     <ClCompile Include="source\Runtime\Mouse.cpp" />
     <ClCompile Include="source\Runtime\UIManager.cpp" />
     <ClCompile Include="source\Runtime\Window.cpp" />
+    <ClCompile Include="source\_External\dx12\d3d12ma\D3D12MemAlloc.cpp" />
     <ClCompile Include="source\_External\imgui\backends\imgui_impl_dx12.cpp" />
     <ClCompile Include="source\_External\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="source\_External\imgui\imgui.cpp" />

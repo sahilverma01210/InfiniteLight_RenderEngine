@@ -110,7 +110,7 @@ namespace Renderer
 		D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateSampler(samplerDesc, CPUHandle));
 	}
 
-	void DescriptorTable::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	void DescriptorTable::SetGPU(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		INFOMAN_NOHR(gfx);
 

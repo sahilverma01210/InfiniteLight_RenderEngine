@@ -43,7 +43,7 @@ void main(CSInput input)
     Texture2D diffuseRT = ResourceDescriptorHeap[lightResourceHandles.diffTexIdx];
     Texture2D<float> depthTexture = ResourceDescriptorHeap[lightResourceHandles.depthTexIdx];
     
-    ConstantBuffer<Light> pointLightCB = ResourceDescriptorHeap[lightResourceHandles.lightConstIdx];
+    StructuredBuffer<Light> pointLightCB = ResourceDescriptorHeap[lightResourceHandles.lightConstIdx];
 
     float2 uv = ((float2) input.DispatchThreadId.xy + 0.5f) * 1.0f / (frameCB.renderResolution);
 
@@ -71,7 +71,7 @@ void main(CSInput input)
     float3 directLighting = 0.0f;
     
     // Shadow
-    Light light = pointLightCB;
+    Light light = pointLightCB[0];
     directLighting += DoLight_Default(light, brdfData, viewPosition, viewNormal, V, uv, ShadowWrapSampler);
     
     // Ambient contribution

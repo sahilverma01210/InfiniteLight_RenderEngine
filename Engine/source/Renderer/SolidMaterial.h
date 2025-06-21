@@ -23,8 +23,8 @@ namespace Renderer
 			m_techniques.push_back(std::move(solid));
 
 			SolidCB data = { color };
-			m_solidMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(data), &data), ResourceType::Constant);
-			m_materialHandle = gfx.LoadResource(std::make_shared<ConstantBuffer>(gfx, sizeof(m_solidMatHandles), &m_solidMatHandles), ResourceType::Constant);
+			m_solidMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &data, sizeof(data)));
+			m_materialHandle = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_solidMatHandles, sizeof(m_solidMatHandles)));
 		}
 		UINT getID() const override {
 			return getTypeID<SolidMaterial>();

@@ -32,6 +32,11 @@ namespace Renderer
 		return gfx.m_backBuffers;
 	}
 
+	Allocator* GraphicsResource::GetAllocator(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	{
+		return gfx.m_allocator.Get();
+	}
+
 	DxgiInfoManager& GraphicsResource::GetInfoManager(D3D12RHI& gfx)
 	{
 #ifndef NDEBUG

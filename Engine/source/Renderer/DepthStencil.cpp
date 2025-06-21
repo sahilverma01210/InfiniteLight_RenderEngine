@@ -17,6 +17,9 @@ namespace Renderer
 	{
         INFOMAN(gfx);
 
+        m_resourceType = ResourceType::Texture2D;
+        m_viewType = D3D12Resource::ViewType::SRV;
+
         // Describe and create a DSV descriptor heap.
         {
             D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
@@ -64,6 +67,8 @@ namespace Renderer
         m_resourceBuffer = depthBuffer;
         m_width = depthBuffer->GetDesc().Width;
         m_height = depthBuffer->GetDesc().Height;
+        m_resourceType = ResourceType::Texture2D;
+        m_viewType = D3D12Resource::ViewType::SRV;
 
         // Describe and create a DSV descriptor heap.
         {

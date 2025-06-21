@@ -8,12 +8,12 @@
 
 namespace Renderer
 {
-	__declspec(align(256u)) struct PointLightCBuf
+	struct PointLightCBuf
 	{
-		alignas(16) XMFLOAT3 pos;
-		alignas(16) XMFLOAT3 viewPos;
-		alignas(16) XMFLOAT3 ambient;
-		alignas(16) XMFLOAT3 diffuseColor;
+		XMFLOAT3 pos;
+		XMFLOAT3 viewPos;
+		XMFLOAT3 ambient;
+		XMFLOAT3 diffuseColor;
 		float diffuseIntensity;
 		ResourceHandle shadowDepthIdx = -1;
 	};
@@ -35,6 +35,6 @@ namespace Renderer
 		mutable PointLightCBuf m_cbData;
 		CameraContainer& m_cameraContainer;
 		mutable PointLightIndicator m_indicator;
-		std::shared_ptr<ConstantBuffer> m_lightConstants;
+		std::shared_ptr<D3D12Buffer> m_lightConstants;
 	};
 }
