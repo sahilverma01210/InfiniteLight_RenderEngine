@@ -62,9 +62,6 @@
     <Filter Include="Source\Renderer\Private\Common">
       <UniqueIdentifier>{ea5ed81a-e67b-4fc9-b5f3-dc923f1c43a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\Lights">
-      <UniqueIdentifier>{e92befca-41b5-4d90-8864-c5d59f985828}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer\Public">
       <UniqueIdentifier>{967d906d-9899-4ff4-a0dc-5c16635a5197}</UniqueIdentifier>
     </Filter>
@@ -73,9 +70,6 @@
     </Filter>
     <Filter Include="Source\Renderer\Public\Common">
       <UniqueIdentifier>{0cc981e7-f830-46a5-8883-ea1ef83b6d16}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\Lights">
-      <UniqueIdentifier>{ba50ca77-da1a-4c3b-8323-01b781bdc950}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\_External\Public\Assimp">
       <UniqueIdentifier>{b922efd4-06b1-4df3-a4eb-c5c98c92a448}</UniqueIdentifier>
@@ -104,15 +98,6 @@
     <Filter Include="Source\Renderer\Private\Model">
       <UniqueIdentifier>{0487562a-0b4f-4c81-8a76-8c4ecbd58302}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\Skybox">
-      <UniqueIdentifier>{34d3e0c4-dbd7-4637-8b41-ebd8832784fd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\Skybox">
-      <UniqueIdentifier>{bb76c504-3a1c-47cb-b529-1a181a0afd34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\Materials">
-      <UniqueIdentifier>{0293d600-4fd3-40d1-baf1-19e3a1e88a39}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Runtime\Public\UI">
       <UniqueIdentifier>{a41c4bfe-89d9-4477-8df4-11221569a30e}</UniqueIdentifier>
     </Filter>
@@ -124,9 +109,6 @@
     </Filter>
     <Filter Include="Shaders\HLSL\Common">
       <UniqueIdentifier>{95eed843-1cdc-433b-bf77-8adb470e37d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\HLSL\Outline Draw">
-      <UniqueIdentifier>{ad2114e5-9ce5-4ef4-9b64-5e20d3faa30a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders\HLSL\Lighting">
       <UniqueIdentifier>{0acfd8f6-079b-47a6-90e5-d3a6fc71b303}</UniqueIdentifier>
@@ -155,28 +137,31 @@
     <Filter Include="Source\Renderer\Public\Core\Render Graph\Passes">
       <UniqueIdentifier>{93ecefa4-eabd-407d-b0e0-1eff9e7a8337}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Public\Core\Render Graph\Probes">
-      <UniqueIdentifier>{b0ca8af6-409a-4814-8383-5179285b664d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Renderer\Public\Core\RHI">
       <UniqueIdentifier>{18677345-aa5b-4815-982a-df2d026566c1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Renderer\Public\Core\RHI\D3D12">
       <UniqueIdentifier>{faf9520c-2987-4550-8075-9232e0f303ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Renderer\Private\Frame Filter">
-      <UniqueIdentifier>{e68b8dd9-7996-45d9-b88e-02642d9d2d56}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Renderer\Public\Frame Filter">
-      <UniqueIdentifier>{b20ae8f9-2183-4140-9003-b7453e85248b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_External\Private\DX12">
       <UniqueIdentifier>{d1df1b17-525a-4344-8302-8d5a069f1861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Editor">
+      <UniqueIdentifier>{dda9617a-82c2-44e7-bcb2-1eb9d3acf363}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Editor">
+      <UniqueIdentifier>{24041c37-84b6-429a-9351-440ba04bdf75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Private\Light">
+      <UniqueIdentifier>{e92befca-41b5-4d90-8864-c5d59f985828}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\Public\Light">
+      <UniqueIdentifier>{ba50ca77-da1a-4c3b-8323-01b781bdc950}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Renderer\PointLight.h">
-      <Filter>Source\Renderer\Public\Lights</Filter>
+      <Filter>Source\Renderer\Public\Light</Filter>
     </ClInclude>
     <ClInclude Include="source\Runtime\Keyboard.h">
       <Filter>Source\Runtime\Public\IO</Filter>
@@ -217,19 +202,7 @@
     <ClInclude Include="source\Renderer\RenderGraphException.h">
       <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Sink.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Source.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\CameraContainer.h">
-      <Filter>Source\Renderer\Public\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\CameraProjection.h">
-      <Filter>Source\Renderer\Public\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\CameraIndicator.h">
       <Filter>Source\Renderer\Public\Camera</Filter>
     </ClInclude>
     <ClInclude Include="source\_External\common.h">
@@ -271,7 +244,7 @@
     <ClInclude Include="source\Renderer\Renderer.h">
       <Filter>Source\Renderer\Public</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\OutlineDrawPass.h">
+    <ClInclude Include="source\Renderer\ObjectFlatPass.h">
       <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BufferClearPass.h">
@@ -289,17 +262,8 @@
     <ClInclude Include="source\Renderer\WireframePass.h">
       <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\PostProcessPass.h">
+    <ClInclude Include="source\Renderer\ObjectOutlinePass.h">
       <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TestModelProbe.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph\Probes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\ModelProbe.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph\Probes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\TechniqueProbe.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph\Probes</Filter>
     </ClInclude>
     <ClInclude Include="source\_External\assimp\assimp.h">
       <Filter>Source\_External\Public\Assimp</Filter>
@@ -316,43 +280,10 @@
     <ClInclude Include="source\Renderer\Shapes.h">
       <Filter>Source\Renderer\Public\Common\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\ImportMaterial.h">
-      <Filter>Source\Renderer\Public\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\SolidMaterial.h">
-      <Filter>Source\Renderer\Public\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\WireframeMaterial.h">
-      <Filter>Source\Renderer\Public\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\PointLightIndicator.h">
-      <Filter>Source\Renderer\Public\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\SkyboxMaterial.h">
-      <Filter>Source\Renderer\Public\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\PostProcessMaterial.h">
-      <Filter>Source\Renderer\Public\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\PostProcessFilter.h">
-      <Filter>Source\Renderer\Public\Frame Filter</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Skybox.h">
-      <Filter>Source\Renderer\Public\Skybox</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Drawable.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\ILMaterial.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\ILMesh.h">
       <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderGraph.h">
-      <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Pass.h">
       <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\RenderPass.h">
@@ -367,7 +298,7 @@
     <ClInclude Include="source\Runtime\IOManager.h">
       <Filter>Source\Runtime\Public\IO</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\FlatPass.h">
+    <ClInclude Include="source\Renderer\IndicatorFlatPass.h">
       <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\BlurPass.h">
@@ -375,12 +306,6 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\LightingPass.h">
       <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\Bindable.h">
-      <Filter>Source\Renderer\Public\Core\RHI\D3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Renderer\BindableCodex.h">
-      <Filter>Source\Renderer\Public\Core\RHI\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\D3D12RHI.h">
       <Filter>Source\Renderer\Public\Core\RHI\D3D12</Filter>
@@ -418,13 +343,28 @@
     <ClInclude Include="source\_External\dx12\d3d12ma\D3D12MemAlloc.h">
       <Filter>Source\_External\Public\DX12</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\Material.h">
+      <Filter>Source\Renderer\Public\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\LightContainer.h">
+      <Filter>Source\Renderer\Public\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CameraProjection.h">
+      <Filter>Source\Renderer\Public\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\CameraIndicator.h">
+      <Filter>Source\Renderer\Public\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PointLightIndicator.h">
+      <Filter>Source\Renderer\Public\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\PointLight.cpp">
-      <Filter>Source\Renderer\Private\Lights</Filter>
+      <Filter>Source\Renderer\Private\Light</Filter>
     </ClCompile>
     <ClCompile Include="source\Runtime\Keyboard.cpp">
       <Filter>Source\Runtime\Private\IO</Filter>
@@ -453,19 +393,7 @@
     <ClCompile Include="source\Renderer\RenderGraphException.cpp">
       <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\Source.cpp">
-      <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Sink.cpp">
-      <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\CameraContainer.cpp">
-      <Filter>Source\Renderer\Private\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\CameraProjection.cpp">
-      <Filter>Source\Renderer\Private\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\CameraIndicator.cpp">
       <Filter>Source\Renderer\Private\Camera</Filter>
     </ClCompile>
     <ClCompile Include="source\Common\ILException.cpp">
@@ -513,18 +441,6 @@
     <ClCompile Include="source\Renderer\Vertex.cpp">
       <Filter>Source\Renderer\Private\Common\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="source\Renderer\PointLightIndicator.cpp">
-      <Filter>Source\Renderer\Private\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\PostProcessFilter.cpp">
-      <Filter>Source\Renderer\Private\Frame Filter</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Skybox.cpp">
-      <Filter>Source\Renderer\Private\Skybox</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Drawable.cpp">
-      <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
-    </ClCompile>
     <ClCompile Include="source\Renderer\ILMesh.cpp">
       <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
     </ClCompile>
@@ -532,9 +448,6 @@
       <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderPass.cpp">
-      <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\Pass.cpp">
       <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
     </ClCompile>
     <ClCompile Include="source\Runtime\UIManager.cpp">
@@ -579,6 +492,18 @@
     <ClCompile Include="source\_External\dx12\d3d12ma\D3D12MemAlloc.cpp">
       <Filter>Source\_External\Private\DX12</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\LightContainer.cpp">
+      <Filter>Source\Renderer\Private\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\CameraIndicator.cpp">
+      <Filter>Source\Renderer\Private\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\CameraProjection.cpp">
+      <Filter>Source\Renderer\Private\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\PointLightIndicator.cpp">
+      <Filter>Source\Renderer\Private\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\HLSL\GBuffer_PS.hlsl">
@@ -593,10 +518,10 @@
     <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
       <Filter>Shaders\HLSL\Skybox</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PostProcess_PS.hlsl">
+    <CustomBuild Include="shaders\HLSL\ObjectOutline_PS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\PostProcess_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\ObjectOutline_VS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Flat_PS.hlsl">
@@ -610,12 +535,6 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Common.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Outline_PS.hlsl">
-      <Filter>Shaders\HLSL\Outline Draw</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\Outline_VS.hlsl">
-      <Filter>Shaders\HLSL\Outline Draw</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Blur_CS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>

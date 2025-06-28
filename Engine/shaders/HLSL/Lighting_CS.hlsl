@@ -9,18 +9,12 @@ struct MaterialHandle
 
 struct LightResourceHandles
 {
+    int numLights;
     int renderTargetIdx;
-    int frameConstIdx;
-    int lightConstIdx;
     int diffTexIdx;
     int normTexIdx;
     int metallicRoughTexIdx;
     int depthTexIdx;
-};
-
-struct FrameCBuffer
-{
-    float2 renderResolution;
 };
 
 ConstantBuffer<MaterialHandle> matCB : register(b1);
@@ -36,16 +30,15 @@ struct CSInput
 [numthreads(BLOCK_SIZE, BLOCK_SIZE, 1)]
 void main(CSInput input)
 {
+    StructuredBuffer<Light> lights = ResourceDescriptorHeap[frameData.lightDataIdx];
+
     ConstantBuffer<LightResourceHandles> lightResourceHandles = ResourceDescriptorHeap[matCB.lightResourceHandlesIdx];    
     
-    ConstantBuffer<FrameCBuffer> frameCB = ResourceDescriptorHeap[lightResourceHandles.frameConstIdx];
     Texture2D normalRT = ResourceDescriptorHeap[lightResourceHandles.normTexIdx];
     Texture2D diffuseRT = ResourceDescriptorHeap[lightResourceHandles.diffTexIdx];
     Texture2D<float> depthTexture = ResourceDescriptorHeap[lightResourceHandles.depthTexIdx];
     
-    StructuredBuffer<Light> pointLightCB = ResourceDescriptorHeap[lightResourceHandles.lightConstIdx];
-
-    float2 uv = ((float2) input.DispatchThreadId.xy + 0.5f) * 1.0f / (frameCB.renderResolution);
+    float2 uv = ((float2) input.DispatchThreadId.xy + 0.5f) * 1.0f / (frameData.resolution);
 
     // viewNormal, metallic, shadingExtension
     float3 viewNormal;
@@ -70,12 +63,15 @@ void main(CSInput input)
     BrdfData brdfData = GetBrdfData(albedo, metallic, roughness);
     float3 directLighting = 0.0f;
     
-    // Shadow
-    Light light = pointLightCB[0];
-    directLighting += DoLight_Default(light, brdfData, viewPosition, viewNormal, V, uv, ShadowWrapSampler);
-    
-    // Ambient contribution
-    directLighting += light.ambient * albedo;
+    for (int i = 0; i < lightResourceHandles.numLights; i++)
+    {
+        // Shadow
+        Light light = lights[i];
+        directLighting += DoLight_Default(light, brdfData, viewPosition, viewNormal, V, uv, ShadowWrapSampler);
+        
+        // Ambient contribution
+        directLighting += light.ambient * albedo;
+    }
     
     // Tonemapping
     directLighting = LinearToSRGB(directLighting);

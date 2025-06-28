@@ -2,46 +2,31 @@
 
 namespace Renderer
 {
-	RenderPass::RenderPass(std::string name, RenderPassType type)
+	RenderPass::RenderPass(RenderGraph& renderGraph, std::string name, RenderPassType type)
 		:
-		Pass(std::move(name)),
+		m_renderGraph(renderGraph),
+		m_name(std::move(name)),
 		m_renderPassType(type)
-	{
-	}
-
-	void RenderPass::Accept(const Drawable& drawable) noexcept(!IS_DEBUG)
-	{
-		m_drawables.push_back(drawable);
-	}
+	{ }
 
 	void RenderPass::Finalize()
 	{
-		Pass::Finalize();
 		if (m_renderPassType == RenderPassType::Graphics && !m_renderTargets.size() && !m_depthStencil)
 		{
 			throw RG_EXCEPTION("Render Pass [" + GetName() + "] needs at least one of a renderTarget or depthStencil");
 		}
 	}
 
-	void RenderPass::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	void RenderPass::Draw(D3D12RHI& gfx, ILMesh::DrawData& drawData) noexcept(!IS_DEBUG)
 	{
-		if (m_renderPassType == RenderPassType::Graphics)
-		{
-			gfx.SetGPUResources();
-			gfx.SetRenderTargets(m_renderTargets, m_depthStencil);
-			gfx.Set32BitRootConstants(0, 1, &m_cameraDataHandle);
-			gfx.SetPrimitiveTopology(m_pipelineStateObject->GetTopologyType());
+		gfx.SetVertexBuffer(drawData.vertexBuffer->GetBuffer(), drawData.vertexSizeInBytes, drawData.vertexStrideInBytes);
+		gfx.SetIndexBuffer(drawData.indexBuffer->GetBuffer(), drawData.indexSizeInBytes);
 
-			for (const auto& drawable : m_drawables) drawable.get().Draw(gfx);
-		}
-		else if (m_renderPassType == RenderPassType::Compute)
-		{
-			gfx.Dispatch(DivideAndRoundUp(gfx.GetWidth(), 16), DivideAndRoundUp(gfx.GetHeight(), 16), 1);
-		}
+		gfx.DrawIndexed(drawData.numIndices);
 	}
 
 	void RenderPass::Reset() noexcept(!IS_DEBUG)
 	{
-		m_drawables.clear();
+		
 	}
 }

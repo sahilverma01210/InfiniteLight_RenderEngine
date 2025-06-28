@@ -1,26 +1,18 @@
-#include "Common.hlsli"
+#include "Lighting.hlsli"
 #include "Scene.hlsli"
 
-struct CubeFace
+struct ShadowIndices
 {
-    uint index;
+    uint currentLightIndex;
+    uint currentfaceIndex;
 };
 
-struct Light
-{
-    float3 position;
-};
-
-ConstantBuffer<CubeFace> cubeFace : register(b3);
-ConstantBuffer<Light> light : register(b4);
+ConstantBuffer<ShadowIndices> shadowIndices : register(b3);
 
 float4 main(float3 pos : Position) : SV_Position
 {
-    //float4x4 lightViewProjection = transpose(mul(Get360ViewMatrix(cubeFace.index, light.position), Get360ProjectionMatrix()));
-    //float4 posWS = mul(float4(pos, 1.0f), GetMeshMat());
-    //float4 posLS = mul(posWS, lightViewProjection);    
-    //return posLS;
+    StructuredBuffer<Light> light = ResourceDescriptorHeap[frameData.lightDataIdx];
     
-    float4x4 meshViewProj = mul(mul(GetMeshMat(), Get360ViewMatrix(cubeFace.index, light.position)), Get360ProjectionMatrix());
+    float4x4 meshViewProj = mul(mul(GetMeshMat(), Get360ViewMatrix(shadowIndices.currentfaceIndex, light[shadowIndices.currentLightIndex].pos)), Get360ProjectionMatrix());
     return mul(float4(pos, 1.0f), meshViewProj);
 }

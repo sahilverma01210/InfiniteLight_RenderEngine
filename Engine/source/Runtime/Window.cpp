@@ -199,7 +199,7 @@ namespace Runtime
 			{
 				if (!CursorEnabled())
 				{
-					m_renderer->Rotate((float)delta->x, (float)delta->y);
+					m_renderer->Rotate(Vector2{ (float)delta->x, (float)delta->y });
 				}
 			}
 

@@ -5,16 +5,10 @@
 #include "Camera.h"
 #include "RenderGraph.h"
 
+#define MAX_CAMERAS 5 // Maximum number of cameras supported
+
 namespace Renderer
 {
-	__declspec(align(256u)) struct CameraCBuf
-	{
-		alignas(16) Matrix viewMat;
-		alignas(16) Matrix projectionMat;
-		alignas(16) Matrix inverseViewMat;
-		alignas(16) Matrix inverseProjectionMat;
-	};
-
 	class CameraContainer
 	{
 	public:
@@ -22,18 +16,23 @@ namespace Renderer
 		bool SpawnWindow(D3D12RHI& gfx);
 		void AddCamera(std::shared_ptr<Camera> pCam);
 		void UpdateCamera(D3D12RHI& gfx);
-		void Submit(RenderGraph& renderGraph) const;
-		Camera& GetActiveCamera();
-	private:
-		Camera& GetControlledCamera();
+		int GetNumCameras() const { return m_cameras.size(); }
+		int GetActiveCameraIndex() const { return m_active; }
+		int GetControlledCameraIndex() const { return m_controlled; }
+		Camera& GetActiveCamera() { return *m_cameras[m_active]; }
+		Camera& GetControlledCamera() { return *m_cameras[m_controlled]; }
+		std::vector<std::shared_ptr<Camera>> GetCameras() const { return m_cameras; }
+		ResourceHandle GetCameraBufferHandle() const { return m_cameraBufferHandle; }
 
 	public:
 		bool m_imGUIwndOpen = true;
 	private:
+		int m_numCameras = 0;
 		int m_active = 0;
 		int m_controlled = 0;
-		CameraCBuf m_cameraCBuf{};
 		std::vector<std::shared_ptr<Camera>> m_cameras;
-		std::shared_ptr<D3D12Buffer> m_CameraConstants;
+		Camera::CameraData m_cameraBufferData;
+		std::shared_ptr<D3D12Buffer> m_cameraBuffer;
+		ResourceHandle m_cameraBufferHandle = -1;
 	};
 }

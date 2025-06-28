@@ -1,26 +1,28 @@
 #pragma once
 #include "RenderPass.h"
-#include "CameraProjection.h"
+#include "LightContainer.h"
+#include "CameraContainer.h"
+#include "CameraIndicator.h"
 
 namespace Renderer
 {
-	class WireframePass : public RenderPass
+	class IndicatorFlatPass : public RenderPass
 	{
 	public:
-		WireframePass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
+		IndicatorFlatPass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer, LightContainer& lightContainer)
 			:
 			RenderPass(renderGraph, std::move(name)),
-			m_cameraContainer(cameraContainer)
+			m_cameraContainer(cameraContainer),
+			m_lightContainer(lightContainer)
 		{
-			for (int i = 0; i < m_cameraContainer.GetNumCameras(); ++i) m_cameraProjections.push_back(std::make_shared<CameraProjection>(gfx, 1.0f, 9.0f / 16.0f , 0.5f, 400.0f ));
+			for (int i = 0; i < m_lightContainer.GetNumLights(); ++i) m_pointLightindicators.push_back(std::make_shared<PointLightIndicator>(gfx, dynamic_cast<PointLight&>(m_lightContainer.GetControlledLight()).GetRadius()));
+			for (int i = 0; i < m_cameraContainer.GetNumCameras(); ++i) m_cameraIndicators.push_back(std::make_shared<CameraIndicator>(gfx));
 
 			m_renderTargets.resize(1);
 			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
 			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
 
 			CreatePSO(gfx);
-
-			//m_renderGraph.AppendPass(std::make_unique<WireframePass>(*this));
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
@@ -49,10 +51,8 @@ namespace Renderer
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.numElements = vec.size();
 			pipelineDesc.inputElementDescs = inputElementDescs;
-			pipelineDesc.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 			pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Flat_VS.hlsl" };
 			pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Flat_PS.hlsl" };
-			pipelineDesc.depthStencilMode = Mode::DepthAlways;
 
 			m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
 			m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
@@ -63,17 +63,28 @@ namespace Renderer
 
 			for (auto& camera : m_cameraContainer.GetCameras())
 			{
-				auto& cameraProj = *m_cameraProjections[index];
-				cameraProj.Toggle(camera->GetState().enableCameraProjection && index != m_cameraContainer.GetActiveCameraIndex());
+				auto& cameraIndicator = *m_cameraIndicators[index];
+				cameraIndicator.Toggle(camera->GetState().enableCameraIndicator && index != m_cameraContainer.GetActiveCameraIndex());
 
-				if (cameraProj.IsEnabled())
-				{					
-					cameraProj.Update(camera->GetTransform().position, camera->GetTransform().rotation);
-					cameraProj.SetVertices(gfx, camera->GetProjection().width, camera->GetProjection().height, camera->GetProjection().nearZ, camera->GetProjection().farZ);
+				if (cameraIndicator.IsEnabled())
+				{
+					cameraIndicator.Update(camera->GetTransform().position, camera->GetTransform().rotation);
 				}
 
 				index++;
 			}
+
+			index = 0;
+
+			for (auto& light : m_lightContainer.GetLights())
+			{
+				auto& pointLightindicator = *m_pointLightindicators[index];
+				pointLightindicator.Update(light->GetLightData().pos);
+
+				index++;
+			}			
+
+			m_cameraContainer.UpdateCamera(gfx);
 
 			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
 
@@ -84,22 +95,34 @@ namespace Renderer
 			gfx.Set32BitRootConstants(0, 5, &RenderGraph::m_frameData);
 			gfx.SetPrimitiveTopology(m_pipelineStateObject->GetTopologyType());
 
-			for (auto& cameraProjection : m_cameraProjections)
+			for(auto& cameraIndicator : m_cameraIndicators)
 			{
-				if (!cameraProjection->IsEnabled()) continue;
+				if (!cameraIndicator->IsEnabled()) continue;
 
-				auto& transforms = cameraProjection->GetTransforms();
-				auto materialHandle = cameraProjection->GetMaterialIdx();
+				auto& transforms = cameraIndicator->GetTransforms();
+				auto materialHandle = cameraIndicator->GetMaterialIdx();
 				gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
 				gfx.Set32BitRootConstants(2, 1, &materialHandle);
 
-				Draw(gfx, cameraProjection->GetDrawData());
+				Draw(gfx, cameraIndicator->GetDrawData());
+			}
+
+			for (auto& pointLightindicator : m_pointLightindicators)
+			{
+				auto& transforms = pointLightindicator->GetTransforms();
+				auto materialHandle = pointLightindicator->GetMaterialIdx();
+				gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
+				gfx.Set32BitRootConstants(2, 1, &materialHandle);
+
+				Draw(gfx, pointLightindicator->GetDrawData());
 			}
 		}
 
 	private:
 		VertexLayout m_vtxLayout;
+		LightContainer& m_lightContainer;
 		CameraContainer& m_cameraContainer;
-		std::vector<std::shared_ptr<CameraProjection>> m_cameraProjections;
+		std::vector<std::shared_ptr<PointLightIndicator>> m_pointLightindicators;
+		std::vector<std::shared_ptr<CameraIndicator>> m_cameraIndicators;
 	};
 }

@@ -4,7 +4,9 @@ namespace Renderer
 {
 	std::mutex mutex;
 
-	Model::Model(D3D12RHI& gfx, const std::string& pathString, XMFLOAT3 transform, bool enablePostProcessing, float scale)
+	Model::Model(D3D12RHI& gfx, std::string name, const std::string& pathString, XMFLOAT3 transform, float scale)
+		:
+		m_name(name)
 	{
 		Assimp::Importer imp;
 		const auto pScene = imp.ReadFile(pathString.c_str(),
@@ -21,15 +23,15 @@ namespace Renderer
 		}
 
 		// parse materials
-		std::vector<std::shared_ptr<ImportMaterial>> materials;
+		std::vector<std::shared_ptr<Material>> materials;
 		materials.resize(pScene->mNumMaterials);
 		{
 			std::vector<std::thread> threads;
 			for (size_t i = 0; i < pScene->mNumMaterials; i++)
 			{
-				threads.emplace_back([&materials, &gfx, pScene, i, enablePostProcessing, pathString]() {
+				threads.emplace_back([&materials, &gfx, pScene, i, pathString]() {
 					std::lock_guard<std::mutex> guard(mutex);
-					materials[i] = std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString, enablePostProcessing, mutex);
+					materials[i] = std::make_shared<Material>(gfx, *pScene->mMaterials[i], pathString, mutex);
 					});
 
 				// Assigning Name to each Threads.
@@ -45,12 +47,12 @@ namespace Renderer
 		}
 
 		// parse materials
-		//std::vector<std::shared_ptr<ImportMaterial>> materials;
+		//std::vector<std::shared_ptr<Material>> materials;
 		//for (size_t i = 1; i < pScene->mNumMaterials; i++)
 		//{
 		//	//aiMaterial mat = *pScene->mMaterials[i];
 		//	//std::string name = mat.GetName().C_Str();
-		//	materials.push_back(std::make_shared<ImportMaterial>(gfx, *pScene->mMaterials[i], pathString));
+		//	materials.push_back(std::make_shared<Material>(gfx, *pScene->mMaterials[i], pathString));
 		//}
 
 		//bool hasRootNode = false;
@@ -83,9 +85,50 @@ namespace Renderer
 		m_pRoot->SetAppliedTransform(XMMatrixTranslation(transform.x, transform.y, transform.z));
 	}
 
-	void Model::Submit(RenderGraph& renderGraph) const noexcept(!IS_DEBUG)
+	bool Model::SpawnWindow()
 	{
-		m_pRoot->Submit(XMMatrixIdentity(), renderGraph);
+		ImGui::Begin(m_name.c_str(), &m_imGUIwndOpen);
+		ImGui::Columns(2, nullptr, true);
+		m_pRoot->Accept(*this);
+		ImGui::NextColumn();
+		if (m_pSelectedNode != nullptr) m_pSelectedNode->SpawnWindow();
+		ImGui::End();
+
+		return m_imGUIwndOpen;
+	}
+
+	bool Model::PushNode(Node& node)
+	{
+		// if there is no selected node, set selectedId to an impossible value
+		const int selectedId = (m_pSelectedNode == nullptr) ? -1 : m_pSelectedNode->GetId();
+		// build up flags for current node
+		const auto node_flags = ImGuiTreeNodeFlags_OpenOnArrow
+			| ((node.GetId() == selectedId) ? ImGuiTreeNodeFlags_Selected : 0)
+			| (node.HasChildren() ? 0 : ImGuiTreeNodeFlags_Leaf);
+		// render this node
+		const auto expanded = ImGui::TreeNodeEx(
+			(void*)(intptr_t)node.GetId(),
+			node_flags, node.GetName().c_str()
+		);
+		// processing for selecting node
+		if (ImGui::IsItemClicked())
+		{			
+			if (m_pSelectedNode != nullptr) m_pSelectedNode->OnDeselect(); // Deselect prev-selected node
+			node.OnSelect(); // Select newly-selected node
+			m_pSelectedNode = &node;
+		}
+		// signal if children should also be recursed
+		return expanded;
+	}
+
+	void Model::PopNode(Node& node)
+	{
+		ImGui::TreePop();
+	}
+
+	void Model::Update() const noexcept(!IS_DEBUG)
+	{
+		m_pRoot->Update(XMMatrixIdentity());
 	}
 
 	std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept(!IS_DEBUG)
@@ -111,10 +154,5 @@ namespace Renderer
 		}
 
 		return pNode;
-	}
-
-	void Model::Accept(ModelProbe& probe)
-	{
-		m_pRoot->Accept(probe);
 	}
 }

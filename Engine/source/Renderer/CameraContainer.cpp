@@ -4,8 +4,8 @@ namespace Renderer
 {
 	CameraContainer::CameraContainer(D3D12RHI& gfx)
 	{
-		m_CameraConstants = std::make_shared<D3D12Buffer>(gfx, &m_cameraCBuf, sizeof(m_cameraCBuf));
-		RenderPass::m_cameraDataHandle = gfx.LoadResource(m_CameraConstants);
+		m_cameraBuffer = std::make_shared<D3D12Buffer>(gfx, &m_cameraBufferData, sizeof(m_cameraBufferData), sizeof(Camera::CameraData));
+		RenderGraph::m_frameData.cameraDataHandle = gfx.LoadResource(m_cameraBuffer, D3D12Resource::ViewType::SRV);
 	}
 
 	bool CameraContainer::SpawnWindow(D3D12RHI& gfx)
@@ -52,35 +52,10 @@ namespace Renderer
 
 	void CameraContainer::UpdateCamera(D3D12RHI& gfx)
 	{
-		GetActiveCamera().SetViewMatrix();
-		GetActiveCamera().SetProjectionMatrix();
+		GetActiveCamera().Update(gfx);
 
-		m_cameraCBuf.viewMat = GetActiveCamera().GetViewMatrix();
-		m_cameraCBuf.projectionMat = GetActiveCamera().GetProjectionMatrix();
-		m_cameraCBuf.inverseViewMat = m_cameraCBuf.viewMat.Invert();
-		m_cameraCBuf.inverseProjectionMat = m_cameraCBuf.projectionMat.Invert();
+		m_cameraBufferData = GetActiveCamera().GetCameraData();
 
-		m_CameraConstants->Update(gfx, &m_cameraCBuf, sizeof(m_cameraCBuf), BufferType::Constant);
-	}
-
-	void CameraContainer::Submit(RenderGraph& renderGraph) const
-	{
-		for (size_t i = 0; i < m_cameras.size(); i++)
-		{
-			if (i != m_active)
-			{
-				m_cameras[i]->Submit(renderGraph);
-			}
-		}
-	}
-
-	Camera& CameraContainer::GetActiveCamera()
-	{
-		return *m_cameras[m_active];
-	}
-
-	Camera& CameraContainer::GetControlledCamera()
-	{
-		return *m_cameras[m_controlled];
+		m_cameraBuffer->Update(gfx, &m_cameraBufferData, sizeof(m_cameraBufferData), BufferType::Constant);
 	}
 }

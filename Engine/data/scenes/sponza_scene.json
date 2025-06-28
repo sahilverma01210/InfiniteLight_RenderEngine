@@ -44,12 +44,34 @@
         }
     ],
     "config": {
+        "editor": true,
         "post-processing": true
     },
     "lights": [
         {
+            "name": "Point Light A",
             "position": {
-                "x": 0.0,
+                "x": 4.5,
+                "y": 2.0,
+                "z": 0.25
+            },
+            "ambient": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0
+            },
+            "diffuse": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0
+            },
+            "diffuseIntensity": 1.0,
+            "type": "Point Light"
+        },
+        {
+            "name": "Point Light B",
+            "position": {
+                "x": -5.5,
                 "y": 2.0,
                 "z": 0.25
             },

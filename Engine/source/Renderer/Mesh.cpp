@@ -2,19 +2,22 @@
 
 namespace Renderer
 {
-	Mesh::Mesh(D3D12RHI& gfx, std::shared_ptr<ImportMaterial> material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
+	Mesh::Mesh(D3D12RHI& gfx, std::shared_ptr<Material> material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
 		: m_material(material)
 	{
-		m_meshIdx = ++m_meshCount;
-
 		m_vtxLayout.Append(VertexLayout::Position3D);
 		m_vtxLayout.Append(VertexLayout::Normal);
 		m_vtxLayout.Append(VertexLayout::Texture2D);
 		m_vtxLayout.Append(VertexLayout::Tangent);
 		m_vtxLayout.Append(VertexLayout::Bitangent);
 
+		m_renderEffects["shadow_map"] = true;
+		m_renderEffects["g_buffer"] = true;
+		m_renderEffects["object_flat"] = false;
+
+		m_materialIdx = material->GetMaterialHandle();
+
 		ApplyMesh(gfx, MakeVertices(gfx, mesh, scale), MakeIndices(gfx, mesh));
-		ApplyMaterial(gfx, m_material.get(), true);
 	}
 
 	VertexRawBuffer Mesh::MakeVertices(D3D12RHI& gfx, const aiMesh& mesh, float scale) const noexcept(!IS_DEBUG)
@@ -50,24 +53,10 @@ namespace Renderer
 		return indices;
 	}
 
-	void Mesh::Submit(FXMMATRIX accumulatedTranform, RenderGraph& renderGraph) const noexcept(!IS_DEBUG)
+	void Mesh::Update(FXMMATRIX accumulatedTranform) const noexcept(!IS_DEBUG)
 	{
 		XMStoreFloat4x4(&m_transform, accumulatedTranform);
-		ILMesh::Submit(renderGraph);
-	}
-
-	void Mesh::ToggleEffect(std::string name, bool enabled) noexcept(!IS_DEBUG)
-	{
-		m_material->ToggleEffect(name, enabled);
-	}
-
-	void Mesh::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
-	{
-		Transforms transforms{};
-		transforms.meshMat = XMLoadFloat4x4(&m_transform);
-		transforms.meshInvMat = XMMatrixInverse(nullptr, transforms.meshMat);
-
-		gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
-		gfx.Set32BitRootConstants(2, 1, &m_materialIdx);
+		m_transforms.meshMat = XMLoadFloat4x4(&m_transform);
+		m_transforms.meshInvMat = XMMatrixInverse(nullptr, m_transforms.meshMat);
 	}
 }

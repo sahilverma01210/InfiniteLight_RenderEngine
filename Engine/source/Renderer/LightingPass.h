@@ -1,6 +1,6 @@
 #pragma once
 #include "RenderPass.h"
-#include "CameraContainer.h"
+#include "LightContainer.h"
 
 namespace Renderer
 {
@@ -15,31 +15,22 @@ namespace Renderer
 
 		__declspec(align(256u)) struct LightResourceHandles
 		{
+			int32_t numLights;
 			ResourceHandle renderTargetIdx;
-			ResourceHandle frameConstIdx;
-			ResourceHandle lightConstIdx;
 			ResourceHandle diffTexIdx;
 			ResourceHandle normTexIdx;
 			ResourceHandle metallicRoughTexIdx;
 			ResourceHandle depthTexIdx;
 		};
 
-		__declspec(align(256u)) struct FrameCBuffer
-		{
-			XMFLOAT2 renderResolution;
-		};
-
 	public:
-		LightingPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
+		LightingPass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name, LightContainer& lightContainer)
 			:
-			RenderPass(std::move(name), RenderPassType::Compute),
-			m_cameraContainer(cameraContainer)
+			RenderPass(renderGraph, std::move(name), RenderPassType::Compute),
+			m_lightContainer(lightContainer)
 		{
-			m_frameCBuffer.renderResolution = XMFLOAT2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
-
+			m_lightResourceHandles.numLights = lightContainer.GetLights().size();
 			m_lightResourceHandles.renderTargetIdx = gfx.LoadResource(std::make_shared<MeshTexture>(gfx, "NULL_TEX"));
-			m_lightResourceHandles.frameConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_frameCBuffer, sizeof(m_frameCBuffer)));
-			m_lightResourceHandles.lightConstIdx = RenderGraph::m_lightDataHandles[0];
 			m_lightResourceHandles.diffTexIdx = RenderGraph::m_frameResourceHandles["Diffuse"];
 			m_lightResourceHandles.normTexIdx = RenderGraph::m_frameResourceHandles["Normal"];
 			m_lightResourceHandles.metallicRoughTexIdx = RenderGraph::m_frameResourceHandles["MetallicRough"];
@@ -48,10 +39,12 @@ namespace Renderer
 			lightResourceHandlesIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_lightResourceHandles, sizeof(m_lightResourceHandles)));
 
 			CreatePSO(gfx);
+
+			//m_renderGraph.AppendPass(std::make_unique<LightingPass>(*this));
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
-			UINT num32BitConstants[2] = { 1, 1 };
+			UINT num32BitConstants[2] = { 5, 1 };
 
 			PipelineDescription pipelineDesc{};
 			pipelineDesc.type = PipelineType::Compute;
@@ -77,29 +70,33 @@ namespace Renderer
 			gfx.TransitionResource(metallicRoughTexBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			gfx.TransitionResource(depthTexBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_DEPTH_READ);
 
-			for (size_t i = 0; i < 6; i++)
+			for (auto& light : m_lightContainer.GetLights())
 			{
-				gfx.TransitionResource(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Shadow_Depth"] + i)->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+				for (size_t i = 0; i < 6; i++)
+				{
+					gfx.TransitionResource(gfx.GetResourcePtr(light->GetShadowMapHandle() + i)->GetBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+				}
 			}
-
-			gfx.SetGPUResources();
 
 			m_rootSignature->Bind(gfx);
 			m_pipelineStateObject->Bind(gfx);
 
-			gfx.Set32BitRootConstants(0, 1, &RenderPass::m_cameraDataHandle, PipelineType::Compute);
+			gfx.Set32BitRootConstants(0, 5, &RenderGraph::m_frameData, PipelineType::Compute);
 			gfx.Set32BitRootConstants(1, 1, &lightResourceHandlesIdx, PipelineType::Compute);
 
-			RenderPass::Execute(gfx);
+			gfx.Dispatch(DivideAndRoundUp(gfx.GetWidth(), 16), DivideAndRoundUp(gfx.GetHeight(), 16), 1);
 
 			gfx.TransitionResource(diffuseTexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			gfx.TransitionResource(normalTexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			gfx.TransitionResource(metallicRoughTexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			gfx.TransitionResource(depthTexBuffer, D3D12_RESOURCE_STATE_DEPTH_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-			for (size_t i = 0; i < 6; i++)
+			for (auto& light : m_lightContainer.GetLights())
 			{
-				gfx.TransitionResource(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Shadow_Depth"] + i)->GetBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+				for (size_t i = 0; i < 6; i++)
+				{
+					gfx.TransitionResource(gfx.GetResourcePtr(light->GetShadowMapHandle() + i)->GetBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+				}
 			}
 
 			ID3D12Resource* finalTargetBuffer = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex())->GetBuffer();
@@ -114,9 +111,8 @@ namespace Renderer
 		}
 
 	private:
-		CameraContainer& m_cameraContainer;
+		LightContainer& m_lightContainer;
 		LightResourceHandles m_lightResourceHandles{};
-		FrameCBuffer m_frameCBuffer{};
 		ResourceHandle lightResourceHandlesIdx = -1;
 	};
 }

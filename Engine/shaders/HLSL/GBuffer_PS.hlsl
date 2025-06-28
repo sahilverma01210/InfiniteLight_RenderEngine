@@ -1,13 +1,12 @@
 #include "Common.hlsli"
 #include "Scene.hlsli"
 
-struct ImportMatCB
+struct MaterialDataHandles
 {
     int diffuseIdx;
     int normalIdx;
     int roughnessMetallicIdx;
     int materialConstIdx;
-    int solidConstIdx;
 };
 
 struct MaterialConstants
@@ -40,12 +39,12 @@ PSOut CalculatePixels(VSOut vsIn)
 {
     PSOut pso;
     
-    ConstantBuffer<ImportMatCB> importCB = ResourceDescriptorHeap[meshConstants.materialIdx];
-    ConstantBuffer<MaterialConstants> materialConstants = ResourceDescriptorHeap[importCB.materialConstIdx];
+    ConstantBuffer<MaterialDataHandles> matDataHandles = ResourceDescriptorHeap[meshConstants.materialIdx];
+    ConstantBuffer<MaterialConstants> materialConstants = ResourceDescriptorHeap[matDataHandles.materialConstIdx];
     
-    Texture2D<float4> diffTex = ResourceDescriptorHeap[importCB.diffuseIdx];
-    Texture2D<float4> normTex = ResourceDescriptorHeap[importCB.normalIdx];
-    Texture2D<float4> roughMetallicTex = ResourceDescriptorHeap[importCB.roughnessMetallicIdx];
+    Texture2D<float4> diffTex = ResourceDescriptorHeap[matDataHandles.diffuseIdx];
+    Texture2D<float4> normTex = ResourceDescriptorHeap[matDataHandles.normalIdx];
+    Texture2D<float4> roughMetallicTex = ResourceDescriptorHeap[matDataHandles.roughnessMetallicIdx];
         
     float4 albedoColor = diffTex.Sample(LinearWrapSampler, vsIn.texUV) * float4(materialConstants.pbrBaseColorFactor, 1.0f);;
     if (albedoColor.a < materialConstants.gltfAlphaCutoff)

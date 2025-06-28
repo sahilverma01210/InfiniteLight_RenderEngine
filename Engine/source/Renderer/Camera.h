@@ -1,15 +1,22 @@
 #pragma once
 #include "../Common/ImGUI_Includes.h"
 
+#include "D3D12RHI.h"
 #include "RenderMath.h"
-#include "CameraIndicator.h"
-#include "CameraProjection.h"
 
 namespace Renderer
 {
 	class Camera
 	{
 	public:
+		struct State
+		{
+			bool rotate = false;
+			bool move = false;
+			bool project = false;
+			bool enableCameraIndicator = false;
+			bool enableCameraProjection = false;
+		};
 		struct Transform
 		{
 			Vector3 position = { 0.0f,0.0f,0.0f }; // X, Y, Z
@@ -18,37 +25,52 @@ namespace Renderer
 			Quaternion orientation = Quaternion{};
 			Vector3 lookAt = { 0.0f,0.0f,0.0f };
 		};
+		struct Projection
+		{
+			float width;
+			float height;
+			float nearZ;
+			float farZ;
+		};
+		struct CameraData
+		{
+			Matrix viewMat;
+			Matrix projectionMat;
+			Matrix inverseViewMat;
+			Matrix inverseProjectionMat;
+			Matrix inverseViewProjectionMat;
+			Vector3 position;
+		};
 
 	public:
-		Camera(D3D12RHI& gfx, std::string name, Transform transform, bool tethered = false) noexcept(!IS_DEBUG);
+		Camera(D3D12RHI& gfx, std::string name, Transform transform) noexcept(!IS_DEBUG);
+		void Update(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		Matrix GetViewMatrix() const noexcept(!IS_DEBUG);
 		Matrix GetProjectionMatrix() const noexcept(!IS_DEBUG);
 		void SetViewMatrix() noexcept(!IS_DEBUG);
 		void SetProjectionMatrix() noexcept(!IS_DEBUG);
 		void SpawnControlWidgets(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		void Reset(D3D12RHI& gfx) noexcept(!IS_DEBUG);
-		void Rotate(float dx, float dy) noexcept(!IS_DEBUG);
-		void Translate(Vector3 translation, float dt) noexcept(!IS_DEBUG);
-		Vector3 GetPos() const noexcept(!IS_DEBUG);
-		void SetPos(const Vector3& pos) noexcept(!IS_DEBUG);
-		const std::string& GetName() const noexcept(!IS_DEBUG);
-		void Submit(RenderGraph& renderGraph) const;
+		void Rotate(Vector2 rotation) noexcept(!IS_DEBUG);
+		void Translate(Vector3 translation) noexcept(!IS_DEBUG);
+		Transform& GetTransform() noexcept(!IS_DEBUG) { return m_transform; }
+		Projection& GetProjection() noexcept(!IS_DEBUG) { return m_projection; }
+		const std::string& GetName() const noexcept(!IS_DEBUG) { return m_name; }
+		CameraData& GetCameraData() noexcept(!IS_DEBUG) { return m_cameraData; }
+		State& GetState() noexcept(!IS_DEBUG) { return m_state; }
 
 	private:
+		State m_state;
 		Matrix m_viewMatrix{};
 		Matrix m_projectionMatrix{};
-		bool m_tethered;
 		std::string m_name;
 		float m_fov = XMConvertToRadians(45.0f);
 		float m_travelSpeed = 12.0f;
 		float m_rotationSpeed = 0.004f;
-		CameraProjection::Projection m_projection;
-		CameraProjection::Projection m_homeProjection;
+		Projection m_projection;
+		Projection m_homeProjection;
 		Transform m_transform;
 		Transform m_homeTransform;
-		bool m_enableCameraIndicator = false;
-		bool m_enableCameraProjection = false;
-		CameraProjection m_cameraProjection;
-		CameraIndicator m_cameraIndicator;
+		CameraData m_cameraData{};
 	};
 }

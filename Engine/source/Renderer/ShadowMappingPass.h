@@ -1,27 +1,42 @@
 #pragma once
 #include "RenderPass.h"
 #include "RenderMath.h"
+#include "LightContainer.h"
 #include "CameraContainer.h"
+#include "Model.h"
 
 namespace Renderer
 {
 	class ShadowMappingPass : public RenderPass
 	{
-	public:
-		ShadowMappingPass(D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer)
-			:
-			RenderPass(std::move(name)),
-			m_cameraContainer(cameraContainer)
+		struct ShadowIndices
 		{
-			for (size_t i = 0; i < 6; i++)
+			UINT currentLightIndex;
+			UINT currentfaceIndex;
+		};
+
+	public:
+		ShadowMappingPass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name, CameraContainer& cameraContainer, LightContainer& lightContainer, std::vector<std::shared_ptr<Model>>& models)
+			:
+			RenderPass(renderGraph, std::move(name)),
+			m_lightContainer(lightContainer),
+			m_cameraContainer(cameraContainer),
+			m_models(models)
+		{
+			for (auto& light : m_lightContainer.GetLights())
 			{
-				ResourceHandle handle = gfx.LoadResource(std::make_shared<DepthStencil>(gfx, 2048, 2048, DepthUsage::ShadowDepth));
-				if (!i) RenderGraph::m_frameResourceHandles["Shadow_Depth"] = handle;
-			}
+				for (size_t i = 0; i < 6; i++)
+				{
+					ResourceHandle handle = gfx.LoadResource(std::make_shared<DepthStencil>(gfx, 2048, 2048, DepthUsage::ShadowDepth));
+					if (!i) light->SetShadowMapHandle(handle);
+				}
+			}			
 
 			m_depthStencil = std::make_shared<DepthStencil>(gfx, 2048, 2048, DepthUsage::ShadowDepth);
 
 			CreatePSO(gfx);
+
+			//m_renderGraph.AppendPass(std::make_unique<ShadowMappingPass>(*this));
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
@@ -35,10 +50,10 @@ namespace Renderer
 				inputElementDescs[i] = vec[i];
 			}
 
-			UINT num32BitConstants[5] = { 1, 2 * sizeof(XMMATRIX) / 4, 1, 1, sizeof(XMFLOAT3) / 4};
+			UINT num32BitConstants[4] = { 5, 2 * sizeof(XMMATRIX) / 4, 1, 2};
 
 			PipelineDescription pipelineDesc{};
-			pipelineDesc.numConstants = 5;
+			pipelineDesc.numConstants = 4;
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.shadowMapping = true;
 			pipelineDesc.numElements = vec.size();
@@ -56,34 +71,64 @@ namespace Renderer
 
 			gfx.ResizeScreenSpace(m_size, m_size);
 
-			for (size_t i = 0; i < 6; i++)
+			UINT lightIdx = 0;
+
+			for (auto& light : m_lightContainer.GetLights())
 			{
-				//m_depthStencil = std::move(m_pDepthCube->GetDepthBuffer(i));
-				m_depthStencil->Clear(gfx);
+				for (size_t faceIdx = 0; faceIdx < 6; faceIdx++)
+				{
+					m_depthStencil->Clear(gfx);
 
-				m_rootSignature->Bind(gfx);
-				m_pipelineStateObject->Bind(gfx);
+					m_rootSignature->Bind(gfx);
+					m_pipelineStateObject->Bind(gfx);
 
-				gfx.Set32BitRootConstants(3, 1, &i);
-				gfx.Set32BitRootConstants(4, sizeof(RenderGraph::m_lightPosition) / 4, &RenderGraph::m_lightPosition);
-				
-				RenderPass::Execute(gfx);
+					m_shadowIndices.currentLightIndex = lightIdx;
+					m_shadowIndices.currentfaceIndex = faceIdx;
 
-				ID3D12Resource* depthStencilBuffer = m_depthStencil->GetBuffer();
-				ID3D12Resource* depthTargetBuffer = gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Shadow_Depth"] + i)->GetBuffer();
+					gfx.Set32BitRootConstants(3, 2, &m_shadowIndices);
 
-				gfx.TransitionResource(depthStencilBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_SOURCE);
-				gfx.TransitionResource(depthTargetBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_DEST);
-				gfx.CopyResource(depthTargetBuffer, depthStencilBuffer);
-				gfx.TransitionResource(depthStencilBuffer, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-				gfx.TransitionResource(depthTargetBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+					gfx.SetRenderTargets(m_renderTargets, m_depthStencil);
+					gfx.Set32BitRootConstants(0, 5, &RenderGraph::m_frameData);
+					gfx.SetPrimitiveTopology(m_pipelineStateObject->GetTopologyType());
+
+					for (auto& model : m_models)
+					{
+						for (auto& mesh : model->GetMeshes())
+						{
+							if (mesh->GetRenderEffects()[GetName()])
+							{
+								auto& transforms = mesh->GetTransforms();
+								auto materialHandle = mesh->GetMaterialIdx();
+								gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
+								gfx.Set32BitRootConstants(2, 1, &materialHandle);
+
+								Draw(gfx, mesh->GetDrawData());
+							}
+						}
+					}
+
+					ID3D12Resource* depthStencilBuffer = m_depthStencil->GetBuffer();
+					ID3D12Resource* depthTargetBuffer = gfx.GetResourcePtr(light->GetShadowMapHandle() + faceIdx)->GetBuffer();
+
+					gfx.TransitionResource(depthStencilBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_SOURCE);
+					gfx.TransitionResource(depthTargetBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_DEST);
+					gfx.CopyResource(depthTargetBuffer, depthStencilBuffer);
+					gfx.TransitionResource(depthStencilBuffer, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+					gfx.TransitionResource(depthTargetBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+				}
+
+				lightIdx++;
 			}
+			
 			gfx.ResizeScreenSpace(initWidth, initHeight);
 		}
 
 	private:
+		ShadowIndices m_shadowIndices{};
 		VertexLayout m_vtxLayout;
 		static constexpr UINT m_size = 2048;
+		LightContainer& m_lightContainer;
 		CameraContainer& m_cameraContainer;
+		std::vector<std::shared_ptr<Model>>& m_models;
 	};
 }

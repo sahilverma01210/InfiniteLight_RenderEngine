@@ -1,39 +1,37 @@
 #pragma once
-#include "Drawable.h"
-#include "ILMaterial.h"
+#include "D3D12Buffer.h"
+#include "D3D12Texture.h"
 #include "Shapes.h"
-#include "TechniqueProbe.h"
-#include "RenderGraph.h"
 
 namespace Renderer
 {
-	class ILMesh : public Drawable
+	class ILMesh
 	{
-		friend class Camera;
-
 	public:
+		struct DrawData
+		{
+			UINT numIndices;
+			UINT vertexSizeInBytes;
+			UINT indexSizeInBytes;
+			UINT vertexStrideInBytes;
+			std::shared_ptr<D3D12Buffer> vertexBuffer;
+			std::shared_ptr<D3D12Buffer> indexBuffer;
+		};
 		struct Transforms
 		{
 			Matrix meshMat;
 			Matrix meshInvMat;
 		};
 
-		struct MeshConstants
-		{
-			ResourceHandle materialHandle;
-		};
-
 	public:
 		void ApplyMesh(D3D12RHI& gfx, VertexRawBuffer vertices, std::vector<USHORT> indices);
-		void ApplyMaterial(D3D12RHI& gfx, ILMaterial* material, bool enableLighting = false) noexcept(!IS_DEBUG);
-		void AddTechnique(Technique tech_in) noexcept(!IS_DEBUG);
-		void Submit(RenderGraph& renderGraph) const noexcept(!IS_DEBUG);
-		void Accept(TechniqueProbe& probe);
+		Transforms& GetTransforms() const { return m_transforms; }
+		ResourceHandle GetMaterialIdx() const { return m_materialIdx; }
+		DrawData& GetDrawData() { return m_drawData; }
 
 	protected:
-		static inline bool m_postProcessEnabled = false;
+		DrawData m_drawData{};
 		ResourceHandle m_materialIdx;
-		static UINT m_meshCount;
-		std::vector<Technique> m_techniques;
+		mutable Transforms m_transforms{};
 	};
 }

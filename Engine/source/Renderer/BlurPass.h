@@ -30,14 +30,14 @@ namespace Renderer
 		};
 
 	public:
-		BlurPass(D3D12RHI& gfx, std::string name)
+		BlurPass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name)
 			:
-			RenderPass(std::move(name), RenderPassType::Compute)
+			RenderPass(renderGraph, std::move(name), RenderPassType::Compute)
 		{
 			m_frameCBuffer.renderResolution = XMFLOAT2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
 			SetKernelGauss(m_radius, m_sigma);
 
-			m_blurResourceHandles.blurTargetIdx = RenderGraph::m_frameResourceHandles["Outline_Draw"];
+			m_blurResourceHandles.blurTargetIdx = RenderGraph::m_frameResourceHandles["Object_Flat"];
 			m_blurResourceHandles.renderTargetIdx = gfx.LoadResource(std::make_shared<MeshTexture>(gfx, "NULL_TEX"));
 			m_blurResourceHandles.frameConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_frameCBuffer, sizeof(m_frameCBuffer)));
 			m_blurResourceHandles.kernelConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_kernel, sizeof(m_kernel)));
@@ -45,6 +45,8 @@ namespace Renderer
 			blurResourceHandlesIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_blurResourceHandles, sizeof(m_blurResourceHandles)));
 
 			CreatePSO(gfx);
+
+			//m_renderGraph.AppendPass(std::make_unique<BlurPass>(*this));
 		}
 		void SetKernelBox(int radius) noexcept(!IS_DEBUG)
 		{
@@ -77,7 +79,7 @@ namespace Renderer
 		}
 		void CreatePSO(D3D12RHI& gfx)
 		{
-			UINT num32BitConstants[2] = { 1, 1 };
+			UINT num32BitConstants[2] = { 5, 1 };
 
 			PipelineDescription pipelineDesc{};
 			pipelineDesc.type = PipelineType::Compute;
@@ -94,21 +96,16 @@ namespace Renderer
 			ID3D12Resource* blurTargetBuffer = gfx.GetResource(m_blurResourceHandles.blurTargetIdx).GetBuffer();
 			ID3D12Resource* renderTargetBuffer = gfx.GetResourcePtr(m_blurResourceHandles.renderTargetIdx)->GetBuffer();
 
-			//gfx.ClearResource(m_frameHandles.renderTargetHandle, D3D12Resource::ViewType::UAV);
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			gfx.TransitionResource(renderTargetBuffer, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-						
-			gfx.SetGPUResources();
 
 			m_rootSignature->Bind(gfx);
 			m_pipelineStateObject->Bind(gfx);
 
-			gfx.Set32BitRootConstants(0, 1, &RenderPass::m_cameraDataHandle, PipelineType::Compute);
+			gfx.Set32BitRootConstants(0, 5, &RenderGraph::m_frameData, PipelineType::Compute);
 			gfx.Set32BitRootConstants(1, 1, &blurResourceHandlesIdx, PipelineType::Compute);
 
-			RenderPass::Execute(gfx);
-
-			//ID3D12Resource* finalTargetBuffer = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex())->GetBuffer();
+			gfx.Dispatch(DivideAndRoundUp(gfx.GetWidth(), 16), DivideAndRoundUp(gfx.GetHeight(), 16), 1);
 
 			gfx.TransitionResource(renderTargetBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -117,7 +114,6 @@ namespace Renderer
 			
 			gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			gfx.TransitionResource(renderTargetBuffer, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			//gfx.TransitionResource(finalTargetBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
 
 	private:

@@ -6,20 +6,25 @@
 * Use transpose() in HLSL or XMMatrixTranspose() in C++ to achieve this.
 */
 
-struct FrameDataHandles
+struct FrameData
 {
-    int frameDataIdx;
+    float2 resolution;
+    int lightDataIdx;
+    int cameraDataIdx;
+    int envMapIdx;
 };
 
-struct CameraConstants
+struct Camera
 {
     row_major matrix viewMat;
     row_major matrix projectionMat;
     row_major matrix inverseViewMat;
     row_major matrix inverseProjectionMat;
+    row_major matrix inverseViewProjectionMat;
+    float3 position;
 };
 
-ConstantBuffer<FrameDataHandles> frameDataHandles : register(b0);
+ConstantBuffer<FrameData> frameData : register(b0);
 
 SamplerState LinearWrapSampler : register(s0);
 SamplerState LinearClampSampler : register(s1);
@@ -37,23 +42,35 @@ SamplerState PointMirrorSampler : register(s9);
 
 matrix GetViewMat()
 {
-    ConstantBuffer<CameraConstants> cameraConstants = ResourceDescriptorHeap[frameDataHandles.frameDataIdx];
-    return cameraConstants.viewMat;
+    StructuredBuffer<Camera> cameras = ResourceDescriptorHeap[frameData.cameraDataIdx];
+    return cameras[0].viewMat;
 }
 matrix GetProjectionMat()
 {
-    ConstantBuffer<CameraConstants> cameraConstants = ResourceDescriptorHeap[frameDataHandles.frameDataIdx];
-    return cameraConstants.projectionMat;
+    StructuredBuffer<Camera> cameras = ResourceDescriptorHeap[frameData.cameraDataIdx];
+    return cameras[0].projectionMat;
 }
 matrix GetInverseViewMat()
 {
-    ConstantBuffer<CameraConstants> cameraConstants = ResourceDescriptorHeap[frameDataHandles.frameDataIdx];
-    return cameraConstants.inverseViewMat;
+    StructuredBuffer<Camera> cameras = ResourceDescriptorHeap[frameData.cameraDataIdx];
+    return cameras[0].inverseViewMat;
 }
 matrix GetInverseProjectionMat()
 {
-    ConstantBuffer<CameraConstants> cameraConstants = ResourceDescriptorHeap[frameDataHandles.frameDataIdx];
-    return cameraConstants.inverseProjectionMat;
+    StructuredBuffer<Camera> cameras = ResourceDescriptorHeap[frameData.cameraDataIdx];
+    return cameras[0].inverseProjectionMat;
+}
+
+matrix GetInverseViewProjectionMat()
+{
+    StructuredBuffer<Camera> cameras = ResourceDescriptorHeap[frameData.cameraDataIdx];
+    return cameras[0].inverseViewProjectionMat;
+}
+
+float3 GetCameraPosition()
+{
+    StructuredBuffer<Camera> cameras = ResourceDescriptorHeap[frameData.cameraDataIdx];
+    return cameras[0].position;
 }
 
 static float3 GetViewPosition(float2 texcoord, float depth)

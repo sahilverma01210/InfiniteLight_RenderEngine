@@ -2,41 +2,27 @@
 
 namespace Renderer
 {
-	CameraProjection::CameraProjection(D3D12RHI& gfx, Projection projection)
+	CameraProjection::CameraProjection(D3D12RHI& gfx, float width, float height, float nearZ, float farZ)
 	{
-		m_meshIdx = ++m_meshCount;
-		m_indexedList = Frustum::Make(projection.width, projection.height, projection.nearZ, projection.farZ);
+		m_indexedList = Frustum::Make(width, height, nearZ, farZ);
 
-		auto material = std::make_shared<WireframeMaterial>(gfx, m_indexedList.vertices.GetLayout(), XMFLOAT3{ 0.6f,0.2f,0.2f });
+		SolidCB solidCB = { XMFLOAT3{ 0.6f,0.2f,0.2f } };
+		m_lineWireMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &solidCB, sizeof(solidCB)));
+		m_materialIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_lineWireMatHandles, sizeof(m_lineWireMatHandles)));
 		
 		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
-		ApplyMaterial(gfx, material.get());
 	}
 
-	void CameraProjection::SetVertices(D3D12RHI& gfx, Projection projection)
+	void CameraProjection::SetVertices(D3D12RHI& gfx, float width, float height, float nearZ, float farZ)
 	{
-		m_indexedList = Frustum::Make(projection.width, projection.height, projection.nearZ, projection.farZ);
+		m_indexedList = Frustum::Make(width, height, nearZ, farZ);
 
-		m_vertexBuffer->Update(gfx, m_indexedList.vertices.GetData(), UINT(m_indexedList.vertices.SizeBytes()), BufferType::Vertex);
+		m_drawData.vertexBuffer->Update(gfx, m_indexedList.vertices.GetData(), UINT(m_indexedList.vertices.SizeBytes()), BufferType::Vertex);
 	}
 
-	void CameraProjection::SetPos(XMFLOAT3 pos)
+	void CameraProjection::Update(Vector3 position, Vector3 rotation) noexcept(!IS_DEBUG)
 	{
-		this->m_pos = pos;
-	}
-
-	void CameraProjection::SetRotation(XMFLOAT3 rot)
-	{
-		this->m_rot = rot;
-	}
-
-	void CameraProjection::SetTransform(D3D12RHI& gfx) const noexcept(!IS_DEBUG)
-	{
-		Transforms transforms{};
-		transforms.meshMat = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&m_rot)) * XMMatrixTranslationFromVector(XMLoadFloat3(&m_pos));
-		transforms.meshInvMat = XMMatrixInverse(nullptr, transforms.meshMat);
-
-		gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
-		gfx.Set32BitRootConstants(2, 1, &m_materialIdx);
+		m_transforms.meshMat = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&rotation)) * XMMatrixTranslationFromVector(XMLoadFloat3(&position));
+		m_transforms.meshInvMat = XMMatrixInverse(nullptr, m_transforms.meshMat);
 	}
 }
