@@ -2,22 +2,11 @@
 
 #define BLOCK_SIZE 16
 
-struct MaterialHandle
-{
-    int blurResourceHandlesIdx;
-};
-
 struct BlurResourceHandles
 {
     int blurTargetIdx;
     int renderTargetIdx;
-    int frameConstIdx;
     int kernelConstIdx;
-};
-
-struct FrameCBuffer
-{
-    float2 renderResolution;
 };
 
 struct Kernel
@@ -26,7 +15,7 @@ struct Kernel
     float coefficients[15];
 };
 
-ConstantBuffer<MaterialHandle> matCB : register(b1);
+ConstantBuffer<BlurResourceHandles> blurResourceHandles : register(b1);
 
 struct CSInput
 {
@@ -39,17 +28,14 @@ struct CSInput
 [numthreads(BLOCK_SIZE, BLOCK_SIZE, 1)]
 void main(CSInput input)
 {    
-    ConstantBuffer<BlurResourceHandles> blurResourceHandles = ResourceDescriptorHeap[matCB.blurResourceHandlesIdx];
-    
     Texture2D<float4> inTex = ResourceDescriptorHeap[blurResourceHandles.blurTargetIdx];
     RWTexture2D<float4> outTex = ResourceDescriptorHeap[blurResourceHandles.renderTargetIdx];
-    ConstantBuffer<FrameCBuffer> frameCB = ResourceDescriptorHeap[blurResourceHandles.frameConstIdx];
     ConstantBuffer<Kernel> kernel = ResourceDescriptorHeap[blurResourceHandles.kernelConstIdx];
         
-    float2 uv = ((float2) input.DispatchThreadId.xy + 0.5f) * 1.0f / frameCB.renderResolution;
+    float2 uv = ((float2) input.DispatchThreadId.xy + 0.5f) * 1.0f / frameData.resolution;
         
-    float width = frameCB.renderResolution.x;
-    float height = frameCB.renderResolution.y;
+    float width = frameData.resolution.x;
+    float height = frameData.resolution.y;
     
     float dx, dy;
     

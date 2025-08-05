@@ -26,7 +26,8 @@ namespace Renderer
 	enum class PipelineType
 	{
 		Graphics,
-		Compute
+		Compute,
+		RayTracing
 	};
     enum class Mode
     {
@@ -64,6 +65,7 @@ namespace Renderer
         UINT numElements = 0;
 		UINT numRenderTargets = 0;
 		DXGI_FORMAT* renderTargetFormats = nullptr;
+		D3D12_STATE_OBJECT_TYPE stateObjectType = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         D3D12_INPUT_ELEMENT_DESC* inputElementDescs = nullptr;
         ID3D12RootSignature* rootSignature = nullptr;
@@ -87,11 +89,16 @@ namespace Renderer
         };
 
     public:
-        virtual ~D3D12Resource() = default;
+        virtual ~D3D12Resource()
+        { 
+            if (m_cpuAllocation) m_uploadBuffer->Unmap(0, nullptr);
+        };
         ID3D12Resource* GetBuffer() const { return m_resourceBuffer.Get(); };
-		void SetDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE descHandle) { m_descHandle = descHandle; };
+        ID3D12Resource* GetCPUBuffer() const { return m_uploadBuffer.Get(); };
+		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const { return m_resourceBuffer->GetGPUVirtualAddress(); };
+		void SetCPUDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE cpuDescHandle) { m_cpuDescHandle = cpuDescHandle; };
 		void SetGPUDescriptor(D3D12_GPU_DESCRIPTOR_HANDLE gpuDescHandle) { m_gpuDescHandle = gpuDescHandle; };
-        D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor() { return &m_descHandle; };
+        D3D12_CPU_DESCRIPTOR_HANDLE* GetCPUDescriptor() { return &m_cpuDescHandle; };
         D3D12_GPU_DESCRIPTOR_HANDLE* GetGPUDescriptor() { return &m_gpuDescHandle; };
 		DXGI_FORMAT GetFormat() const { return m_format; };
 		D3D12_BUFFER_SRV GetBufferSRV() const { return m_bufferSRV; };
@@ -99,16 +106,22 @@ namespace Renderer
         ViewType GetViewType() const { return m_viewType; };
 		ResourceType GetResourceType() const { return m_resourceType; };
 		void SetViewType(ViewType viewType) { m_viewType = viewType; };
+		void SetDescriptorIndex(UINT index) { m_descriptorIndex = index; };
+		UINT GetDescriptorIndex() const { return m_descriptorIndex; };
 
     protected:
 		bool m_isSRGB = false;
+		UINT m_descriptorIndex = 0;
 		ViewType m_viewType;
         ResourceType m_resourceType = ResourceType::Default;
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 		D3D12_BUFFER_SRV m_bufferSRV{};
-        D3D12_CPU_DESCRIPTOR_HANDLE m_descHandle;
-		D3D12_GPU_DESCRIPTOR_HANDLE m_gpuDescHandle;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_cpuDescHandle{};
+        D3D12_GPU_DESCRIPTOR_HANDLE m_gpuDescHandle{};
+        ComPtr<ID3D12Resource> m_uploadBuffer;
         ComPtr<ID3D12Resource> m_resourceBuffer;
+        ComPtr<Allocation> m_cpuAllocation;
+        ComPtr<Allocation> m_gpuAllocation;
     };
 
     class D3D12RHI
@@ -119,9 +132,11 @@ namespace Renderer
         // D3D12RHI METHODS
         D3D12RHI(HWND hWnd);
         ~D3D12RHI();
-        UINT GetWidth();
-        UINT GetHeight();
-        UINT GetCurrentBackBufferIndex();
+        UINT GetWidth() const { return m_width; }
+        UINT GetHeight() const { return m_height; }
+		HWND GetWindowHandle() const { return m_hWnd; }
+		UINT GetBackBufferCount() const { return m_backBufferCount; }
+        UINT GetCurrentBackBufferIndex() { return m_swapChain->GetCurrentBackBufferIndex(); }
         RECT GetScreenRect();
         void ResetCommandList();
         void ExecuteCommandList();
@@ -135,15 +150,19 @@ namespace Renderer
         void SetVertexBuffer(ID3D12Resource* vertexBuffer, UINT sizeInBytes, UINT strideInBytes, UINT startSlot = 0, UINT numViews = 1);
         void SetIndexBuffer(ID3D12Resource* indexBuffer, UINT sizeInBytes);
         void Info(HRESULT hresult);
-        std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers();
+        void IncrementDescriptorHandle();
+		D3D12_CPU_DESCRIPTOR_HANDLE& GetCurrentCommonCPUHandle() { return m_currentCommonCPUHandle; }
+		D3D12_GPU_DESCRIPTOR_HANDLE& GetCurrentCommonGPUHandle() { return m_currentCommonGPUHandle; }
+        std::vector<ComPtr<ID3D12Resource>> GetTargetBuffers() { return m_backBuffers; }
+        ComPtr<ID3D12DescriptorHeap>& GetCommonDescriptorHeap() { return m_commonDescriptorHeap; }
         // RESOURCE MANAGER METHODS
 		D3D12_CONSTANT_BUFFER_VIEW_DESC CreateCBVDesc(std::shared_ptr<D3D12Resource> resource);
 		D3D12_SHADER_RESOURCE_VIEW_DESC CreateSRVDesc(std::shared_ptr<D3D12Resource> resource);
 		D3D12_UNORDERED_ACCESS_VIEW_DESC CreateUAVDesc(std::shared_ptr<D3D12Resource> resource);
         ResourceHandle LoadResource(std::shared_ptr<D3D12Resource> resource, D3D12Resource::ViewType type = D3D12Resource::ViewType::Default);
-        D3D12Resource& GetResource(ResourceHandle handle);
-        ResourceHandle GetResourceHandle(ResourceName resourceName);
-        std::shared_ptr<D3D12Resource> GetResourcePtr(ResourceHandle resourceHandle);
+        D3D12Resource& GetResource(ResourceHandle handle) { return *m_resourceMap[handle]; }
+        ResourceHandle GetResourceHandle(ResourceName resourceName) { return m_loadedResources[resourceName]; }
+        std::shared_ptr<D3D12Resource> GetResourcePtr(ResourceHandle resourceHandle) { return m_resourceMap[resourceHandle]; }
         void ClearResource(ResourceHandle resourceHandle);
         void CopyResource(ID3D12Resource* dstResource, ID3D12Resource* srcResource);
 		void SetGPUResources();
@@ -152,10 +171,14 @@ namespace Renderer
         void StartFrame();
         void DrawIndexed(UINT indexCountPerInstance);
 		void Dispatch(UINT group_count_x, UINT group_count_y, UINT group_count_z);
+        void DispatchRays(D3D12_DISPATCH_RAYS_DESC& dispatchDesc);
         void EndFrame();
         // ACESS RHI INTERFACE
-        ID3D12Device* GetDevice() { return m_device.Get(); }
-        ID3D12GraphicsCommandList* GetCommandList() { return m_currentCommandList.Get(); }
+        ID3D12Device5* GetDevice() { return m_device.Get(); }
+        ID3D12GraphicsCommandList6* GetCommandList() { return m_currentCommandList.Get(); }
+		// Rendering Techinques
+		void ToggleRayTracing(bool enable) { m_isRayTracingEnabled = enable; }
+		bool IsRayTracingEnabled() const { return m_isRayTracingEnabled; }
     private:
         // Helper function for acquiring the first available hardware adapter that supports Direct3D 12.
         // If no such adapter can be found, *ppAdapter will be set to nullptr.
@@ -165,13 +188,17 @@ namespace Renderer
             bool requestHighPerformanceAdapter = false);
 
     private:
+		bool m_isRayTracingEnabled = false;
+        // Viewport dimensions.
+        UINT m_width;
+        UINT m_height;
+        UINT m_backBufferIndex;
+        UINT m_backBufferCount = 2;
+        UINT m_descriptorCount = 0;
         HRESULT hResult;
         HWND m_hWnd;
         // Adapter info.
         bool m_useWarpDevice = false;
-        // Viewport dimensions.
-        UINT m_width;
-        UINT m_height;
         // Synchronization objects.
         UINT64 m_fenceValue;
         HANDLE m_fenceEvent;
@@ -180,23 +207,19 @@ namespace Renderer
         CD3DX12_VIEWPORT m_viewport; // Maps NDC to screen space.
         CD3DX12_RECT m_scissorRect; // Clips fragments to a rectangular region in screen space.
         std::vector<CD3DX12_RESOURCE_BARRIER> m_barriers;
-        ComPtr<ID3D12Device> m_device;
+        ComPtr<ID3D12Device5> m_device;
         ComPtr<ID3D12CommandQueue> m_commandQueue;
         ComPtr<ID3D12CommandAllocator> m_commandAllocator;
-        ComPtr<ID3D12GraphicsCommandList> m_currentCommandList;
+        ComPtr<ID3D12GraphicsCommandList6> m_currentCommandList;
         ComPtr<IDXGISwapChain4> m_swapChain;
 		ComPtr<Allocator> m_allocator;
 #ifndef NDEBUG
         DxgiInfoManager m_infoManager;
 #endif
-        UINT m_backBufferIndex;
-        static const UINT m_backBufferCount = 2;
-        std::vector<ComPtr<ID3D12Resource>> m_targetBuffers;
-        ComPtr<ID3D12Resource> m_currentDepthBuffer = nullptr;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_currentCommonCPUHandle{};
+        D3D12_GPU_DESCRIPTOR_HANDLE m_currentCommonGPUHandle{};
+        ComPtr<ID3D12DescriptorHeap> m_commonDescriptorHeap;
         std::vector<ComPtr<ID3D12Resource>> m_backBuffers; // Back Buffers as Render Targets
-        UINT m_descriptorCount = 0;
-        ComPtr<ID3D12DescriptorHeap> m_descriptorHeap;
-        ResourceHandle m_resourceHandle = 0;
         std::unordered_map<ResourceName, ResourceHandle> m_loadedResources;
         std::unordered_map<ResourceHandle, std::shared_ptr<D3D12Resource>> m_resourceMap;
     };

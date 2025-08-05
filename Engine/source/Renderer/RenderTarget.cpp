@@ -3,8 +3,10 @@
 namespace Renderer
 {
 	RenderTarget::RenderTarget(D3D12RHI& gfx, UINT width, UINT height, DXGI_FORMAT format)
+        :
+		m_gfx(gfx)
 	{
-        INFOMAN(gfx);
+        INFOMAN(m_gfx);
 
 		m_format = format;
         m_resourceType = ResourceType::Texture2D;
@@ -19,7 +21,7 @@ namespace Renderer
 
         {
             D3D12_CLEAR_VALUE clearValue = { m_format, {0.0f, 0.0f, 0.0f, 0.0f} };
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES,
                 &desc,
                 D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
                 IID_PPV_ARGS(&m_resourceBuffer)
@@ -33,28 +35,29 @@ namespace Renderer
             rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
             rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
             rtvHeapDesc.NodeMask = 1;
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
         }
 
         // Create Frame Resources - Render Target View (RTV).
         {
-            UINT m_rtvDescriptorSize = GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            UINT m_rtvDescriptorSize = GetDevice(m_gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-            m_descHandle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
-			m_gpuDescHandle = m_rtvHeap->GetGPUDescriptorHandleForHeapStart();
+            SetCPUDescriptor(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
             rtvHandle.ptr += m_rtvDescriptorSize;
 
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(m_resourceBuffer.Get(), nullptr, m_descHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(m_gfx)->CreateRenderTargetView(m_resourceBuffer.Get(), nullptr, *GetCPUDescriptor()));
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
 	}
 
     RenderTarget::RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture, std::optional<UINT> face)
+        :
+        m_gfx(gfx)
     {
-        INFOMAN(gfx);
+        INFOMAN(m_gfx);
 
         m_resourceBuffer = pTexture;
         m_resourceType = ResourceType::Texture2D;
@@ -67,7 +70,7 @@ namespace Renderer
             rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
             rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
             rtvHeapDesc.NodeMask = 1;
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
         }
 
         // Create Frame Resources - Render Target View (RTV).
@@ -88,24 +91,23 @@ namespace Renderer
                 rtvDesc.Texture2D = D3D12_TEX2D_RTV{ 0 };
             }
 
-            UINT m_rtvDescriptorSize = GetDevice(gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            UINT m_rtvDescriptorSize = GetDevice(m_gfx)->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-            m_descHandle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
-			m_gpuDescHandle = m_rtvHeap->GetGPUDescriptorHandleForHeapStart();
+            SetCPUDescriptor(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
             rtvHandle.ptr += m_rtvDescriptorSize;
 
-            D3D12RHI_THROW_INFO_ONLY(GetDevice(gfx)->CreateRenderTargetView(pTexture, &rtvDesc, m_descHandle));
+            D3D12RHI_THROW_INFO_ONLY(GetDevice(m_gfx)->CreateRenderTargetView(pTexture, &rtvDesc, *GetCPUDescriptor()));
             rtvHandle.Offset(1, m_rtvDescriptorSize);
         }
     }
 
-    void RenderTarget::Clear(D3D12RHI& gfx)
+    void RenderTarget::Clear()
     {
         const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->ClearRenderTargetView(m_descHandle, clear_color_with_alpha, 0, nullptr));
+        INFOMAN_NOHR(m_gfx);
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(m_gfx)->ClearRenderTargetView(*GetCPUDescriptor(), clear_color_with_alpha, 0, nullptr));
     }
 }

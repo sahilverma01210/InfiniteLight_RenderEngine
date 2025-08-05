@@ -4,9 +4,10 @@ namespace Renderer
 {
     RootSignature::RootSignature(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
         :
+        m_gfx(gfx),
 		m_pipelineDesc(pipelineDesc)
     {
-        INFOMAN(gfx);
+        INFOMAN(m_gfx);
 
         m_numRootParameters += pipelineDesc.numConstants;
 
@@ -93,7 +94,7 @@ namespace Renderer
             throw std::runtime_error(static_cast<const char*>(errorBlob->GetBufferPointer()));
         }
 
-        D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
+        D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
 
         pipelineDesc.rootSignature = m_rootSignature.Get();
     }
@@ -103,16 +104,16 @@ namespace Renderer
         return m_rootSignature.Get();
     }
 
-    void RootSignature::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+    void RootSignature::Bind() noexcept(!IS_DEBUG)
     {
-        INFOMAN_NOHR(gfx);
+        INFOMAN_NOHR(m_gfx);
         switch (m_pipelineDesc.type)
         {
         case PipelineType::Graphics:
-            D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetGraphicsRootSignature(m_rootSignature.Get()));
+            D3D12RHI_THROW_INFO_ONLY(GetCommandList(m_gfx)->SetGraphicsRootSignature(m_rootSignature.Get()));
             break;
 		case PipelineType::Compute:
-			D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetComputeRootSignature(m_rootSignature.Get()));
+			D3D12RHI_THROW_INFO_ONLY(GetCommandList(m_gfx)->SetComputeRootSignature(m_rootSignature.Get()));
 			break;
         default:
             break;

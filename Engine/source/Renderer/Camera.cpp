@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	Camera::Camera(D3D12RHI& gfx, std::string name, Transform transform) noexcept(!IS_DEBUG)
+	Camera::Camera(std::string name, Transform transform) noexcept(!IS_DEBUG)
 		:
 		m_name(std::move(name)),
 		m_homeTransform(transform),
@@ -14,7 +14,7 @@ namespace Renderer
 		m_projection = m_homeProjection;
 	}
 
-	void Camera::Update(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	void Camera::Update() noexcept(!IS_DEBUG)
 	{
 		SetViewMatrix();
 		SetProjectionMatrix();
@@ -54,10 +54,10 @@ namespace Renderer
 
 	void Camera::SetProjectionMatrix() noexcept(!IS_DEBUG)
 	{
-		m_projectionMatrix = XMMatrixPerspectiveFovLH(m_fov, m_projection.width / m_projection.height, m_projection.nearZ, m_projection.farZ);
+		m_projectionMatrix = XMMatrixPerspectiveFovLH(m_fov, m_projection.width / m_projection.height, m_invertProjection ? m_projection.farZ : m_projection.nearZ, m_invertProjection ? m_projection.nearZ : m_projection.farZ);
 	}
 
-	void Camera::SpawnControlWidgets(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	void Camera::SpawnControlWidgets() noexcept(!IS_DEBUG)
 	{
 		const auto dcheck = [](bool d, bool& carry) { carry = carry || d; };
 		ImGui::Text("Position");
@@ -76,20 +76,25 @@ namespace Renderer
 		ImGui::Checkbox("Camera Projection", &m_state.enableCameraProjection);
 		if (ImGui::Button("Reset"))
 		{
-			Reset(gfx);
+			ResetParams();
 		}
 
 		SetViewMatrix();
 		SetProjectionMatrix();
 	}
 
-	void Camera::Reset(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	void Camera::ResetParams() noexcept(!IS_DEBUG)
 	{
 		m_transform.position = m_homeTransform.position;
 		m_transform.rotation = m_homeTransform.rotation;
 		m_projection = m_homeProjection;
 
 		m_state.rotate = m_state.move = m_state.project = true;
+	}
+
+	void Camera::ResetSate() noexcept(!IS_DEBUG)
+	{
+		m_state.rotate = m_state.move = m_state.project = m_state.enableCameraIndicator = m_state.enableCameraProjection = false;
 	}
 
 	void Camera::Rotate(Vector2 rotation) noexcept(!IS_DEBUG)

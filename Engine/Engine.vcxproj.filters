@@ -158,6 +158,12 @@
     <Filter Include="Source\Renderer\Public\Light">
       <UniqueIdentifier>{ba50ca77-da1a-4c3b-8323-01b781bdc950}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\HLSL\Ray Tracing">
+      <UniqueIdentifier>{d68c232a-4535-4f99-8a3a-f40999a625be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\HLSL\Tone Mapping">
+      <UniqueIdentifier>{63922f1e-c392-4122-bb49-9d87053290b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Renderer\PointLight.h">
@@ -178,7 +184,7 @@
     <ClInclude Include="source\Renderer\Model.h">
       <Filter>Source\Renderer\Public\Model</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\IndexedTriangleList.h">
+    <ClInclude Include="source\Renderer\Primitives.h">
       <Filter>Source\Renderer\Public\Common\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="source\Renderer\Vertex.h">
@@ -343,9 +349,6 @@
     <ClInclude Include="source\_External\dx12\d3d12ma\D3D12MemAlloc.h">
       <Filter>Source\_External\Public\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="source\Renderer\Material.h">
-      <Filter>Source\Renderer\Public\Model</Filter>
-    </ClInclude>
     <ClInclude Include="source\Renderer\LightContainer.h">
       <Filter>Source\Renderer\Public\Light</Filter>
     </ClInclude>
@@ -357,6 +360,27 @@
     </ClInclude>
     <ClInclude Include="source\Renderer\PointLightIndicator.h">
       <Filter>Source\Renderer\Public\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12RTAccelerationStructure.h">
+      <Filter>Source\Renderer\Public\Core\RHI\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\AccelerationStructure.h">
+      <Filter>Source\Renderer\Public\Core\Render Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\PathTracingPass.h">
+      <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12StateObject.h">
+      <Filter>Source\Renderer\Public\Core\RHI\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12RTShaderTable.h">
+      <Filter>Source\Renderer\Public\Core\RHI\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\ToneMapPass.h">
+      <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer\EditorPass.h">
+      <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -392,9 +416,6 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderGraphException.cpp">
       <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\CameraContainer.cpp">
-      <Filter>Source\Renderer\Private\Camera</Filter>
     </ClCompile>
     <ClCompile Include="source\Common\ILException.cpp">
       <Filter>Source\Common\Private</Filter>
@@ -440,9 +461,6 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\Vertex.cpp">
       <Filter>Source\Renderer\Private\Common\Primitives</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Renderer\ILMesh.cpp">
-      <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
     </ClCompile>
     <ClCompile Include="source\Renderer\RenderGraph.cpp">
       <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
@@ -504,6 +522,21 @@
     <ClCompile Include="source\Renderer\PointLightIndicator.cpp">
       <Filter>Source\Renderer\Private\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12RTAccelerationStructure.cpp">
+      <Filter>Source\Renderer\Private\Core\RHI\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\AccelerationStructure.cpp">
+      <Filter>Source\Renderer\Private\Core\Render Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12StateObject.cpp">
+      <Filter>Source\Renderer\Private\Core\RHI\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12RTShaderTable.cpp">
+      <Filter>Source\Renderer\Private\Core\RHI\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\CameraContainer.cpp">
+      <Filter>Source\Renderer\Private\Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\HLSL\GBuffer_PS.hlsl">
@@ -518,10 +551,10 @@
     <CustomBuild Include="shaders\HLSL\Skybox_VS.hlsl">
       <Filter>Shaders\HLSL\Skybox</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\ObjectOutline_PS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Outline_PS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaders\HLSL\ObjectOutline_VS.hlsl">
+    <CustomBuild Include="shaders\HLSL\Outline_VS.hlsl">
       <Filter>Shaders\HLSL\Post Processing</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Flat_PS.hlsl">
@@ -556,6 +589,27 @@
     </CustomBuild>
     <CustomBuild Include="shaders\HLSL\Lighting.hlsli">
       <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Random.hlsli">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Utility.hlsli">
+      <Filter>Shaders\HLSL\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PathTracer.hlsl">
+      <Filter>Shaders\HLSL\Ray Tracing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\PathTracing.hlsli">
+      <Filter>Shaders\HLSL\Ray Tracing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\RayTracingUtil.hlsli">
+      <Filter>Shaders\HLSL\Ray Tracing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Tonemap_CS.hlsl">
+      <Filter>Shaders\HLSL\Tone Mapping</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\HLSL\Tonemapping.hlsli">
+      <Filter>Shaders\HLSL\Tone Mapping</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

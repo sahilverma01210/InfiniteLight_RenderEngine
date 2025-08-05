@@ -43,18 +43,16 @@
             "far": 800.0
         }
     ],
-    "config": {
-        "editor": true,
-        "post-processing": true
-    },
     "lights": [
         {
-            "name": "Point Light A",
+            "name": "Directional Light A",
             "position": {
                 "x": 4.5,
                 "y": 2.0,
                 "z": 0.25
-            },
+            },            
+            "elevation": 73.0,
+			"azimuth" :  180.0,
             "ambient": {
                 "r": 0.0,
                 "g": 0.0,
@@ -66,7 +64,8 @@
                 "b": 1.0
             },
             "diffuseIntensity": 1.0,
-            "type": "Point Light"
+            "range": 7.0,
+            "type": 0
         },
         {
             "name": "Point Light B",
@@ -75,6 +74,8 @@
                 "y": 2.0,
                 "z": 0.25
             },
+            "elevation": 73.0,
+			"azimuth" :  180.0,
             "ambient": {
                 "r": 0.0,
                 "g": 0.0,
@@ -86,7 +87,8 @@
                 "b": 1.0
             },
             "diffuseIntensity": 1.0,
-            "type": "Point Light"
+            "range": 7.0,
+            "type": 1
         }
     ],
     "models": [

@@ -5,8 +5,10 @@
 namespace Renderer
 {   
 	PipelineState::PipelineState(D3D12RHI& gfx, PipelineDescription& pipelineDesc)
+        :
+		m_gfx(gfx)
 	{
-        INFOMAN(gfx);
+        INFOMAN(m_gfx);
 
         // Describe and create the graphics pipeline state object (PSO).
         if (pipelineDesc.type == PipelineType::Graphics)
@@ -75,7 +77,7 @@ namespace Renderer
                 depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
             }
 
-            m_graphicsPsoDescription.InputLayout = { pipelineDesc.inputElementDescs , pipelineDesc.numElements };
+			m_graphicsPsoDescription.InputLayout = pipelineDesc.vertexShader.GenerateInputLayoutFromDXC(); // Extracting InputLayout from compiled Shader using Shader Reflection
             m_graphicsPsoDescription.pRootSignature = pipelineDesc.rootSignature;
             m_graphicsPsoDescription.VS = pipelineDesc.vertexShader.GetShaderByteCode();
             m_graphicsPsoDescription.PS = pipelineDesc.pixelShader.GetShaderByteCode();
@@ -91,7 +93,7 @@ namespace Renderer
             m_graphicsPsoDescription.DSVFormat = DepthStencil::MapUsageView(pipelineDesc.depthUsage);
             m_graphicsPsoDescription.DepthStencilState = depthStencilDesc;
             m_graphicsPsoDescription.SampleDesc.Count = 1;
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateGraphicsPipelineState(&m_graphicsPsoDescription, IID_PPV_ARGS(&m_pipelineState)));
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateGraphicsPipelineState(&m_graphicsPsoDescription, IID_PPV_ARGS(&m_pipelineState)));
 		}
 		else if (pipelineDesc.type == PipelineType::Compute)
 		{
@@ -99,18 +101,13 @@ namespace Renderer
 			m_computePsoDescription.CS = pipelineDesc.computeShader.GetShaderByteCode();
 			m_computePsoDescription.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 			m_computePsoDescription.NodeMask = 0;
-			D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateComputePipelineState(&m_computePsoDescription, IID_PPV_ARGS(&m_pipelineState)));
+			D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateComputePipelineState(&m_computePsoDescription, IID_PPV_ARGS(&m_pipelineState)));
 		}
 	}
 
-    D3D12_PRIMITIVE_TOPOLOGY_TYPE PipelineState::GetTopologyType()
-    {
-        return m_topologyType;
-    }
-
-    void PipelineState::Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+    void PipelineState::Bind() noexcept(!IS_DEBUG)
 	{
-        INFOMAN_NOHR(gfx);
-        D3D12RHI_THROW_INFO_ONLY(GetCommandList(gfx)->SetPipelineState(m_pipelineState.Get()));
+        INFOMAN_NOHR(m_gfx);
+        D3D12RHI_THROW_INFO_ONLY(GetCommandList(m_gfx)->SetPipelineState(m_pipelineState.Get()));
 	}
 }

@@ -6,18 +6,21 @@ namespace Renderer
 	{
 		m_indexedList = Frustum::Make(width, height, nearZ, farZ);
 
-		SolidCB solidCB = { XMFLOAT3{ 0.6f,0.2f,0.2f } };
-		m_lineWireMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &solidCB, sizeof(solidCB)));
-		m_materialIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_lineWireMatHandles, sizeof(m_lineWireMatHandles)));
-		
-		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
+		m_drawData.vertices = m_indexedList.vertices;
+		m_drawData.indices = m_indexedList.indices;
+		m_drawData.vertexSizeInBytes = m_drawData.vertices.size() * sizeof(m_drawData.vertices[0]);
+		m_drawData.indexSizeInBytes = m_drawData.indices.size() * sizeof(m_drawData.indices[0]);
+		m_drawData.vertexStrideInBytes = sizeof(VertexStruct);
+
+		m_drawData.vertexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.vertices.data(), m_drawData.vertexSizeInBytes));
+		m_drawData.indexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.indices.data(), m_drawData.indexSizeInBytes));
 	}
 
-	void CameraProjection::SetVertices(D3D12RHI& gfx, float width, float height, float nearZ, float farZ)
+	void CameraProjection::SetVertices(float width, float height, float nearZ, float farZ)
 	{
 		m_indexedList = Frustum::Make(width, height, nearZ, farZ);
 
-		m_drawData.vertexBuffer->Update(gfx, m_indexedList.vertices.GetData(), UINT(m_indexedList.vertices.SizeBytes()), BufferType::Vertex);
+		m_drawData.vertexBuffer->UpdateGPU(m_indexedList.vertices.data(), m_indexedList.vertices.size() * sizeof(m_indexedList.vertices[0]), 0);
 	}
 
 	void CameraProjection::Update(Vector3 position, Vector3 rotation) noexcept(!IS_DEBUG)

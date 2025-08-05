@@ -32,4 +32,14 @@ namespace Renderer
 		matrix.r[3].m128_f32[2] *= scale;
 		return matrix;
 	}
+
+	Vector3 ConvertElevationAndAzimuthToDirection(Float elevation, Float azimuth)
+	{
+		Float phi = DirectX::XMConvertToRadians(azimuth);
+		Float theta = DirectX::XMConvertToRadians(elevation);
+		Float x = cos(theta) * sin(phi);
+		Float y = sin(theta);
+		Float z = cos(theta) * cos(phi);
+		return Vector3(x, y, z);
+	}
 }

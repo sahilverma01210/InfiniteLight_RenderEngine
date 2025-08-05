@@ -2,42 +2,50 @@
 
 namespace Renderer
 {
-	Mesh::Mesh(D3D12RHI& gfx, std::shared_ptr<Material> material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
-		: m_material(material)
+	Mesh::Mesh(D3D12RHI& gfx, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
 	{
-		m_vtxLayout.Append(VertexLayout::Position3D);
-		m_vtxLayout.Append(VertexLayout::Normal);
-		m_vtxLayout.Append(VertexLayout::Texture2D);
-		m_vtxLayout.Append(VertexLayout::Tangent);
-		m_vtxLayout.Append(VertexLayout::Bitangent);
-
 		m_renderEffects["shadow_map"] = true;
 		m_renderEffects["g_buffer"] = true;
 		m_renderEffects["object_flat"] = false;
 
-		m_materialIdx = material->GetMaterialHandle();
+		m_drawData.vertices = MakeVertices(mesh, scale);
+		m_drawData.indices = MakeIndices(mesh);
+		m_drawData.vertexSizeInBytes = m_drawData.vertices.size() * sizeof(m_drawData.vertices[0]);
+		m_drawData.indexSizeInBytes = m_drawData.indices.size() * sizeof(m_drawData.indices[0]);
+		m_drawData.vertexStrideInBytes = sizeof(VertexStruct);
 
-		ApplyMesh(gfx, MakeVertices(gfx, mesh, scale), MakeIndices(gfx, mesh));
+		if (!gfx.IsRayTracingEnabled())
+		{
+			m_drawData.vertexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.vertices.data(), m_drawData.vertexSizeInBytes));
+			m_drawData.indexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.indices.data(), m_drawData.indexSizeInBytes));
+		}
 	}
 
-	VertexRawBuffer Mesh::MakeVertices(D3D12RHI& gfx, const aiMesh& mesh, float scale) const noexcept(!IS_DEBUG)
+	std::vector<VertexStruct> Mesh::MakeVertices(const aiMesh& mesh, float scale) const noexcept(!IS_DEBUG)
 	{
-		VertexRawBuffer vertex{ m_vtxLayout,mesh };
-		if (scale != 1.0f)
+		std::vector<VertexStruct> vertices;
+		vertices.reserve(mesh.mNumVertices);
+		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 		{
-			for (auto i = 0u; i < vertex.Size(); i++)
-			{
-				XMFLOAT3& pos = vertex[i].Attr<VertexLayout::ElementType::Position3D>();
-				pos.x *= scale;
-				pos.y *= scale;
-				pos.z *= scale;
-			}
+			const auto& vertex = mesh.mVertices[i];
+			const auto& normal = mesh.mNormals[i];
+			const auto& tangent = mesh.mTangents[i];
+			const auto& bitangent = mesh.mBitangents[i];
+			const auto& uv = mesh.mTextureCoords[0][i];
+
+			vertices.emplace_back(
+				Vector3(vertex.x * scale, vertex.y * scale, vertex.z * scale),
+				Vector3(normal.x, normal.y, normal.z),
+				Vector2(uv.x, uv.y),
+				Vector3(tangent.x, tangent.y, tangent.z),
+				Vector3(bitangent.x, bitangent.y, bitangent.z)
+			);
 		}
 
-		return vertex;
+		return vertices;
 	}
 
-	std::vector<USHORT> Mesh::MakeIndices(D3D12RHI& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG)
+	std::vector<USHORT> Mesh::MakeIndices(const aiMesh& mesh) const noexcept(!IS_DEBUG)
 	{
 		std::vector<USHORT> indices;
 		indices.reserve(mesh.mNumFaces * 3);
@@ -45,9 +53,9 @@ namespace Renderer
 		{
 			const auto& face = mesh.mFaces[i];
 			assert(face.mNumIndices == 3);
-			indices.push_back(face.mIndices[0]);
-			indices.push_back(face.mIndices[1]);
-			indices.push_back(face.mIndices[2]);
+			indices.emplace_back(face.mIndices[0]);
+			indices.emplace_back(face.mIndices[1]);
+			indices.emplace_back(face.mIndices[2]);
 		}
 
 		return indices;

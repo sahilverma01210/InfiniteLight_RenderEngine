@@ -6,11 +6,14 @@ namespace Renderer
 	{
 		m_indexedList = Pyramid::Make();
 
-		SolidCB data = { XMFLOAT3{ 0.0f,0.0f,1.0f } };
-		m_solidMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &data, sizeof(data)));
-		m_materialIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_solidMatHandles, sizeof(m_solidMatHandles)));
+		m_drawData.vertices = m_indexedList.vertices;
+		m_drawData.indices = m_indexedList.indices;
+		m_drawData.vertexSizeInBytes = m_drawData.vertices.size() * sizeof(m_drawData.vertices[0]);
+		m_drawData.indexSizeInBytes = m_drawData.indices.size() * sizeof(m_drawData.indices[0]);
+		m_drawData.vertexStrideInBytes = sizeof(VertexStruct);
 
-		ApplyMesh(gfx, m_indexedList.vertices, m_indexedList.indices);
+		m_drawData.vertexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.vertices.data(), m_drawData.vertexSizeInBytes));
+		m_drawData.indexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.indices.data(), m_drawData.indexSizeInBytes));
 	}
 
 	void CameraIndicator::Update(XMFLOAT3 position, XMFLOAT3 rotation) noexcept(!IS_DEBUG)

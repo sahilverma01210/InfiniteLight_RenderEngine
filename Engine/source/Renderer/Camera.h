@@ -1,7 +1,6 @@
 #pragma once
 #include "../Common/ImGUI_Includes.h"
 
-#include "D3D12RHI.h"
 #include "RenderMath.h"
 
 namespace Renderer
@@ -43,14 +42,15 @@ namespace Renderer
 		};
 
 	public:
-		Camera(D3D12RHI& gfx, std::string name, Transform transform) noexcept(!IS_DEBUG);
-		void Update(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		Camera(std::string name, Transform transform) noexcept(!IS_DEBUG);
+		void Update() noexcept(!IS_DEBUG);
 		Matrix GetViewMatrix() const noexcept(!IS_DEBUG);
 		Matrix GetProjectionMatrix() const noexcept(!IS_DEBUG);
 		void SetViewMatrix() noexcept(!IS_DEBUG);
 		void SetProjectionMatrix() noexcept(!IS_DEBUG);
-		void SpawnControlWidgets(D3D12RHI& gfx) noexcept(!IS_DEBUG);
-		void Reset(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		void SpawnControlWidgets() noexcept(!IS_DEBUG);
+		void ResetParams() noexcept(!IS_DEBUG);
+		void ResetSate() noexcept(!IS_DEBUG);
 		void Rotate(Vector2 rotation) noexcept(!IS_DEBUG);
 		void Translate(Vector3 translation) noexcept(!IS_DEBUG);
 		Transform& GetTransform() noexcept(!IS_DEBUG) { return m_transform; }
@@ -58,8 +58,10 @@ namespace Renderer
 		const std::string& GetName() const noexcept(!IS_DEBUG) { return m_name; }
 		CameraData& GetCameraData() noexcept(!IS_DEBUG) { return m_cameraData; }
 		State& GetState() noexcept(!IS_DEBUG) { return m_state; }
+		void SetInvertProjection(bool invert) noexcept(!IS_DEBUG) { m_invertProjection = invert; }
 
 	private:
+		bool m_invertProjection = false;
 		State m_state;
 		Matrix m_viewMatrix{};
 		Matrix m_projectionMatrix{};

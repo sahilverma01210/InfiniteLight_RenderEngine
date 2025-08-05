@@ -6,53 +6,28 @@ namespace Renderer
 {
 	class ObjectFlatPass : public RenderPass
 	{
-		__declspec(align(256u)) struct SolidMatHandles
-		{
-			ResourceHandle solidConstIdx;
-		};
-
-		__declspec(align(256u)) struct SolidCB
-		{
-			Vector3 materialColor;
-		};
-
 	public:
 		ObjectFlatPass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name, std::vector<std::shared_ptr<Model>>& models)
 			:
-			RenderPass(renderGraph, std::move(name)),
+			RenderPass(renderGraph, gfx, std::move(name)),
 			m_models(models)
 		{
-			m_solidMatHandles.solidConstIdx = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &data, sizeof(data)));
-			m_materialHandle = gfx.LoadResource(std::make_shared<D3D12Buffer>(gfx, &m_solidMatHandles, sizeof(m_solidMatHandles)));
-
 			m_renderTargets.resize(1);
-			m_renderTargets[0] = std::make_shared<RenderTarget>(gfx, gfx.GetWidth(), gfx.GetHeight());
-			RenderGraph::m_frameResourceHandles["Object_Flat"] = gfx.LoadResource(m_renderTargets[0], D3D12Resource::ViewType::SRV);
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
+			m_renderTargets[0] = std::make_shared<RenderTarget>(m_gfx, m_gfx.GetWidth(), m_gfx.GetHeight());
+			RenderGraph::m_frameResourceHandles["Object_Flat"] = m_gfx.LoadResource(m_renderTargets[0], D3D12Resource::ViewType::SRV);
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(m_gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
 
-			CreatePSO(gfx);
-
-			//m_renderGraph.AppendPass(std::make_unique<OutlineDrawPass>(*this));
+			CreatePSO();
 		}
-		void CreatePSO(D3D12RHI& gfx)
+		void CreatePSO()
 		{
-			m_vtxLayout.Append(VertexLayout::Position3D);
-
-			// Define the vertex input layout.
-			std::vector<D3D12_INPUT_ELEMENT_DESC> vec = m_vtxLayout.GetD3DLayout();
-			D3D12_INPUT_ELEMENT_DESC* inputElementDescs = new D3D12_INPUT_ELEMENT_DESC[vec.size()];
-
-			for (size_t i = 0; i < vec.size(); ++i) {
-				inputElementDescs[i] = vec[i];
-			}
-
 			DXGI_FORMAT* renderTargetFormats = new DXGI_FORMAT[m_renderTargets.size()];
 
 			for (size_t i = 0; i < m_renderTargets.size(); i++) {
 				renderTargetFormats[i] = m_renderTargets[i]->GetFormat();
 			}
 
-			UINT num32BitConstants[3] = { 5, 2 * sizeof(XMMATRIX) / 4 , 1 };
+			UINT num32BitConstants[3] = { 11, sizeof(XMMATRIX) / 4 , 3 };
 
 			PipelineDescription pipelineDesc{};
 			pipelineDesc.numRenderTargets = m_renderTargets.size();
@@ -60,48 +35,43 @@ namespace Renderer
 			pipelineDesc.numConstants = 3;
 			pipelineDesc.num32BitConstants = num32BitConstants;
 			pipelineDesc.backFaceCulling = true;
-			pipelineDesc.numElements = vec.size();
-			pipelineDesc.inputElementDescs = inputElementDescs;
 			pipelineDesc.vertexShader = D3D12Shader{ ShaderType::VertexShader, L"Flat_VS.hlsl" };
 			pipelineDesc.pixelShader = D3D12Shader{ ShaderType::PixelShader, L"Flat_PS.hlsl" };
 			pipelineDesc.depthStencilMode = Mode::Write;
 
-			m_rootSignature = std::move(std::make_unique<RootSignature>(gfx, pipelineDesc));
-			m_pipelineStateObject = std::move(std::make_unique<PipelineState>(gfx, pipelineDesc));
+			m_rootSignature = std::move(std::make_unique<RootSignature>(m_gfx, pipelineDesc));
+			m_pipelineStateObject = std::move(std::make_unique<PipelineState>(m_gfx, pipelineDesc));
 		}
-		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
+		void Execute() noexcept(!IS_DEBUG) override
 		{
-			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Object_Flat"]);
+			m_gfx.ClearResource(RenderGraph::m_frameResourceHandles["Object_Flat"]);
 
-			m_rootSignature->Bind(gfx);
-			m_pipelineStateObject->Bind(gfx);
+			m_rootSignature->Bind();
+			m_pipelineStateObject->Bind();
 
-			gfx.SetRenderTargets(m_renderTargets, m_depthStencil);
-			gfx.Set32BitRootConstants(0, 5, &RenderGraph::m_frameData);
-			gfx.SetPrimitiveTopology(m_pipelineStateObject->GetTopologyType());
+			m_gfx.SetRenderTargets(m_renderTargets, m_depthStencil);
+			m_gfx.Set32BitRootConstants(0, 11, &RenderGraph::m_frameData);
+			m_gfx.SetPrimitiveTopology(m_pipelineStateObject->GetTopologyType());
 
 			for (auto& model : m_models)
 			{
-				for (auto& mesh : model->GetMeshes())
+				for (auto& mesh : model->GetMeshPointers())
 				{
 					if (mesh->GetRenderEffects()[GetName()])
 					{
-						auto& transforms = mesh->GetTransforms();
-						
-						gfx.Set32BitRootConstants(1, sizeof(transforms) / 4, &transforms);
-						gfx.Set32BitRootConstants(2, 1, &m_materialHandle);
+						auto& meshMat = mesh->GetTransforms().meshMat;						
+						m_gfx.Set32BitRootConstants(1, sizeof(meshMat) / 4, &meshMat);
 
-						Draw(gfx, mesh->GetDrawData());
+						auto color = Vector3{ 1.0f,0.4f,0.4f };
+						m_gfx.Set32BitRootConstants(2, 3, &color);
+
+						Draw(mesh->GetDrawData());
 					}
 				}
 			}
 		}
 
 	private:
-		ResourceHandle m_materialHandle;
-		SolidCB data = { Vector3{ 1.0f,0.4f,0.4f } };
-		VertexLayout m_vtxLayout;
-		SolidMatHandles m_solidMatHandles{};
 		std::vector<std::shared_ptr<Model>>& m_models;
 	};
 }

@@ -2,7 +2,7 @@
 
 namespace Renderer
 {
-	ID3D12Device* GraphicsResource::GetDevice(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	ID3D12Device5* GraphicsResource::GetDevice(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		return gfx.m_device.Get();
 	}
@@ -17,7 +17,7 @@ namespace Renderer
 		return gfx.m_commandAllocator.Get();
 	}
 
-	ID3D12GraphicsCommandList* GraphicsResource::GetCommandList(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	ID3D12GraphicsCommandList6* GraphicsResource::GetCommandList(D3D12RHI& gfx) noexcept(!IS_DEBUG)
 	{
 		return gfx.m_currentCommandList.Get();
 	}

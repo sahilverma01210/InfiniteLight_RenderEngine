@@ -8,18 +8,16 @@ namespace Renderer
 	public:
 		BufferClearPass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name)
 			:
-			RenderPass(renderGraph, std::move(name))
+			RenderPass(renderGraph, gfx, std::move(name))
 		{
 			m_renderTargets.resize(1);
-			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
-
-			//m_renderGraph.AppendPass(std::make_unique<BufferClearPass>(*this));
+			m_depthStencil = std::dynamic_pointer_cast<DepthStencil>(m_gfx.GetResourcePtr(RenderGraph::m_frameResourceHandles["Depth_Stencil"]));
 		}
-		void Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG) override
+		void Execute() noexcept(!IS_DEBUG) override
 		{
-			m_renderTargets[0] = gfx.GetResourcePtr(gfx.GetCurrentBackBufferIndex());
-			gfx.ClearResource(gfx.GetCurrentBackBufferIndex());
-			gfx.ClearResource(RenderGraph::m_frameResourceHandles["Depth_Stencil"]);
+			m_renderTargets[0] = m_gfx.GetResourcePtr(m_gfx.GetCurrentBackBufferIndex());
+			m_gfx.ClearResource(m_gfx.GetCurrentBackBufferIndex());
+			m_gfx.ClearResource(RenderGraph::m_frameResourceHandles["Depth_Stencil"]);
 		}
 	};
 }

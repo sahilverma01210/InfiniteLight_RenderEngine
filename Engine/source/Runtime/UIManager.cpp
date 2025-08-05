@@ -5,9 +5,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Runtime
 {
-    UIManager::UIManager(HWND hWnd, ILRenderer* renderer)
+    UIManager::UIManager(ILRenderer* renderer)
         :
-        m_hWnd(hWnd),
         m_gfx(renderer->GetRHI())
     {
         // Initialize Win32 ImGUI.
@@ -21,34 +20,30 @@ namespace Runtime
             // Setup Dear ImGui context
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
+            ImGui::StyleColorsDark();
+
             ImGuiIO& io = ImGui::GetIO(); (void)io;
             io.IniFilename = "config\\imgui.ini";
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-            io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-            // Setup Dear ImGui style
-            ImGui::StyleColorsDark();
-            //ImGui::StyleColorsLight();
+			io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+            io.ConfigWindowsResizeFromEdges = true;
+            io.ConfigViewportsNoTaskBarIcon = true;
+			io.Fonts->AddFontDefault();
+            io.Fonts->Build();
 
             // Setup Platform/Renderer backends
-            ImGui_ImplWin32_Init(m_hWnd);
+            ImGui_ImplWin32_Init(m_gfx.GetWindowHandle());
         }
 
         // Initialize D3D12 ImGUI.
         {
-            // Describe and create a SRV descriptor heap.
-            {
-                D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-                srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-                srvHeapDesc.NumDescriptors = 1;
-                srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-                m_gfx.GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap));
-            }
+            ImGui_ImplDX12_Init(m_gfx.GetDevice(), m_gfx.GetBackBufferCount(),
+                DXGI_FORMAT_R8G8B8A8_UNORM, m_gfx.GetCommonDescriptorHeap().Get(),
+                m_gfx.GetCurrentCommonCPUHandle(),
+                m_gfx.GetCurrentCommonGPUHandle());
 
-            ImGui_ImplDX12_Init(m_gfx.GetDevice(), 1,
-                DXGI_FORMAT_R8G8B8A8_UNORM, nullptr,
-                m_srvHeap->GetCPUDescriptorHandleForHeapStart(),
-                m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+            m_gfx.IncrementDescriptorHandle();
         }
     }
 
@@ -82,10 +77,16 @@ namespace Runtime
 
     void UIManager::EndUIFrame()
     {
-        m_gfx.GetCommandList()->SetDescriptorHeaps(1, m_srvHeap.GetAddressOf());
         // Rendering
         ImGui::Render();
+
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_gfx.GetCommandList());
+
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
     }
         
 	void UIManager::EnableUIMouse()
@@ -98,9 +99,9 @@ namespace Runtime
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
 	}
 
-    bool UIManager::HandleUIMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    bool UIManager::HandleUIMessages(UINT msg, WPARAM wParam, LPARAM lParam)
     {
-        return ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
+        return ImGui_ImplWin32_WndProcHandler(m_gfx.GetWindowHandle(), msg, wParam, lParam);
     }
 
     bool UIManager::HandleWindowResize()

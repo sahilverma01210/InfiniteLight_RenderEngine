@@ -18,8 +18,6 @@
 #define WIDTH 1920.0f
 #define HEIGHT 1080.0f
 
-#define UI_ENABLED
-
 using namespace Renderer;
 
 namespace Runtime

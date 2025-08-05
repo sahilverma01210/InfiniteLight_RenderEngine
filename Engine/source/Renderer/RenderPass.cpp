@@ -2,8 +2,9 @@
 
 namespace Renderer
 {
-	RenderPass::RenderPass(RenderGraph& renderGraph, std::string name, RenderPassType type)
+	RenderPass::RenderPass(RenderGraph& renderGraph, D3D12RHI& gfx, std::string name, RenderPassType type)
 		:
+		m_gfx(gfx),
 		m_renderGraph(renderGraph),
 		m_name(std::move(name)),
 		m_renderPassType(type)
@@ -17,12 +18,12 @@ namespace Renderer
 		}
 	}
 
-	void RenderPass::Draw(D3D12RHI& gfx, ILMesh::DrawData& drawData) noexcept(!IS_DEBUG)
+	void RenderPass::Draw(ILMesh::DrawData& drawData) noexcept(!IS_DEBUG)
 	{
-		gfx.SetVertexBuffer(drawData.vertexBuffer->GetBuffer(), drawData.vertexSizeInBytes, drawData.vertexStrideInBytes);
-		gfx.SetIndexBuffer(drawData.indexBuffer->GetBuffer(), drawData.indexSizeInBytes);
+		m_gfx.SetVertexBuffer(drawData.vertexBuffer->GetBuffer(), drawData.vertexSizeInBytes, drawData.vertexStrideInBytes);
+		m_gfx.SetIndexBuffer(drawData.indexBuffer->GetBuffer(), drawData.indexSizeInBytes);
 
-		gfx.DrawIndexed(drawData.numIndices);
+		m_gfx.DrawIndexed(drawData.indices.size());
 	}
 
 	void RenderPass::Reset() noexcept(!IS_DEBUG)

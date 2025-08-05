@@ -3,6 +3,8 @@
 namespace Renderer
 {
 	RenderGraph::RenderGraph(D3D12RHI& gfx)
+		:
+		m_gfx(gfx)
 	{
 		for (UINT n = 0; n < gfx.GetTargetBuffers().size(); n++)
 		{
@@ -15,6 +17,11 @@ namespace Renderer
 		m_frameData.resolution = Vector2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
 		m_frameData.envMapHandle = gfx.LoadResource(std::make_shared<CubeMapTexture>(gfx, L"data\\textures\\SpaceBox"));
 
+	}
+
+	RenderGraph::~RenderGraph()
+	{
+		m_passes.clear();
 	}
 
 	void RenderGraph::AppendPass(std::unique_ptr<RenderPass> pass)
@@ -33,25 +40,6 @@ namespace Renderer
 		m_passes.push_back(std::move(pass));
 	}
 
-	RenderPass& RenderGraph::GetRenderPass(const std::string& passName)
-	{
-		try
-		{
-			for (const auto& pass : m_passes)
-			{
-				if (pass->GetName() == passName)
-				{
-					return dynamic_cast<RenderPass&>(*pass);
-				}
-			}
-		}
-		catch (std::bad_cast&)
-		{
-			throw RG_EXCEPTION("In RenderGraph::GetRenderQueue, pass was not RenderPass: " + passName);
-		}
-		throw RG_EXCEPTION("In RenderGraph::GetRenderQueue, pass not found: " + passName);
-	}
-
 	void RenderGraph::Finalize()
 	{
 		assert(!m_finalized);
@@ -62,16 +50,18 @@ namespace Renderer
 		m_finalized = true;
 	}
 
-	void RenderGraph::Execute(D3D12RHI& gfx) noexcept(!IS_DEBUG)
+	void RenderGraph::Execute() noexcept(!IS_DEBUG)
 	{
 		assert(m_finalized);
 
-		gfx.SetGPUResources();
+		m_gfx.SetGPUResources();
 
 		for (auto& pass : m_passes)
 		{
-			pass->Execute(gfx);
+			pass->Execute();
 		}
+
+		m_frameData.frameCount++;
 	}
 
 	void RenderGraph::Reset() noexcept(!IS_DEBUG)

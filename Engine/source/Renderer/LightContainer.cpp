@@ -4,14 +4,15 @@ namespace Renderer
 {
 	LightContainer::LightContainer(D3D12RHI& gfx, CameraContainer& cameraContainer)
 		:
+		m_gfx(gfx),
 		m_cameraContainer(cameraContainer)
 	{
 
 	}
 
-	bool LightContainer::SpawnWindow(D3D12RHI& gfx)
+	bool LightContainer::SpawnWindow()
 	{
-		if (ImGui::Begin("Lights", &m_imGUIwndOpen))
+		if (ImGui::Begin("Lights", &m_imGUIwndOpen, ImGuiWindowFlags_NoBackground))
 		{
 			if (ImGui::BeginCombo("Controlled Light", GetControlledLight().GetName().c_str()))
 			{
@@ -26,7 +27,7 @@ namespace Renderer
 				ImGui::EndCombo();
 			}
 
-			GetControlledLight().SpawnControlWidgets(gfx);
+			GetControlledLight().SpawnControlWidgets();
 		}
 		ImGui::End();
 
@@ -39,24 +40,25 @@ namespace Renderer
 		m_lightBufferData.push_back(m_lights.back()->GetLightData());
 	}
 
-	void LightContainer::UpdateLights(D3D12RHI& gfx)
+	void LightContainer::UpdateLights()
 	{
 		auto cameraViewMat = m_cameraContainer.GetActiveCamera().GetViewMatrix();
 
 		for (size_t i = 0; i < m_lightBufferData.size(); i++)
 		{
-			m_lights[i]->Update(gfx, cameraViewMat);
+			m_lights[i]->Update(cameraViewMat);
 			m_lightBufferData[i] = m_lights[i]->GetLightData();
 		}
 
 		if (!m_lightBuffer)
 		{
-			m_lightBuffer = std::make_shared<D3D12Buffer>(gfx, m_lightBufferData.data(), sizeof(LightData) * m_lightBufferData.size(), sizeof(LightData));
-			RenderGraph::m_frameData.lightDataHandle = gfx.LoadResource(m_lightBuffer, D3D12Resource::ViewType::SRV);
+			m_lightBuffer = std::move(std::make_shared<D3D12Buffer>(m_gfx, m_lightBufferData.data(), sizeof(LightData) * m_lightBufferData.size(), sizeof(LightData)));
+			RenderGraph::m_frameData.lightDataHandle = m_gfx.LoadResource(m_lightBuffer, D3D12Resource::ViewType::SRV);
+			RenderGraph::m_frameData.lightCount = m_lightBufferData.size();
 		}
 		else
 		{
-			m_lightBuffer->Update(gfx, m_lightBufferData.data(), sizeof(LightData) * m_lightBufferData.size(), BufferType::Constant);
+			m_lightBuffer->UpdateGPU(m_lightBufferData.data(), sizeof(LightData) * m_lightBufferData.size(), 0);
 		}		
 	}
 }

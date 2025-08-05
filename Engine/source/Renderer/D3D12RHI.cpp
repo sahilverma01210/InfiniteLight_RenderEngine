@@ -163,7 +163,10 @@ namespace Renderer
             CBV_SRV_UAV_HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
             CBV_SRV_UAV_HeapDesc.NumDescriptors = 1024;
             CBV_SRV_UAV_HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            D3D12RHI_THROW_INFO(m_device->CreateDescriptorHeap(&CBV_SRV_UAV_HeapDesc, IID_PPV_ARGS(&m_descriptorHeap)));
+            D3D12RHI_THROW_INFO(m_device->CreateDescriptorHeap(&CBV_SRV_UAV_HeapDesc, IID_PPV_ARGS(&m_commonDescriptorHeap)));
+
+            m_currentCommonCPUHandle = m_commonDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+            m_currentCommonGPUHandle = m_commonDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
         }
     }
 
@@ -172,21 +175,20 @@ namespace Renderer
         InsertFence();
 
         D3D12RHI_THROW_INFO_ONLY(CloseHandle(m_fenceEvent));
-    }
 
-    UINT D3D12RHI::GetWidth()
-    {
-        return m_width;
-    }
+        m_resourceMap.clear();
+        m_backBuffers.clear();
 
-    UINT D3D12RHI::GetHeight()
-    {
-        return m_height;
-    }
+        TotalStatistics totalStats{};
+		m_allocator->CalculateStatistics(&totalStats);
 
-    UINT D3D12RHI::GetCurrentBackBufferIndex()
-    {
-        return m_swapChain->GetCurrentBackBufferIndex();
+		// Extracting Allocation Statistics for Logging it in Future.
+        UINT blocCount = totalStats.Total.Stats.BlockCount;
+        UINT allCount = totalStats.Total.Stats.AllocationCount;
+        UINT64 blockBytes = totalStats.Total.Stats.BlockBytes;
+		UINT64 allBytes = totalStats.Total.Stats.AllocationBytes;
+
+		OutputDebugString(L"D3D12RHI destroyed.\n");
     }
 
     RECT D3D12RHI::GetScreenRect()
@@ -203,8 +205,6 @@ namespace Renderer
 
     void D3D12RHI::ResetCommandList()
     {
-        InsertFence();
-
         // Command list allocators can only be reset when the associated 
         // command lists have finished execution on the GPU; apps should use 
         // fences to determine GPU execution progress.
@@ -220,6 +220,8 @@ namespace Renderer
         D3D12RHI_THROW_INFO(m_currentCommandList->Close());
         ID3D12CommandList* const commandLists[] = { m_currentCommandList.Get() };
         D3D12RHI_THROW_INFO_ONLY(m_commandQueue->ExecuteCommandLists((UINT)std::size(commandLists), commandLists));
+
+        InsertFence();
     }
 
     void D3D12RHI::Set32BitRootConstants(UINT rootParameterIndex, UINT num32BitValues, const void* data, PipelineType pipelineType)
@@ -243,10 +245,10 @@ namespace Renderer
 
         for (size_t i = 0; i < renderTargets.size(); i++)
         {
-            rt[i] = *renderTargets[i]->GetDescriptor();
+            rt[i] = *renderTargets[i]->GetCPUDescriptor();
         }
 
-        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->OMSetRenderTargets(renderTargets.size(), rt, FALSE, depthStencil ? depthStencil->GetDescriptor() : nullptr));
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->OMSetRenderTargets(renderTargets.size(), rt, FALSE, depthStencil ? depthStencil->GetCPUDescriptor() : nullptr));
     }
 
     void D3D12RHI::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
@@ -321,9 +323,12 @@ namespace Renderer
         D3D12RHI_THROW_INFO(hr);
     }
 
-    std::vector<ComPtr<ID3D12Resource>> D3D12RHI::GetTargetBuffers()
+    void D3D12RHI::IncrementDescriptorHandle()
     {
-        return m_backBuffers;
+        m_currentCommonCPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        m_currentCommonGPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+        m_descriptorCount++;
     }
 
     // PUBLIC - RESOURCE MANAGER METHODS
@@ -360,7 +365,7 @@ namespace Renderer
             resourceFormat = resource->IsSRGB() ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : resourceBuffer->GetDesc().Format;
             break;
         default:
-            resourceFormat = resourceBuffer->GetDesc().Format;
+            resourceFormat = resource->GetBufferSRV().Flags == D3D12_BUFFER_SRV_FLAG_RAW ? DXGI_FORMAT_R32_TYPELESS : resourceBuffer->GetDesc().Format;
             break;
         }
 
@@ -384,6 +389,10 @@ namespace Renderer
             srvDesc.TextureCube.MipLevels = resourceBuffer->GetDesc().MipLevels;
             srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
 			break;
+        case ResourceType::AccelerationStructure:
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+            srvDesc.RaytracingAccelerationStructure.Location = resource->GetGPUAddress();
+            break;
         default:
             break;
         }
@@ -405,24 +414,19 @@ namespace Renderer
 
     ResourceHandle D3D12RHI::LoadResource(std::shared_ptr<D3D12Resource> resource, D3D12Resource::ViewType type)
     {
-        D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = (m_descriptorHeap->GetCPUDescriptorHandleForHeapStart());
-        D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle = (m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
-        CPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-        GPUHandle.ptr += m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * m_resourceHandle;
-
         switch (type == D3D12Resource::ViewType::Default ? resource->GetViewType() : type)
         {
         case D3D12Resource::ViewType::CBV:
             D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = CreateCBVDesc(resource);
-            D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&cbvDesc, CPUHandle));
+            D3D12RHI_THROW_INFO_ONLY(m_device->CreateConstantBufferView(&cbvDesc, m_currentCommonCPUHandle));
             break;
         case D3D12Resource::ViewType::SRV:
             D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = CreateSRVDesc(resource);
-            D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(resource->GetBuffer(), &srvDesc, CPUHandle));
+            D3D12RHI_THROW_INFO_ONLY(m_device->CreateShaderResourceView(srvDesc.ViewDimension != D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE ? resource->GetBuffer() : nullptr, &srvDesc, m_currentCommonCPUHandle));
             break;
         case D3D12Resource::ViewType::UAV:
             D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = CreateUAVDesc(resource);
-            D3D12RHI_THROW_INFO_ONLY(m_device->CreateUnorderedAccessView(resource->GetBuffer(), nullptr, &uavDesc, CPUHandle));
+            D3D12RHI_THROW_INFO_ONLY(m_device->CreateUnorderedAccessView(resource->GetBuffer(), nullptr, &uavDesc, m_currentCommonCPUHandle));
             break;
         case D3D12Resource::ViewType::RTV:
             break;
@@ -430,28 +434,17 @@ namespace Renderer
             break;
         }
 
-        m_resourceMap[m_resourceHandle] = std::move(resource);
+        if (!resource->GetCPUDescriptor()->ptr) resource->SetCPUDescriptor(m_currentCommonCPUHandle);
+        if (!resource->GetGPUDescriptor()->ptr) resource->SetGPUDescriptor(m_currentCommonGPUHandle);
+		resource->SetDescriptorIndex(m_descriptorCount);
+
+        m_resourceMap[m_descriptorCount] = std::move(resource);
         //m_loadedResources[resourceName] = m_resourceHandle;
 
-        if (!resource->GetDescriptor()) resource->SetDescriptor(CPUHandle);
-        if (!resource->GetGPUDescriptor()) resource->SetGPUDescriptor(GPUHandle);
+		UINT currentHandle = m_descriptorCount;
+		IncrementDescriptorHandle();
 
-        return m_resourceHandle++;
-    }
-
-    D3D12Resource& D3D12RHI::GetResource(ResourceHandle resourceHandle)
-    {
-        return *m_resourceMap[resourceHandle];
-    }
-
-    ResourceHandle D3D12RHI::GetResourceHandle(ResourceName resourceName)
-    {
-        return m_loadedResources[resourceName];
-    }
-
-    std::shared_ptr<D3D12Resource> D3D12RHI::GetResourcePtr(ResourceHandle resourceHandle)
-    {
-        return m_resourceMap[resourceHandle];
+        return currentHandle;
     }
 
     void D3D12RHI::ClearResource(ResourceHandle resourceHandle)
@@ -467,18 +460,18 @@ namespace Renderer
 			case D3D12Resource::ViewType::UAV:
             {
                 const UINT clear_color_with_alpha[4] = { 0, 0, 0, 0 };
-                m_currentCommandList->ClearUnorderedAccessViewUint(*resource->GetGPUDescriptor(), *resource->GetDescriptor(), resource->GetBuffer(), clear_color_with_alpha, 0, nullptr);
+                m_currentCommandList->ClearUnorderedAccessViewUint(*resource->GetGPUDescriptor(), *resource->GetCPUDescriptor(), resource->GetBuffer(), clear_color_with_alpha, 0, nullptr);
                 break;
             } 
             case D3D12Resource::ViewType::RTV:
             {
                 const float clear_color_with_alpha[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearRenderTargetView(*resource->GetDescriptor(), clear_color_with_alpha, 0, nullptr));
+                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearRenderTargetView(*resource->GetCPUDescriptor(), clear_color_with_alpha, 0, nullptr));
                 break;
             }
             case D3D12Resource::ViewType::DSV:
             {
-                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearDepthStencilView(*resource->GetDescriptor(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
+                D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ClearDepthStencilView(*resource->GetCPUDescriptor(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0xFF, 0, nullptr));
                 break;
             }   
         }
@@ -492,7 +485,7 @@ namespace Renderer
     void D3D12RHI::SetGPUResources()
     {
         // Set Common Descriptor Heap
-        ID3D12DescriptorHeap* ppHeaps[] = { m_descriptorHeap.Get() };
+        ID3D12DescriptorHeap* ppHeaps[] = { m_commonDescriptorHeap.Get() };
         D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps));
     }
 
@@ -546,16 +539,21 @@ namespace Renderer
         D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->Dispatch(group_count_x, group_count_y, group_count_z));
     }
 
+    void D3D12RHI::DispatchRays(D3D12_DISPATCH_RAYS_DESC& dispatchDesc)
+    {
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->DispatchRays(&dispatchDesc));
+    }
+
     void D3D12RHI::EndFrame()
     {
         // Indicate that the back buffer will now be used to present.
         TransitionResource(m_backBuffers[m_backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
         ExecuteCommandList();
 
-        InsertFence();
-
         // Present the frame.
         D3D12RHI_THROW_INFO(m_swapChain->Present(1, 0));
+
+        InsertFence();
     }
 
     // PRIVATE - HELPER D3D12RHI METHODS

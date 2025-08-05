@@ -2,14 +2,15 @@
 
 namespace Renderer
 {
-    MeshTexture::MeshTexture(D3D12RHI& gfx, std::string filename, bool isSRGB)
+    MeshTexture::MeshTexture(D3D12RHI& gfx, std::string filename, TextureDesc desc)
         :
+		m_gfx(gfx),
         m_filename(filename)
     {
-        INFOMAN(gfx);
+        INFOMAN(m_gfx);
 
         m_resourceType = ResourceType::Texture2D;
-		m_isSRGB = isSRGB;
+		m_isSRGB = desc.isSRGB;
 
         if (filename != "NULL_TEX")
         {
@@ -23,7 +24,7 @@ namespace Renderer
         }
         else
         {
-            m_mipChain.Initialize2D(m_format = DXGI_FORMAT_R8G8B8A8_UNORM, gfx.GetWidth(), gfx.GetHeight(), 1, 1);
+            m_mipChain.Initialize2D(m_format = desc.format, m_gfx.GetWidth(), m_gfx.GetHeight(), 1, 1);
 
             m_viewType = D3D12Resource::ViewType::UAV;
         }
@@ -58,7 +59,7 @@ namespace Renderer
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
@@ -74,7 +75,7 @@ namespace Renderer
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(texureUploadBufferSize) };
 
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
@@ -86,7 +87,7 @@ namespace Renderer
 
         // write commands to copy data to upload texture (copying each subresource). Copy the texture data to the texture buffer.
         UpdateSubresources(
-            GetCommandList(gfx),
+            GetCommandList(m_gfx),
             m_resourceBuffer.Get(),
             m_texureUploadBuffer.Get(),
             0, 0,
@@ -94,14 +95,15 @@ namespace Renderer
             subresourceData.data()
         );
 
-        gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        m_gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 
     CubeMapTexture::CubeMapTexture(D3D12RHI& gfx, const WCHAR* foldername)
         :
+        m_gfx(gfx),
         m_foldername(foldername)
     {
-        INFOMAN(gfx);
+        INFOMAN(m_gfx);
 
         m_resourceType = ResourceType::TextureCube;
         m_viewType = D3D12Resource::ViewType::SRV;		
@@ -144,7 +146,7 @@ namespace Renderer
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
@@ -160,7 +162,7 @@ namespace Renderer
             auto heapProperties{ CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD) };
             auto resourceDesc{ CD3DX12_RESOURCE_DESC::Buffer(texureUploadBufferSize) };
 
-            D3D12RHI_THROW_INFO(GetDevice(gfx)->CreateCommittedResource(
+            D3D12RHI_THROW_INFO(GetDevice(m_gfx)->CreateCommittedResource(
                 &heapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
@@ -172,7 +174,7 @@ namespace Renderer
 
         // write commands to copy data to upload texture (copying each subresource). Copy the texture data to the texture buffer.
         UpdateSubresources(
-            GetCommandList(gfx),
+            GetCommandList(m_gfx),
             m_resourceBuffer.Get(),
             m_texureUploadBuffer.Get(),
             0, 0,
@@ -180,6 +182,6 @@ namespace Renderer
             subresourceData.data()
         );
 
-        gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        m_gfx.TransitionResource(m_resourceBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 }

@@ -12,9 +12,10 @@ namespace Renderer
 		RenderTarget(D3D12RHI& gfx, UINT width, UINT height, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM);
 		RenderTarget(D3D12RHI& gfx, ID3D12Resource* pTexture, std::optional<UINT> face = std::nullopt);
 		~RenderTarget() = default;
-		void Clear(D3D12RHI& gfx);
+		void Clear();
 
 	protected:
+		D3D12RHI& m_gfx;
 		ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 	};
 }

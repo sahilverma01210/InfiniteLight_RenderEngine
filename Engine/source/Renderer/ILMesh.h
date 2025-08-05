@@ -10,10 +10,12 @@ namespace Renderer
 	public:
 		struct DrawData
 		{
-			UINT numIndices;
+			std::vector<VertexStruct> vertices;
+			std::vector<USHORT> indices;
 			UINT vertexSizeInBytes;
 			UINT indexSizeInBytes;
 			UINT vertexStrideInBytes;
+			UINT indexStrideInBytes;
 			std::shared_ptr<D3D12Buffer> vertexBuffer;
 			std::shared_ptr<D3D12Buffer> indexBuffer;
 		};
@@ -24,14 +26,11 @@ namespace Renderer
 		};
 
 	public:
-		void ApplyMesh(D3D12RHI& gfx, VertexRawBuffer vertices, std::vector<USHORT> indices);
 		Transforms& GetTransforms() const { return m_transforms; }
-		ResourceHandle GetMaterialIdx() const { return m_materialIdx; }
 		DrawData& GetDrawData() { return m_drawData; }
 
 	protected:
 		DrawData m_drawData{};
-		ResourceHandle m_materialIdx;
 		mutable Transforms m_transforms{};
 	};
 }

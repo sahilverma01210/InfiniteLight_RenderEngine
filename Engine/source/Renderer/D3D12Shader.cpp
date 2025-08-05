@@ -34,6 +34,7 @@ namespace Renderer
 		if (shaderType == ShaderType::VertexShader) targetProfile = L"vs_6_6"; // Vertex Shader Model 6.6
 		else if (shaderType == ShaderType::PixelShader) targetProfile = L"ps_6_6"; // Pixel Shader Model 6.6
 		else if (shaderType == ShaderType::ComputeShader) targetProfile = L"cs_6_6"; // Compute Shader Model 6.6
+		else if (shaderType == ShaderType::LibraryShader) targetProfile = L"lib_6_6"; // Library Shader Model 6.6
 
 		std::wstring assetsPath = Common::GetAssetsPath(Common::AssetType::Shader);
 
@@ -45,7 +46,8 @@ namespace Renderer
             L"-E", entryPoint.c_str(),
 			L"-T", targetProfile.c_str(),
 			L"-I", assetsPath.c_str(),
-            L"-no-warnings"
+            L"-no-warnings",
+            L"-Qembed_debug"  // Embed the PDB data for shader reflection
         };
 
         for (const auto& macro : macros) {
@@ -63,6 +65,7 @@ namespace Renderer
         ComPtr<IDxcBlobUtf8> errors;
         compileResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
         if (errors && errors->GetStringLength() > 0) {
+			std::string errorMessage = errors->GetStringPointer();
             throw std::exception(errors->GetStringPointer());
         }
 
@@ -94,5 +97,96 @@ namespace Renderer
             }
         }
 #endif
+    }
+
+    DXGI_FORMAT D3D12Shader::GetDXGIFormatFromSignature(D3D_REGISTER_COMPONENT_TYPE type, BYTE mask)
+    {
+        // Determine the number of components from the mask.
+        int componentCount = 0;
+        if (mask & 1) componentCount++; // R
+        if (mask & 2) componentCount++; // G
+        if (mask & 4) componentCount++; // B
+        if (mask & 8) componentCount++; // A
+
+        switch (type)
+        {
+        case D3D_REGISTER_COMPONENT_UINT32:
+        {
+            switch (componentCount)
+            {
+            case 1: return DXGI_FORMAT_R32_UINT;
+            case 2: return DXGI_FORMAT_R32G32_UINT;
+            case 3: return DXGI_FORMAT_R32G32B32_UINT;
+            case 4: return DXGI_FORMAT_R32G32B32A32_UINT;
+            }
+            break;
+        }
+        case D3D_REGISTER_COMPONENT_SINT32:
+        {
+            switch (componentCount)
+            {
+            case 1: return DXGI_FORMAT_R32_SINT;
+            case 2: return DXGI_FORMAT_R32G32_SINT;
+            case 3: return DXGI_FORMAT_R32G32B32_SINT;
+            case 4: return DXGI_FORMAT_R32G32B32A32_SINT;
+            }
+            break;
+        }
+        case D3D_REGISTER_COMPONENT_FLOAT32:
+        {
+            switch (componentCount)
+            {
+            case 1: return DXGI_FORMAT_R32_FLOAT;
+            case 2: return DXGI_FORMAT_R32G32_FLOAT;
+            case 3: return DXGI_FORMAT_R32G32B32_FLOAT;
+            case 4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+            }
+            break;
+        }
+        }
+
+        return DXGI_FORMAT_UNKNOWN;
+    }
+
+    D3D12_INPUT_LAYOUT_DESC D3D12Shader::GenerateInputLayoutFromDXC()
+    {
+        D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+
+        IDxcContainerReflection* pReflection;
+        DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflection));
+        pReflection->Load(m_shaderBlob.Get());
+
+        UINT32 shaderPart;
+        pReflection->FindFirstPartKind(DXC_PART_PDB, &shaderPart);
+
+        ID3D12ShaderReflection* pReflector;
+        pReflection->GetPartReflection(shaderPart, IID_PPV_ARGS(&pReflector));
+
+        D3D12_SHADER_DESC shaderDesc;
+        pReflector->GetDesc(&shaderDesc);
+
+        D3D12_INPUT_ELEMENT_DESC* inputElements = new D3D12_INPUT_ELEMENT_DESC[shaderDesc.InputParameters];
+
+        for (UINT i = 0; i < shaderDesc.InputParameters; ++i)
+        {
+            D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
+            pReflector->GetInputParameterDesc(i, &paramDesc);
+
+            D3D12_INPUT_ELEMENT_DESC elementDesc = {};
+            elementDesc.SemanticName = paramDesc.SemanticName;
+            elementDesc.SemanticIndex = paramDesc.SemanticIndex;
+            elementDesc.Format = GetDXGIFormatFromSignature(paramDesc.ComponentType, paramDesc.Mask);
+            elementDesc.InputSlot = 0; // Assume all data comes from slot 0
+            elementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+            elementDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+            elementDesc.InstanceDataStepRate = 0;
+
+            inputElements[i] = elementDesc;
+        }
+
+        inputLayoutDesc.pInputElementDescs = inputElements;
+        inputLayoutDesc.NumElements = static_cast<UINT>(shaderDesc.InputParameters);
+
+        return inputLayoutDesc;
     }
 }

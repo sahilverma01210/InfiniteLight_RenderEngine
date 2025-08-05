@@ -2,6 +2,10 @@
 #include "../Common/ImGUI_Includes.h"
 #include "../Renderer/Renderer.h"
 
+#ifndef UI_ENABLED
+#define UI_ENABLED
+#endif
+
 using namespace Renderer;
 
 namespace Runtime
@@ -9,7 +13,7 @@ namespace Runtime
 	class UIManager
 	{
 	public:
-		UIManager(HWND hWnd, ILRenderer* renderer);
+		UIManager(ILRenderer* renderer);
 		~UIManager();
 		void StartUIFrame();
 		void UpdateUIFrame();
@@ -17,11 +21,9 @@ namespace Runtime
 		bool HandleWindowResize();
 		void EnableUIMouse();
 		void DisableUIMouse();
-		bool HandleUIMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		bool HandleUIMessages(UINT msg, WPARAM wParam, LPARAM lParam);
 
 	private:
-		HWND m_hWnd;
 		D3D12RHI& m_gfx;
-		ComPtr<ID3D12DescriptorHeap> m_srvHeap;
 	};
 }

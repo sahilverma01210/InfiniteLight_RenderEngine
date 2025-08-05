@@ -68,4 +68,11 @@ namespace Common
 	}
 
 	static bool ParseCommandLineArgs(WCHAR* argv[], int argc) noexcept(!IS_DEBUG);
+
+	inline constexpr Uint64 Align(Uint64 address, Uint64 align)
+	{
+		if (align == 0 || align == 1) return address;
+		Uint64 r = address % align;
+		return r ? address + (align - r) : address;
+	}
 }

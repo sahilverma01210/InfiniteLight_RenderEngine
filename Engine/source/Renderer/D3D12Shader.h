@@ -10,6 +10,7 @@ namespace Renderer
 		VertexShader,
 		PixelShader,
 		ComputeShader,
+		LibraryShader,
 	};
 
 	struct SHADER_MACRO
@@ -23,10 +24,13 @@ namespace Renderer
 	public:
 		D3D12Shader() = default;
         D3D12Shader(ShaderType shaderType, std::wstring fileName, const std::vector<SHADER_MACRO>& macros = {});
+		IDxcBlob* GetShaderBlob() const { return m_shaderBlob.Get(); }
         CD3DX12_SHADER_BYTECODE GetShaderByteCode()
         {
             return m_shaderBlob ? CD3DX12_SHADER_BYTECODE(m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize()) : CD3DX12_SHADER_BYTECODE();
         }
+		DXGI_FORMAT GetDXGIFormatFromSignature(D3D_REGISTER_COMPONENT_TYPE type, BYTE mask);
+		D3D12_INPUT_LAYOUT_DESC GenerateInputLayoutFromDXC(); // Shader Reflection
 	
 	private:
 		ShaderType m_shaderType;

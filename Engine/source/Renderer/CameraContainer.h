@@ -13,9 +13,10 @@ namespace Renderer
 	{
 	public:
 		CameraContainer(D3D12RHI& gfx);
-		bool SpawnWindow(D3D12RHI& gfx);
+		~CameraContainer() { m_cameras.clear(); }
+		bool SpawnWindow();
 		void AddCamera(std::shared_ptr<Camera> pCam);
-		void UpdateCamera(D3D12RHI& gfx);
+		bool UpdateCamera();
 		int GetNumCameras() const { return m_cameras.size(); }
 		int GetActiveCameraIndex() const { return m_active; }
 		int GetControlledCameraIndex() const { return m_controlled; }
@@ -27,6 +28,7 @@ namespace Renderer
 	public:
 		bool m_imGUIwndOpen = true;
 	private:
+		D3D12RHI& m_gfx;
 		int m_numCameras = 0;
 		int m_active = 0;
 		int m_controlled = 0;

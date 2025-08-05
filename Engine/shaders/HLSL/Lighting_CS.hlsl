@@ -2,11 +2,6 @@
 
 #define BLOCK_SIZE 16
 
-struct MaterialHandle
-{
-    int lightResourceHandlesIdx;
-};
-
 struct LightResourceHandles
 {
     int numLights;
@@ -17,7 +12,7 @@ struct LightResourceHandles
     int depthTexIdx;
 };
 
-ConstantBuffer<MaterialHandle> matCB : register(b1);
+ConstantBuffer<LightResourceHandles> lightResourceHandles : register(b1);
 
 struct CSInput
 {
@@ -29,11 +24,7 @@ struct CSInput
 
 [numthreads(BLOCK_SIZE, BLOCK_SIZE, 1)]
 void main(CSInput input)
-{
-    StructuredBuffer<Light> lights = ResourceDescriptorHeap[frameData.lightDataIdx];
-
-    ConstantBuffer<LightResourceHandles> lightResourceHandles = ResourceDescriptorHeap[matCB.lightResourceHandlesIdx];    
-    
+{    
     Texture2D normalRT = ResourceDescriptorHeap[lightResourceHandles.normTexIdx];
     Texture2D diffuseRT = ResourceDescriptorHeap[lightResourceHandles.diffTexIdx];
     Texture2D<float> depthTexture = ResourceDescriptorHeap[lightResourceHandles.depthTexIdx];
@@ -66,7 +57,7 @@ void main(CSInput input)
     for (int i = 0; i < lightResourceHandles.numLights; i++)
     {
         // Shadow
-        Light light = lights[i];
+        Light light = GetLightData(i);
         directLighting += DoLight_Default(light, brdfData, viewPosition, viewNormal, V, uv, ShadowWrapSampler);
         
         // Ambient contribution

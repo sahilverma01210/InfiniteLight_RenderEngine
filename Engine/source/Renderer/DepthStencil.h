@@ -12,9 +12,9 @@ namespace Renderer
 		DepthStencil(D3D12RHI& gfx, UINT width, UINT height, DepthUsage usage = DepthUsage::DepthStencil);
         DepthStencil(D3D12RHI& gfx, ID3D12Resource* depthBuffer, UINT face);
 		~DepthStencil() = default;
-		void Clear(D3D12RHI& gfx);
-		unsigned int GetWidth() const;
-		unsigned int GetHeight() const;
+		void Clear();
+        unsigned int GetWidth() const { return m_width; }
+        unsigned int GetHeight() const { return m_height; }
         static DXGI_FORMAT MapUsageResource(DepthUsage usage)
         {
             switch (usage)
@@ -54,6 +54,7 @@ namespace Renderer
         }
 
 	protected:
+        D3D12RHI& m_gfx;
 		ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 		unsigned int m_width;
 		unsigned int m_height;

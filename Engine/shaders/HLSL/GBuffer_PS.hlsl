@@ -1,21 +1,4 @@
-#include "Common.hlsli"
 #include "Scene.hlsli"
-
-struct MaterialDataHandles
-{
-    int diffuseIdx;
-    int normalIdx;
-    int roughnessMetallicIdx;
-    int materialConstIdx;
-};
-
-struct MaterialConstants
-{
-    float3 pbrBaseColorFactor;
-    float pbrMetallicFactor;
-    float pbrRoughnessFactor;
-    float gltfAlphaCutoff;
-};
 
 struct VSOut
 {
@@ -33,24 +16,29 @@ struct PSOut
     float4 metallicRough : SV_Target2;
 };
 
-// Can use StructuredBuffer instead.
+struct CurrentInstance
+{
+    uint index;
+};
+
+ConstantBuffer<CurrentInstance> currentInstance : register(b1);
 
 PSOut CalculatePixels(VSOut vsIn)
 {
     PSOut pso;
     
-    ConstantBuffer<MaterialDataHandles> matDataHandles = ResourceDescriptorHeap[meshConstants.materialIdx];
-    ConstantBuffer<MaterialConstants> materialConstants = ResourceDescriptorHeap[matDataHandles.materialConstIdx];
+    Instance instance = GetInstanceData(currentInstance.index);
+    Material material = GetMaterialData(instance.materialIndex);
     
-    Texture2D<float4> diffTex = ResourceDescriptorHeap[matDataHandles.diffuseIdx];
-    Texture2D<float4> normTex = ResourceDescriptorHeap[matDataHandles.normalIdx];
-    Texture2D<float4> roughMetallicTex = ResourceDescriptorHeap[matDataHandles.roughnessMetallicIdx];
+    Texture2D<float4> diffTex = ResourceDescriptorHeap[material.diffuseIdx];
+    Texture2D<float4> normTex = ResourceDescriptorHeap[material.normalIdx];
+    Texture2D<float4> roughMetallicTex = ResourceDescriptorHeap[material.roughnessMetallicIdx];
         
-    float4 albedoColor = diffTex.Sample(LinearWrapSampler, vsIn.texUV) * float4(materialConstants.pbrBaseColorFactor, 1.0f);;
-    if (albedoColor.a < materialConstants.gltfAlphaCutoff)
+    float4 albedoColor = diffTex.Sample(LinearWrapSampler, vsIn.texUV) * float4(material.pbrBaseColorFactor, 1.0f);;
+    if (albedoColor.a < material.gltfAlphaCutoff)
         discard;
     
-    float4x4 meshView = mul(GetMeshMat(), GetViewMat());
+    float4x4 meshView = mul(instance.worldMatrix, GetViewMat());
     
     float3 normal = normalize(vsIn.normalWS);
     float3 tangent = normalize(vsIn.tanWS);
@@ -61,12 +49,12 @@ PSOut CalculatePixels(VSOut vsIn)
 
     float3 aoRoughnessMetallic = roughMetallicTex.Sample(LinearWrapSampler, vsIn.texUV).rgb;
     float3 viewNormal = normalize(mul(normal, (float3x3) meshView));
-    float roughness = aoRoughnessMetallic.g * materialConstants.pbrRoughnessFactor;
-    float metallic = aoRoughnessMetallic.b * materialConstants.pbrMetallicFactor;
+    float roughness = aoRoughnessMetallic.g * material.pbrRoughnessFactor;
+    float metallic = aoRoughnessMetallic.b * material.pbrMetallicFactor;
     uint shadingExtension = 0;
 	
     pso.normal = EncodeGBufferNormalRT(viewNormal, metallic, shadingExtension);
-    pso.diffuse = float4(albedoColor.xyz * materialConstants.pbrBaseColorFactor, roughness);
+    pso.diffuse = float4(albedoColor.xyz * material.pbrBaseColorFactor, roughness);
     pso.metallicRough = roughMetallicTex.Sample(LinearWrapSampler, vsIn.texUV);
     
     return pso;

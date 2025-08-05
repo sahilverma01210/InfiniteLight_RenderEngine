@@ -6,10 +6,10 @@ namespace Renderer
 	class GraphicsResource
 	{
 	protected:
-		static ID3D12Device* GetDevice(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		static ID3D12Device5* GetDevice(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		static ID3D12CommandQueue* GetCommandQueue(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		static ID3D12CommandAllocator* GetCommandAllocator(D3D12RHI& gfx) noexcept(!IS_DEBUG);
-		static ID3D12GraphicsCommandList* GetCommandList(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		static ID3D12GraphicsCommandList6* GetCommandList(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		static IDXGISwapChain3* GetSwapChain(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		static std::vector<ComPtr<ID3D12Resource>>& GetBackBuffers(D3D12RHI& gfx) noexcept(!IS_DEBUG);
 		static Allocator* GetAllocator(D3D12RHI& gfx) noexcept(!IS_DEBUG);

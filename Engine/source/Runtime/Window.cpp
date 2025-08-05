@@ -61,9 +61,11 @@ namespace Runtime
 		}
 
 		// create and initialize Renderer
-		m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, m_windowClass.hInstance, false));
 #ifdef UI_ENABLED
-		m_uiManager = std::move(std::make_unique<UIManager>(m_hWnd, m_renderer.get()));
+		m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, true));
+		m_uiManager = std::move(std::make_unique<UIManager>(m_renderer.get()));
+#else
+		m_renderer = std::move(std::make_unique<ILRenderer>(m_hWnd, false));
 #endif
 
 		// register mouse raw input device
@@ -208,6 +210,7 @@ namespace Runtime
 			m_renderer->RenderUI();
 			m_uiManager->UpdateUIFrame();
 #endif
+
 #ifdef UI_ENABLED
 			m_uiManager->EndUIFrame();
 #endif

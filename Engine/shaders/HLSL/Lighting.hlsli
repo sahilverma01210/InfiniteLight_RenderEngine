@@ -1,16 +1,6 @@
 #include "Common.hlsli"
 #include "BRDF.hlsli"
 
-struct Light
-{
-    float3 pos;
-    float3 viewPos;
-    float3 ambient;
-    float3 diffuseColor;
-    float diffuseIntensity;
-    int shadowDepthIdx;
-};
-
 static const float gamma = 2.2;
 
 static float3 LinearToSRGB(float3 linearRGB)
@@ -29,7 +19,7 @@ float GetLightAttenuation(Light light, float3 P, out float3 L)
     L = normalize(light.viewPos - P);
     float attenuation = 1.0f;
     float distance = length(light.viewPos - P);
-    float range = 7.0f; // Example range, should be set according to light config
+    float range = light.range; // Example range, should be set according to light config
     attenuation = DoAttenuation(distance, range);
     return attenuation;
 }
@@ -63,15 +53,13 @@ float CalcShadowFactor_PCF3x3(SamplerComparisonState shadowSampler,
 
 float GetShadowMapFactor(Light light, float3 viewPosition, SamplerComparisonState ShadowWrapSampler)
 {
-    //StructuredBuffer<float4x4> lightViewProjections = ResourceDescriptorHeap[FrameCB.lightsMatricesIdx];
     float shadowFactor = 1.0f;
     
     float3 lightToPixelWS = mul(float4(viewPosition - light.viewPos, 0.0f), GetInverseViewMat()).xyz;
     uint cubeFaceIndex = GetCubeFaceIndex(lightToPixelWS);
     float4 worldPosition = mul(float4(viewPosition, 1.0f), GetInverseViewMat());
     worldPosition /= worldPosition.w;
-    //float4x4 lightViewProjection = lightViewProjections[light.shadowMatrixIndex + cubeFaceIndex];
-    float4x4 lightViewProjection = mul(Get360ViewMatrix(cubeFaceIndex, light.pos), Get360ProjectionMatrix());
+    float4x4 lightViewProjection = mul(Get360ViewMatrix(cubeFaceIndex, light.position), Get360ProjectionMatrix());
     float4 shadowMapPosition = mul(worldPosition, lightViewProjection);
     float3 UVD = shadowMapPosition.xyz / shadowMapPosition.w;
     UVD.xy = 0.5 * UVD.xy + 0.5;

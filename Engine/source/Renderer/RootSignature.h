@@ -9,9 +9,10 @@ namespace Renderer
 		RootSignature(D3D12RHI& gfx, PipelineDescription& pipelineDesc);
 		~RootSignature() = default;
 		ID3D12RootSignature* GetRootSignature();
-		void Bind(D3D12RHI& gfx) noexcept(!IS_DEBUG);
+		void Bind() noexcept(!IS_DEBUG);
 
 	private:
+		D3D12RHI& m_gfx;
 		PipelineDescription m_pipelineDesc;
 		UINT m_numRootParameters;
 		CD3DX12_ROOT_PARAMETER* m_rootParameters;

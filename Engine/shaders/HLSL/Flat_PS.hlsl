@@ -1,20 +1,15 @@
 #include "Common.hlsli"
-#include "Scene.hlsli"
 
-struct MaterialCB
+struct Color
 {
-    int solidConstIdx;
+    float red;
+    float green;
+    float blue;
 };
 
-struct SurfaceProps
-{
-    float3 materialColor;
-};
+ConstantBuffer<Color> color : register(b2);
 
 float4 main() : SV_Target
 {
-    ConstantBuffer<MaterialCB> importCB = ResourceDescriptorHeap[meshConstants.materialIdx];
-    ConstantBuffer<SurfaceProps> surfaceProps = ResourceDescriptorHeap[importCB.solidConstIdx];
-    
-    return float4(surfaceProps.materialColor, 1.0f);
+    return float4(color.red, color.green, color.blue, 1.0f);
 }
