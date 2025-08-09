@@ -27,6 +27,7 @@ struct Material
     float pbrMetallicFactor;
     float pbrRoughnessFactor;
     float gltfAlphaCutoff;
+    int gltfAlphaMode; // 0: Opaque, 1: Blend, 2: Mask
     int diffuseIdx;
     int normalIdx;
     int roughnessMetallicIdx;

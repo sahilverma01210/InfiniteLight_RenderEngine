@@ -29,12 +29,20 @@ namespace Renderer
 		Uint32 verticesCount;
 	};
 
+	enum class AlphaMode : Uint8
+	{
+		Opaque,
+		Blend,
+		Mask
+	};
+
 	struct MaterialData
 	{
 		Vector3 pbrBaseColorFactor = Vector3(1.0f, 1.0f, 1.0f);
 		float pbrMetallicFactor = 1.0f;
 		float pbrRoughnessFactor = 1.0f;
 		float gltfAlphaCutoff = 0.5f;
+		AlphaMode gltfAlphaMode = AlphaMode::Opaque;
 		ResourceHandle diffuseIdx = -1;
 		ResourceHandle normalIdx = -1;
 		ResourceHandle roughnessMetallicIdx = -1;

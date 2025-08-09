@@ -31,7 +31,7 @@ namespace Renderer
 			rtGeometry.indexBufferOffset = submesh.indicesOffset;
 			rtGeometry.indexCount = submesh.indicesCount;
 			rtGeometry.indexFormat = DXGI_FORMAT_R32_UINT;
-			rtGeometry.opaque = true; // Always opaque for now
+			rtGeometry.opaque = material.gltfAlphaMode == AlphaMode::Opaque;
 
 			D3D12RTInstance& rtInstance = m_rtInstances.emplace_back();
 			rtInstance.instanceId = instanceId++;

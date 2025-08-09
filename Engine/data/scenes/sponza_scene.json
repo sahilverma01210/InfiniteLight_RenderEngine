@@ -66,29 +66,6 @@
             "diffuseIntensity": 1.0,
             "range": 7.0,
             "type": 0
-        },
-        {
-            "name": "Point Light B",
-            "position": {
-                "x": -5.5,
-                "y": 2.0,
-                "z": 0.25
-            },
-            "elevation": 73.0,
-			"azimuth" :  180.0,
-            "ambient": {
-                "r": 0.0,
-                "g": 0.0,
-                "b": 0.0
-            },
-            "diffuse": {
-                "r": 1.0,
-                "g": 1.0,
-                "b": 1.0
-            },
-            "diffuseIntensity": 1.0,
-            "range": 7.0,
-            "type": 1
         }
     ],
     "models": [

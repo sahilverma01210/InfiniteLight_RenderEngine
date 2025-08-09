@@ -57,6 +57,11 @@ namespace Renderer
 				m_materials[i].pbrBaseColorFactor.z = baseColor.b;
 				material.Get(AI_MATKEY_METALLIC_FACTOR, m_materials[i].pbrMetallicFactor);
 				material.Get(AI_MATKEY_ROUGHNESS_FACTOR, m_materials[i].pbrRoughnessFactor);
+				aiString alphaMode;
+				material.Get(AI_MATKEY_GLTF_ALPHAMODE, alphaMode);
+				if (alphaMode == aiString("OPAQUE")) m_materials[i].gltfAlphaMode = AlphaMode::Opaque;
+				else if (alphaMode == aiString("MASK")) m_materials[i].gltfAlphaMode = AlphaMode::Mask;
+				else if (alphaMode == aiString("BLEND")) m_materials[i].gltfAlphaMode = AlphaMode::Blend;
 			}
 		}
 

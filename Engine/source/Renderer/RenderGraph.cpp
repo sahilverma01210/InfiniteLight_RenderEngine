@@ -15,7 +15,7 @@ namespace Renderer
 		RenderGraph::m_frameResourceHandles["Depth_Stencil"] = gfx.LoadResource(std::make_shared<DepthStencil>(gfx));
 
 		m_frameData.resolution = Vector2(static_cast<float>(gfx.GetWidth()), static_cast<float>(gfx.GetHeight()));
-		m_frameData.envMapHandle = gfx.LoadResource(std::make_shared<CubeMapTexture>(gfx, L"data\\textures\\SpaceBox"));
+		m_frameData.envMapHandle = gfx.LoadResource(std::make_shared<CubeMapTexture>(gfx, L"data\\textures\\Ocean"));
 
 	}
 
