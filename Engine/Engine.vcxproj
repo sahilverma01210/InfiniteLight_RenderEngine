@@ -27,6 +27,7 @@
     <ClInclude Include="source\Common\ImGUI_Includes.h" />
     <ClInclude Include="source\Renderer\AccelerationStructure.h" />
     <ClInclude Include="source\Renderer\BlurPass.h" />
+    <ClInclude Include="source\Renderer\D3D12CommandSignature.h" />
     <ClInclude Include="source\Renderer\D3D12RTAccelerationStructure.h" />
     <ClInclude Include="source\Renderer\D3D12RTShaderTable.h" />
     <ClInclude Include="source\Renderer\D3D12StateObject.h" />
@@ -102,6 +103,7 @@
     <ClCompile Include="source\Renderer\CameraContainer.cpp" />
     <ClCompile Include="source\Renderer\CameraIndicator.cpp" />
     <ClCompile Include="source\Renderer\D3D12Buffer.cpp" />
+    <ClCompile Include="source\Renderer\D3D12CommandSignature.cpp" />
     <ClCompile Include="source\Renderer\D3D12RHI.cpp" />
     <ClCompile Include="source\Renderer\D3D12RTAccelerationStructure.cpp" />
     <ClCompile Include="source\Renderer\D3D12RTShaderTable.cpp" />

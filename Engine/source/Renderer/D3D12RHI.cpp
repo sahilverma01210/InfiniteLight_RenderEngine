@@ -168,6 +168,9 @@ namespace Renderer
             m_currentCommonCPUHandle = m_commonDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
             m_currentCommonGPUHandle = m_commonDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
         }
+
+		// Initialize the time tracking.
+        m_lastTime = std::chrono::high_resolution_clock::now();
     }
 
     D3D12RHI::~D3D12RHI()
@@ -513,10 +516,29 @@ namespace Renderer
         D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->RSSetScissorRects(1, &m_scissorRect));
     }
 
+    void D3D12RHI::Tick()
+    {
+        m_frameCount++;
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> delta = currentTime - m_lastTime;
+        m_elapsedTime += delta.count();
+        m_lastTime = currentTime;
+
+        if (m_elapsedTime >= 1.0) // update every 1 second
+        {
+            m_fps = static_cast<float>(m_frameCount / m_elapsedTime);
+            m_frameCount = 0;
+            m_elapsedTime = 0.0;
+        }
+    }
+
     void D3D12RHI::StartFrame()
     {
         // Wait for Previous Frame to complete then proceed.
         ResetCommandList();
+
+		Tick();
 
         // configure Rasterizer Stage (RS).
         D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->RSSetViewports(1, &m_viewport));
@@ -532,6 +554,11 @@ namespace Renderer
     void D3D12RHI::DrawIndexed(UINT indexCountPerInstance)
     {
         D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->DrawIndexedInstanced(indexCountPerInstance, 1, 0, 0, 0));
+    }
+
+    void D3D12RHI::DrawIndexedIndirect(ID3D12CommandSignature* signature, ID3D12Resource* argumentBuffer)
+    {
+        D3D12RHI_THROW_INFO_ONLY(m_currentCommandList->ExecuteIndirect(signature, 1, argumentBuffer, 0, nullptr, 0));
     }
 
     void D3D12RHI::Dispatch(UINT group_count_x, UINT group_count_y, UINT group_count_z)

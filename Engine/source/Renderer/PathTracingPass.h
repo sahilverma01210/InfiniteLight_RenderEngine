@@ -62,8 +62,7 @@ namespace Renderer
 			m_gfx.Set32BitRootConstants(0, 11, &RenderGraph::m_frameData, PipelineType::Compute);
 			m_gfx.Set32BitRootConstants(1, 4, &m_pathTracingPassData, PipelineType::Compute);
 
-			auto dispatchDesc = m_stateObject->Compile("PT_RayGen");
-			m_gfx.DispatchRays(dispatchDesc);
+			DispatchRays("PT_RayGen");
 
 			++m_pathTracingPassData.accumulated_frames;
 		}

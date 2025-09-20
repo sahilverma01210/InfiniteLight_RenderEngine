@@ -382,6 +382,9 @@
     <ClInclude Include="source\Renderer\EditorPass.h">
       <Filter>Source\Renderer\Public\Core\Render Graph\Passes</Filter>
     </ClInclude>
+    <ClInclude Include="source\Renderer\D3D12CommandSignature.h">
+      <Filter>Source\Renderer\Public\Core\RHI\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Launch.cpp">
@@ -536,6 +539,9 @@
     </ClCompile>
     <ClCompile Include="source\Renderer\CameraContainer.cpp">
       <Filter>Source\Renderer\Private\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer\D3D12CommandSignature.cpp">
+      <Filter>Source\Renderer\Private\Core\RHI\D3D12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

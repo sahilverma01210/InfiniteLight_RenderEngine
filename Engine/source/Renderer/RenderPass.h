@@ -7,6 +7,7 @@
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "D3D12StateObject.h"
+#include "D3D12CommandSignature.h"
 #include "RenderTarget.h"
 #include "DepthStencil.h"
 #include "ILMesh.h"
@@ -19,6 +20,13 @@ namespace Renderer
 		Compute
 	};
 
+	struct DispatchDesc
+	{
+		UINT x = 1;
+		UINT y = 1;
+		UINT z = 1;
+	};
+
 	class RenderGraph;
 
 	class RenderPass
@@ -28,7 +36,9 @@ namespace Renderer
 		virtual ~RenderPass() { m_renderTargets.clear(); }
 		const std::string& GetName() const noexcept(!IS_DEBUG) { return m_name; }
 		void Finalize();
-		void Draw(ILMesh::DrawData& drawData) noexcept(!IS_DEBUG);
+		void Draw(ILMesh::DrawData& drawData, bool indirect = false) noexcept(!IS_DEBUG);
+		void Dispatch(DispatchDesc& dispatchDesc) noexcept(!IS_DEBUG);
+		void DispatchRays(std::string rayGen) noexcept(!IS_DEBUG);
 		virtual void Execute() noexcept(!IS_DEBUG) = 0;
 		void Reset() noexcept(!IS_DEBUG);
 
@@ -42,5 +52,6 @@ namespace Renderer
 		std::vector<std::shared_ptr<D3D12Resource>> m_renderTargets;
 		std::shared_ptr<DepthStencil> m_depthStencil;
 		std::unique_ptr<D3D12StateObject> m_stateObject;
+		std::unique_ptr<D3D12CommandSignature> m_commandSignature;
 	};
 }

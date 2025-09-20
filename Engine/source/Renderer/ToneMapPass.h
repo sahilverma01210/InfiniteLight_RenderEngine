@@ -45,7 +45,11 @@ namespace Renderer
 			m_gfx.Set32BitRootConstants(0, 11, &RenderGraph::m_frameData, PipelineType::Compute);
 			m_gfx.Set32BitRootConstants(1, 2, &m_toneMappingConstants, PipelineType::Compute);
 
-			m_gfx.Dispatch(DivideAndRoundUp(m_gfx.GetWidth(), 16), DivideAndRoundUp(m_gfx.GetHeight(), 16), 1);
+			DispatchDesc dispatchDesc{};
+			dispatchDesc.x = DivideAndRoundUp(m_gfx.GetWidth(), 16);
+			dispatchDesc.y = DivideAndRoundUp(m_gfx.GetHeight(), 16);
+
+			Dispatch(dispatchDesc);
 
 			ID3D12Resource* outputBuffer = m_gfx.GetResourcePtr(m_toneMappingConstants.outputTexIdx)->GetBuffer();
 			ID3D12Resource* finalTargetBuffer = m_gfx.GetResourcePtr(m_gfx.GetCurrentBackBufferIndex())->GetBuffer();

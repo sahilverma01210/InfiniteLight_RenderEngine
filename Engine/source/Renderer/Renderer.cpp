@@ -185,6 +185,10 @@ namespace Renderer
 			//}
 			//ImGui::End();
 
+			ImGui::Begin("Performance");
+			ImGui::Text("FPS: %.1f", m_pRHI->GetFPS());
+			ImGui::End();
+
 			for (auto& model : m_models) if (model->m_imGUIwndOpen) model->SpawnWindow();
 			if (m_lightContainer->m_imGUIwndOpen) m_lightContainer->SpawnWindow();
 			if (m_cameraContainer->m_imGUIwndOpen) m_cameraContainer->SpawnWindow();

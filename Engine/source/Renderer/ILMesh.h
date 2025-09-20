@@ -18,6 +18,7 @@ namespace Renderer
 			UINT indexStrideInBytes;
 			std::shared_ptr<D3D12Buffer> vertexBuffer;
 			std::shared_ptr<D3D12Buffer> indexBuffer;
+			std::shared_ptr<D3D12Buffer> drawIndirectBuffer;
 		};
 		struct Transforms
 		{

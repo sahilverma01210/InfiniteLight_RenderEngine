@@ -168,11 +168,14 @@ namespace Renderer
 		void SetGPUResources();
         // RENDER FRAME METHODS
         void ResizeScreenSpace(UINT width, UINT height);
+        void Tick();
         void StartFrame();
         void DrawIndexed(UINT indexCountPerInstance);
+        void DrawIndexedIndirect(ID3D12CommandSignature* signature, ID3D12Resource* argumentBuffer);
 		void Dispatch(UINT group_count_x, UINT group_count_y, UINT group_count_z);
         void DispatchRays(D3D12_DISPATCH_RAYS_DESC& dispatchDesc);
         void EndFrame();
+        float GetFPS() const { return m_fps; }
         // ACESS RHI INTERFACE
         ID3D12Device5* GetDevice() { return m_device.Get(); }
         ID3D12GraphicsCommandList6* GetCommandList() { return m_currentCommandList.Get(); }
@@ -188,6 +191,11 @@ namespace Renderer
             bool requestHighPerformanceAdapter = false);
 
     private:
+		// Frame counting for FPS calculation.
+        int m_frameCount;
+        float m_fps;
+        double m_elapsedTime;
+        std::chrono::high_resolution_clock::time_point m_lastTime;
 		bool m_isRayTracingEnabled = false;
         // Viewport dimensions.
         UINT m_width;

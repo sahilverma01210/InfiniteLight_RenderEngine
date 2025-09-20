@@ -71,7 +71,7 @@
     "models": [
         {
             "name": "Sponza",
-            "path": "data\\models\\sponza\\GLTF\\Sponza.gltf",
+            "path": "data\\models\\Sponza\\Sponza.gltf",
             "scale": 1.0,
             "transform": {
                 "x": 0.0,

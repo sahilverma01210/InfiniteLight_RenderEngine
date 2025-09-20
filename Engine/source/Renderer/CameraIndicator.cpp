@@ -14,6 +14,15 @@ namespace Renderer
 
 		m_drawData.vertexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.vertices.data(), m_drawData.vertexSizeInBytes));
 		m_drawData.indexBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, m_drawData.indices.data(), m_drawData.indexSizeInBytes));
+
+		D3D12_DRAW_INDEXED_ARGUMENTS drawArgs = {};
+		drawArgs.IndexCountPerInstance = m_drawData.indices.size();
+		drawArgs.InstanceCount = 1;
+		drawArgs.StartIndexLocation = 0;
+		drawArgs.BaseVertexLocation = 0;
+		drawArgs.StartInstanceLocation = 0;
+
+		m_drawData.drawIndirectBuffer = std::move(std::make_shared<D3D12Buffer>(gfx, &drawArgs, sizeof(drawArgs)));
 	}
 
 	void CameraIndicator::Update(XMFLOAT3 position, XMFLOAT3 rotation) noexcept(!IS_DEBUG)

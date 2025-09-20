@@ -99,7 +99,11 @@ namespace Renderer
 			m_gfx.Set32BitRootConstants(0, 11, &RenderGraph::m_frameData, PipelineType::Compute);
 			m_gfx.Set32BitRootConstants(1, 3, &m_blurResourceHandles, PipelineType::Compute);
 
-			m_gfx.Dispatch(DivideAndRoundUp(m_gfx.GetWidth(), 16), DivideAndRoundUp(m_gfx.GetHeight(), 16), 1);
+			DispatchDesc dispatchDesc{};
+			dispatchDesc.x = DivideAndRoundUp(m_gfx.GetWidth(), 16);
+			dispatchDesc.y = DivideAndRoundUp(m_gfx.GetHeight(), 16);
+
+			Dispatch(dispatchDesc);
 
 			m_gfx.TransitionResource(renderTargetBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 			m_gfx.TransitionResource(blurTargetBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);

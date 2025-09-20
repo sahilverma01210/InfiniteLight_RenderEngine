@@ -18,7 +18,11 @@ namespace Renderer
             ScratchImage image;
             D3D12RHI_THROW_INFO(LoadFromWICFile(std::wstring(filename.begin(), filename.end()).c_str(), WIC_FLAGS_NONE, nullptr, image));
 
-            D3D12RHI_THROW_INFO(GenerateMipMaps(*image.GetImages(), TEX_FILTER_BOX, 0, m_mipChain));
+			//ScratchImage decompressedImage;
+            //D3D12RHI_THROW_INFO(LoadFromDDSFile(std::wstring(filename.begin(), filename.end()).c_str(), DDS_FLAGS_NONE, nullptr, image));
+            //D3D12RHI_THROW_INFO(Decompress(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DXGI_FORMAT_R8G8B8A8_UNORM, decompressedImage));
+
+            auto d = GenerateMipMaps(*image.GetImages(), TEX_FILTER_DEFAULT, 0, m_mipChain);
 
 			m_viewType = D3D12Resource::ViewType::SRV;
         }

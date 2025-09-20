@@ -65,7 +65,7 @@ namespace Renderer
 						auto color = Vector3{ 1.0f,0.4f,0.4f };
 						m_gfx.Set32BitRootConstants(2, 3, &color);
 
-						Draw(mesh->GetDrawData());
+						Draw(mesh->GetDrawData(), true);
 					}
 				}
 			}
