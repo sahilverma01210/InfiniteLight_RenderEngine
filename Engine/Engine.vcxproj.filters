@@ -621,4 +621,7 @@
       <Filter>Shaders\HLSL\Tone Mapping</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
