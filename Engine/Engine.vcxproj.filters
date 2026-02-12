@@ -543,6 +543,9 @@
     <ClCompile Include="source\Renderer\D3D12CommandSignature.cpp">
       <Filter>Source\Renderer\Private\Core\RHI\D3D12</Filter>
     </ClCompile>
+    <ClCompile Include="source\_External\dx12\directX12.cpp">
+      <Filter>Source\_External\Private\DX12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\HLSL\GBuffer_PS.hlsl">
@@ -617,8 +620,5 @@
     <CustomBuild Include="shaders\HLSL\Tonemapping.hlsli">
       <Filter>Shaders\HLSL\Tone Mapping</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="config\packages.config" />
   </ItemGroup>
 </Project>

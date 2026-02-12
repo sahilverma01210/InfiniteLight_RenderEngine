@@ -139,6 +139,7 @@
     <ClCompile Include="source\Runtime\UIManager.cpp" />
     <ClCompile Include="source\Runtime\Window.cpp" />
     <ClCompile Include="source\_External\dx12\d3d12ma\D3D12MemAlloc.cpp" />
+    <ClCompile Include="source\_External\dx12\directX12.cpp" />
     <ClCompile Include="source\_External\imgui\backends\imgui_impl_dx12.cpp" />
     <ClCompile Include="source\_External\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="source\_External\imgui\imgui.cpp" />
@@ -204,7 +205,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="config\packages.config" />
     <CustomBuild Include="shaders\HLSL\Packing.hlsli">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) "$(OutDir)\shaders\HLSL" &gt; NUL</Command>
@@ -584,13 +584,5 @@ xcopy $(SolutionDir)\external\Libraries\assimp\lib\x64\assimp-vc143-mtd.dll $(Ou
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\directxtex_desktop_win10.2024.6.5.1\build\native\directxtex_desktop_win10.targets" Condition="Exists('..\packages\directxtex_desktop_win10.2024.6.5.1\build\native\directxtex_desktop_win10.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\directxtex_desktop_win10.2024.6.5.1\build\native\directxtex_desktop_win10.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtex_desktop_win10.2024.6.5.1\build\native\directxtex_desktop_win10.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

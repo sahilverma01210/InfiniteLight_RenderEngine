@@ -9,6 +9,7 @@ namespace Renderer
         m_useWarpDevice(false),
         m_backBufferIndex(0)
     {
+
         // DirectX Graphics Infrastructure (DXGI) - Core component of DirectX API.
         // Serves as an intermediary layer between Graphics APIs and the Graphics Hardware.
         // IDXGIFactory is an interface in the DirectX Graphics Infrastructure (DXGI) API, which is used for creating DXGI objects, such as swap chains, surfaces, and adapters.
@@ -59,6 +60,17 @@ namespace Renderer
                     D3D_FEATURE_LEVEL_12_0,
                     IID_PPV_ARGS(&m_device)
                 ));
+
+				// Check if D3D12Core.dll is loaded, which indicates that the Agility SDK is being used instead of the system D3D12 from Windows Kit.
+                HMODULE module = GetModuleHandleA("D3D12Core.dll");
+                if (module)
+                {
+                    printf("Using Agility SDK\n");
+                }
+                else
+                {
+                    printf("Using system D3D12\n");
+                }
 
                 ALLOCATOR_DESC allocator_desc{};
                 allocator_desc.pDevice = m_device.Get();

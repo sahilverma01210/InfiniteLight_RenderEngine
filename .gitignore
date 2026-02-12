@@ -5,7 +5,7 @@
 
 # Ignore Assimp and DirectXTex extracted files.
 external/Libraries/assimp
-packages/directxtex_desktop_win10.2024.6.5.1
+packages
 
 # User-specific files
 *.rsuser
